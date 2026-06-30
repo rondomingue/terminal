@@ -643,10 +643,10 @@
       bp.Q.value = 1.6;
       const gain = audioCtx.createGain();
       gain.gain.setValueAtTime(0.0001, t0);
-      gain.gain.linearRampToValueAtTime(0.025, t0+0.002); // very quiet peak
-      gain.gain.exponentialRampToValueAtTime(0.0001, t0+0.014);
+      gain.gain.linearRampToValueAtTime(0.09, t0+0.002); // audible but brief
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0+0.018);
       src.connect(bp); bp.connect(gain); gain.connect(audioCtx.destination);
-      src.start(t0); src.stop(t0+0.02);
+      src.start(t0); src.stop(t0+0.025);
     }catch(e){ /* fail silent, no log noise for missing audio support */ }
   }
 
