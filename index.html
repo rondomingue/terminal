@@ -900,10 +900,15 @@
     catch(e){ /* storage unavailable or full, fail silent */ }
   }
 
+  // overpass-api.de (the primary) has started rejecting automated-looking requests with
+  // HTTP 406 as an anti-scraper measure — it's deliberate, not a timeout, and doesn't clear
+  // on retry. kumi.systems is the most reliable public mirror as of 2026, so it goes first.
+  // Kept the primary as a last-resort fallback only.
   const OVERPASS_MIRRORS = [
-    'https://overpass-api.de/api/interpreter',
     'https://overpass.kumi.systems/api/interpreter',
-    'https://overpass.openstreetmap.ru/api/interpreter'
+    'https://z.overpass-api.de/api/interpreter',
+    'https://lz4.overpass-api.de/api/interpreter',
+    'https://overpass-api.de/api/interpreter'
   ];
 
   function parseOverpassElements(data){
@@ -932,7 +937,9 @@
     const timer = setTimeout(()=>controller.abort(), timeoutMs);
     try{
       const res = await fetch(url, {
-        method:'POST', body:'data='+encodeURIComponent(query), signal:controller.signal
+        method:'POST',
+        headers:{ 'Accept':'application/json, */*' },
+        body:'data='+encodeURIComponent(query), signal:controller.signal
       });
       clearTimeout(timer);
       if(!res.ok) throw new Error('HTTP '+res.status);
@@ -1021,9 +1028,9 @@
         }
       }
     }
-    fetchOverpass(wideQuery, 'CORE', 12000, 'msy-map-core-v2').finally(tickLoader);
-    setTimeout(()=> fetchOverpass(textureQuery, 'TEXTURE', 12000, 'msy-map-texture-v2').finally(tickLoader), 400);
-    setTimeout(()=> fetchOverpass(localQuery, 'KMSY LOCAL', 12000, 'msy-map-local-v2').finally(tickLoader), 800);
+    fetchOverpass(wideQuery, 'CORE', 12000, 'msy-map-core-v3').finally(tickLoader);
+    setTimeout(()=> fetchOverpass(textureQuery, 'TEXTURE', 12000, 'msy-map-texture-v3').finally(tickLoader), 400);
+    setTimeout(()=> fetchOverpass(localQuery, 'KMSY LOCAL', 12000, 'msy-map-local-v3').finally(tickLoader), 800);
   }
   buildScopeStatic();
   buildVectorMap();
