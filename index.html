@@ -678,43 +678,59 @@
   setInterval(fetchWeather, 10*60*1000); // weather doesn't need to poll fast
 
   // ---- FAA NAS status — ground delays / ground stops / closures for KMSY ----
+  const FAA_URL = 'https://nasstatus.faa.gov/api/airport-status-information';
+  const FAA_SOURCES = [
+    { url: FAA_URL, label:'direct' },
+    { url: `https://api.allorigins.win/raw?url=${encodeURIComponent(FAA_URL)}`, label:'allorigins' },
+    { url: `https://corsproxy.io/?url=${encodeURIComponent(FAA_URL)}`, label:'corsproxy.io' }
+  ];
+
   async function fetchDelays(){
     const el = $('delay-status');
-    try{
-      const res = await fetch('https://nasstatus.faa.gov/api/airport-status-information');
-      if(!res.ok) throw new Error('HTTP '+res.status);
-      const text = await res.text();
-      const xml = new DOMParser().parseFromString(text, 'application/xml');
-      if(xml.querySelector('parsererror')) throw new Error('bad XML');
+    const failures = [];
+    for(const src of FAA_SOURCES){
+      try{
+        const controller = new AbortController();
+        const timer = setTimeout(()=>controller.abort(), 10000);
+        const res = await fetch(src.url, { signal: controller.signal });
+        clearTimeout(timer);
+        if(!res.ok) throw new Error('HTTP '+res.status);
+        const text = await res.text();
+        const xml = new DOMParser().parseFromString(text, 'application/xml');
+        if(xml.querySelector('parsererror')) throw new Error('bad XML');
 
-      const hits = [];
-      ['Ground_Delay_List','Ground_Stop_List','Airport_Closure_List','Arrival_Departure_Delay_List'].forEach(listTag=>{
-        xml.querySelectorAll(listTag+' *').forEach(node=>{
-          const arpt = node.querySelector ? node.querySelector('ARPT') : null;
-          if(arpt && arpt.textContent.trim() === 'MSY'){
-            const reason = node.querySelector('Reason');
-            const avg = node.querySelector('Avg, Avg_Delay');
-            hits.push(`${listTag.replace('_List','').replace(/_/g,' ')}${reason?': '+reason.textContent.trim():''}${avg?' ('+avg.textContent.trim()+')':''}`);
-          }
+        const hits = [];
+        ['Ground_Delay_List','Ground_Stop_List','Airport_Closure_List','Arrival_Departure_Delay_List'].forEach(listTag=>{
+          xml.querySelectorAll(listTag+' *').forEach(node=>{
+            const arpt = node.querySelector ? node.querySelector('ARPT') : null;
+            if(arpt && arpt.textContent.trim() === 'MSY'){
+              const reason = node.querySelector('Reason');
+              const avg = node.querySelector('Avg, Avg_Delay');
+              hits.push(`${listTag.replace('_List','').replace(/_/g,' ')}${reason?': '+reason.textContent.trim():''}${avg?' ('+avg.textContent.trim()+')':''}`);
+            }
+          });
         });
-      });
 
-      if(el){
-        if(hits.length){
-          el.textContent = 'DELAY — ' + hits[0].toUpperCase();
-          el.style.color = '#fff';
-          el.style.textShadow = '0 0 6px rgba(242,243,243,0.55)';
-        } else {
-          el.textContent = 'FAA STATUS — NO DELAYS REPORTED';
-          el.style.color = '';
-          el.style.textShadow = '';
+        if(el){
+          if(hits.length){
+            el.textContent = 'DELAY — ' + hits[0].toUpperCase();
+            el.style.color = '#fff';
+            el.style.textShadow = '0 0 6px rgba(242,243,243,0.55)';
+          } else {
+            el.textContent = 'FAA STATUS — NO DELAYS REPORTED';
+            el.style.color = '';
+            el.style.textShadow = '';
+          }
         }
+        const srcTag = src.label==='direct' ? '' : ` VIA ${src.label}`;
+        logLine(`FAA SYNC — ${hits.length ? hits.length+' ACTIVE ADVISORY(S)' : 'NO DELAYS AT MSY'}${srcTag}`);
+        return;
+      }catch(e){
+        failures.push(`${src.label}: ${e.name==='AbortError'?'TIMEOUT':e.message}`);
       }
-      logLine(`FAA SYNC — ${hits.length ? hits.length+' ACTIVE ADVISORY(S)' : 'NO DELAYS AT MSY'}`);
-    }catch(e){
-      if(el) el.textContent = 'FAA STATUS — UNAVAILABLE';
-      logLine(`FAA SYNC FAIL (${e.message})`);
     }
+    if(el) el.textContent = 'FAA STATUS — UNAVAILABLE';
+    logLine(`FAA SYNC FAIL — ${failures.join(' | ')}`);
   }
   fetchDelays();
   setInterval(fetchDelays, 5*60*1000);
