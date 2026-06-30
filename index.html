@@ -698,20 +698,26 @@
     html += `<line x1="${fx}" y1="${fy-9}" x2="${fx}" y2="${fy+9}" stroke="var(--ink)" stroke-width="1" filter="url(#glow)"/>`;
     html += `<text x="${fx+12}" y="${fy-8}" fill="var(--ink-dim)" font-size="9" font-family="Space Mono, monospace" letter-spacing="1">KMSY</text>`;
 
-    // sweep — thin rotating line with a long, transparent decaying trail
+    // sweep — thin leading line with a long, genuinely transparent fading wedge behind it
+    function pieSector(a0, a1){
+      const r0 = (-a0)*Math.PI/180, r1 = (-a1)*Math.PI/180;
+      const x0 = fx+Math.sin(r0)*ringR, y0 = fy-Math.cos(r0)*ringR;
+      const x1 = fx+Math.sin(r1)*ringR, y1 = fy-Math.cos(r1)*ringR;
+      return `M ${fx} ${fy} L ${x0.toFixed(1)} ${y0.toFixed(1)} A ${ringR} ${ringR} 0 0 0 ${x1.toFixed(1)} ${y1.toFixed(1)} Z`;
+    }
     let trail = '';
-    const trailLength = 45; // degrees of arc the trail spans
-    for(let i=trailLength; i>=1; i--){
-      const a = i * 1.0;
-      const rad = -a * Math.PI/180;
-      const tx = fx + Math.sin(rad)*ringR, ty = fy - Math.cos(rad)*ringR;
-      const op = (0.12 * (1 - i/(trailLength+2))).toFixed(3);
-      trail += `<line x1="${fx}" y1="${fy}" x2="${tx.toFixed(1)}" y2="${ty.toFixed(1)}" stroke="var(--ink-faint)" stroke-width="0.5" opacity="${op}"/>`;
+    const trailLength = 50; // degrees of arc the trail spans
+    const bands = 8;
+    for(let b=0; b<bands; b++){
+      const a0 = (trailLength/bands)*b;
+      const a1 = (trailLength/bands)*(b+1);
+      const op = (0.05 * (1 - b/bands)).toFixed(3); // fades out with distance from the leading edge
+      trail += `<path d="${pieSector(a0,a1)}" fill="var(--ink-faint)" opacity="${op}"/>`;
     }
     html += `<g id="sweep-group" style="transform-origin:${fx}px ${fy}px;">
       ${trail}
-      <line x1="${fx}" y1="${fy}" x2="${fx}" y2="${fy-ringR}" stroke="var(--ink)" stroke-width="1" opacity="0.55"/>
-      <circle cx="${fx}" cy="${fy-ringR}" r="1.4" fill="var(--ink)" opacity="0.5"/>
+      <line x1="${fx}" y1="${fy}" x2="${fx}" y2="${fy-ringR}" stroke="var(--ink)" stroke-width="1" opacity="0.5"/>
+      <circle cx="${fx}" cy="${fy-ringR}" r="1.2" fill="var(--ink)" opacity="0.45"/>
     </g>`;
 
     html += `<g id="targets-group"></g>`;
