@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>MSY // SECTOR ASSET — TERMINAL</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow:wght@300;400;500;600&display=swap');
@@ -75,10 +76,13 @@
 
   .scanline{
     position:absolute; inset:0; pointer-events:none; z-index:49;
-    background:repeating-linear-gradient(
-      to bottom, rgba(255,255,255,0.018) 0px, rgba(255,255,255,0.018) 1px,
-      transparent 1px, transparent 3px
+    mix-blend-mode:overlay;
+    background-image: repeating-linear-gradient(
+      to bottom, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 1px,
+      transparent 1px, transparent 4px
     );
+    background-size: 100% 4px;
+    opacity:0.35;
   }
 
   /* ===== HEADER ===== */
@@ -176,6 +180,7 @@
   #depth-field span:nth-child(4){ width:260px; height:120px; top:74%; right:10%; transform:rotate(-5deg); opacity:0.5; }
   #depth-field span:nth-child(5){ width:700px; height:140px; top:2%; left:30%; transform:rotate(-1deg); opacity:0.35; }
 
+  .stack-wrap{ position:relative; }
   .ghost-sheet{
     position:absolute; inset:-10px 10px 10px -10px;
     border:1px solid rgba(255,255,255,0.05);
@@ -277,7 +282,8 @@
   }
 
   /* CENTER BOTTOM — table */
-  #table-panel{ grid-column:2; grid-row:3; padding:18px 14px 8px 14px; overflow:hidden; }
+  #table-stack{ grid-column:2; grid-row:3; position:relative; }
+  #table-panel{ position:absolute; inset:0; padding:18px 14px 8px 14px; overflow:hidden; }
   #table-scroll{ height:100%; overflow:hidden; font-family:'Space Mono',monospace; font-size:10px; }
   .trow{
     display:grid;
@@ -335,6 +341,56 @@
   .ad-empty{ color:var(--ink-faint); font-family:'Space Mono',monospace; font-size:9.5px; }
 
   ::-webkit-scrollbar{ width:0; height:0; }
+
+  /* ===== RESPONSIVE: tablet/mobile — stack everything, allow page scroll ===== */
+  @media (max-width: 1000px){
+    html,body{ overflow-y:auto; overflow-x:hidden; height:auto; }
+    #stage{
+      height:auto; min-height:100vh;
+      display:flex; flex-direction:column;
+    }
+    #header{
+      position:relative; top:auto; left:auto; right:auto;
+      flex-direction:column; align-items:flex-start; gap:14px;
+      padding:20px 20px 14px 20px;
+    }
+    .clockblock{ text-align:left; }
+    .mini-stats{ justify-content:flex-start; }
+    #header-rule{ position:relative; top:auto; padding:0 20px; margin-bottom:4px; }
+    #grid{
+      position:relative; inset:auto;
+      grid-template-columns: 1fr;
+      grid-template-rows: none;
+      padding:0 16px 24px 16px;
+      gap:16px;
+    }
+    #rail-left, #rail-right{ grid-column:1; grid-row:auto; }
+    #log-card{ min-height:150px; }
+    #legend-card{ min-height:120px; }
+    #scope-stack{ grid-column:1; grid-row:auto; min-height:440px; }
+    #table-stack{ grid-column:1; grid-row:auto; min-height:260px; }
+    #table-scroll{ overflow-x:auto; }
+    #arrdep-panel{
+      grid-column:1; grid-row:auto;
+      grid-template-columns: 1fr;
+    }
+    .ad-divider{ display:none; }
+    .ad-col{ padding:10px 0; border-bottom:1px solid var(--line-dim); }
+    .ad-col:last-child{ border-bottom:none; }
+  }
+
+  @media (max-width: 640px){
+    .brand .title{ font-size:19px; }
+    .brand .sub{ font-size:8.5px; letter-spacing:0.04em; }
+    .id-strip{ flex-wrap:wrap; row-gap:4px; }
+    .clockblock .big{ font-size:16px; }
+    .mini-stats{ flex-wrap:wrap; row-gap:4px; }
+    #scope-stack{ min-height:340px; }
+    .trow{ grid-template-columns: 48px 1fr 42px 42px 42px 34px; font-size:8.5px; gap:5px; }
+    .sel-card, #legend-card, .stat-card, #log-card{ padding:16px 10px 10px 10px; }
+    #rail-left, #rail-right{ gap:10px; }
+    #hex-ticker{ display:none; } /* decorative ticker, not worth the space on small screens */
+  }
 </style>
 </head>
 <body>
@@ -419,7 +475,9 @@
     </div>
 
     <!-- TABLE -->
-    <div class="panel" id="table-panel">
+    <div class="stack-wrap" id="table-stack">
+      <div class="ghost-sheet"></div>
+      <div class="panel" id="table-panel">
       <div class="corner tr"></div><div class="corner br"></div>
       <div class="panel-label">[ COMMS ] — ACTIVE SQUAWK</div>
       <div id="table-scroll">
@@ -427,6 +485,7 @@
           <span>CALLSIGN</span><span>AIRLINE</span><span>TYPE</span><span>ALT FT</span><span>SPD KT</span><span>HDG</span>
         </div>
         <div id="table-body"></div>
+      </div>
       </div>
     </div>
 
@@ -447,7 +506,9 @@
 
     <!-- RIGHT RAIL -->
     <div id="rail-right">
-      <div class="panel sel-card">
+      <div class="stack-wrap">
+        <div class="ghost-sheet"></div>
+        <div class="panel sel-card" id="track-panel">
         <div class="corner tr"></div><div class="corner br"></div>
         <div class="panel-label">SELECTED TRACK</div>
         <div style="margin-top:18px;">
@@ -460,8 +521,8 @@
           <div class="row"><span>VEL</span><span class="v" id="sel-vel">—</span></div>
           <div class="row"><span>VRATE</span><span class="v" id="sel-vrate">—</span></div>
         </div>
+        </div>
       </div>
-
       <div class="panel sel-card">
         <div class="corner tr"></div><div class="corner br"></div>
         <div class="panel-label">SYS CHECK</div>
@@ -542,13 +603,67 @@
     setInterval(()=>{ hexEl.textContent = buildHexTicker(); }, 1800);
   }
 
-  // ---- click-to-highlight panel sections ----
+  // ---- subtle camera-shutter click (very quiet, single soft transient) ----
+  let audioCtx = null;
+  let noiseBuffer = null;
+  function getNoiseBuffer(){
+    if(noiseBuffer) return noiseBuffer;
+    const len = audioCtx.sampleRate * 0.03;
+    noiseBuffer = audioCtx.createBuffer(1, len, audioCtx.sampleRate);
+    const data = noiseBuffer.getChannelData(0);
+    for(let i=0;i<len;i++) data[i] = Math.random()*2-1;
+    return noiseBuffer;
+  }
+  function playShutter(){
+    try{
+      if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if(audioCtx.state === 'suspended') audioCtx.resume();
+      const t0 = audioCtx.currentTime;
+      const src = audioCtx.createBufferSource();
+      src.buffer = getNoiseBuffer();
+      const bp = audioCtx.createBiquadFilter();
+      bp.type = 'bandpass';
+      bp.frequency.setValueAtTime(2600, t0);
+      bp.Q.value = 1.6;
+      const gain = audioCtx.createGain();
+      gain.gain.setValueAtTime(0.0001, t0);
+      gain.gain.linearRampToValueAtTime(0.025, t0+0.002); // very quiet peak
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0+0.014);
+      src.connect(bp); bp.connect(gain); gain.connect(audioCtx.destination);
+      src.start(t0); src.stop(t0+0.02);
+    }catch(e){ /* fail silent, no log noise for missing audio support */ }
+  }
+
+  // ---- click-to-highlight panel sections (manual) ----
+  let autoHighlightPaused = false;
+  let autoHighlightResumeTimer = null;
   document.querySelectorAll('.panel-label').forEach(label=>{
     label.addEventListener('click', ()=>{
+      playShutter();
       const panel = label.closest('.panel');
       if(panel) panel.classList.toggle('highlighted');
+      // a manual click means the person is steering attention — back off the
+      // automatic cycle for a while so it doesn't fight with what they're doing
+      autoHighlightPaused = true;
+      clearTimeout(autoHighlightResumeTimer);
+      autoHighlightResumeTimer = setTimeout(()=>{ autoHighlightPaused = false; }, 20000);
     });
   });
+
+  // ---- auto-cycling "system attention" highlight (idle showcase motion) ----
+  const autoHighlightIds = ['scope-panel','table-panel','track-panel','arrdep-panel'];
+  let autoHighlightIndex = -1;
+  setInterval(()=>{
+    if(autoHighlightPaused) return;
+    if(autoHighlightIndex >= 0){
+      const prev = $(autoHighlightIds[autoHighlightIndex]);
+      if(prev) prev.classList.remove('highlighted');
+    }
+    autoHighlightIndex = (autoHighlightIndex + 1) % autoHighlightIds.length;
+    const next = $(autoHighlightIds[autoHighlightIndex]);
+    if(next) next.classList.add('highlighted');
+  }, 7000);
+
   setInterval(()=>{
     const el = $('sqcode');
     if(el) el.textContent = String(Math.floor(1000+Math.random()*7000));
@@ -770,7 +885,31 @@
     if(g) g.insertAdjacentHTML('beforeend', svgFragment);
   }
 
-  async function fetchOverpass(query, label, timeoutMs){
+  const MAP_CACHE_TTL = 1000*60*60*24*7; // 7 days — real-world geometry doesn't change between visits
+  function getMapCache(key){
+    try{
+      const raw = localStorage.getItem(key);
+      if(!raw) return null;
+      const obj = JSON.parse(raw);
+      if(Date.now() - obj.t > MAP_CACHE_TTL) return null;
+      return obj;
+    }catch(e){ return null; }
+  }
+  function setMapCache(key, html, wayCount, nodeCount){
+    try{ localStorage.setItem(key, JSON.stringify({t:Date.now(), html, wayCount, nodeCount})); }
+    catch(e){ /* storage unavailable or full, fail silent */ }
+  }
+
+  async function fetchOverpass(query, label, timeoutMs, cacheKey){
+    // instant path: render from cache immediately if we have a fresh copy
+    if(cacheKey){
+      const cached = getMapCache(cacheKey);
+      if(cached){
+        appendToMap(cached.html);
+        logLine(`VECTOR MAP — ${label}: ${cached.wayCount} WAYS / ${cached.nodeCount} NODES (CACHED)`);
+        return;
+      }
+    }
     const controller = new AbortController();
     const timer = setTimeout(()=>controller.abort(), timeoutMs || 20000);
     try{
@@ -798,6 +937,7 @@
         if(w){ wayCount++; html += w; }
       });
       appendToMap(html);
+      if(cacheKey) setMapCache(cacheKey, html, wayCount, nodeCount);
       logLine(`VECTOR MAP — ${label}: ${wayCount} WAYS / ${nodeCount} NODES`);
     }catch(e){
       clearTimeout(timer);
@@ -856,9 +996,9 @@
         }
       }
     }
-    fetchOverpass(wideQuery, 'CORE', 12000).finally(tickLoader);
-    fetchOverpass(textureQuery, 'TEXTURE', 12000).finally(tickLoader);
-    fetchOverpass(localQuery, 'KMSY LOCAL', 12000).finally(tickLoader);
+    fetchOverpass(wideQuery, 'CORE', 12000, 'msy-map-core-v1').finally(tickLoader);
+    fetchOverpass(textureQuery, 'TEXTURE', 12000, 'msy-map-texture-v1').finally(tickLoader);
+    fetchOverpass(localQuery, 'KMSY LOCAL', 12000, 'msy-map-local-v1').finally(tickLoader);
   }
   buildScopeStatic();
   buildVectorMap();
@@ -928,7 +1068,7 @@
     });
     g.innerHTML = html;
     g.querySelectorAll('.target').forEach(t=>{
-      t.addEventListener('click', ()=>{ selectedIcao = t.getAttribute('data-icao'); renderTargets(); renderSelection(); });
+      t.addEventListener('click', ()=>{ playShutter(); selectedIcao = t.getAttribute('data-icao'); renderTargets(); renderSelection(); });
     });
   }
 
@@ -969,7 +1109,7 @@
     });
     body.innerHTML = html;
     body.querySelectorAll('.trow').forEach(row=>{
-      row.addEventListener('click', ()=>{ selectedIcao = row.getAttribute('data-icao'); renderTargets(); renderSelection(); });
+      row.addEventListener('click', ()=>{ playShutter(); selectedIcao = row.getAttribute('data-icao'); renderTargets(); renderSelection(); });
     });
   }
 
