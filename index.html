@@ -937,7 +937,8 @@
         if(w){ wayCount++; html += w; }
       });
       appendToMap(html);
-      if(cacheKey) setMapCache(cacheKey, html, wayCount, nodeCount);
+      // only cache real data — never let an empty/transient response poison the cache for 7 days
+      if(cacheKey && (wayCount>0 || nodeCount>0)) setMapCache(cacheKey, html, wayCount, nodeCount);
       logLine(`VECTOR MAP — ${label}: ${wayCount} WAYS / ${nodeCount} NODES`);
     }catch(e){
       clearTimeout(timer);
@@ -996,9 +997,9 @@
         }
       }
     }
-    fetchOverpass(wideQuery, 'CORE', 12000, 'msy-map-core-v1').finally(tickLoader);
-    fetchOverpass(textureQuery, 'TEXTURE', 12000, 'msy-map-texture-v1').finally(tickLoader);
-    fetchOverpass(localQuery, 'KMSY LOCAL', 12000, 'msy-map-local-v1').finally(tickLoader);
+    fetchOverpass(wideQuery, 'CORE', 12000, 'msy-map-core-v2').finally(tickLoader);
+    fetchOverpass(textureQuery, 'TEXTURE', 12000, 'msy-map-texture-v2').finally(tickLoader);
+    fetchOverpass(localQuery, 'KMSY LOCAL', 12000, 'msy-map-local-v2').finally(tickLoader);
   }
   buildScopeStatic();
   buildVectorMap();
