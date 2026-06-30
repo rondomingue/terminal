@@ -248,7 +248,7 @@
     font-family:'Space Mono',monospace; font-size:9.5px; line-height:1.9;
     color:var(--ink-dim); height:100%; overflow:hidden;
   }
-  #log-feed div{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  #log-feed div{ white-space:normal; overflow-wrap:break-word; line-height:1.5; margin-bottom:2px; }
   #log-feed div .t{ color:var(--ink-faint); margin-right:8px; }
 
   /* CENTER — scope */
@@ -676,7 +676,7 @@
     el.innerHTML = `<span class="t">${ts}</span>${msg}`;
     const feed = $('log-feed');
     feed.prepend(el);
-    while(feed.children.length > 14){ feed.removeChild(feed.lastChild); }
+    while(feed.children.length > 8){ feed.removeChild(feed.lastChild); }
   }
 
   function clock(){
@@ -953,7 +953,7 @@
         return;
       }
     }
-    let lastErr = null;
+    const failures = [];
     for(const mirror of OVERPASS_MIRRORS){
       try{
         const data = await tryFetchOverpass(mirror, query, timeoutMs || 20000);
@@ -965,11 +965,10 @@
         logLine(`VECTOR MAP — ${label}: ${wayCount} WAYS / ${nodeCount} NODES${mirrorTag}`);
         return;
       }catch(e){
-        lastErr = e;
-        // try the next mirror
+        failures.push(`${new URL(mirror).hostname}: ${e.message}`);
       }
     }
-    logLine(`VECTOR MAP — ${label} FAIL (ALL MIRRORS: ${lastErr ? lastErr.message : 'unknown'})`);
+    logLine(`VECTOR MAP — ${label} FAIL — ${failures.join(' | ')}`);
   }
 
   function buildVectorMap(){
