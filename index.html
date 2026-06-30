@@ -109,6 +109,11 @@
     letter-spacing:0.1em;
   }
   .id-strip b{ color:var(--ink-dim); font-weight:400; }
+  .credit-link{
+    color:var(--ink-dim); text-decoration:none; font-weight:400;
+    border-bottom:1px solid var(--line-dim); transition:color 0.15s ease, border-color 0.15s ease;
+  }
+  .credit-link:hover{ color:var(--white); border-color:var(--ink-dim); }
   .id-strip .sep{ color:var(--line); }
 
   .clockblock{
@@ -461,6 +466,8 @@
         <span>BUILD <b>02.6.30</b></span>
         <span class="sep">/</span>
         <span>NODE <b>VKTR-TERM-02</b></span>
+        <span class="sep">/</span>
+        <span>BY <a href="https://rondomingue.com" target="_blank" rel="noopener" class="credit-link">RONDOMINGUE.COM</a></span>
       </div>
     </div>
     <div class="clockblock">
