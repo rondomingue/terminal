@@ -198,12 +198,16 @@
     color:var(--ink-faint); text-transform:uppercase;
   }
   .panel.highlighted{
-    border-color: rgba(255,255,255,0.4);
+    border-color: rgba(255,255,255,0.55);
+    background: rgba(255,255,255,0.08);
     box-shadow:
-      inset 0 0 0 1px rgba(255,255,255,0.08),
-      inset 0 0 50px rgba(255,255,255,0.04),
-      0 0 24px rgba(255,255,255,0.12),
+      inset 0 0 0 1px rgba(255,255,255,0.25),
+      inset 0 0 60px rgba(255,255,255,0.10),
       0 18px 36px -14px rgba(0,0,0,0.7);
+  }
+  .panel.highlighted::before{
+    background:linear-gradient(to right, rgba(255,255,255,0.6), transparent 90%);
+    height:2px;
   }
   .panel.highlighted .panel-label{ color:var(--white); }
   .panel-label{ cursor:pointer; user-select:none; transition:color 0.15s ease; }
@@ -522,22 +526,39 @@
     setInterval(()=>{ hexEl.textContent = buildHexTicker(); }, 1800);
   }
 
-  // ---- synthesized UI click sound (no audio file needed) ----
+  // ---- synthesized camera-shutter style click (filtered noise burst, no pitch) ----
   let audioCtx = null;
-  function playClick(freq){
+  let noiseBuffer = null;
+  function getNoiseBuffer(){
+    if(noiseBuffer) return noiseBuffer;
+    const len = audioCtx.sampleRate * 0.05;
+    noiseBuffer = audioCtx.createBuffer(1, len, audioCtx.sampleRate);
+    const data = noiseBuffer.getChannelData(0);
+    for(let i=0;i<len;i++) data[i] = Math.random()*2-1;
+    return noiseBuffer;
+  }
+  function shutterClick(tone){
+    const t0 = audioCtx.currentTime;
+    const src = audioCtx.createBufferSource();
+    src.buffer = getNoiseBuffer();
+    const bp = audioCtx.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.setValueAtTime(tone, t0);
+    bp.Q.value = 2.2;
+    const gain = audioCtx.createGain();
+    gain.gain.setValueAtTime(0.0001, t0);
+    gain.gain.linearRampToValueAtTime(0.09, t0+0.002);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t0+0.022);
+    src.connect(bp); bp.connect(gain); gain.connect(audioCtx.destination);
+    src.start(t0); src.stop(t0+0.03);
+  }
+  function playClick(){
     try{
       if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       if(audioCtx.state === 'suspended') audioCtx.resume();
-      const t0 = audioCtx.currentTime;
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = 'square';
-      osc.frequency.setValueAtTime(freq || 1400, t0);
-      osc.frequency.exponentialRampToValueAtTime((freq||1400)*0.5, t0+0.035);
-      gain.gain.setValueAtTime(0.16, t0);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t0+0.06);
-      osc.connect(gain); gain.connect(audioCtx.destination);
-      osc.start(t0); osc.stop(t0+0.07);
+      // two quick transients = shutter open / close, subtle and dry
+      shutterClick(3200);
+      setTimeout(()=>{ try{ shutterClick(2200); }catch(e){} }, 38);
     }catch(e){ logLine('AUDIO — UNAVAILABLE ('+e.message+')'); }
   }
 
@@ -546,7 +567,7 @@
     p.addEventListener('click', (ev)=>{
       // avoid double-firing when a more specific handler (label/row/target) already played a sound
       if(ev.target.closest('.panel-label') || ev.target.closest('.trow') || ev.target.closest('.target')) return;
-      playClick(700);
+      playClick();
     });
   });
 
@@ -736,31 +757,48 @@
       ring.setAttribute('transform', `rotate(${rAng} ${fx} ${fy})`);
     }, 60);
   }
-  async function buildVectorMap(){
-    const bbox = `${BBOX.lamin},${BBOX.lomin},${BBOX.lamax},${BBOX.lomax}`;
-    const query = `[out:json][timeout:25][bbox:${bbox}];
-      (
-        way["natural"="coastline"];
-        way["natural"="water"];
-        way["natural"="wetland"];
-        way["waterway"="river"];
-        way["landuse"="forest"];
-        way["railway"="rail"];
-        way["highway"~"motorway|trunk|primary|secondary"];
-        way["aeroway"~"runway|taxiway"];
-        node["place"~"city|town"];
-        node["aeroway"="aerodrome"];
-      );
-      out geom;`;
+  function renderWay(el){
+    if(!el.geometry || el.geometry.length<2) return '';
+    const pts = el.geometry.map(p=>project(p.lat, p.lon));
+    const d = 'M ' + pts.map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' L ');
+    let stroke='var(--ink-faint)', width='0.8', opacity='0.6', dash='', filter='', fill='none';
+    const t = el.tags || {};
+    if(t.natural==='coastline'){ stroke='var(--white)'; width='1.4'; opacity='0.9'; filter='url(#glow)'; }
+    else if(t.natural==='wetland'){ stroke='var(--ink-faint)'; width='0.6'; opacity='0.3'; dash='1,2'; }
+    else if(t.landuse==='forest'){ stroke='var(--ink-faint)'; width='0.5'; opacity='0.25'; }
+    else if(t.landuse==='cemetery'){ stroke='var(--ink-faint)'; width='0.5'; opacity='0.3'; dash='2,2'; }
+    else if(t.leisure==='park'){ stroke='var(--ink-faint)'; width='0.5'; opacity='0.28'; dash='1,2'; }
+    else if(t.leisure==='golf_course'){ stroke='var(--ink-faint)'; width='0.5'; opacity='0.25'; dash='1,4'; }
+    else if(t.waterway==='canal'){ stroke='var(--ink)'; width='0.9'; opacity='0.5'; }
+    else if(t.natural==='water' || t.waterway==='river'){ stroke='var(--ink)'; width='1'; opacity='0.55'; }
+    else if(t.man_made==='levee' || t.natural==='levee'){ stroke='var(--ink-dim)'; width='0.7'; opacity='0.45'; dash='4,2'; }
+    else if(t.railway==='rail'){ stroke='var(--ink-faint)'; width='0.6'; opacity='0.4'; dash='3,2'; }
+    else if(t.aeroway==='runway'){ stroke='var(--white)'; width='2.2'; opacity='0.85'; filter='url(#glow)'; }
+    else if(t.aeroway==='taxiway'){ stroke='var(--ink)'; width='1'; opacity='0.6'; }
+    else if(t.aeroway==='apron'){ stroke='var(--ink-faint)'; width='0.6'; opacity='0.35'; fill='rgba(255,255,255,0.025)'; }
+    else if(t.aeroway==='terminal' || t.building==='terminal' || t.building==='aerodrome'){ stroke='var(--white)'; width='1'; opacity='0.65'; fill='rgba(255,255,255,0.04)'; }
+    else if(t.building){ stroke='var(--ink-faint)'; width='0.4'; opacity='0.3'; fill='rgba(255,255,255,0.015)'; }
+    else if(t.highway==='residential' || t.highway==='tertiary'){ stroke='var(--ink-faint)'; width='0.5'; opacity='0.25'; dash='1,3'; }
+    else if(t.highway){ stroke='var(--ink-dim)'; width='0.7'; opacity='0.45'; dash='1,3'; }
+    return `<path d="${d}" fill="${fill}" stroke="${stroke}" stroke-width="${width}" opacity="${opacity}" stroke-dasharray="${dash}" ${filter?`filter="${filter}"`:''}/>`;
+  }
+
+  function appendToMap(svgFragment){
     const g = svg.querySelector('#vector-map');
+    if(g) g.insertAdjacentHTML('beforeend', svgFragment);
+  }
+
+  async function fetchOverpass(query, label, timeoutMs){
+    const controller = new AbortController();
+    const timer = setTimeout(()=>controller.abort(), timeoutMs || 20000);
     try{
       const res = await fetch('https://overpass-api.de/api/interpreter', {
-        method:'POST', body:'data='+encodeURIComponent(query)
+        method:'POST', body:'data='+encodeURIComponent(query), signal:controller.signal
       });
+      clearTimeout(timer);
       if(!res.ok) throw new Error('HTTP '+res.status);
       const data = await res.json();
-      let html = '';
-      let wayCount = 0, nodeCount = 0;
+      let html = '', wayCount=0, nodeCount=0;
       (data.elements||[]).forEach(el=>{
         if(el.type==='node' && el.tags){
           const [x,y] = project(el.lat, el.lon);
@@ -774,26 +812,58 @@
           }
           return;
         }
-        if(!el.geometry || el.geometry.length<2) return;
-        wayCount++;
-        const pts = el.geometry.map(p=>project(p.lat, p.lon));
-        const d = 'M ' + pts.map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' L ');
-        let stroke='var(--ink-faint)', width='0.8', opacity='0.6', dash='', filter='';
-        if(el.tags && el.tags.natural==='coastline'){ stroke='var(--white)'; width='1.4'; opacity='0.9'; filter='url(#glow)'; }
-        else if(el.tags && el.tags.natural==='wetland'){ stroke='var(--ink-faint)'; width='0.6'; opacity='0.3'; dash='1,2'; }
-        else if(el.tags && el.tags.landuse==='forest'){ stroke='var(--ink-faint)'; width='0.5'; opacity='0.25'; }
-        else if(el.tags && (el.tags.natural==='water' || el.tags.waterway==='river')){ stroke='var(--ink)'; width='1'; opacity='0.55'; }
-        else if(el.tags && el.tags.railway==='rail'){ stroke='var(--ink-faint)'; width='0.6'; opacity='0.4'; dash='3,2'; }
-        else if(el.tags && el.tags.aeroway==='runway'){ stroke='var(--white)'; width='2.2'; opacity='0.85'; filter='url(#glow)'; }
-        else if(el.tags && el.tags.aeroway==='taxiway'){ stroke='var(--ink)'; width='1'; opacity='0.6'; }
-        else if(el.tags && el.tags.highway){ stroke='var(--ink-dim)'; width='0.7'; opacity='0.45'; dash='1,3'; }
-        html += `<path d="${d}" fill="none" stroke="${stroke}" stroke-width="${width}" opacity="${opacity}" stroke-dasharray="${dash}" ${filter?`filter="${filter}"`:''}/>`;
+        const w = renderWay(el);
+        if(w){ wayCount++; html += w; }
       });
-      g.innerHTML = html;
-      logLine(`VECTOR MAP — ${wayCount} WAYS / ${nodeCount} NODES LOADED`);
+      appendToMap(html);
+      logLine(`VECTOR MAP — ${label}: ${wayCount} WAYS / ${nodeCount} NODES`);
     }catch(e){
-      logLine(`VECTOR MAP — LOAD FAIL (${e.message})`);
+      clearTimeout(timer);
+      const reason = e.name==='AbortError' ? 'TIMEOUT' : e.message;
+      logLine(`VECTOR MAP — ${label} FAIL (${reason})`);
     }
+  }
+
+  function buildVectorMap(){
+    const bbox = `${BBOX.lamin},${BBOX.lomin},${BBOX.lamax},${BBOX.lomax}`;
+    // pass 1: core geography, kept lean so it resolves fast
+    const wideQuery = `[out:json][timeout:20][bbox:${bbox}];
+      (
+        way["natural"="coastline"];
+        way["natural"="water"];
+        way["waterway"="river"];
+        way["waterway"="canal"];
+        way["highway"~"motorway|trunk|primary|secondary"];
+        way["aeroway"~"runway|taxiway"];
+        node["place"~"city|town"];
+        node["aeroway"="aerodrome"];
+      );
+      out geom;`;
+    // pass 2: secondary texture, slightly heavier, loads independently
+    const textureQuery = `[out:json][timeout:20][bbox:${bbox}];
+      (
+        way["natural"="wetland"];
+        way["man_made"="levee"];
+        way["natural"="levee"];
+        way["landuse"="forest"];
+        way["landuse"="cemetery"];
+        way["leisure"="park"];
+        way["railway"="rail"];
+      );
+      out geom;`;
+    // pass 3: focused close-range structures near KMSY itself
+    const around = `${FIELD.lat},${FIELD.lon}`;
+    const localQuery = `[out:json][timeout:20];
+      (
+        way["aeroway"~"apron|taxiway|terminal"](around:3500,${around});
+        way["building"](around:2200,${around});
+      );
+      out geom;`;
+
+    // run all three concurrently — first to resolve renders first, none block the others
+    fetchOverpass(wideQuery, 'CORE', 18000);
+    fetchOverpass(textureQuery, 'TEXTURE', 18000);
+    fetchOverpass(localQuery, 'KMSY LOCAL', 18000);
   }
   buildScopeStatic();
   buildVectorMap();
