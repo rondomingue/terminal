@@ -263,6 +263,19 @@
     white-space:nowrap; overflow:hidden; letter-spacing:0.12em;
   }
 
+  #map-loader{
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    z-index:6; display:flex; align-items:center; gap:8px;
+    font-size:9.5px; letter-spacing:0.14em; color:var(--ink-dim);
+    opacity:1; transition:opacity 0.5s ease;
+    pointer-events:none;
+  }
+  #map-loader.done{ opacity:0; }
+  .map-loader-dot{
+    width:5px; height:5px; border-radius:50%; background:var(--ink);
+    animation:pulse 1s ease-in-out infinite;
+  }
+
   /* CENTER BOTTOM — table */
   #table-panel{ grid-column:2; grid-row:3; padding:18px 14px 8px 14px; overflow:hidden; }
   #table-scroll{ height:100%; overflow:hidden; font-family:'Space Mono',monospace; font-size:10px; }
@@ -396,6 +409,9 @@
       <div class="panel-meta" id="scope-bbox">29.70/-90.40 — 30.20/-89.70</div>
       <div class="panel-meta" style="top:auto; bottom:6px; right:10px; font-size:8px;">MAP DATA © OPENSTREETMAP CONTRIBUTORS</div>
       <div id="hex-ticker" class="mono"></div>
+      <div id="map-loader" class="mono">
+        <span class="map-loader-dot"></span> SYNCING VECTOR GEOMETRY…
+      </div>
       <div id="scope-wrap">
         <svg id="scope-svg" viewBox="0 0 800 460" preserveAspectRatio="xMidYMid meet"></svg>
       </div>
@@ -526,55 +542,9 @@
     setInterval(()=>{ hexEl.textContent = buildHexTicker(); }, 1800);
   }
 
-  // ---- synthesized camera-shutter style click (filtered noise burst, no pitch) ----
-  let audioCtx = null;
-  let noiseBuffer = null;
-  function getNoiseBuffer(){
-    if(noiseBuffer) return noiseBuffer;
-    const len = audioCtx.sampleRate * 0.05;
-    noiseBuffer = audioCtx.createBuffer(1, len, audioCtx.sampleRate);
-    const data = noiseBuffer.getChannelData(0);
-    for(let i=0;i<len;i++) data[i] = Math.random()*2-1;
-    return noiseBuffer;
-  }
-  function shutterClick(tone){
-    const t0 = audioCtx.currentTime;
-    const src = audioCtx.createBufferSource();
-    src.buffer = getNoiseBuffer();
-    const bp = audioCtx.createBiquadFilter();
-    bp.type = 'bandpass';
-    bp.frequency.setValueAtTime(tone, t0);
-    bp.Q.value = 2.2;
-    const gain = audioCtx.createGain();
-    gain.gain.setValueAtTime(0.0001, t0);
-    gain.gain.linearRampToValueAtTime(0.09, t0+0.002);
-    gain.gain.exponentialRampToValueAtTime(0.0001, t0+0.022);
-    src.connect(bp); bp.connect(gain); gain.connect(audioCtx.destination);
-    src.start(t0); src.stop(t0+0.03);
-  }
-  function playClick(){
-    try{
-      if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if(audioCtx.state === 'suspended') audioCtx.resume();
-      // two quick transients = shutter open / close, subtle and dry
-      shutterClick(3200);
-      setTimeout(()=>{ try{ shutterClick(2200); }catch(e){} }, 38);
-    }catch(e){ logLine('AUDIO — UNAVAILABLE ('+e.message+')'); }
-  }
-
-  // any click inside a panel gives audible feedback, not just labels/rows
-  document.querySelectorAll('.panel').forEach(p=>{
-    p.addEventListener('click', (ev)=>{
-      // avoid double-firing when a more specific handler (label/row/target) already played a sound
-      if(ev.target.closest('.panel-label') || ev.target.closest('.trow') || ev.target.closest('.target')) return;
-      playClick();
-    });
-  });
-
   // ---- click-to-highlight panel sections ----
   document.querySelectorAll('.panel-label').forEach(label=>{
     label.addEventListener('click', ()=>{
-      playClick(1500);
       const panel = label.closest('.panel');
       if(panel) panel.classList.toggle('highlighted');
     });
@@ -669,10 +639,6 @@
         <feGaussianBlur stdDeviation="2.2" result="blur"/>
         <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
       </filter>
-      <radialGradient id="sweepGrad" cx="0%" cy="0%" r="100%">
-        <stop offset="0%" stop-color="#f2f3f3" stop-opacity="0.28"/>
-        <stop offset="100%" stop-color="#f2f3f3" stop-opacity="0"/>
-      </radialGradient>
     </defs>`;
     html += `<g id="topology" opacity="0.9">${buildTopology()}</g>`;
     html += `<g id="vector-map"></g>`;
@@ -732,10 +698,20 @@
     html += `<line x1="${fx}" y1="${fy-9}" x2="${fx}" y2="${fy+9}" stroke="var(--ink)" stroke-width="1" filter="url(#glow)"/>`;
     html += `<text x="${fx+12}" y="${fy-8}" fill="var(--ink-dim)" font-size="9" font-family="Space Mono, monospace" letter-spacing="1">KMSY</text>`;
 
-    // sweep wedge with glow trail
+    // sweep — thin rotating line with a long, transparent decaying trail
+    let trail = '';
+    const trailLength = 45; // degrees of arc the trail spans
+    for(let i=trailLength; i>=1; i--){
+      const a = i * 1.0;
+      const rad = -a * Math.PI/180;
+      const tx = fx + Math.sin(rad)*ringR, ty = fy - Math.cos(rad)*ringR;
+      const op = (0.12 * (1 - i/(trailLength+2))).toFixed(3);
+      trail += `<line x1="${fx}" y1="${fy}" x2="${tx.toFixed(1)}" y2="${ty.toFixed(1)}" stroke="var(--ink-faint)" stroke-width="0.5" opacity="${op}"/>`;
+    }
     html += `<g id="sweep-group" style="transform-origin:${fx}px ${fy}px;">
-      <path d="M ${fx} ${fy} L ${fx} ${fy-ringR} A ${ringR} ${ringR} 0 0 1 ${fx + Math.sin(0.5)*ringR} ${fy - Math.cos(0.5)*ringR} Z" fill="url(#sweepGrad)"/>
-      <line x1="${fx}" y1="${fy}" x2="${fx}" y2="${fy-ringR}" stroke="var(--ink)" stroke-width="1" opacity="0.7" filter="url(#glow)"/>
+      ${trail}
+      <line x1="${fx}" y1="${fy}" x2="${fx}" y2="${fy-ringR}" stroke="var(--ink)" stroke-width="1" opacity="0.55"/>
+      <circle cx="${fx}" cy="${fy-ringR}" r="1.4" fill="var(--ink)" opacity="0.5"/>
     </g>`;
 
     html += `<g id="targets-group"></g>`;
@@ -861,9 +837,22 @@
       out geom;`;
 
     // run all three concurrently — first to resolve renders first, none block the others
-    fetchOverpass(wideQuery, 'CORE', 18000);
-    fetchOverpass(textureQuery, 'TEXTURE', 18000);
-    fetchOverpass(localQuery, 'KMSY LOCAL', 18000);
+    const loaderEl = $('map-loader');
+    let settled = 0;
+    const total = 3;
+    function tickLoader(){
+      settled++;
+      if(loaderEl){
+        if(settled >= total){
+          loaderEl.classList.add('done');
+        } else {
+          loaderEl.lastChild.textContent = ` SYNCING VECTOR GEOMETRY… ${settled}/${total}`;
+        }
+      }
+    }
+    fetchOverpass(wideQuery, 'CORE', 12000).finally(tickLoader);
+    fetchOverpass(textureQuery, 'TEXTURE', 12000).finally(tickLoader);
+    fetchOverpass(localQuery, 'KMSY LOCAL', 12000).finally(tickLoader);
   }
   buildScopeStatic();
   buildVectorMap();
@@ -933,7 +922,7 @@
     });
     g.innerHTML = html;
     g.querySelectorAll('.target').forEach(t=>{
-      t.addEventListener('click', ()=>{ playClick(900); selectedIcao = t.getAttribute('data-icao'); renderTargets(); renderSelection(); });
+      t.addEventListener('click', ()=>{ selectedIcao = t.getAttribute('data-icao'); renderTargets(); renderSelection(); });
     });
   }
 
@@ -974,7 +963,7 @@
     });
     body.innerHTML = html;
     body.querySelectorAll('.trow').forEach(row=>{
-      row.addEventListener('click', ()=>{ playClick(900); selectedIcao = row.getAttribute('data-icao'); renderTargets(); renderSelection(); });
+      row.addEventListener('click', ()=>{ selectedIcao = row.getAttribute('data-icao'); renderTargets(); renderSelection(); });
     });
   }
 
