@@ -1214,6 +1214,34 @@
     renderMovementLog();
   }
 
+  // ---- small vector aircraft-silhouette "library" — classified from ICAO type code,
+  // rendered as thin line-art glyphs oriented to true heading, in place of a plain dot ----
+  const AIRCRAFT_GLYPH = {
+    // universal top-down fixed-wing silhouette (fuselage + swept wings + tail), scaled per class
+    fixedWing: 'M0,-9 L1.3,-3.5 L8,1 L8,2.3 L1.1,0.5 L1.6,6.2 L3.6,8 L3.6,9 L0,7.3 L-3.6,9 L-3.6,8 L-1.6,6.2 L-1.1,0.5 L-8,2.3 L-8,1 L-1.3,-3.5 Z'
+  };
+  function classifyAircraft(actype){
+    const t = (actype||'').toUpperCase();
+    if(!t || t==='—') return null;
+    if(/^(EC|AS3|R44|R66|R22|B06|B47|H60|UH1|S76|S92|MD5|EC35|EC45|A109|A139|A169)/.test(t)) return {kind:'heli'};
+    if(/^(A3[0-9]|A22|A21|B7[0-9]|B5|MD[89]|DC[1-9]|IL9|TU[1-9])/.test(t)) return {kind:'fixedWing', scale:1.0};
+    if(/^(CRJ|E1[0-9]|E7[0-9]|SF3|AT[4-9]|DH8|ATR)/.test(t)) return {kind:'fixedWing', scale:0.72};
+    if(/^(C5[0-9]6?|CL[3-6]|GLF|GALX|FA[0-9]|LJ[0-9]|PRM1|H25)/.test(t)) return {kind:'fixedWing', scale:0.55};
+    if(/^(C1[0-9]|C2[0-9]|C7[0-9]|P[2-3][0-9]|PA[0-9]|SR2[0-9]|BE[0-9]|M20|DA[4-6]|TBM)/.test(t)) return {kind:'fixedWing', scale:0.42};
+    return {kind:'fixedWing', scale:0.6}; // known type but uncategorized — default light/medium silhouette
+  }
+  function buildAircraftGlyph(actype, fillColor, strokeColor, opacity){
+    const cls = classifyAircraft(actype);
+    if(!cls) return null; // no type data at all — caller falls back to a plain dot
+    if(cls.kind === 'heli'){
+      return `<circle r="6" fill="none" stroke="${strokeColor}" stroke-width="0.5" opacity="${opacity*0.6}"/>
+        <path d="M-1.2,-2 L1.2,-2 L1.2,3 L0.5,5 L-0.5,5 L-1.2,3 Z" fill="${fillColor}" stroke="${strokeColor}" stroke-width="0.4" opacity="${opacity}"/>
+        <line x1="0" y1="3" x2="0" y2="7.5" stroke="${strokeColor}" stroke-width="0.5" opacity="${opacity}"/>`;
+    }
+    const scale = cls.scale || 0.6;
+    return `<path d="${AIRCRAFT_GLYPH.fixedWing}" transform="scale(${scale})" fill="${fillColor}" stroke="${strokeColor}" stroke-width="${0.5/scale}" opacity="${opacity}"/>`;
+  }
+
   function renderTargets(){
     const g = svg.querySelector('#targets-group');
     let html = '';
@@ -1226,13 +1254,17 @@
       const fill = f.on_ground ? 'none' : (isSel ? 'var(--white)' : 'var(--ink)');
       const stroke = isSel ? 'var(--white)' : 'var(--ink-dim)';
       const trackAngle = (f.true_track || 0);
+      const glyph = (!f.on_ground) ? buildAircraftGlyph(f.actype, fill, stroke, isSel?1:0.85) : null;
       html += `<g class="target" data-icao="${f.icao24}">
         <circle cx="${x}" cy="${y}" r="${isSel?16:11}" fill="url(${isSel?'#haloGradSel':'#haloGrad'})" class="halo"/>
         <circle cx="${x}" cy="${y}" r="11" fill="transparent" class="hit-area"/>
         <circle cx="${x}" cy="${y}" r="9" fill="none" stroke="var(--ink)" stroke-width="1" class="hover-ring" opacity="0"/>
         ${!f.on_ground ? `<circle cx="${x}" cy="${y}" r="3" fill="none" stroke="${isSel?'var(--white)':'var(--ink-dim)'}" stroke-width="1"><animate attributeName="r" values="3;15" dur="2.4s" begin="${(x*7+y*3)%2400}ms" repeatCount="indefinite"/><animate attributeName="opacity" values="0.7;0" dur="2.4s" begin="${(x*7+y*3)%2400}ms" repeatCount="indefinite"/></circle>` : ''}
-        <circle cx="${x}" cy="${y}" r="${isSel?6:r}" fill="${fill}" stroke="${stroke}" stroke-width="1" opacity="${isSel?1:0.85}" class="blip-dot" filter="${isSel?'url(#glow)':''}"/>
-        ${!f.on_ground ? `<line x1="${x}" y1="${y}" x2="${x + Math.sin(trackAngle*Math.PI/180)*10}" y2="${y - Math.cos(trackAngle*Math.PI/180)*10}" stroke="${stroke}" stroke-width="1" opacity="0.6"/>` : ''}
+        ${glyph
+          ? `<g transform="translate(${x},${y}) rotate(${trackAngle})" class="blip-dot" filter="${isSel?'url(#glow)':''}">${glyph}</g>`
+          : `<circle cx="${x}" cy="${y}" r="${isSel?6:r}" fill="${fill}" stroke="${stroke}" stroke-width="1" opacity="${isSel?1:0.85}" class="blip-dot" filter="${isSel?'url(#glow)':''}"/>
+             ${!f.on_ground ? `<line x1="${x}" y1="${y}" x2="${x + Math.sin(trackAngle*Math.PI/180)*10}" y2="${y - Math.cos(trackAngle*Math.PI/180)*10}" stroke="${stroke}" stroke-width="1" opacity="0.6"/>` : ''}`
+        }
         <text x="${x+6}" y="${y-5}" fill="${isSel?'var(--white)':'var(--ink-faint)'}" font-size="8" font-family="Space Mono, monospace">${(f.callsign||'').trim() || f.icao24}</text>
       </g>`;
     });
