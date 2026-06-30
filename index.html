@@ -225,7 +225,7 @@
         <div class="corner tr"></div><div class="corner br"></div>
         <div class="panel-label"><span class="flag">●</span> LINK</div>
         <div class="value mono" id="link-status">SYN</div>
-        <div class="label-row"><span>OPENSKY</span><span id="poll-rate">15s</span></div>
+        <div class="label-row"><span>AIRPLANES.LIVE</span><span id="poll-rate">15s</span></div>
       </div>
 
       <div class="panel stat-card">
@@ -285,7 +285,7 @@
         <div style="margin-top:18px;">
           <div class="row"><span>LAST SYNC</span><span class="v" id="last-sync">--:--:--</span></div>
           <div class="row"><span>NEXT SYNC</span><span class="v" id="next-sync">--</span></div>
-          <div class="row"><span>SOURCE</span><span class="v">OPENSKY.NET</span></div>
+          <div class="row"><span>SOURCE</span><span class="v">AIRPLANES.LIVE</span></div>
           <div class="row"><span>MODE</span><span class="v">ANON / RO</span></div>
         </div>
       </div>
@@ -311,6 +311,7 @@
   const BBOX = { lamin: 29.70, lomin: -90.40, lamax: 30.20, lomax: -89.70 };
   const FIELD = { lat: 29.9934, lon: -90.2581 };
   const POLL_MS = 15000;
+  const RADIUS_NMI = 22; // search radius around FIELD, airplanes.live point endpoint
 
   const $ = (id) => document.getElementById(id);
   const svg = $('scope-svg');
@@ -452,16 +453,21 @@
   async function poll(){
     $('link-status').textContent = 'SYN';
     try{
-      const url = `https://opensky-network.org/api/states/all?lamin=${BBOX.lamin}&lomin=${BBOX.lomin}&lamax=${BBOX.lamax}&lomax=${BBOX.lomax}`;
+      const url = `https://api.airplanes.live/v2/point/${FIELD.lat}/${FIELD.lon}/${RADIUS_NMI}`;
       const res = await fetch(url);
       if(!res.ok) throw new Error('HTTP '+res.status);
       const data = await res.json();
-      const rows = data.states || [];
+      const rows = data.ac || [];
       stateData = rows.map(r=>({
-        icao24:r[0], callsign:r[1], origin_country:r[2], time_position:r[3],
-        last_contact:r[4], longitude:r[5], latitude:r[6], baro_altitude:r[7],
-        on_ground:r[8], velocity:r[9], true_track:r[10], vertical_rate:r[11]
-      }));
+        icao24:r.hex, callsign:r.flight, origin_country:r.t || r.desc || '—',
+        time_position:r.seen_pos, last_contact:r.seen,
+        longitude:r.lon, latitude:r.lat,
+        baro_altitude: typeof r.alt_baro==='number' ? r.alt_baro*0.3048 : null, // ft->m for consistent downstream math
+        on_ground: r.alt_baro === 'ground',
+        velocity: typeof r.gs==='number' ? r.gs*0.514444 : null, // kt->m/s
+        true_track: r.track,
+        vertical_rate: typeof r.baro_rate==='number' ? r.baro_rate*0.00508 : null // fpm->m/s
+      })).filter(f=>f.icao24 && f.latitude!=null && f.longitude!=null);
       $('link-status').textContent = 'LIVE';
       logLine(`SYNC OK — ${stateData.length} CONTACT(S) IN SECTOR`);
       const now = new Date();
