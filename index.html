@@ -86,7 +86,7 @@
     position:absolute; inset:0;
     display:grid;
     grid-template-columns: 230px 1fr 260px;
-    grid-template-rows: 100px 1fr 130px;
+    grid-template-rows: 100px 1fr 130px 130px;
     gap:14px;
     padding:100px 24px 20px 24px;
     z-index:5;
@@ -123,7 +123,7 @@
   }
 
   /* LEFT RAIL — status stack */
-  #rail-left{ grid-column:1; grid-row:1 / span 3; display:flex; flex-direction:column; gap:14px; }
+  #rail-left{ grid-column:1; grid-row:1 / span 4; display:flex; flex-direction:column; gap:14px; }
   .stat-card{ flex:0 0 auto; padding:24px 12px 10px 12px; min-height:96px; }
   .stat-card .value{
     font-family:'Space Mono',monospace; font-size:22px; color:var(--white);
@@ -176,7 +176,7 @@
   .trow.head .c-id{ color:var(--ink-faint); }
 
   /* RIGHT RAIL */
-  #rail-right{ grid-column:3; grid-row:1 / span 3; display:flex; flex-direction:column; gap:14px; }
+  #rail-right{ grid-column:3; grid-row:1 / span 4; display:flex; flex-direction:column; gap:14px; }
   .sel-card{ flex:0 0 auto; padding:22px 12px 12px 12px; min-height:128px; }
   .sel-card .row{
     display:flex; justify-content:space-between;
@@ -196,6 +196,27 @@
   .footer-strip{
     grid-column:1 / -1; grid-row:4;
   }
+
+  #arrdep-panel{
+    grid-column:2; grid-row:4;
+    padding:18px 14px 8px 14px;
+    display:grid;
+    grid-template-columns: 1fr 1px 1fr;
+  }
+  .ad-col{ overflow:hidden; padding:0 10px; }
+  .ad-col h4{
+    font-family:'Space Mono',monospace; font-size:9px; letter-spacing:0.18em;
+    color:var(--ink-faint); font-weight:400; margin-bottom:6px;
+  }
+  .ad-divider{ background:var(--line-dim); }
+  .ad-row{
+    display:grid; grid-template-columns: 56px 1fr 50px;
+    gap:8px; font-family:'Space Mono',monospace; font-size:9.5px;
+    color:var(--ink-dim); padding:2px 0;
+  }
+  .ad-row .ad-cs{ color:var(--white); }
+  .ad-row .ad-t{ color:var(--ink-faint); text-align:right; }
+  .ad-empty{ color:var(--ink-faint); font-family:'Space Mono',monospace; font-size:9.5px; }
 
   ::-webkit-scrollbar{ width:0; height:0; }
 </style>
@@ -261,6 +282,21 @@
           <span>CALLSIGN</span><span>ICAO24</span><span>ALT FT</span><span>SPD KT</span><span>HDG</span><span>ORIGIN</span>
         </div>
         <div id="table-body"></div>
+      </div>
+    </div>
+
+    <!-- ARR / DEP LOG -->
+    <div class="panel" id="arrdep-panel">
+      <div class="corner tr"></div><div class="corner br"></div>
+      <div class="panel-label">[ MOVEMENT LOG ] — INFERRED FROM TRACK STATE</div>
+      <div class="ad-col" style="margin-top:18px;">
+        <h4>ARRIVALS</h4>
+        <div id="arr-list"><div class="ad-empty">NO EVENTS LOGGED</div></div>
+      </div>
+      <div class="ad-divider"></div>
+      <div class="ad-col" style="margin-top:18px;">
+        <h4>DEPARTURES</h4>
+        <div id="dep-list"><div class="ad-empty">NO EVENTS LOGGED</div></div>
       </div>
     </div>
 
@@ -383,6 +419,47 @@
 
   let stateData = [];
   let selectedIcao = null;
+  const groundState = new Map(); // icao24 -> last known on_ground bool
+  const arrLog = [];
+  const depLog = [];
+  const NEAR_FIELD_NMI = 9;
+
+  function haversineNmi(lat1, lon1, lat2, lon2){
+    const R = 3440.065; // nmi
+    const toRad = d => d*Math.PI/180;
+    const dLat = toRad(lat2-lat1), dLon = toRad(lon2-lon1);
+    const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+    return R * 2*Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  }
+
+  function renderMovementLog(){
+    const arrEl = $('arr-list'), depEl = $('dep-list');
+    arrEl.innerHTML = arrLog.length ? arrLog.slice(0,8).map(e=>
+      `<div class="ad-row"><span class="ad-cs">${e.cs}</span><span>${e.icao}</span><span class="ad-t">${e.time}</span></div>`
+    ).join('') : '<div class="ad-empty">NO EVENTS LOGGED</div>';
+    depEl.innerHTML = depLog.length ? depLog.slice(0,8).map(e=>
+      `<div class="ad-row"><span class="ad-cs">${e.cs}</span><span>${e.icao}</span><span class="ad-t">${e.time}</span></div>`
+    ).join('') : '<div class="ad-empty">NO EVENTS LOGGED</div>';
+  }
+
+  function detectMovements(newData){
+    newData.forEach(f=>{
+      const dist = haversineNmi(f.latitude, f.longitude, FIELD.lat, FIELD.lon);
+      if(dist > NEAR_FIELD_NMI) { groundState.set(f.icao24, f.on_ground); return; }
+      const prev = groundState.get(f.icao24);
+      const cs = (f.callsign||'').trim() || f.icao24.toUpperCase();
+      const time = new Date().toTimeString().slice(0,8);
+      if(prev === true && f.on_ground === false){
+        depLog.unshift({cs, icao:f.icao24.toUpperCase(), time});
+        logLine(`DEP — ${cs} airborne near KMSY`);
+      } else if(prev === false && f.on_ground === true){
+        arrLog.unshift({cs, icao:f.icao24.toUpperCase(), time});
+        logLine(`ARR — ${cs} ground contact near KMSY`);
+      }
+      groundState.set(f.icao24, f.on_ground);
+    });
+    renderMovementLog();
+  }
 
   function renderTargets(){
     const g = svg.querySelector('#targets-group');
@@ -468,6 +545,7 @@
         true_track: r.track,
         vertical_rate: typeof r.baro_rate==='number' ? r.baro_rate*0.00508 : null // fpm->m/s
       })).filter(f=>f.icao24 && f.latitude!=null && f.longitude!=null);
+      detectMovements(stateData);
       $('link-status').textContent = 'LIVE';
       logLine(`SYNC OK — ${stateData.length} CONTACT(S) IN SECTOR`);
       const now = new Date();
