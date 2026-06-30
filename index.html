@@ -214,9 +214,9 @@
     background:linear-gradient(to right, rgba(255,255,255,0.6), transparent 90%);
     height:2px;
   }
-  .panel.highlighted .panel-label{ color:var(--white); }
-  .panel-label{ cursor:pointer; user-select:none; transition:color 0.15s ease; }
-  .panel-label:hover{ color:var(--ink); }
+  .panel.highlighted .panel-label{ color:var(--white); text-shadow:0 0 8px rgba(242,243,243,0.55); }
+  .panel-label{ cursor:pointer; user-select:none; transition:color 0.15s ease, text-shadow 0.15s ease; text-shadow:0 0 3px rgba(242,243,243,0.12); }
+  .panel-label:hover{ color:var(--ink); text-shadow:0 0 7px rgba(242,243,243,0.4); }
   .panel-label .flag{ color:var(--ink); text-shadow:0 0 5px rgba(242,243,243,0.5); }
   .panel-meta{
     position:absolute; top:8px; right:10px;
@@ -258,8 +258,9 @@
   #scope-svg{ width:100%; height:100%; display:block; position:relative; z-index:2; }
   .target{ cursor:pointer; }
   .target .hit-area{ pointer-events:all; }
-  .target .hover-ring{ transition:opacity 0.15s ease; }
-  .target:hover .hover-ring{ opacity:0.55; }
+  .target .hover-ring{ transition:opacity 0.18s ease, stroke-width 0.18s ease; }
+  .target:hover .hover-ring{ opacity:0.8; stroke-width:1.3; filter:url(#glow); }
+  .target:hover .blip-dot{ filter:url(#glow); }
 
   .scope-readout-top{
     position:absolute; top:0; left:0; right:0;
@@ -302,11 +303,13 @@
   .trow:not(.head):hover{
     background:rgba(255,255,255,0.045);
     color:var(--ink);
+    box-shadow: inset 0 0 12px rgba(255,255,255,0.06);
   }
   .trow:not(.head):hover .c-id{ color:var(--white); }
   .trow.selected{
     background:rgba(255,255,255,0.07);
     color:var(--white);
+    box-shadow: inset 0 0 16px rgba(255,255,255,0.1);
   }
   .trow.selected .c-id{ color:var(--white); text-shadow:0 0 6px rgba(242,243,243,0.4); }
   .trow.head{ color:var(--ink-faint); letter-spacing:0.1em; border-bottom:1px solid var(--line); cursor:default; }
@@ -465,6 +468,13 @@
         <div class="label-row"><span>AIRBORNE</span><span id="ground-count">GND --</span></div>
       </div>
 
+      <div class="panel stat-card" id="wx-card">
+        <div class="corner tr"></div><div class="corner br"></div>
+        <div class="panel-label">WX // KMSY</div>
+        <div class="value mono glow" id="wx-temp">--°F</div>
+        <div class="label-row"><span id="wx-cond">—</span><span id="wx-wind">WND --</span></div>
+      </div>
+
       <div class="panel log-card" id="log-card">
         <div class="corner tr"></div><div class="corner br"></div>
         <div class="panel-label">EVENT LOG</div>
@@ -509,6 +519,7 @@
     <div class="panel" id="arrdep-panel">
       <div class="corner tr"></div><div class="corner br"></div>
       <div class="panel-label">[ MOVEMENT LOG ] — INFERRED FROM TRACK STATE</div>
+      <div class="panel-meta" id="delay-status">FAA STATUS — CHECKING…</div>
       <div class="ad-col" style="margin-top:18px;">
         <h4>ARRIVALS</h4>
         <div id="arr-list"><div class="ad-empty">NO EVENTS LOGGED</div></div>
@@ -606,6 +617,75 @@
     svgEl.innerHTML = html;
   }
   buildHeaderRule();
+
+  // ---- live weather (Open-Meteo — free, no key, CORS-friendly) ----
+  const WEATHER_CODES = {
+    0:'CLEAR', 1:'MOSTLY CLEAR', 2:'PARTLY CLOUDY', 3:'OVERCAST',
+    45:'FOG', 48:'FOG', 51:'DRIZZLE', 53:'DRIZZLE', 55:'DRIZZLE',
+    61:'LIGHT RAIN', 63:'RAIN', 65:'HEAVY RAIN', 71:'SNOW', 73:'SNOW', 75:'HEAVY SNOW',
+    80:'RAIN SHOWERS', 81:'RAIN SHOWERS', 82:'HEAVY SHOWERS',
+    95:'THUNDERSTORM', 96:'THUNDERSTORM', 99:'SEVERE T-STORM'
+  };
+  async function fetchWeather(){
+    try{
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${FIELD.lat}&longitude=${FIELD.lon}&current=temperature_2m,wind_speed_10m,wind_direction_10m,weather_code&temperature_unit=fahrenheit&wind_speed_unit=mph`;
+      const res = await fetch(url);
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      const data = await res.json();
+      const c = data.current;
+      if($('wx-temp')) $('wx-temp').textContent = Math.round(c.temperature_2m)+'°F';
+      if($('wx-cond')) $('wx-cond').textContent = WEATHER_CODES[c.weather_code] || 'UNKNOWN';
+      if($('wx-wind')) $('wx-wind').textContent = `WND ${Math.round(c.wind_direction_10m)}°/${Math.round(c.wind_speed_10m)}KT`;
+      logLine(`WX SYNC — ${Math.round(c.temperature_2m)}°F, ${WEATHER_CODES[c.weather_code]||'N/A'}`);
+    }catch(e){
+      logLine(`WX SYNC FAIL (${e.message})`);
+    }
+  }
+  fetchWeather();
+  setInterval(fetchWeather, 10*60*1000); // weather doesn't need to poll fast
+
+  // ---- FAA NAS status — ground delays / ground stops / closures for KMSY ----
+  async function fetchDelays(){
+    const el = $('delay-status');
+    try{
+      const res = await fetch('https://nasstatus.faa.gov/api/airport-status-information');
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      const text = await res.text();
+      const xml = new DOMParser().parseFromString(text, 'application/xml');
+      if(xml.querySelector('parsererror')) throw new Error('bad XML');
+
+      const hits = [];
+      ['Ground_Delay_List','Ground_Stop_List','Airport_Closure_List','Arrival_Departure_Delay_List'].forEach(listTag=>{
+        xml.querySelectorAll(listTag+' *').forEach(node=>{
+          const arpt = node.querySelector ? node.querySelector('ARPT') : null;
+          if(arpt && arpt.textContent.trim() === 'MSY'){
+            const reason = node.querySelector('Reason');
+            const avg = node.querySelector('Avg, Avg_Delay');
+            hits.push(`${listTag.replace('_List','').replace(/_/g,' ')}${reason?': '+reason.textContent.trim():''}${avg?' ('+avg.textContent.trim()+')':''}`);
+          }
+        });
+      });
+
+      if(el){
+        if(hits.length){
+          el.textContent = 'DELAY — ' + hits[0].toUpperCase();
+          el.style.color = '#fff';
+          el.style.textShadow = '0 0 6px rgba(242,243,243,0.55)';
+        } else {
+          el.textContent = 'FAA STATUS — NO DELAYS REPORTED';
+          el.style.color = '';
+          el.style.textShadow = '';
+        }
+      }
+      logLine(`FAA SYNC — ${hits.length ? hits.length+' ACTIVE ADVISORY(S)' : 'NO DELAYS AT MSY'}`);
+    }catch(e){
+      if(el) el.textContent = 'FAA STATUS — UNAVAILABLE';
+      logLine(`FAA SYNC FAIL (${e.message})`);
+    }
+  }
+  fetchDelays();
+  setInterval(fetchDelays, 5*60*1000);
+
 
   function hexByte(){ return Math.floor(Math.random()*256).toString(16).toUpperCase().padStart(2,'0'); }
   function buildHexTicker(){
@@ -1091,7 +1171,7 @@
         <circle cx="${x}" cy="${y}" r="11" fill="transparent" class="hit-area"/>
         <circle cx="${x}" cy="${y}" r="9" fill="none" stroke="var(--ink)" stroke-width="1" class="hover-ring" opacity="0"/>
         ${!f.on_ground ? `<circle cx="${x}" cy="${y}" r="3" fill="none" stroke="${isSel?'var(--white)':'var(--ink-dim)'}" stroke-width="1"><animate attributeName="r" values="3;15" dur="2.4s" begin="${(x*7+y*3)%2400}ms" repeatCount="indefinite"/><animate attributeName="opacity" values="0.7;0" dur="2.4s" begin="${(x*7+y*3)%2400}ms" repeatCount="indefinite"/></circle>` : ''}
-        <circle cx="${x}" cy="${y}" r="${isSel?6:r}" fill="${fill}" stroke="${stroke}" stroke-width="1" opacity="${isSel?1:0.85}" filter="${isSel?'url(#glow)':''}"/>
+        <circle cx="${x}" cy="${y}" r="${isSel?6:r}" fill="${fill}" stroke="${stroke}" stroke-width="1" opacity="${isSel?1:0.85}" class="blip-dot" filter="${isSel?'url(#glow)':''}"/>
         ${!f.on_ground ? `<line x1="${x}" y1="${y}" x2="${x + Math.sin(trackAngle*Math.PI/180)*10}" y2="${y - Math.cos(trackAngle*Math.PI/180)*10}" stroke="${stroke}" stroke-width="1" opacity="0.6"/>` : ''}
         <text x="${x+6}" y="${y-5}" fill="${isSel?'var(--white)':'var(--ink-faint)'}" font-size="8" font-family="Space Mono, monospace">${(f.callsign||'').trim() || f.icao24}</text>
       </g>`;
