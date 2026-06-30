@@ -321,6 +321,32 @@
   /* RIGHT RAIL */
   #rail-right{ grid-column:3; grid-row:1 / span 4; display:flex; flex-direction:column; gap:14px; }
   .sel-card{ flex:0 0 auto; padding:22px 12px 12px 12px; min-height:128px; }
+
+  #track-photo-wrap{
+    position:relative; width:100%; aspect-ratio:16/10;
+    background:rgba(255,255,255,0.025);
+    border:1px solid var(--line-dim);
+    overflow:hidden; margin-top:14px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  #track-photo{
+    width:100%; height:100%; object-fit:cover; display:none;
+    filter: grayscale(1) contrast(1.15) brightness(0.8) saturate(0);
+    opacity:0.92;
+  }
+  #track-photo.loaded{ display:block; }
+  #track-photo-empty{
+    font-family:'Space Mono',monospace; font-size:8.5px; letter-spacing:0.12em;
+    color:var(--ink-faint);
+  }
+  #track-photo-wrap.has-photo #track-photo-empty{ display:none; }
+  #track-photo-credit{
+    position:absolute; bottom:0; left:0; right:0;
+    font-family:'Space Mono',monospace; font-size:7px; letter-spacing:0.05em;
+    color:var(--ink-faint); background:rgba(7,7,8,0.7);
+    padding:3px 6px; opacity:0; transition:opacity 0.2s ease;
+  }
+  #track-photo-wrap.has-photo #track-photo-credit{ opacity:1; }
   .sel-card .row{
     display:flex; justify-content:space-between;
     font-family:'Space Mono',monospace; font-size:10px; color:var(--ink-dim);
@@ -540,7 +566,12 @@
         <div class="panel sel-card" id="track-panel">
         <div class="corner tr"></div><div class="corner br"></div>
         <div class="panel-label">SELECTED TRACK</div>
-        <div style="margin-top:18px;">
+        <div id="track-photo-wrap">
+          <img id="track-photo" alt="" />
+          <div id="track-photo-empty">NO IMAGE ON FILE</div>
+          <div id="track-photo-credit"></div>
+        </div>
+        <div style="margin-top:10px;">
           <div class="row"><span>CALLSIGN</span><span class="v" id="sel-callsign">—</span></div>
           <div class="row"><span>AIRLINE</span><span class="v" id="sel-airline">—</span></div>
           <div class="row"><span>TYPE</span><span class="v" id="sel-type">—</span></div>
@@ -1201,6 +1232,40 @@
     });
   }
 
+  let lastPhotoIcao = null;
+  function clearTrackPhoto(){
+    const wrap = $('track-photo-wrap');
+    const img = $('track-photo');
+    if(wrap) wrap.classList.remove('has-photo');
+    if(img){ img.classList.remove('loaded'); img.src=''; }
+    if($('track-photo-credit')) $('track-photo-credit').textContent = '';
+  }
+  async function fetchAircraftPhoto(icao24){
+    if(icao24 === lastPhotoIcao) return; // already showing this one, no need to refetch
+    lastPhotoIcao = icao24;
+    clearTrackPhoto();
+    if(!icao24) return;
+    try{
+      const res = await fetch(`https://api.planespotters.net/pub/photos/hex/${icao24}`);
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      const data = await res.json();
+      const photo = data.photos && data.photos[0];
+      if(!photo){ logLine(`PHOTO — NONE ON FILE FOR ${icao24.toUpperCase()}`); return; }
+      // bail if the selection moved on while this was in flight
+      if(icao24 !== lastPhotoIcao) return;
+      const img = $('track-photo');
+      const wrap = $('track-photo-wrap');
+      const credit = $('track-photo-credit');
+      img.onload = () => img.classList.add('loaded');
+      img.src = (photo.thumbnail_large || photo.thumbnail).src;
+      if(wrap) wrap.classList.add('has-photo');
+      if(credit) credit.textContent = `PHOTO © ${photo.photographer || 'UNKNOWN'} — PLANESPOTTERS.NET`;
+      logLine(`PHOTO — LOADED FOR ${icao24.toUpperCase()}`);
+    }catch(e){
+      logLine(`PHOTO FAIL (${e.message})`);
+    }
+  }
+
   function renderSelection(){
     const f = stateData.find(d=>d.icao24===selectedIcao);
     if(!f){
@@ -1208,6 +1273,8 @@
       $('sel-alt').textContent='—'; $('sel-vel').textContent='—';
       $('sel-vrate').textContent='—'; $('sel-airline').textContent='—';
       $('sel-type').textContent='—'; $('sel-reg').textContent='—';
+      lastPhotoIcao = null;
+      clearTrackPhoto();
       return;
     }
     const cs = (f.callsign||'').trim() || '—';
@@ -1219,6 +1286,7 @@
     $('sel-alt').textContent = f.baro_altitude!=null ? Math.round(f.baro_altitude*3.281)+' FT' : '—';
     $('sel-vel').textContent = f.velocity!=null ? Math.round(f.velocity*1.944)+' KT' : '—';
     $('sel-vrate').textContent = f.vertical_rate!=null ? (f.vertical_rate>0?'+':'')+Math.round(f.vertical_rate*196.85)+' FPM' : '—';
+    fetchAircraftPhoto(f.icao24);
   }
 
   function renderTable(){
