@@ -256,6 +256,10 @@
   #scope-panel{ position:absolute; inset:0; padding:30px 16px 16px 16px; }
   #scope-wrap{ position:relative; width:100%; height:100%; }
   #scope-svg{ width:100%; height:100%; display:block; position:relative; z-index:2; }
+  .target{ cursor:pointer; }
+  .target .hit-area{ pointer-events:all; }
+  .target .hover-ring{ transition:opacity 0.15s ease; }
+  .target:hover .hover-ring{ opacity:0.55; }
 
   .scope-readout-top{
     position:absolute; top:0; left:0; right:0;
@@ -292,8 +296,20 @@
     padding:3px 0;
     color:var(--ink-dim);
     border-bottom:1px solid var(--line-dim);
+    cursor:pointer;
+    transition:background 0.15s ease, color 0.15s ease;
   }
-  .trow.head{ color:var(--ink-faint); letter-spacing:0.1em; border-bottom:1px solid var(--line); }
+  .trow:not(.head):hover{
+    background:rgba(255,255,255,0.045);
+    color:var(--ink);
+  }
+  .trow:not(.head):hover .c-id{ color:var(--white); }
+  .trow.selected{
+    background:rgba(255,255,255,0.07);
+    color:var(--white);
+  }
+  .trow.selected .c-id{ color:var(--white); text-shadow:0 0 6px rgba(242,243,243,0.4); }
+  .trow.head{ color:var(--ink-faint); letter-spacing:0.1em; border-bottom:1px solid var(--line); cursor:default; }
   .trow .c-id{ color:var(--white); }
   .trow.head .c-id{ color:var(--ink-faint); }
 
@@ -634,35 +650,15 @@
     }catch(e){ /* fail silent, no log noise for missing audio support */ }
   }
 
-  // ---- click-to-highlight panel sections (manual) ----
-  let autoHighlightPaused = false;
-  let autoHighlightResumeTimer = null;
+  // ---- click-to-highlight panel sections (manual only — highlighting reflects
+  // exactly what's been selected, nothing cycles or moves on its own) ----
   document.querySelectorAll('.panel-label').forEach(label=>{
     label.addEventListener('click', ()=>{
       playShutter();
       const panel = label.closest('.panel');
       if(panel) panel.classList.toggle('highlighted');
-      // a manual click means the person is steering attention — back off the
-      // automatic cycle for a while so it doesn't fight with what they're doing
-      autoHighlightPaused = true;
-      clearTimeout(autoHighlightResumeTimer);
-      autoHighlightResumeTimer = setTimeout(()=>{ autoHighlightPaused = false; }, 20000);
     });
   });
-
-  // ---- auto-cycling "system attention" highlight (idle showcase motion) ----
-  const autoHighlightIds = ['scope-panel','table-panel','track-panel','arrdep-panel'];
-  let autoHighlightIndex = -1;
-  setInterval(()=>{
-    if(autoHighlightPaused) return;
-    if(autoHighlightIndex >= 0){
-      const prev = $(autoHighlightIds[autoHighlightIndex]);
-      if(prev) prev.classList.remove('highlighted');
-    }
-    autoHighlightIndex = (autoHighlightIndex + 1) % autoHighlightIds.length;
-    const next = $(autoHighlightIds[autoHighlightIndex]);
-    if(next) next.classList.add('highlighted');
-  }, 7000);
 
   setInterval(()=>{
     const el = $('sqcode');
@@ -1091,7 +1087,9 @@
       const fill = f.on_ground ? 'none' : (isSel ? 'var(--white)' : 'var(--ink)');
       const stroke = isSel ? 'var(--white)' : 'var(--ink-dim)';
       const trackAngle = (f.true_track || 0);
-      html += `<g class="target" data-icao="${f.icao24}" style="cursor:pointer;">
+      html += `<g class="target" data-icao="${f.icao24}">
+        <circle cx="${x}" cy="${y}" r="11" fill="transparent" class="hit-area"/>
+        <circle cx="${x}" cy="${y}" r="9" fill="none" stroke="var(--ink)" stroke-width="1" class="hover-ring" opacity="0"/>
         ${!f.on_ground ? `<circle cx="${x}" cy="${y}" r="3" fill="none" stroke="${isSel?'var(--white)':'var(--ink-dim)'}" stroke-width="1"><animate attributeName="r" values="3;15" dur="2.4s" begin="${(x*7+y*3)%2400}ms" repeatCount="indefinite"/><animate attributeName="opacity" values="0.7;0" dur="2.4s" begin="${(x*7+y*3)%2400}ms" repeatCount="indefinite"/></circle>` : ''}
         <circle cx="${x}" cy="${y}" r="${isSel?6:r}" fill="${fill}" stroke="${stroke}" stroke-width="1" opacity="${isSel?1:0.85}" filter="${isSel?'url(#glow)':''}"/>
         ${!f.on_ground ? `<line x1="${x}" y1="${y}" x2="${x + Math.sin(trackAngle*Math.PI/180)*10}" y2="${y - Math.cos(trackAngle*Math.PI/180)*10}" stroke="${stroke}" stroke-width="1" opacity="0.6"/>` : ''}
@@ -1100,7 +1098,13 @@
     });
     g.innerHTML = html;
     g.querySelectorAll('.target').forEach(t=>{
-      t.addEventListener('click', ()=>{ playShutter(); selectedIcao = t.getAttribute('data-icao'); renderTargets(); renderSelection(); });
+      t.addEventListener('click', ()=>{
+        playShutter();
+        selectedIcao = t.getAttribute('data-icao');
+        renderTargets(); renderSelection();
+        const trackPanel = $('track-panel');
+        if(trackPanel) trackPanel.classList.add('highlighted');
+      });
     });
   }
 
@@ -1135,13 +1139,20 @@
       const alt = f.baro_altitude!=null ? Math.round(f.baro_altitude*3.281) : '--';
       const spd = f.velocity!=null ? Math.round(f.velocity*1.944) : '--';
       const hdg = f.true_track!=null ? Math.round(f.true_track) : '--';
-      html += `<div class="trow" data-icao="${f.icao24}" style="cursor:pointer;">
+      const isSel = f.icao24 === selectedIcao;
+      html += `<div class="trow${isSel?' selected':''}" data-icao="${f.icao24}">
         <span class="c-id">${cs}</span><span>${airline}</span><span>${actype}</span><span>${alt}</span><span>${spd}</span><span>${hdg}°</span>
       </div>`;
     });
     body.innerHTML = html;
     body.querySelectorAll('.trow').forEach(row=>{
-      row.addEventListener('click', ()=>{ playShutter(); selectedIcao = row.getAttribute('data-icao'); renderTargets(); renderSelection(); });
+      row.addEventListener('click', ()=>{
+        playShutter();
+        selectedIcao = row.getAttribute('data-icao');
+        renderTargets(); renderTable(); renderSelection();
+        const trackPanel = $('track-panel');
+        if(trackPanel) trackPanel.classList.add('highlighted');
+      });
     });
   }
 
