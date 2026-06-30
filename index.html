@@ -900,6 +900,49 @@
     catch(e){ /* storage unavailable or full, fail silent */ }
   }
 
+  const OVERPASS_MIRRORS = [
+    'https://overpass-api.de/api/interpreter',
+    'https://overpass.kumi.systems/api/interpreter',
+    'https://overpass.openstreetmap.ru/api/interpreter'
+  ];
+
+  function parseOverpassElements(data){
+    let html = '', wayCount=0, nodeCount=0;
+    (data.elements||[]).forEach(el=>{
+      if(el.type==='node' && el.tags){
+        const [x,y] = project(el.lat, el.lon);
+        if(x<0||x>SVG_W||y<0||y>SVG_H) return;
+        nodeCount++;
+        if(el.tags.place){
+          html += `<circle cx="${x}" cy="${y}" r="1.6" fill="var(--ink-dim)"/>`;
+          html += `<text x="${x+5}" y="${y+3}" fill="var(--ink-faint)" font-size="7" font-family="Space Mono, monospace" letter-spacing="0.5" opacity="0.7">${(el.tags.name||'').toUpperCase()}</text>`;
+        } else if(el.tags.aeroway==='aerodrome'){
+          html += `<circle cx="${x}" cy="${y}" r="2.2" fill="none" stroke="var(--white)" stroke-width="1" opacity="0.7"/>`;
+        }
+        return;
+      }
+      const w = renderWay(el);
+      if(w){ wayCount++; html += w; }
+    });
+    return {html, wayCount, nodeCount};
+  }
+
+  async function tryFetchOverpass(url, query, timeoutMs){
+    const controller = new AbortController();
+    const timer = setTimeout(()=>controller.abort(), timeoutMs);
+    try{
+      const res = await fetch(url, {
+        method:'POST', body:'data='+encodeURIComponent(query), signal:controller.signal
+      });
+      clearTimeout(timer);
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      return await res.json();
+    }catch(e){
+      clearTimeout(timer);
+      throw e.name==='AbortError' ? new Error('TIMEOUT') : e;
+    }
+  }
+
   async function fetchOverpass(query, label, timeoutMs, cacheKey){
     // instant path: render from cache immediately if we have a fresh copy
     if(cacheKey){
@@ -910,41 +953,23 @@
         return;
       }
     }
-    const controller = new AbortController();
-    const timer = setTimeout(()=>controller.abort(), timeoutMs || 20000);
-    try{
-      const res = await fetch('https://overpass-api.de/api/interpreter', {
-        method:'POST', body:'data='+encodeURIComponent(query), signal:controller.signal
-      });
-      clearTimeout(timer);
-      if(!res.ok) throw new Error('HTTP '+res.status);
-      const data = await res.json();
-      let html = '', wayCount=0, nodeCount=0;
-      (data.elements||[]).forEach(el=>{
-        if(el.type==='node' && el.tags){
-          const [x,y] = project(el.lat, el.lon);
-          if(x<0||x>SVG_W||y<0||y>SVG_H) return;
-          nodeCount++;
-          if(el.tags.place){
-            html += `<circle cx="${x}" cy="${y}" r="1.6" fill="var(--ink-dim)"/>`;
-            html += `<text x="${x+5}" y="${y+3}" fill="var(--ink-faint)" font-size="7" font-family="Space Mono, monospace" letter-spacing="0.5" opacity="0.7">${(el.tags.name||'').toUpperCase()}</text>`;
-          } else if(el.tags.aeroway==='aerodrome'){
-            html += `<circle cx="${x}" cy="${y}" r="2.2" fill="none" stroke="var(--white)" stroke-width="1" opacity="0.7"/>`;
-          }
-          return;
-        }
-        const w = renderWay(el);
-        if(w){ wayCount++; html += w; }
-      });
-      appendToMap(html);
-      // only cache real data — never let an empty/transient response poison the cache for 7 days
-      if(cacheKey && (wayCount>0 || nodeCount>0)) setMapCache(cacheKey, html, wayCount, nodeCount);
-      logLine(`VECTOR MAP — ${label}: ${wayCount} WAYS / ${nodeCount} NODES`);
-    }catch(e){
-      clearTimeout(timer);
-      const reason = e.name==='AbortError' ? 'TIMEOUT' : e.message;
-      logLine(`VECTOR MAP — ${label} FAIL (${reason})`);
+    let lastErr = null;
+    for(const mirror of OVERPASS_MIRRORS){
+      try{
+        const data = await tryFetchOverpass(mirror, query, timeoutMs || 20000);
+        const {html, wayCount, nodeCount} = parseOverpassElements(data);
+        appendToMap(html);
+        // only cache real data — never let an empty/transient response poison the cache for 7 days
+        if(cacheKey && (wayCount>0 || nodeCount>0)) setMapCache(cacheKey, html, wayCount, nodeCount);
+        const mirrorTag = mirror.includes('overpass-api.de') ? '' : ` VIA ${new URL(mirror).hostname}`;
+        logLine(`VECTOR MAP — ${label}: ${wayCount} WAYS / ${nodeCount} NODES${mirrorTag}`);
+        return;
+      }catch(e){
+        lastErr = e;
+        // try the next mirror
+      }
     }
+    logLine(`VECTOR MAP — ${label} FAIL (ALL MIRRORS: ${lastErr ? lastErr.message : 'unknown'})`);
   }
 
   function buildVectorMap(){
@@ -998,8 +1023,8 @@
       }
     }
     fetchOverpass(wideQuery, 'CORE', 12000, 'msy-map-core-v2').finally(tickLoader);
-    fetchOverpass(textureQuery, 'TEXTURE', 12000, 'msy-map-texture-v2').finally(tickLoader);
-    fetchOverpass(localQuery, 'KMSY LOCAL', 12000, 'msy-map-local-v2').finally(tickLoader);
+    setTimeout(()=> fetchOverpass(textureQuery, 'TEXTURE', 12000, 'msy-map-texture-v2').finally(tickLoader), 400);
+    setTimeout(()=> fetchOverpass(localQuery, 'KMSY LOCAL', 12000, 'msy-map-local-v2').finally(tickLoader), 800);
   }
   buildScopeStatic();
   buildVectorMap();
