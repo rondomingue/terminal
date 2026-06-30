@@ -264,7 +264,7 @@
   #table-scroll{ height:100%; overflow:hidden; font-family:'Space Mono',monospace; font-size:10px; }
   .trow{
     display:grid;
-    grid-template-columns: 70px 56px 70px 70px 70px 1fr;
+    grid-template-columns: 64px 1fr 56px 56px 56px 44px;
     gap:8px;
     padding:3px 0;
     color:var(--ink-dim);
@@ -404,7 +404,7 @@
       <div class="panel-label">[ COMMS ] — ACTIVE SQUAWK</div>
       <div id="table-scroll">
         <div class="trow head">
-          <span>CALLSIGN</span><span>ICAO24</span><span>ALT FT</span><span>SPD KT</span><span>HDG</span><span>ORIGIN</span>
+          <span>CALLSIGN</span><span>AIRLINE</span><span>TYPE</span><span>ALT FT</span><span>SPD KT</span><span>HDG</span>
         </div>
         <div id="table-body"></div>
       </div>
@@ -432,11 +432,13 @@
         <div class="panel-label">SELECTED TRACK</div>
         <div style="margin-top:18px;">
           <div class="row"><span>CALLSIGN</span><span class="v" id="sel-callsign">—</span></div>
+          <div class="row"><span>AIRLINE</span><span class="v" id="sel-airline">—</span></div>
+          <div class="row"><span>TYPE</span><span class="v" id="sel-type">—</span></div>
+          <div class="row"><span>REG</span><span class="v" id="sel-reg">—</span></div>
           <div class="row"><span>ICAO24</span><span class="v" id="sel-icao">—</span></div>
           <div class="row"><span>ALT</span><span class="v" id="sel-alt">—</span></div>
           <div class="row"><span>VEL</span><span class="v" id="sel-vel">—</span></div>
           <div class="row"><span>VRATE</span><span class="v" id="sel-vrate">—</span></div>
-          <div class="row"><span>ORIGIN</span><span class="v" id="sel-origin">—</span></div>
         </div>
       </div>
 
@@ -475,6 +477,22 @@
   const RADIUS_NMI = 22; // search radius around FIELD, airplanes.live point endpoint
 
   const $ = (id) => document.getElementById(id);
+
+  // ---- airline ICAO callsign-prefix lookup (common MSY carriers + majors) ----
+  const AIRLINES = {
+    SWA:'SOUTHWEST', DAL:'DELTA', AAL:'AMERICAN', UAL:'UNITED', JBU:'JETBLUE',
+    FFT:'FRONTIER', NKS:'SPIRIT', ASA:'ALASKA', ENY:'ENVOY', SKW:'SKYWEST',
+    RPA:'REPUBLIC', EDV:'ENDEAVOR', GJS:'GOJET', UPS:'UPS', FDX:'FEDEX',
+    ASQ:'EXPRESSJET', AAY:'ALLEGIANT', SCX:'SUN COUNTRY', ACA:'AIR CANADA',
+    AFR:'AIR FRANCE', BAW:'BRITISH AIRWAYS', KLM:'KLM', LXJ:'FLEXJET',
+    EJA:'NETJETS', GAJ:'GAMA AVIATION'
+  };
+  function resolveAirline(callsign){
+    if(!callsign) return null;
+    const cs = callsign.trim().toUpperCase();
+    const prefix = cs.slice(0,3);
+    return AIRLINES[prefix] || null;
+  }
   const svg = $('scope-svg');
   const SVG_W = 800, SVG_H = 460;
   const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -516,12 +534,21 @@
       osc.type = 'square';
       osc.frequency.setValueAtTime(freq || 1400, t0);
       osc.frequency.exponentialRampToValueAtTime((freq||1400)*0.5, t0+0.035);
-      gain.gain.setValueAtTime(0.06, t0);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t0+0.05);
+      gain.gain.setValueAtTime(0.16, t0);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0+0.06);
       osc.connect(gain); gain.connect(audioCtx.destination);
-      osc.start(t0); osc.stop(t0+0.06);
-    }catch(e){ /* audio unsupported, fail silent */ }
+      osc.start(t0); osc.stop(t0+0.07);
+    }catch(e){ logLine('AUDIO — UNAVAILABLE ('+e.message+')'); }
   }
+
+  // any click inside a panel gives audible feedback, not just labels/rows
+  document.querySelectorAll('.panel').forEach(p=>{
+    p.addEventListener('click', (ev)=>{
+      // avoid double-firing when a more specific handler (label/row/target) already played a sound
+      if(ev.target.closest('.panel-label') || ev.target.closest('.trow') || ev.target.closest('.target')) return;
+      playClick(700);
+    });
+  });
 
   // ---- click-to-highlight panel sections ----
   document.querySelectorAll('.panel-label').forEach(label=>{
@@ -845,15 +872,19 @@
     if(!f){
       $('sel-callsign').textContent='—'; $('sel-icao').textContent='—';
       $('sel-alt').textContent='—'; $('sel-vel').textContent='—';
-      $('sel-vrate').textContent='—'; $('sel-origin').textContent='—';
+      $('sel-vrate').textContent='—'; $('sel-airline').textContent='—';
+      $('sel-type').textContent='—'; $('sel-reg').textContent='—';
       return;
     }
-    $('sel-callsign').textContent = (f.callsign||'—').trim() || '—';
+    const cs = (f.callsign||'').trim() || '—';
+    $('sel-callsign').textContent = cs;
+    $('sel-airline').textContent = resolveAirline(cs) || 'UNKNOWN / GA';
+    $('sel-type').textContent = f.actype && f.actype!=='—' ? f.actype : '—';
+    $('sel-reg').textContent = f.registration && f.registration!=='—' ? f.registration : '—';
     $('sel-icao').textContent = f.icao24.toUpperCase();
     $('sel-alt').textContent = f.baro_altitude!=null ? Math.round(f.baro_altitude*3.281)+' FT' : '—';
     $('sel-vel').textContent = f.velocity!=null ? Math.round(f.velocity*1.944)+' KT' : '—';
     $('sel-vrate').textContent = f.vertical_rate!=null ? (f.vertical_rate>0?'+':'')+Math.round(f.vertical_rate*196.85)+' FPM' : '—';
-    $('sel-origin').textContent = f.origin_country || '—';
   }
 
   function renderTable(){
@@ -862,11 +893,13 @@
     const sorted = [...stateData].sort((a,b)=> (b.baro_altitude||0) - (a.baro_altitude||0));
     sorted.slice(0,40).forEach(f=>{
       const cs = (f.callsign||'').trim() || '----';
+      const airline = resolveAirline(cs) || '—';
+      const actype = (f.actype && f.actype!=='—') ? f.actype : '—';
       const alt = f.baro_altitude!=null ? Math.round(f.baro_altitude*3.281) : '--';
       const spd = f.velocity!=null ? Math.round(f.velocity*1.944) : '--';
       const hdg = f.true_track!=null ? Math.round(f.true_track) : '--';
       html += `<div class="trow" data-icao="${f.icao24}" style="cursor:pointer;">
-        <span class="c-id">${cs}</span><span>${f.icao24.toUpperCase()}</span><span>${alt}</span><span>${spd}</span><span>${hdg}°</span><span>${f.origin_country||'—'}</span>
+        <span class="c-id">${cs}</span><span>${airline}</span><span>${actype}</span><span>${alt}</span><span>${spd}</span><span>${hdg}°</span>
       </div>`;
     });
     body.innerHTML = html;
@@ -891,7 +924,8 @@
       const data = await res.json();
       const rows = data.ac || [];
       stateData = rows.map(r=>({
-        icao24:r.hex, callsign:r.flight, origin_country:r.t || r.desc || '—',
+        icao24:r.hex, callsign:r.flight, origin_country:r.t || '—',
+        registration:r.r || '—', actype:r.t || '—', desc:r.desc || '',
         time_position:r.seen_pos, last_contact:r.seen,
         longitude:r.lon, latitude:r.lat,
         baro_altitude: typeof r.alt_baro==='number' ? r.alt_baro*0.3048 : null, // ft->m for consistent downstream math
