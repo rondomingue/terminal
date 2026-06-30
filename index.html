@@ -197,6 +197,17 @@
     font-family:'Space Mono',monospace; font-size:9px; letter-spacing:0.18em;
     color:var(--ink-faint); text-transform:uppercase;
   }
+  .panel.highlighted{
+    border-color: rgba(255,255,255,0.4);
+    box-shadow:
+      inset 0 0 0 1px rgba(255,255,255,0.08),
+      inset 0 0 50px rgba(255,255,255,0.04),
+      0 0 24px rgba(255,255,255,0.12),
+      0 18px 36px -14px rgba(0,0,0,0.7);
+  }
+  .panel.highlighted .panel-label{ color:var(--white); }
+  .panel-label{ cursor:pointer; user-select:none; transition:color 0.15s ease; }
+  .panel-label:hover{ color:var(--ink); }
   .panel-label .flag{ color:var(--ink); text-shadow:0 0 5px rgba(242,243,243,0.5); }
   .panel-meta{
     position:absolute; top:8px; right:10px;
@@ -492,6 +503,34 @@
     hexEl.textContent = buildHexTicker();
     setInterval(()=>{ hexEl.textContent = buildHexTicker(); }, 1800);
   }
+
+  // ---- synthesized UI click sound (no audio file needed) ----
+  let audioCtx = null;
+  function playClick(freq){
+    try{
+      if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if(audioCtx.state === 'suspended') audioCtx.resume();
+      const t0 = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(freq || 1400, t0);
+      osc.frequency.exponentialRampToValueAtTime((freq||1400)*0.5, t0+0.035);
+      gain.gain.setValueAtTime(0.06, t0);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0+0.05);
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(t0); osc.stop(t0+0.06);
+    }catch(e){ /* audio unsupported, fail silent */ }
+  }
+
+  // ---- click-to-highlight panel sections ----
+  document.querySelectorAll('.panel-label').forEach(label=>{
+    label.addEventListener('click', ()=>{
+      playClick(1500);
+      const panel = label.closest('.panel');
+      if(panel) panel.classList.toggle('highlighted');
+    });
+  });
   setInterval(()=>{
     const el = $('sqcode');
     if(el) el.textContent = String(Math.floor(1000+Math.random()*7000));
@@ -676,8 +715,14 @@
       (
         way["natural"="coastline"];
         way["natural"="water"];
+        way["natural"="wetland"];
         way["waterway"="river"];
-        way["highway"~"motorway|trunk|primary"];
+        way["landuse"="forest"];
+        way["railway"="rail"];
+        way["highway"~"motorway|trunk|primary|secondary"];
+        way["aeroway"~"runway|taxiway"];
+        node["place"~"city|town"];
+        node["aeroway"="aerodrome"];
       );
       out geom;`;
     const g = svg.querySelector('#vector-map');
@@ -688,18 +733,37 @@
       if(!res.ok) throw new Error('HTTP '+res.status);
       const data = await res.json();
       let html = '';
+      let wayCount = 0, nodeCount = 0;
       (data.elements||[]).forEach(el=>{
+        if(el.type==='node' && el.tags){
+          const [x,y] = project(el.lat, el.lon);
+          if(x<0||x>SVG_W||y<0||y>SVG_H) return;
+          nodeCount++;
+          if(el.tags.place){
+            html += `<circle cx="${x}" cy="${y}" r="1.6" fill="var(--ink-dim)"/>`;
+            html += `<text x="${x+5}" y="${y+3}" fill="var(--ink-faint)" font-size="7" font-family="Space Mono, monospace" letter-spacing="0.5" opacity="0.7">${(el.tags.name||'').toUpperCase()}</text>`;
+          } else if(el.tags.aeroway==='aerodrome'){
+            html += `<circle cx="${x}" cy="${y}" r="2.2" fill="none" stroke="var(--white)" stroke-width="1" opacity="0.7"/>`;
+          }
+          return;
+        }
         if(!el.geometry || el.geometry.length<2) return;
+        wayCount++;
         const pts = el.geometry.map(p=>project(p.lat, p.lon));
         const d = 'M ' + pts.map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' L ');
         let stroke='var(--ink-faint)', width='0.8', opacity='0.6', dash='', filter='';
         if(el.tags && el.tags.natural==='coastline'){ stroke='var(--white)'; width='1.4'; opacity='0.9'; filter='url(#glow)'; }
+        else if(el.tags && el.tags.natural==='wetland'){ stroke='var(--ink-faint)'; width='0.6'; opacity='0.3'; dash='1,2'; }
+        else if(el.tags && el.tags.landuse==='forest'){ stroke='var(--ink-faint)'; width='0.5'; opacity='0.25'; }
         else if(el.tags && (el.tags.natural==='water' || el.tags.waterway==='river')){ stroke='var(--ink)'; width='1'; opacity='0.55'; }
+        else if(el.tags && el.tags.railway==='rail'){ stroke='var(--ink-faint)'; width='0.6'; opacity='0.4'; dash='3,2'; }
+        else if(el.tags && el.tags.aeroway==='runway'){ stroke='var(--white)'; width='2.2'; opacity='0.85'; filter='url(#glow)'; }
+        else if(el.tags && el.tags.aeroway==='taxiway'){ stroke='var(--ink)'; width='1'; opacity='0.6'; }
         else if(el.tags && el.tags.highway){ stroke='var(--ink-dim)'; width='0.7'; opacity='0.45'; dash='1,3'; }
         html += `<path d="${d}" fill="none" stroke="${stroke}" stroke-width="${width}" opacity="${opacity}" stroke-dasharray="${dash}" ${filter?`filter="${filter}"`:''}/>`;
       });
       g.innerHTML = html;
-      logLine('VECTOR MAP — GEOMETRY LOADED');
+      logLine(`VECTOR MAP — ${wayCount} WAYS / ${nodeCount} NODES LOADED`);
     }catch(e){
       logLine(`VECTOR MAP — LOAD FAIL (${e.message})`);
     }
@@ -772,7 +836,7 @@
     });
     g.innerHTML = html;
     g.querySelectorAll('.target').forEach(t=>{
-      t.addEventListener('click', ()=>{ selectedIcao = t.getAttribute('data-icao'); renderTargets(); renderSelection(); });
+      t.addEventListener('click', ()=>{ playClick(900); selectedIcao = t.getAttribute('data-icao'); renderTargets(); renderSelection(); });
     });
   }
 
@@ -807,7 +871,7 @@
     });
     body.innerHTML = html;
     body.querySelectorAll('.trow').forEach(row=>{
-      row.addEventListener('click', ()=>{ selectedIcao = row.getAttribute('data-icao'); renderTargets(); renderSelection(); });
+      row.addEventListener('click', ()=>{ playClick(900); selectedIcao = row.getAttribute('data-icao'); renderTargets(); renderSelection(); });
     });
   }
 
