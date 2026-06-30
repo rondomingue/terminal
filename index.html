@@ -242,6 +242,11 @@
     display:flex; justify-content:space-between;
     font-family:'Space Mono',monospace; font-size:9px; color:var(--ink-faint); letter-spacing:0.1em;
   }
+  #hex-ticker{
+    position:absolute; bottom:6px; left:10px; right:200px;
+    font-size:7.5px; color:var(--ink-faint); opacity:0.4;
+    white-space:nowrap; overflow:hidden; letter-spacing:0.12em;
+  }
 
   /* CENTER BOTTOM — table */
   #table-panel{ grid-column:2; grid-row:3; padding:18px 14px 8px 14px; overflow:hidden; }
@@ -375,6 +380,7 @@
       <div class="panel-label"><span class="flag">[</span> T.DATA <span class="flag">]</span></div>
       <div class="panel-meta" id="scope-bbox">29.70/-90.40 — 30.20/-89.70</div>
       <div class="panel-meta" style="top:auto; bottom:6px; right:10px; font-size:8px;">MAP DATA © OPENSTREETMAP CONTRIBUTORS</div>
+      <div id="hex-ticker" class="mono"></div>
       <div id="scope-wrap">
         <svg id="scope-svg" viewBox="0 0 800 460" preserveAspectRatio="xMidYMid meet"></svg>
       </div>
@@ -474,6 +480,18 @@
     svgEl.innerHTML = html;
   }
   buildHeaderRule();
+
+  function hexByte(){ return Math.floor(Math.random()*256).toString(16).toUpperCase().padStart(2,'0'); }
+  function buildHexTicker(){
+    let s = '';
+    for(let i=0;i<60;i++) s += hexByte() + ' ';
+    return s;
+  }
+  const hexEl = document.getElementById('hex-ticker');
+  if(hexEl){
+    hexEl.textContent = buildHexTicker();
+    setInterval(()=>{ hexEl.textContent = buildHexTicker(); }, 1800);
+  }
   setInterval(()=>{
     const el = $('sqcode');
     if(el) el.textContent = String(Math.floor(1000+Math.random()*7000));
@@ -497,6 +515,60 @@
   setInterval(clock, 1000); clock();
 
   // project lat/lon within bbox to svg coords
+  function buildTopology(){
+    const cols = 56, rows = 32;
+    const field = [];
+    for(let gy=0; gy<=rows; gy++){
+      const row = [];
+      for(let gx=0; gx<=cols; gx++){
+        const x = gx/cols, y = gy/rows;
+        let v = 0.5 + 0.5*(
+          Math.sin(x*9.2+1.3)*0.4 +
+          Math.cos(y*7.1-0.6)*0.35 +
+          Math.sin((x+y)*5.4+2.1)*0.3 +
+          Math.cos((x*1.7-y*2.3)*6.2)*0.25
+        )/1.3;
+        row.push(Math.max(0, Math.min(1, v)));
+      }
+      field.push(row);
+    }
+    const cellW = SVG_W/cols, cellH = SVG_H/rows;
+    const levels = [0.28,0.38,0.48,0.58,0.68,0.78,0.88];
+    const edgeTable = {
+      1:[['L','B']], 2:[['B','R']], 3:[['L','R']], 4:[['T','R']],
+      5:[['T','L'],['B','R']], 6:[['T','B']], 7:[['T','L']],
+      8:[['T','L']], 9:[['T','B']], 10:[['T','R'],['L','B']],
+      11:[['T','R']], 12:[['L','R']], 13:[['B','R']], 14:[['L','B']]
+    };
+    function pt(edge, gx, gy, c0,c1,c2,c3, lvl){
+      const x0=gx*cellW, y0=gy*cellH, x1=(gx+1)*cellW, y1=(gy+1)*cellH;
+      const lerp=(a,b)=> (a===b)?0.5:(lvl-a)/(b-a);
+      if(edge==='T') return [x0+lerp(c0,c1)*(x1-x0), y0];
+      if(edge==='R') return [x1, y0+lerp(c1,c2)*(y1-y0)];
+      if(edge==='B') return [x0+lerp(c3,c2)*(x1-x0), y1];
+      if(edge==='L') return [x0, y0+lerp(c0,c3)*(y1-y0)];
+    }
+    let html = '';
+    levels.forEach((lvl, li)=>{
+      let segs = '';
+      for(let gy=0; gy<rows; gy++){
+        for(let gx=0; gx<cols; gx++){
+          const c0=field[gy][gx], c1=field[gy][gx+1], c2=field[gy+1][gx+1], c3=field[gy+1][gx];
+          const idx = (c0>lvl?8:0)+(c1>lvl?4:0)+(c2>lvl?2:0)+(c3>lvl?1:0);
+          if(idx===0||idx===15) continue;
+          (edgeTable[idx]||[]).forEach(pair=>{
+            const p1 = pt(pair[0], gx, gy, c0,c1,c2,c3, lvl);
+            const p2 = pt(pair[1], gx, gy, c0,c1,c2,c3, lvl);
+            segs += `M ${p1[0].toFixed(1)} ${p1[1].toFixed(1)} L ${p2[0].toFixed(1)} ${p2[1].toFixed(1)} `;
+          });
+        }
+      }
+      const mid = Math.abs(li - levels.length/2) < 1.2;
+      html += `<path d="${segs}" fill="none" stroke="var(--ink-faint)" stroke-width="${mid?0.6:0.4}" opacity="${mid?0.4:0.22}"/>`;
+    });
+    return html;
+  }
+
   function project(lat, lon){
     const x = ((lon - BBOX.lomin) / (BBOX.lomax - BBOX.lomin)) * SVG_W;
     const y = SVG_H - ((lat - BBOX.lamin) / (BBOX.lamax - BBOX.lamin)) * SVG_H;
@@ -515,6 +587,7 @@
         <stop offset="100%" stop-color="#f2f3f3" stop-opacity="0"/>
       </radialGradient>
     </defs>`;
+    html += `<g id="topology" opacity="0.9">${buildTopology()}</g>`;
     html += `<g id="vector-map"></g>`;
     // grid lines
     for(let i=1;i<8;i++){
@@ -547,6 +620,25 @@
       <circle cx="${fx}" cy="${fy}" r="${ringR}" fill="none" stroke="var(--line)" stroke-width="1"/>
       ${ticks}
     </g>`;
+
+    // static cardinal bearing labels (non-rotating, always legible)
+    const bearings = [[0,'000'],[90,'090'],[180,'180'],[270,'270']];
+    bearings.forEach(([d,label])=>{
+      const rad = d*Math.PI/180;
+      const bx = fx + Math.sin(rad)*(ringR+12), by = fy - Math.cos(rad)*(ringR+12);
+      html += `<text x="${bx}" y="${by}" fill="var(--ink-faint)" font-size="7.5" font-family="Space Mono, monospace" text-anchor="middle" dominant-baseline="middle">${label}</text>`;
+    });
+
+    // scattered floating coordinate / hex micro-readouts (decorative data density)
+    const microLabels = [
+      [SVG_W*0.08, SVG_H*0.12, `N${(BBOX.lamax).toFixed(2)} W${Math.abs(BBOX.lomin).toFixed(2)}`],
+      [SVG_W*0.85, SVG_H*0.18, `0x${Math.floor(Math.random()*0xFFFF).toString(16).toUpperCase().padStart(4,'0')}`],
+      [SVG_W*0.06, SVG_H*0.88, `N${(BBOX.lamin).toFixed(2)} W${Math.abs(BBOX.lomax).toFixed(2)}`],
+      [SVG_W*0.88, SVG_H*0.82, `SEC.${Math.floor(Math.random()*900+100)}`]
+    ];
+    microLabels.forEach(([mx,my,txt])=>{
+      html += `<text x="${mx}" y="${my}" fill="var(--ink-faint)" font-size="7" font-family="Space Mono, monospace" opacity="0.55">${txt}</text>`;
+    });
 
     // crosshair + label
     html += `<line x1="${fx-9}" y1="${fy}" x2="${fx+9}" y2="${fy}" stroke="var(--ink)" stroke-width="1" filter="url(#glow)"/>`;
@@ -600,10 +692,10 @@
         if(!el.geometry || el.geometry.length<2) return;
         const pts = el.geometry.map(p=>project(p.lat, p.lon));
         const d = 'M ' + pts.map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' L ');
-        let stroke='var(--ink-faint)', width='0.7', opacity='0.5', dash='', filter='';
-        if(el.tags && el.tags.natural==='coastline'){ stroke='var(--ink-dim)'; width='1'; opacity='0.75'; filter='url(#glow)'; }
-        else if(el.tags && (el.tags.natural==='water' || el.tags.waterway==='river')){ stroke='var(--ink-faint)'; width='0.7'; opacity='0.4'; }
-        else if(el.tags && el.tags.highway){ stroke='var(--ink-faint)'; width='0.6'; opacity='0.35'; dash='1,3'; }
+        let stroke='var(--ink-faint)', width='0.8', opacity='0.6', dash='', filter='';
+        if(el.tags && el.tags.natural==='coastline'){ stroke='var(--white)'; width='1.4'; opacity='0.9'; filter='url(#glow)'; }
+        else if(el.tags && (el.tags.natural==='water' || el.tags.waterway==='river')){ stroke='var(--ink)'; width='1'; opacity='0.55'; }
+        else if(el.tags && el.tags.highway){ stroke='var(--ink-dim)'; width='0.7'; opacity='0.45'; dash='1,3'; }
         html += `<path d="${d}" fill="none" stroke="${stroke}" stroke-width="${width}" opacity="${opacity}" stroke-dasharray="${dash}" ${filter?`filter="${filter}"`:''}/>`;
       });
       g.innerHTML = html;
