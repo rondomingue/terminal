@@ -31,6 +31,31 @@
   }
 
   .mono{ font-family:'Space Mono', monospace; letter-spacing:0.02em; }
+  .glow{ text-shadow: 0 0 6px rgba(242,243,243,0.55), 0 0 14px rgba(242,243,243,0.18); }
+
+  @keyframes flicker{
+    0%,100%{ opacity:1; }
+    92%{ opacity:1; }
+    93%{ opacity:0.4; }
+    94%{ opacity:1; }
+    96%{ opacity:0.6; }
+    97%{ opacity:1; }
+  }
+  @keyframes ringspin{ from{ transform:rotate(0deg); } to{ transform:rotate(360deg); } }
+  @keyframes ringspin-rev{ from{ transform:rotate(360deg); } to{ transform:rotate(0deg); } }
+  @keyframes blipring{
+    0%{ r:3; opacity:0.9; }
+    100%{ r:16; opacity:0; }
+  }
+
+  #vignette{
+    position:absolute; inset:0; pointer-events:none; z-index:48;
+    background:radial-gradient(ellipse at 50% 50%, transparent 45%, rgba(0,0,0,0.55) 100%);
+  }
+  #vignette::after{
+    content:''; position:absolute; inset:0;
+    box-shadow: inset 0 0 140px rgba(0,0,0,0.85);
+  }
 
   #stage{
     position:relative;
@@ -74,12 +99,30 @@
     margin-bottom:2px;
   }
   .brand .sub{ color:var(--ink-faint); }
+  .id-strip{
+    margin-top:9px; display:flex; gap:10px; align-items:center;
+    font-family:'Space Mono',monospace; font-size:8.5px; color:var(--ink-faint);
+    letter-spacing:0.1em;
+  }
+  .id-strip b{ color:var(--ink-dim); font-weight:400; }
+  .id-strip .sep{ color:var(--line); }
 
   .clockblock{
     text-align:right; font-family:'Space Mono',monospace;
     font-size:11px; color:var(--ink-dim); letter-spacing:0.05em; line-height:1.7;
   }
   .clockblock .big{ font-size:20px; color:var(--white); letter-spacing:0.1em; }
+  .mini-stats{
+    margin-top:9px; display:flex; gap:10px; justify-content:flex-end;
+    font-family:'Space Mono',monospace; font-size:8.5px; color:var(--ink-faint);
+    letter-spacing:0.08em;
+  }
+  .mini-stats b{ color:var(--ink-dim); font-weight:400; margin-left:4px; }
+
+  #header-rule{
+    position:absolute; top:96px; left:0; right:0; height:10px; z-index:9;
+    padding:0 30px;
+  }
 
   /* ===== GRID LAYOUT ===== */
   #grid{
@@ -93,14 +136,53 @@
   }
 
   .panel{
-    background:var(--panel);
-    border:1px solid var(--line-dim);
+    background:rgba(13,14,16,0.58);
+    backdrop-filter: blur(7px) saturate(115%);
+    -webkit-backdrop-filter: blur(7px) saturate(115%);
+    border:1px solid rgba(255,255,255,0.07);
     position:relative;
     overflow:hidden;
+    clip-path: polygon(
+      0 10px, 10px 0,
+      calc(100% - 10px) 0, 100% 10px,
+      100% 100%,
+      0 100%
+    );
+    box-shadow:
+      inset 0 0 0 1px rgba(255,255,255,0.02),
+      inset 0 0 40px rgba(255,255,255,0.015),
+      0 18px 36px -14px rgba(0,0,0,0.7),
+      0 2px 0 rgba(255,255,255,0.03);
   }
   .panel::before{
     content:''; position:absolute; top:0; left:0; right:0; height:1px;
-    background:linear-gradient(to right, rgba(255,255,255,0.18), transparent 70%);
+    background:linear-gradient(to right, rgba(255,255,255,0.22), transparent 70%);
+  }
+  .panel::after{
+    content:''; position:absolute; top:0; right:0; width:14px; height:14px;
+    background:linear-gradient(135deg, transparent 49%, rgba(255,255,255,0.25) 50%, transparent 51%);
+  }
+  #depth-field{
+    position:absolute; inset:0; z-index:2; pointer-events:none; overflow:hidden;
+  }
+  #depth-field span{
+    position:absolute; display:block; border-radius:2px;
+    background:rgba(255,255,255,0.05);
+    filter:blur(38px);
+  }
+  #depth-field span:nth-child(1){ width:420px; height:160px; top:8%; left:6%; transform:rotate(-3deg); }
+  #depth-field span:nth-child(2){ width:300px; height:90px; top:62%; left:4%; transform:rotate(2deg); opacity:0.7; }
+  #depth-field span:nth-child(3){ width:520px; height:200px; top:30%; right:4%; transform:rotate(4deg); opacity:0.55; }
+  #depth-field span:nth-child(4){ width:260px; height:120px; top:74%; right:10%; transform:rotate(-5deg); opacity:0.5; }
+  #depth-field span:nth-child(5){ width:700px; height:140px; top:2%; left:30%; transform:rotate(-1deg); opacity:0.35; }
+
+  .ghost-sheet{
+    position:absolute; inset:-10px 10px 10px -10px;
+    border:1px solid rgba(255,255,255,0.05);
+    background:rgba(255,255,255,0.015);
+    z-index:-1;
+    pointer-events:none;
+    clip-path: polygon(0 10px, 10px 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
   }
   .corner{
     position:absolute; width:7px; height:7px;
@@ -115,7 +197,7 @@
     font-family:'Space Mono',monospace; font-size:9px; letter-spacing:0.18em;
     color:var(--ink-faint); text-transform:uppercase;
   }
-  .panel-label .flag{ color:var(--ink); }
+  .panel-label .flag{ color:var(--ink); text-shadow:0 0 5px rgba(242,243,243,0.5); }
   .panel-meta{
     position:absolute; top:8px; right:10px;
     font-family:'Space Mono',monospace; font-size:9px; letter-spacing:0.1em;
@@ -150,9 +232,10 @@
   #log-feed div .t{ color:var(--ink-faint); margin-right:8px; }
 
   /* CENTER — scope */
-  #scope-panel{ grid-column:2; grid-row:1 / span 2; padding:30px 16px 16px 16px; }
+  #scope-stack{ grid-column:2; grid-row:1 / span 2; position:relative; }
+  #scope-panel{ position:absolute; inset:0; padding:30px 16px 16px 16px; }
   #scope-wrap{ position:relative; width:100%; height:100%; }
-  #scope-svg{ width:100%; height:100%; display:block; }
+  #scope-svg{ width:100%; height:100%; display:block; position:relative; z-index:2; }
 
   .scope-readout-top{
     position:absolute; top:0; left:0; right:0;
@@ -224,18 +307,39 @@
 <body>
 
 <div id="stage">
+  <div id="depth-field"><span></span><span></span><span></span><span></span><span></span></div>
   <div class="scanline"></div>
   <div id="grain"></div>
+  <div id="vignette"></div>
 
   <div id="header">
     <div class="brand">
-      <div class="title">MSY <span style="color:var(--ink-faint); font-weight:300;">// SECTOR ASSET</span></div>
+      <div class="title">
+        <span class="glow" style="animation:flicker 9s infinite;">MSY</span>
+        <span style="color:var(--ink-faint); font-weight:300; text-shadow:none;">// SECTOR ASSET</span>
+      </div>
       <div class="sub">LOUIS ARMSTRONG NEW ORLEANS INTL — 29.9934°N 90.2581°W — LIVE TRAFFIC FEED</div>
+      <div class="id-strip">
+        <span>SECTOR ID <b>KMSY-07A</b></span>
+        <span class="sep">/</span>
+        <span>BUILD <b>02.6.30</b></span>
+        <span class="sep">/</span>
+        <span>NODE <b>VKTR-TERM-02</b></span>
+      </div>
     </div>
     <div class="clockblock">
-      <div class="big" id="clock">00:00:00</div>
+      <div class="big mono glow" id="clock">00:00:00</div>
       <div id="datestr">----.--.--</div>
+      <div class="mini-stats">
+        <span>UTC<b id="utcoff">−05:00</b></span>
+        <span>ELEV<b>4 FT</b></span>
+        <span>SQ<b id="sqcode">2104</b></span>
+      </div>
     </div>
+  </div>
+
+  <div id="header-rule">
+    <svg width="100%" height="10" preserveAspectRatio="none"></svg>
   </div>
 
   <div id="grid">
@@ -245,14 +349,14 @@
       <div class="panel stat-card">
         <div class="corner tr"></div><div class="corner br"></div>
         <div class="panel-label"><span class="flag">●</span> LINK</div>
-        <div class="value mono" id="link-status">SYN</div>
+        <div class="value mono glow" id="link-status">SYN</div>
         <div class="label-row"><span>AIRPLANES.LIVE</span><span id="poll-rate">15s</span></div>
       </div>
 
       <div class="panel stat-card">
         <div class="corner tr"></div><div class="corner br"></div>
         <div class="panel-label">TRACKS</div>
-        <div class="value mono" id="track-count">--</div>
+        <div class="value mono glow" id="track-count">--</div>
         <div class="label-row"><span>AIRBORNE</span><span id="ground-count">GND --</span></div>
       </div>
 
@@ -264,12 +368,16 @@
     </div>
 
     <!-- CENTER SCOPE -->
-    <div class="panel" id="scope-panel">
+    <div id="scope-stack">
+      <div class="ghost-sheet"></div>
+      <div class="panel" id="scope-panel">
       <div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
       <div class="panel-label"><span class="flag">[</span> T.DATA <span class="flag">]</span></div>
       <div class="panel-meta" id="scope-bbox">29.70/-90.40 — 30.20/-89.70</div>
+      <div class="panel-meta" style="top:auto; bottom:6px; right:10px; font-size:8px;">MAP DATA © OPENSTREETMAP CONTRIBUTORS</div>
       <div id="scope-wrap">
         <svg id="scope-svg" viewBox="0 0 800 460" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
       </div>
     </div>
 
@@ -354,6 +462,23 @@
   const SVG_W = 800, SVG_H = 460;
   const SVG_NS = 'http://www.w3.org/2000/svg';
 
+  function buildHeaderRule(){
+    const svgEl = document.querySelector('#header-rule svg');
+    svgEl.setAttribute('viewBox', '0 0 1000 10');
+    let html = `<line x1="0" y1="1" x2="1000" y2="1" stroke="var(--line-dim)" stroke-width="1"/>`;
+    for(let i=0;i<=50;i++){
+      const x = i*20;
+      const tall = i%5===0;
+      html += `<line x1="${x}" y1="1" x2="${x}" y2="${tall?7:4}" stroke="var(--line-dim)" stroke-width="1"/>`;
+    }
+    svgEl.innerHTML = html;
+  }
+  buildHeaderRule();
+  setInterval(()=>{
+    const el = $('sqcode');
+    if(el) el.textContent = String(Math.floor(1000+Math.random()*7000));
+  }, 6000);
+
   function logLine(msg){
     const t = new Date();
     const ts = t.toTimeString().slice(0,8);
@@ -380,6 +505,17 @@
 
   function buildScopeStatic(){
     let html = '';
+    html += `<defs>
+      <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="2.2" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <radialGradient id="sweepGrad" cx="0%" cy="0%" r="100%">
+        <stop offset="0%" stop-color="#f2f3f3" stop-opacity="0.28"/>
+        <stop offset="100%" stop-color="#f2f3f3" stop-opacity="0"/>
+      </radialGradient>
+    </defs>`;
+    html += `<g id="vector-map"></g>`;
     // grid lines
     for(let i=1;i<8;i++){
       const x = (SVG_W/8)*i;
@@ -395,13 +531,32 @@
     [25,50].forEach(r=>{
       html += `<circle cx="${fx}" cy="${fy}" r="${r*nmiToPx}" fill="none" stroke="var(--line)" stroke-width="1" stroke-dasharray="2,5" opacity="0.6"/>`;
     });
-    html += `<line x1="${fx-9}" y1="${fy}" x2="${fx+9}" y2="${fy}" stroke="var(--ink)" stroke-width="1"/>`;
-    html += `<line x1="${fx}" y1="${fy-9}" x2="${fx}" y2="${fy+9}" stroke="var(--ink)" stroke-width="1"/>`;
+
+    // rotating tick ring (outer)
+    const ringR = Math.min(SVG_W, SVG_H) * 0.46;
+    let ticks = '';
+    for(let d=0; d<360; d+=15){
+      const rad = d*Math.PI/180;
+      const long = d % 90 === 0;
+      const r1 = ringR - (long?14:8);
+      const x1 = fx + Math.sin(rad)*r1, y1 = fy - Math.cos(rad)*r1;
+      const x2 = fx + Math.sin(rad)*ringR, y2 = fy - Math.cos(rad)*ringR;
+      ticks += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--ink-faint)" stroke-width="${long?1.2:0.7}"/>`;
+    }
+    html += `<g id="tick-ring" style="transform-origin:${fx}px ${fy}px;">
+      <circle cx="${fx}" cy="${fy}" r="${ringR}" fill="none" stroke="var(--line)" stroke-width="1"/>
+      ${ticks}
+    </g>`;
+
+    // crosshair + label
+    html += `<line x1="${fx-9}" y1="${fy}" x2="${fx+9}" y2="${fy}" stroke="var(--ink)" stroke-width="1" filter="url(#glow)"/>`;
+    html += `<line x1="${fx}" y1="${fy-9}" x2="${fx}" y2="${fy+9}" stroke="var(--ink)" stroke-width="1" filter="url(#glow)"/>`;
     html += `<text x="${fx+12}" y="${fy-8}" fill="var(--ink-dim)" font-size="9" font-family="Space Mono, monospace" letter-spacing="1">KMSY</text>`;
 
-    // sweep
+    // sweep wedge with glow trail
     html += `<g id="sweep-group" style="transform-origin:${fx}px ${fy}px;">
-      <line x1="${fx}" y1="${fy}" x2="${fx}" y2="0" stroke="var(--ink)" stroke-width="1" opacity="0.5"/>
+      <path d="M ${fx} ${fy} L ${fx} ${fy-ringR} A ${ringR} ${ringR} 0 0 1 ${fx + Math.sin(0.5)*ringR} ${fy - Math.cos(0.5)*ringR} Z" fill="url(#sweepGrad)"/>
+      <line x1="${fx}" y1="${fy}" x2="${fx}" y2="${fy-ringR}" stroke="var(--ink)" stroke-width="1" opacity="0.7" filter="url(#glow)"/>
     </g>`;
 
     html += `<g id="targets-group"></g>`;
@@ -414,8 +569,51 @@
       ang = (ang + 2) % 360;
       sweep.setAttribute('transform', `rotate(${ang} ${fx} ${fy})`);
     }, 40);
+
+    // slow counter-rotating tick ring for parallax depth
+    const ring = svg.querySelector('#tick-ring');
+    let rAng = 0;
+    setInterval(()=>{
+      rAng = (rAng - 0.15 + 360) % 360;
+      ring.setAttribute('transform', `rotate(${rAng} ${fx} ${fy})`);
+    }, 60);
+  }
+  async function buildVectorMap(){
+    const bbox = `${BBOX.lamin},${BBOX.lomin},${BBOX.lamax},${BBOX.lomax}`;
+    const query = `[out:json][timeout:25][bbox:${bbox}];
+      (
+        way["natural"="coastline"];
+        way["natural"="water"];
+        way["waterway"="river"];
+        way["highway"~"motorway|trunk|primary"];
+      );
+      out geom;`;
+    const g = svg.querySelector('#vector-map');
+    try{
+      const res = await fetch('https://overpass-api.de/api/interpreter', {
+        method:'POST', body:'data='+encodeURIComponent(query)
+      });
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      const data = await res.json();
+      let html = '';
+      (data.elements||[]).forEach(el=>{
+        if(!el.geometry || el.geometry.length<2) return;
+        const pts = el.geometry.map(p=>project(p.lat, p.lon));
+        const d = 'M ' + pts.map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' L ');
+        let stroke='var(--ink-faint)', width='0.7', opacity='0.5', dash='', filter='';
+        if(el.tags && el.tags.natural==='coastline'){ stroke='var(--ink-dim)'; width='1'; opacity='0.75'; filter='url(#glow)'; }
+        else if(el.tags && (el.tags.natural==='water' || el.tags.waterway==='river')){ stroke='var(--ink-faint)'; width='0.7'; opacity='0.4'; }
+        else if(el.tags && el.tags.highway){ stroke='var(--ink-faint)'; width='0.6'; opacity='0.35'; dash='1,3'; }
+        html += `<path d="${d}" fill="none" stroke="${stroke}" stroke-width="${width}" opacity="${opacity}" stroke-dasharray="${dash}" ${filter?`filter="${filter}"`:''}/>`;
+      });
+      g.innerHTML = html;
+      logLine('VECTOR MAP — GEOMETRY LOADED');
+    }catch(e){
+      logLine(`VECTOR MAP — LOAD FAIL (${e.message})`);
+    }
   }
   buildScopeStatic();
+  buildVectorMap();
 
   let stateData = [];
   let selectedIcao = null;
@@ -474,7 +672,8 @@
       const stroke = isSel ? 'var(--white)' : 'var(--ink-dim)';
       const trackAngle = (f.true_track || 0);
       html += `<g class="target" data-icao="${f.icao24}" style="cursor:pointer;">
-        <circle cx="${x}" cy="${y}" r="${isSel?6:r}" fill="${fill}" stroke="${stroke}" stroke-width="1" opacity="${isSel?1:0.85}"/>
+        ${!f.on_ground ? `<circle cx="${x}" cy="${y}" r="3" fill="none" stroke="${isSel?'var(--white)':'var(--ink-dim)'}" stroke-width="1"><animate attributeName="r" values="3;15" dur="2.4s" begin="${(x*7+y*3)%2400}ms" repeatCount="indefinite"/><animate attributeName="opacity" values="0.7;0" dur="2.4s" begin="${(x*7+y*3)%2400}ms" repeatCount="indefinite"/></circle>` : ''}
+        <circle cx="${x}" cy="${y}" r="${isSel?6:r}" fill="${fill}" stroke="${stroke}" stroke-width="1" opacity="${isSel?1:0.85}" filter="${isSel?'url(#glow)':''}"/>
         ${!f.on_ground ? `<line x1="${x}" y1="${y}" x2="${x + Math.sin(trackAngle*Math.PI/180)*10}" y2="${y - Math.cos(trackAngle*Math.PI/180)*10}" stroke="${stroke}" stroke-width="1" opacity="0.6"/>` : ''}
         <text x="${x+6}" y="${y-5}" fill="${isSel?'var(--white)':'var(--ink-faint)'}" font-size="8" font-family="Space Mono, monospace">${(f.callsign||'').trim() || f.icao24}</text>
       </g>`;
