@@ -230,21 +230,7 @@
 
   <div id="header">
     <div class="brand">
-      <div class="title">
-        <svg width="28" height="28" viewBox="0 0 28 28" style="display:inline-block;vertical-align:middle;margin-right:8px;filter:drop-shadow(0 0 6px rgba(200,48,48,0.6))">
-          <g fill="none" stroke-width="1.8" stroke-linecap="round">
-            <!-- outer spiral arm -->
-            <path d="M 14 5 C 20 5, 24 9, 23 14 C 22 19, 17 22, 12 20 C 7 18, 5 13, 7 9 C 9 5, 14 4, 18 7" stroke="#c83030" opacity="0.9"/>
-            <!-- mid spiral arm -->
-            <path d="M 14 8 C 18 8, 21 11, 20 14 C 19 17, 16 19, 13 18 C 10 17, 8 14, 9 11 C 10 9, 13 8, 16 10" stroke="#e06020" opacity="0.8"/>
-            <!-- inner spiral -->
-            <path d="M 14 10.5 C 16.5 10.5, 18 12, 17.5 14 C 17 16, 15 17, 13 16.5 C 11 16, 10 14, 11 12.5" stroke="#f0a030" opacity="0.75"/>
-            <!-- eye -->
-            <circle cx="14" cy="14" r="2.2" stroke="#f5d060" stroke-width="1.2" opacity="0.9"/>
-            <circle cx="14" cy="14" r="0.8" fill="#ffffff" opacity="0.9"/>
-          </g>
-        </svg><b>LAND</b>FALL <span style="color:var(--ink-faint);font-weight:300;">// LIVE</span>
-      </div>
+      <div class="title"><b>LAND</b>FALL <span style="color:var(--ink-faint);font-weight:300;">// LIVE</span></div>
       <div class="sub">TROPICAL CYCLONE OPERATIONS // GULF OF MEXICO — NHC WATCH</div>
       <div class="id-strip">
         <span>REGION <b>NAL/GOM</b></span><span class="sep">/</span>
@@ -377,19 +363,51 @@
   })();
 
   // HISTORICAL STORMS with real category colors
+  // Track point types: 'td'=tropical depression, 'ts'=tropical storm, 'c1'-'c5'=category,
+  //                    'ri'=rapid intensification, 'lf'=landfall, 'pk'=peak intensity
+  // Each track point: [lon, lat, type]
   const STORMS=[
-    {id:'katrina',name:'KATRINA',year:2005,cat:5,peak:175,mb:902,notes:'LA/MS AUG 29',
-     coords:[[-75.1,23.1],[-76.6,23.4],[-78.4,24.0],[-79.6,24.6],[-81.0,25.2],[-82.6,26.1],[-87.5,28.1],[-88.6,28.9],[-89.6,29.3],[-89.6,29.8],[-90.0,31.0],[-90.1,34.0]]},
-    {id:'ida',name:'IDA',year:2021,cat:4,peak:150,mb:929,notes:'LA AUG 29',
-     coords:[[-74.0,15.5],[-77.0,16.8],[-80.0,18.5],[-82.5,20.2],[-84.5,22.5],[-86.5,25.5],[-89.0,27.5],[-89.8,28.7],[-90.5,29.2],[-90.9,30.5],[-91.0,32.0]]},
-    {id:'laura',name:'LAURA',year:2020,cat:4,peak:150,mb:937,notes:'SW LA AUG 27',
-     coords:[[-71.5,14.0],[-74.5,15.8],[-78.0,17.5],[-81.2,19.8],[-84.0,22.0],[-87.5,24.5],[-90.5,26.5],[-92.0,27.9],[-93.0,29.0],[-93.4,30.5],[-92.5,33.0]]},
-    {id:'harvey',name:'HARVEY',year:2017,cat:4,peak:130,mb:937,notes:'TX AUG 25',
-     coords:[[-73.0,13.5],[-76.5,14.5],[-80.0,16.0],[-84.0,18.2],[-87.0,21.0],[-90.0,23.5],[-93.0,25.5],[-95.0,27.0],[-96.5,28.0],[-96.8,29.1],[-96.5,30.5]]},
-    {id:'michael',name:'MICHAEL',year:2018,cat:5,peak:160,mb:919,notes:'FL PANHANDLE OCT 10',
-     coords:[[-83.5,16.0],[-83.8,17.5],[-84.5,19.0],[-85.2,20.5],[-86.0,22.5],[-86.8,24.0],[-87.5,25.5],[-88.0,27.0],[-87.5,28.5],[-85.5,29.5],[-85.6,30.5],[-84.8,31.5]]},
-    {id:'ian',name:'IAN',year:2022,cat:4,peak:150,mb:952,notes:'SW FLORIDA SEP 28',
-     coords:[[-80.5,15.5],[-81.0,16.5],[-81.5,17.5],[-82.0,19.0],[-82.5,21.0],[-83.0,23.0],[-83.5,24.8],[-83.8,26.0],[-82.1,26.7],[-81.5,27.5],[-81.0,29.0],[-81.0,30.0]]},
+    {id:'camille',name:'CAMILLE',year:1969,cat:5,peak:175,mb:900,notes:'MS CAT 5 AUG 17 — PRE-SATELLITE ERA',
+     track:[[-83.0,18.0,'td'],[-84.5,19.5,'ts'],[-85.5,20.5,'c1'],[-86.5,21.5,'c2'],[-87.5,23.0,'c3'],
+            [-88.5,25.5,'ri'],[-88.8,27.5,'c5'],[-88.5,28.8,'pk'],[-89.3,30.2,'lf'],[-90.2,32.0,'c1'],[-90.8,34.5,'ts']]},
+    {id:'andrew',name:'ANDREW',year:1992,cat:5,peak:165,mb:922,notes:'S FLORIDA AUG 24 / MORGAN CITY LA',
+     track:[[-67.5,24.2,'ts'],[-70.5,24.5,'c1'],[-73.0,25.0,'c2'],[-75.5,25.3,'c3'],
+            [-77.5,25.4,'ri'],[-79.0,25.5,'pk'],[-80.3,25.6,'lf'],[-83.5,25.7,'c2'],
+            [-86.0,26.2,'c2'],[-88.0,27.5,'c1'],[-90.5,29.2,'c2'],[-91.4,29.8,'lf'],[-91.0,32.0,'ts']]},
+    {id:'katrina',name:'KATRINA',year:2005,cat:5,peak:175,mb:902,notes:'LA/MS AUG 29 — 1,833 DEATHS',
+     track:[[-75.1,23.1,'ts'],[-76.6,23.4,'c1'],[-78.4,24.0,'c1'],[-80.1,25.2,'lf'],
+            [-81.0,25.9,'c1'],[-82.6,26.2,'ri'],[-85.2,27.4,'c4'],[-87.5,28.1,'pk'],
+            [-88.6,28.9,'c5'],[-89.2,29.0,'ri'],[-89.6,29.3,'c4'],[-89.6,29.8,'lf'],
+            [-90.0,31.0,'c2'],[-90.1,34.0,'ts']]},
+    {id:'rita',name:'RITA',year:2005,cat:5,peak:180,mb:895,notes:'TX/LA BORDER SEP 24 — RECORD 895 MB',
+     track:[[-72.0,22.5,'ts'],[-75.5,23.2,'c1'],[-78.0,24.0,'c2'],[-80.5,24.5,'c2'],
+            [-82.0,24.8,'ri'],[-84.0,25.4,'c4'],[-86.5,26.0,'pk'],[-88.5,27.2,'c5'],
+            [-92.0,28.4,'c3'],[-93.6,29.7,'lf'],[-94.0,32.0,'ts']]},
+    {id:'ivan',name:'IVAN',year:2004,cat:5,peak:165,mb:910,notes:'PENSACOLA AUG 16 — MONSTER PATH',
+     track:[[-57.0,9.7,'ts'],[-62.0,11.5,'c1'],[-66.0,12.5,'c2'],[-69.5,13.8,'c4'],
+            [-73.0,15.5,'pk'],[-77.5,17.0,'c5'],[-80.0,18.5,'c4'],[-82.5,20.0,'c3'],
+            [-83.5,22.0,'ri'],[-85.0,24.5,'c4'],[-86.5,27.0,'c3'],[-87.5,29.0,'c3'],[-87.7,30.4,'lf'],
+            [-87.0,32.0,'c1'],[-85.5,34.5,'ts']]},
+    {id:'harvey',name:'HARVEY',year:2017,cat:4,peak:130,mb:937,notes:'TX AUG 25 — HISTORIC FLOODING 60\"',
+     track:[[-73.0,13.5,'td'],[-76.5,14.5,'ts'],[-80.0,16.0,'c1'],[-84.0,18.2,'c1'],
+            [-87.0,21.0,'td'],[-90.0,23.5,'ts'],[-93.0,25.5,'ri'],[-95.0,27.0,'c3'],
+            [-96.5,28.0,'pk'],[-96.8,29.1,'lf'],[-96.5,30.5,'ts']]},
+    {id:'michael',name:'MICHAEL',year:2018,cat:5,peak:160,mb:919,notes:'FL PANHANDLE OCT 10 — FASTEST RI ON RECORD',
+     track:[[-83.5,16.0,'td'],[-83.8,17.5,'ts'],[-84.5,19.0,'c1'],[-85.2,20.5,'c2'],
+            [-86.0,22.5,'c3'],[-86.8,24.0,'ri'],[-87.5,25.5,'c4'],[-88.0,27.0,'ri'],
+            [-87.5,28.5,'pk'],[-85.5,29.5,'c5'],[-85.6,30.5,'lf'],[-84.8,31.5,'c2']]},
+    {id:'laura',name:'LAURA',year:2020,cat:4,peak:150,mb:937,notes:'SW LA AUG 27 — SURGE RECORD',
+     track:[[-71.5,14.0,'td'],[-74.5,15.8,'ts'],[-78.0,17.5,'c1'],[-81.2,19.8,'c1'],
+            [-84.0,22.0,'c2'],[-87.5,24.5,'ri'],[-90.5,26.5,'c4'],[-92.0,27.9,'pk'],
+            [-93.0,29.0,'c4'],[-93.4,30.5,'lf'],[-92.5,33.0,'ts']]},
+    {id:'ida',name:'IDA',year:2021,cat:4,peak:150,mb:929,notes:'LA AUG 29 — SAME DATE AS KATRINA',
+     track:[[-74.0,15.5,'ts'],[-77.0,16.8,'ts'],[-80.0,18.5,'c1'],[-82.5,20.2,'c2'],
+            [-84.5,22.5,'c3'],[-86.5,25.5,'ri'],[-89.0,27.5,'c4'],[-89.8,28.7,'pk'],
+            [-90.5,29.2,'c4'],[-90.9,30.5,'lf'],[-91.0,32.0,'c1']]},
+    {id:'ian',name:'IAN',year:2022,cat:4,peak:150,mb:952,notes:'SW FLORIDA SEP 28 — $113B DAMAGE',
+     track:[[-80.5,15.5,'ts'],[-81.0,16.5,'c1'],[-81.5,17.5,'c2'],[-82.0,19.0,'c2'],
+            [-82.5,21.0,'c3'],[-83.0,23.0,'ri'],[-83.5,24.8,'c4'],[-83.8,26.0,'pk'],
+            [-82.1,26.7,'c4'],[-81.5,27.5,'lf'],[-81.0,29.0,'c1'],[-81.0,30.0,'ts']]},
   ];
   const shown={};
   STORMS.forEach(s=>{shown[s.id]=false;});
@@ -493,21 +511,98 @@
   }
 
   map.on('style.load',()=>{
-    // Add radar if frames already loaded
     if(radarFrames.length) addRadarLayers();
     loadRadar().then(()=>{ if(radarFrames.length) addRadarLayers(); });
+
+    // Register hurricane icon image for Mapbox symbol layer
+    const HURR_SVG=`<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+      <g fill="none" stroke-linecap="round">
+        <path d="M 16 4 C 24 4, 29 10, 28 16 C 27 22, 20 26, 14 23 C 8 20, 5 13, 8 8 C 11 3, 18 3, 22 8" stroke="white" stroke-width="2" opacity="0.9"/>
+        <path d="M 16 8 C 21 8, 24 12, 23 16 C 22 20, 18 22, 15 21 C 11 20, 9 16, 11 12 C 13 9, 17 8, 20 11" stroke="white" stroke-width="1.6" opacity="0.8"/>
+        <path d="M 16 11 C 19 11, 21 13, 20.5 16 C 20 18.5, 17.5 20, 15 19.5 C 12.5 19, 11 16.5, 12.5 14" stroke="white" stroke-width="1.2" opacity="0.65"/>
+        <circle cx="16" cy="16" r="3" stroke="white" stroke-width="1.2" opacity="0.9"/>
+        <circle cx="16" cy="16" r="1" fill="white" opacity="0.95"/>
+      </g>
+    </svg>`;
+    const img=new Image(32,32);
+    img.onload=()=>{ if(!map.hasImage('hurricane-icon')) map.addImage('hurricane-icon',img,{sdf:true}); };
+    img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(HURR_SVG);
+
+    // Landfall marker (X shape)
+    const LF_SVG=`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+      <line x1="2" y1="2" x2="14" y2="14" stroke="white" stroke-width="2.5"/>
+      <line x1="14" y1="2" x2="2" y2="14" stroke="white" stroke-width="2.5"/>
+    </svg>`;
+    const img2=new Image(16,16);
+    img2.onload=()=>{ if(!map.hasImage('landfall-icon')) map.addImage('landfall-icon',img2,{sdf:true}); };
+    img2.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(LF_SVG);
+
+    // RI lightning icon
+    const RI_SVG=`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="20" viewBox="0 0 16 20">
+      <polygon points="9,0 4,11 8,11 6,20 12,7 8,7" fill="white"/>
+    </svg>`;
+    const img3=new Image(16,20);
+    img3.onload=()=>{ if(!map.hasImage('ri-icon')) map.addImage('ri-icon',img3,{sdf:true}); };
+    img3.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(RI_SVG);
+
+    function typeToColor(type, stormCat){
+      if(type==='ri') return '#4af0ff'; // cyan for rapid intensification
+      const catMap={'td':'#a0a8c0','ts':'#f5f580','c1':'#f5d060','c2':'#f0a030','c3':'#e06020','c4':'#c83030','c5':'#a020a0','pk':'#ffffff','lf':'#ffffff'};
+      return catMap[type]||catColor(stormCat);
+    }
+
     STORMS.forEach(s=>{
-      const col=catColor(s.cat);
-      const op=catOpacity(s.cat);
-      map.addSource(`track-${s.id}`,{type:'geojson',data:{type:'Feature',geometry:{type:'LineString',coordinates:s.coords}}});
-      map.addLayer({id:`track-glow-${s.id}`,type:'line',source:`track-${s.id}`,
-        paint:{'line-color':col,'line-width':8,'line-opacity':0,'line-blur':5}});
-      map.addLayer({id:`track-line-${s.id}`,type:'line',source:`track-${s.id}`,
-        paint:{'line-color':col,'line-width':1.8,'line-opacity':0,'line-dasharray':[3,2.5]}});
-      const lfPt=s.coords[s.coords.length-3];
-      map.addSource(`lf-${s.id}`,{type:'geojson',data:{type:'Feature',geometry:{type:'Point',coordinates:lfPt}}});
-      map.addLayer({id:`lf-circle-${s.id}`,type:'circle',source:`lf-${s.id}`,
-        paint:{'circle-radius':5,'circle-color':'transparent','circle-opacity':0,'circle-stroke-width':1.5,'circle-stroke-color':col,'circle-stroke-opacity':0}});
+      const pts=s.track;
+      const allCoords=pts.map(p=>[p[0],p[1]]);
+
+      // 1. Full-track glow (single color, storm max cat)
+      map.addSource(`base-${s.id}`,{type:'geojson',data:{type:'Feature',geometry:{type:'LineString',coordinates:allCoords}}});
+      map.addLayer({id:`glow-${s.id}`,type:'line',source:`base-${s.id}`,
+        paint:{'line-color':catColor(s.cat),'line-width':10,'line-opacity':0,'line-blur':8}});
+
+      // 2. Per-segment lines — each segment colored by intensity type
+      pts.forEach((pt,i)=>{
+        if(i===0) return;
+        const segId=`seg-${s.id}-${i}`;
+        const col=typeToColor(pt[2],s.cat);
+        const isRI=pt[2]==='ri', isPK=pt[2]==='pk';
+        map.addSource(segId,{type:'geojson',data:{type:'Feature',geometry:{type:'LineString',coordinates:[[pts[i-1][0],pts[i-1][1]],[pt[0],pt[1]]]}  }});
+        map.addLayer({id:`${segId}-l`,type:'line',source:segId,
+          paint:{
+            'line-color':col,
+            'line-width':isRI?3:isPK?4:1.8,
+            'line-opacity':0,
+            'line-dasharray': pt[2]==='td'||pt[2]==='ts'?[2,3]:[1,0]
+          }});
+      });
+
+      // 3. Peak intensity — hurricane icon
+      const pkPt=pts.find(p=>p[2]==='pk')||pts[Math.floor(pts.length/2)];
+      map.addSource(`pk-${s.id}`,{type:'geojson',data:{type:'Feature',geometry:{type:'Point',coordinates:[pkPt[0],pkPt[1]]},properties:{name:s.name}}});
+      map.addLayer({id:`pk-icon-${s.id}`,type:'symbol',source:`pk-${s.id}`,
+        layout:{'icon-image':'hurricane-icon','icon-size':0.8,'icon-allow-overlap':true,
+          'text-field':s.name,"text-font":["DIN Offc Pro Bold","Arial Unicode MS Bold"],
+          'text-size':9,'text-anchor':'top','text-offset':[0,0.9],'text-letter-spacing':0.1},
+        paint:{'icon-color':catColor(s.cat),'icon-opacity':0,
+          'text-color':catColor(s.cat)+'cc','text-halo-color':'rgba(4,5,13,0.9)','text-halo-width':1.5}});
+
+      // 4. Landfall marker
+      const lfPts=pts.filter(p=>p[2]==='lf');
+      if(lfPts.length){
+        map.addSource(`lf-${s.id}`,{type:'geojson',data:{type:'FeatureCollection',features:lfPts.map(p=>({type:'Feature',geometry:{type:'Point',coordinates:[p[0],p[1]]}}))}});
+        map.addLayer({id:`lf-icon-${s.id}`,type:'symbol',source:`lf-${s.id}`,
+          layout:{'icon-image':'landfall-icon','icon-size':0.9,'icon-allow-overlap':true},
+          paint:{'icon-color':catColor(s.cat),'icon-opacity':0}});
+      }
+
+      // 5. RI markers
+      const riPts=pts.filter(p=>p[2]==='ri');
+      if(riPts.length){
+        map.addSource(`ri-${s.id}`,{type:'geojson',data:{type:'FeatureCollection',features:riPts.map(p=>({type:'Feature',geometry:{type:'Point',coordinates:[p[0],p[1]]}}))}});
+        map.addLayer({id:`ri-icon-${s.id}`,type:'symbol',source:`ri-${s.id}`,
+          layout:{'icon-image':'ri-icon','icon-size':0.8,'icon-allow-overlap':true},
+          paint:{'icon-color':'#4af0ff','icon-opacity':0}});
+      }
     });
 
     CITIES.forEach(c=>{
@@ -526,11 +621,17 @@
   function setTrackVisible(id,visible){
     const s=STORMS.find(x=>x.id===id);
     const op=visible?catOpacity(s.cat):0;
-    if(map.getLayer(`track-line-${id}`)) map.setPaintProperty(`track-line-${id}`,'line-opacity',op);
-    if(map.getLayer(`track-glow-${id}`)) map.setPaintProperty(`track-glow-${id}`,'line-opacity',visible?op*0.3:0);
-    if(map.getLayer(`lf-circle-${id}`)){
-      map.setPaintProperty(`lf-circle-${id}`,'circle-stroke-opacity',visible?op:0);
-    }
+    // glow
+    if(map.getLayer(`glow-${id}`)) map.setPaintProperty(`glow-${id}`,'line-opacity',visible?op*0.3:0);
+    // segments
+    s.track.forEach((_,i)=>{ if(i===0) return;
+      if(map.getLayer(`seg-${id}-${i}-l`)) map.setPaintProperty(`seg-${id}-${i}-l`,'line-opacity',visible?op:0);
+    });
+    // icons
+    if(map.getLayer(`pk-icon-${id}`)) map.setPaintProperty(`pk-icon-${id}`,'icon-opacity',visible?0.95:0);
+    if(map.getLayer(`pk-icon-${id}`)) map.setPaintProperty(`pk-icon-${id}`,'text-opacity',visible?0.8:0);
+    if(map.getLayer(`lf-icon-${id}`)) map.setPaintProperty(`lf-icon-${id}`,'icon-opacity',visible?op:0);
+    if(map.getLayer(`ri-icon-${id}`)) map.setPaintProperty(`ri-icon-${id}`,'icon-opacity',visible?0.8:0);
   }
 
   function buildToggles(){
