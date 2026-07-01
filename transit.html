@@ -763,40 +763,77 @@
   }
 
   async function fetchNEOs(){
-    const today=new Date(), future=new Date(today.getTime()+90*86400000);
     const fmt=d=>d.toISOString().slice(0,10);
-    const url=`https://ssd-api.jpl.nasa.gov/cad.api?dist-max=0.2&date-min=${fmt(today)}&date-max=${fmt(future)}&sort=dist&limit=150&fields=des,cd,dist,v_rel,h,pha,fullname`;
-    const proxies=[
-      `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
-      `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-      `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
-      url
+    const today=new Date();
+
+    // ── 1. NASA NeoWs (try direct then via proxy) — known to work ──
+    const nasaKey='DEMO_KEY';
+    // Fetch two 7-day windows for more coverage
+    const windows=[
+      [today, new Date(today.getTime()+7*86400000)],
+      [new Date(today.getTime()+7*86400000), new Date(today.getTime()+14*86400000)],
     ];
-    for(const src of proxies){
-      try{
-        const ctrl=new AbortController();setTimeout(()=>ctrl.abort(),12000);
-        const res=await fetch(src,{signal:ctrl.signal});if(!res.ok)throw new Error('HTTP '+res.status);
-        const data=await res.json();if(!data.data)throw new Error('no data');
-        const fi=f=>data.fields.indexOf(f);
-        const parsed=data.data.map(row=>({des:row[fi('des')],cd:row[fi('cd')],dist:row[fi('dist')],v_rel:row[fi('v_rel')],h:row[fi('h')],pha:row[fi('pha')],_pos:null}));
-        applyData(parsed);
-        logLine(`JPL — ${parsed.length} NEOs, ${parsed.filter(n=>n.pha==='Y').length} PHA`,'safe');
-        return;
-      }catch(e){logLine(`JPL FAIL: ${e.message}`);}
+    for(const [start,end] of windows){
+      const nasaUrl=`https://api.nasa.gov/neo/rest/v1/feed?start_date=${fmt(start)}&end_date=${fmt(end)}&api_key=${nasaKey}`;
+      const nasaSrcs=[nasaUrl,`https://api.allorigins.win/raw?url=${encodeURIComponent(nasaUrl)}`,`https://corsproxy.io/?url=${encodeURIComponent(nasaUrl)}`];
+      for(const src of nasaSrcs){
+        try{
+          const ctrl=new AbortController();setTimeout(()=>ctrl.abort(),10000);
+          const res=await fetch(src,{signal:ctrl.signal});
+          if(!res.ok) throw new Error('HTTP '+res.status);
+          const data=await res.json();
+          if(!data.near_earth_objects) throw new Error('bad shape');
+          const objs=Object.values(data.near_earth_objects).flat();
+          const parsed=objs.map(o=>{
+            const ca=o.close_approach_data[0];
+            return{
+              des:o.name.replace(/[()]/g,'').trim(),
+              cd:ca.close_approach_date_full||ca.close_approach_date,
+              dist:ca.miss_distance.astronomical,
+              v_rel:ca.relative_velocity.kilometers_per_second,
+              h:String(o.absolute_magnitude_h),
+              pha:o.is_potentially_hazardous_asteroid?'Y':'N',
+              _pos:null
+            };
+          }).sort((a,b)=>parseFloat(a.dist)-parseFloat(b.dist));
+          // Merge with any already-loaded data
+          const existing=neoData.map(n=>n.des);
+          const merged=[...neoData,...parsed.filter(n=>!existing.includes(n.des))].sort((a,b)=>parseFloat(a.dist)-parseFloat(b.dist));
+          applyData(merged);
+          logLine(`NASA NeoWs — ${merged.length} NEOs, ${merged.filter(n=>n.pha==='Y').length} PHA`,'safe');
+          break; // got this window, move to next
+        }catch(e){ /* try next src */ }
+      }
     }
-    // NASA NeoWs fallback
-    try{
-      const today=new Date(),end=new Date(today.getTime()+7*86400000);
-      const fmt=d=>d.toISOString().slice(0,10);
-      const url2=`https://api.nasa.gov/neo/rest/v1/feed?start_date=${fmt(today)}&end_date=${fmt(end)}&api_key=DEMO_KEY`;
-      const res=await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url2)}`);
-      const data=await res.json();
-      const objs=Object.values(data.near_earth_objects).flat();
-      const parsed=objs.map(o=>{const ca=o.close_approach_data[0];return{des:o.name.replace(/[()]/g,'').trim(),cd:ca.close_approach_date_full,dist:ca.miss_distance.astronomical,v_rel:ca.relative_velocity.kilometers_per_second,h:String(o.absolute_magnitude_h),pha:o.is_potentially_hazardous_asteroid?'Y':'N',_pos:null};}).sort((a,b)=>parseFloat(a.dist)-parseFloat(b.dist));
-      applyData(parsed);
-      logLine(`NASA NeoWs — ${parsed.length} NEOs`,'safe');
-    }catch(e){
-      // Fallback
+
+    // ── 2. JPL CAD — richer data (90 days), try if NASA got nothing ──
+    if(neoData.length===0){
+      const future=new Date(today.getTime()+90*86400000);
+      const jplUrl=`https://ssd-api.jpl.nasa.gov/cad.api?dist-max=0.2&date-min=${fmt(today)}&date-max=${fmt(future)}&sort=dist&limit=150&fields=des,cd,dist,v_rel,h,pha,fullname`;
+      const jplSrcs=[
+        `https://corsproxy.io/?url=${encodeURIComponent(jplUrl)}`,
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(jplUrl)}`,
+        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(jplUrl)}`,
+        jplUrl
+      ];
+      for(const src of jplSrcs){
+        try{
+          const ctrl=new AbortController();setTimeout(()=>ctrl.abort(),12000);
+          const res=await fetch(src,{signal:ctrl.signal});
+          if(!res.ok) throw new Error('HTTP '+res.status);
+          const data=await res.json();
+          if(!data.data) throw new Error('no data');
+          const fi=f=>data.fields.indexOf(f);
+          const parsed=data.data.map(row=>({des:row[fi('des')],cd:row[fi('cd')],dist:row[fi('dist')],v_rel:row[fi('v_rel')],h:row[fi('h')],pha:row[fi('pha')],_pos:null}));
+          applyData(parsed);
+          logLine(`JPL — ${parsed.length} NEOs`,'safe');
+          return;
+        }catch(e){ logLine(`JPL FAIL: ${e.message}`); }
+      }
+    }
+
+    // ── 3. Static fallback — only if both APIs returned nothing ──
+    if(neoData.length===0){
       const fallback=[
         {des:'2024 YR4',        cd:'2026-Jul-08',dist:'0.00521',v_rel:'10.2',h:'28.7',pha:'N',_pos:null},
         {des:'2020 XR',         cd:'2026-Jul-14',dist:'0.01240',v_rel:'8.5', h:'22.1',pha:'Y',_pos:null},
@@ -813,14 +850,12 @@
         {des:'2001 FO32',       cd:'2026-Oct-05',dist:'0.01320',v_rel:'34.4',h:'17.7',pha:'Y',_pos:null},
         {des:'2024 BX1',        cd:'2026-Oct-11',dist:'0.00206',v_rel:'15.3',h:'28.9',pha:'N',_pos:null},
         {des:'2023 TL2',        cd:'2026-Oct-18',dist:'0.02980',v_rel:'11.2',h:'22.8',pha:'N',_pos:null},
-        {des:'2020 NK1',        cd:'2026-Oct-24',dist:'0.07341',v_rel:'6.8', h:'20.3',pha:'N',_pos:null},
         {des:'2015 TB145',      cd:'2026-Nov-01',dist:'0.01886',v_rel:'35.5',h:'19.7',pha:'N',_pos:null},
-        {des:'2025 AA',         cd:'2026-Nov-09',dist:'0.03112',v_rel:'8.4', h:'25.5',pha:'N',_pos:null},
         {des:'1998 OR2',        cd:'2026-Nov-15',dist:'0.04211',v_rel:'8.7', h:'15.8',pha:'Y',_pos:null},
         {des:'2012 TC4',        cd:'2026-Nov-22',dist:'0.00504',v_rel:'16.1',h:'26.6',pha:'N',_pos:null},
       ].sort((a,b)=>parseFloat(a.dist)-parseFloat(b.dist));
       applyData(fallback);
-      logLine('CACHED ORBITAL DATA');
+      logLine('CACHED ORBITAL DATA — LIVE APIS UNAVAILABLE');
     }
   }
 
