@@ -477,24 +477,47 @@
       }
     }),
     EARTH: makeTex(512,(ctx,s)=>{
-      // Ocean
-      ctx.fillStyle='#1a4a8a'; ctx.fillRect(0,0,s,s);
-      // Land masses (simplified equirectangular)
-      ctx.fillStyle='#2a6a2a';
-      // N/S America
+      // Ocean — slightly darker, more realistic deep blue
+      ctx.fillStyle='#0f3060'; ctx.fillRect(0,0,s,s);
+      // Shallow seas tint
+      const shallows=ctx.createLinearGradient(0,s*0.35,0,s*0.65);
+      shallows.addColorStop(0,'rgba(20,70,120,0)');
+      shallows.addColorStop(0.5,'rgba(20,80,130,0.18)');
+      shallows.addColorStop(1,'rgba(20,70,120,0)');
+      ctx.fillStyle=shallows; ctx.fillRect(0,0,s,s);
+      // Land — muted grey-green, low saturation
+      ctx.fillStyle='rgba(55,62,42,0.88)';
       [[0.04,0.08,0.22,0.82],[0.07,0.25,0.12,0.4]].forEach(([x,y,w,h])=>{ ctx.fillRect(x*s,y*s,w*s,h*s); });
-      // Europe+Africa
       [[0.48,0.06,0.08,0.5],[0.44,0.44,0.12,0.5]].forEach(([x,y,w,h])=>{ ctx.fillRect(x*s,y*s,w*s,h*s); });
-      // Asia
       ctx.fillRect(0.52*s,0.05*s,0.38*s,0.48*s);
-      // Australia
       ctx.fillRect(0.72*s,0.58*s,0.15*s,0.18*s);
+      // Soften land edges with a blur pass
+      ctx.globalAlpha=0.3; ctx.filter='blur(3px)';
+      ctx.fillStyle='rgba(55,62,42,1)';
+      [[0.04,0.08,0.22,0.82],[0.52*1,0.05,0.38,0.48]].forEach(([x,y,w,h])=>{ ctx.fillRect(x*s,y*s,w*s,h*s); });
+      ctx.filter='none'; ctx.globalAlpha=1;
       // Ice caps
-      ctx.fillStyle='#ddeeff'; ctx.fillRect(0,0,s,s*0.05); ctx.fillRect(0,s*0.9,s,s*0.1);
-      // Cloud wisps
-      ctx.fillStyle='rgba(255,255,255,0.28)';
-      for(let i=0;i<30;i++){
-        ctx.beginPath(); ctx.ellipse(tx(i)*s,tx(i+30)*s,35+tx(i+60)*55,6+tx(i+90)*10,tx(i+120)*Math.PI,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='rgba(210,225,240,0.72)'; ctx.fillRect(0,0,s,s*0.055); ctx.fillRect(0,s*0.9,s,s*0.1);
+      // Heavy cloud system — main layer
+      ctx.fillStyle='rgba(255,255,255,0.38)';
+      for(let i=0;i<55;i++){
+        ctx.beginPath();
+        ctx.ellipse(tx(i)*s,tx(i+55)*s,28+tx(i+110)*70,5+tx(i+165)*14,tx(i+220)*Math.PI,0,Math.PI*2);
+        ctx.fill();
+      }
+      // Second cloud layer — offset so bands read as cloud systems
+      ctx.fillStyle='rgba(255,255,255,0.22)';
+      for(let i=0;i<40;i++){
+        ctx.beginPath();
+        ctx.ellipse(tx(i+300)*s,tx(i+340)*s,40+tx(i+380)*80,7+tx(i+420)*18,tx(i+460)*Math.PI,0,Math.PI*2);
+        ctx.fill();
+      }
+      // Polar cloud rings
+      ctx.fillStyle='rgba(240,245,255,0.55)';
+      for(let i=0;i<12;i++){
+        ctx.beginPath();
+        ctx.ellipse(tx(i+500)*s,(0.04+tx(i+512)*0.04)*s,30+tx(i+524)*60,4+tx(i+536)*8,tx(i+548)*Math.PI,0,Math.PI*2);
+        ctx.fill();
       }
     }),
     MARS: makeTex(256,(ctx,s)=>{
@@ -782,18 +805,44 @@
     scene.add(new THREE.Points(kgeo,new THREE.PointsMaterial({size:0.08,map:ROUND_TEX,vertexColors:true,transparent:true,opacity:0.5,depthWrite:false,alphaTest:0.01})));
   })();
 
-  // ===== ORBIT RINGS =====
+  // ===== ORBIT RINGS + PLANET LABELS =====
+  // Label sprite helper — thin IBM Plex Mono text on a transparent canvas
+  function makeOrbitLabel(text, color){
+    const c=document.createElement('canvas'); c.width=160; c.height=28;
+    const ctx=c.getContext('2d');
+    ctx.font='500 13px IBM Plex Mono, monospace';
+    ctx.fillStyle=color; ctx.textBaseline='middle';
+    ctx.fillText(text,0,14);
+    const tex=new THREE.CanvasTexture(c);
+    const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,
+      depthWrite:false,opacity:0.55}));
+    sp.scale.set(1.2,0.21,1);
+    return sp;
+  }
+
   PLANET_DEFS.forEach(def=>{
     const r=def.a*AU;
     const c=def.orbitCol||0x304060;
-    const isEarth=def.glow;
-    const isOuter=def.outer;
-    scene.add(makeOrbitDepthTube(r,c,isEarth?0.18:isOuter?0.04:0.08,isEarth?0.07:isOuter?0.025:0.04));
-    scene.add(makeOrbitDepthTube(r,isEarth?0x00c8e8:c,isEarth?0.75:isOuter?0.22:0.4,isEarth?0.022:isOuter?0.008:0.013));
+    const isEarth=def.glow, isOuter=def.outer;
+    // Glow pass — thinned
+    scene.add(makeOrbitDepthTube(r,c,
+      isEarth?0.14:isOuter?0.03:0.06,
+      isEarth?0.045:isOuter?0.016:0.026));
+    // Core ring — thinned
+    scene.add(makeOrbitDepthTube(r,isEarth?0x00c8e8:c,
+      isEarth?0.60:isOuter?0.18:0.32,
+      isEarth?0.013:isOuter?0.005:0.008));
+
+    // Label — placed at 3 o'clock (positive X) slightly above ecliptic
+    const hex='#'+def.col.toString(16).padStart(6,'0');
+    const label=makeOrbitLabel(def.name, isEarth?'#00c8e8':hex);
+    label.position.set(r+0.08, 0.04, 0);
+    scene.add(label);
   });
-  // NEO zone band
-  scene.add(makeOrbitDepthTube(AU*0.82,0x00c8e8,0.06,0.05));
-  scene.add(makeOrbitDepthTube(AU*1.18,0x00c8e8,0.06,0.05));
+
+  // NEO zone band — also thinned
+  scene.add(makeOrbitDepthTube(AU*0.82,0x00c8e8,0.04,0.032));
+  scene.add(makeOrbitDepthTube(AU*1.18,0x00c8e8,0.04,0.032));
 
   // ===== SUN — textured sphere + glow =====
   const sunMesh=new THREE.Mesh(
