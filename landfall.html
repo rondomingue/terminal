@@ -54,21 +54,30 @@
     background:radial-gradient(ellipse at 50% 50%,transparent 42%,rgba(0,0,0,.7) 100%);}
 
   /* HEADER */
-  #header{position:absolute;top:0;left:0;right:0;z-index:10;display:grid;grid-template-columns:minmax(330px,1fr) auto minmax(220px,1fr);align-items:flex-start;gap:18px;padding:20px 28px 0;}
-  .brand .title{font-weight:300;font-size:24px;letter-spacing:.1em;color:var(--white);}
-  .brand .title b{color:var(--cat3);font-weight:400;text-shadow:0 0 12px rgba(224,96,32,.4);}
-  .brand .sub{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.14em;color:var(--ink-dim);margin-top:3px;}
-  .id-strip{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.1em;color:var(--ink-faint);margin-top:8px;display:flex;gap:10px;}
+  #header{position:absolute;top:0;left:0;right:0;z-index:10;display:grid;grid-template-columns:minmax(310px,.9fr) minmax(440px,1.2fr) minmax(220px,.72fr);align-items:stretch;gap:14px;padding:16px 28px 0;}
+  .brand{position:relative;padding:8px 14px 10px;border:1px solid rgba(255,107,53,.2);border-left:3px solid var(--cat3);
+    background:linear-gradient(115deg,rgba(255,107,53,.12),rgba(8,12,28,.34) 45%,rgba(4,5,13,.08));box-shadow:inset 0 0 28px rgba(255,107,53,.045);}
+  .brand .title{font-weight:300;font-size:25px;letter-spacing:.14em;color:var(--white);line-height:1;}
+  .brand .title b{color:var(--cat3);font-weight:500;text-shadow:0 0 16px rgba(255,107,53,.55);}
+  .brand .sub{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.14em;color:var(--ink-dim);margin-top:8px;}
+  .id-strip{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.1em;color:var(--ink-faint);margin-top:8px;display:flex;gap:9px;flex-wrap:wrap;}
   .id-strip b{color:var(--ink-dim);font-weight:400;}
   .id-strip a{color:var(--ink-dim);text-decoration:none;border-bottom:1px solid var(--line);transition:color .15s,border-color .15s;}
   .id-strip a:hover{color:var(--amber);border-color:var(--amber-dim);}
   .id-strip .sep{color:var(--line);}
-  .clockblock{text-align:right;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.06em;color:var(--ink-dim);line-height:1.7;}
+  .clockblock{text-align:right;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.06em;color:var(--ink-dim);line-height:1.7;padding:8px 0 0;}
   .clockblock .big{font-size:20px;letter-spacing:.1em;color:var(--white);}
   .mini-stats{display:flex;gap:10px;justify-content:flex-end;font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--ink-faint);margin-top:6px;}
   .mini-stats b{color:var(--ink-dim);font-weight:400;margin-left:4px;}
-  #category-strip{align-self:start;justify-self:center;display:flex;flex-direction:column;align-items:center;gap:6px;padding-top:1px;}
-  .cat-title{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.22em;color:var(--ink-dim);}
+  #header-data{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;align-self:stretch;}
+  .hstat{position:relative;min-height:56px;padding:9px 8px 7px;border:1px solid rgba(95,145,255,.16);
+    background:linear-gradient(180deg,rgba(9,16,36,.72),rgba(5,7,18,.52));box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 12px 28px rgba(0,0,0,.25);}
+  .hstat::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;background:linear-gradient(90deg,currentColor,transparent);}
+  .hstat-label{font-family:'IBM Plex Mono',monospace;font-size:7px;letter-spacing:.16em;color:var(--ink-faint);white-space:nowrap;}
+  .hstat-value{font-family:'IBM Plex Mono',monospace;font-size:17px;letter-spacing:.04em;color:var(--white);margin-top:5px;}
+  .hstat-sub{font-family:'IBM Plex Mono',monospace;font-size:7px;letter-spacing:.08em;color:var(--ink-dim);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  #category-strip{grid-column:1 / -1;align-self:end;justify-self:stretch;display:flex;align-items:center;justify-content:center;gap:10px;padding:0 0 2px;}
+  .cat-title{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.22em;color:var(--ink-dim);white-space:nowrap;}
   .cat-badges{display:flex;gap:6px;align-items:center;}
   .ss-badge{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.08em;padding:4px 9px;
     border:1px solid;border-radius:999px;opacity:.92;background:rgba(4,5,13,.72);box-shadow:0 0 18px currentColor;}
@@ -200,8 +209,8 @@
   .stog.on.cat1{border-color:var(--cat1);color:var(--cat1);background:rgba(245,208,96,.1);}
 
   /* STORM TABLE */
-  .srow{display:grid;grid-template-columns:82px 40px 44px 52px 52px 1fr;gap:6px;
-    font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink-dim);padding:5px 0;border-bottom:1px solid var(--line-dim);}
+  .srow{display:grid;grid-template-columns:76px 34px 38px 48px 48px 34px 40px 1fr;gap:6px;
+    font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--ink-dim);padding:5px 0;border-bottom:1px solid var(--line-dim);}
   .srow.head{color:var(--ink-faint);font-size:9px;letter-spacing:.07em;border-color:var(--line);}
   .srow .cs{color:var(--white);}
 
@@ -235,6 +244,8 @@
     html,body{overflow-y:auto;height:auto;}
     #stage{height:auto;min-height:100vh;}
     #header{position:relative;display:flex;flex-direction:column;padding:16px 16px 10px;gap:12px;}
+    #header-data{grid-template-columns:repeat(2,minmax(0,1fr));width:100%;}
+    .hstat{min-height:52px;}
     #category-strip{align-items:flex-start;justify-self:start;}
     .cat-badges{flex-wrap:wrap;}
     #header-rule{position:relative;top:auto;padding:0 16px;}
@@ -262,14 +273,41 @@
         <span>BY <a href="https://rondomingue.com" target="_blank" rel="noopener">RONDOMINGUE.COM</a></span>
       </div>
     </div>
-    <div id="category-strip" aria-label="Category hurricanes">
-      <div class="cat-title">CATEGORY HURRICANES</div>
-      <div class="cat-badges">
-        <div class="ss-badge" style="color:var(--cat1);border-color:var(--cat1);">CAT 1</div>
-        <div class="ss-badge" style="color:var(--cat2);border-color:var(--cat2);">CAT 2</div>
-        <div class="ss-badge" style="color:var(--cat3);border-color:var(--cat3);">CAT 3</div>
-        <div class="ss-badge" style="color:var(--cat4);border-color:var(--cat4);">CAT 4</div>
-        <div class="ss-badge" style="color:var(--cat5);border-color:var(--cat5);">CAT 5</div>
+    <div id="header-data" aria-label="Basin summary">
+      <div class="hstat" style="color:var(--cat5)">
+        <div class="hstat-label">MAJOR HURR</div>
+        <div class="hstat-value" id="hd-major">—</div>
+        <div class="hstat-sub">CAT 3+</div>
+      </div>
+      <div class="hstat" style="color:var(--cat3)">
+        <div class="hstat-label">MAX WIND</div>
+        <div class="hstat-value" id="hd-wind">—</div>
+        <div class="hstat-sub" id="hd-wind-name">PEAK KT</div>
+      </div>
+      <div class="hstat" style="color:var(--advisory)">
+        <div class="hstat-label">MIN PRESS</div>
+        <div class="hstat-value" id="hd-mb">—</div>
+        <div class="hstat-sub" id="hd-mb-name">LOWEST MB</div>
+      </div>
+      <div class="hstat" style="color:var(--warning)">
+        <div class="hstat-label">LANDFALLS</div>
+        <div class="hstat-value" id="hd-landfalls">—</div>
+        <div class="hstat-sub">HISTORICAL FIXES</div>
+      </div>
+      <div class="hstat" style="color:var(--clear)">
+        <div class="hstat-label">TRACK PTS</div>
+        <div class="hstat-value" id="hd-points">—</div>
+        <div class="hstat-sub">BEZIER SOURCE</div>
+      </div>
+      <div id="category-strip" aria-label="Category hurricanes">
+        <div class="cat-title">CATEGORY HURRICANES</div>
+        <div class="cat-badges">
+          <div class="ss-badge" style="color:var(--cat1);border-color:var(--cat1);">CAT 1</div>
+          <div class="ss-badge" style="color:var(--cat2);border-color:var(--cat2);">CAT 2</div>
+          <div class="ss-badge" style="color:var(--cat3);border-color:var(--cat3);">CAT 3</div>
+          <div class="ss-badge" style="color:var(--cat4);border-color:var(--cat4);">CAT 4</div>
+          <div class="ss-badge" style="color:var(--cat5);border-color:var(--cat5);">CAT 5</div>
+        </div>
       </div>
     </div>
     <div class="clockblock">
@@ -332,7 +370,7 @@
     <div class="panel" id="storm-table-panel">
       <div class="panel-label">[ TRACK LOG ] — HISTORICAL RECORD</div>
       <div style="margin-top:20px;padding:0 12px 8px;overflow:hidden;">
-        <div class="srow head"><span>STORM</span><span>YR</span><span>CAT</span><span>PEAK</span><span>MIN MB</span><span>NOTES</span></div>
+        <div class="srow head"><span>STORM</span><span>YR</span><span>CAT</span><span>PEAK</span><span>MIN</span><span>LF</span><span>FIXES</span><span>NOTES</span></div>
         <div id="storm-table-body"></div>
       </div>
     </div>
@@ -437,6 +475,23 @@
   const shown={};
   STORMS.forEach(s=>{shown[s.id]=true;});
 
+  function landfallCount(storm){ return storm.track.filter(p=>p[2]==='lf').length; }
+  function updateHeaderData(){
+    const major=STORMS.filter(s=>s.cat>=3).length;
+    const maxWind=STORMS.reduce((a,b)=>b.peak>a.peak?b:a,STORMS[0]);
+    const minMb=STORMS.reduce((a,b)=>b.mb<a.mb?b:a,STORMS[0]);
+    const landfalls=STORMS.reduce((sum,s)=>sum+landfallCount(s),0);
+    const points=STORMS.reduce((sum,s)=>sum+s.track.length,0);
+    if($('hd-major')) $('hd-major').textContent=major;
+    if($('hd-wind')) $('hd-wind').textContent=maxWind.peak+'KT';
+    if($('hd-wind-name')) $('hd-wind-name').textContent=maxWind.name+' '+maxWind.year;
+    if($('hd-mb')) $('hd-mb').textContent=minMb.mb+'MB';
+    if($('hd-mb-name')) $('hd-mb-name').textContent=minMb.name+' '+minMb.year;
+    if($('hd-landfalls')) $('hd-landfalls').textContent=landfalls;
+    if($('hd-points')) $('hd-points').textContent=points;
+  }
+  updateHeaderData();
+
   // CITY RISK — color-coded by exposure tier
   const CITIES=[
     {name:'NEW ORLEANS',lat:29.95,lon:-90.07,risk:92,note:'BELOW SEA LEVEL',riskColor:'#c83030'},
@@ -465,6 +520,8 @@
       <span style="color:${catColor(s.cat)}">C${s.cat}</span>
       <span>${s.peak}KT</span>
       <span>${s.mb}MB</span>
+      <span>${landfallCount(s)}</span>
+      <span>${s.track.length}</span>
       <span style="color:var(--ink-faint);font-size:8px;">${s.notes}</span>
     </div>`).join('');
 
@@ -570,18 +627,19 @@
     if(radarFrames.length) addRadarLayers();
     loadRadar().then(()=>{ if(radarFrames.length) addRadarLayers(); });
 
-    // Register hurricane icon image for Mapbox symbol layer
-    const HURR_SVG=`<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
-      <g fill="none" stroke-linecap="round">
-        <path d="M 16 4 C 24 4, 29 10, 28 16 C 27 22, 20 26, 14 23 C 8 20, 5 13, 8 8 C 11 3, 18 3, 22 8" stroke="white" stroke-width="2" opacity="0.9"/>
-        <path d="M 16 8 C 21 8, 24 12, 23 16 C 22 20, 18 22, 15 21 C 11 20, 9 16, 11 12 C 13 9, 17 8, 20 11" stroke="white" stroke-width="1.6" opacity="0.8"/>
-        <path d="M 16 11 C 19 11, 21 13, 20.5 16 C 20 18.5, 17.5 20, 15 19.5 C 12.5 19, 11 16.5, 12.5 14" stroke="white" stroke-width="1.2" opacity="0.65"/>
-        <circle cx="16" cy="16" r="3" stroke="white" stroke-width="1.2" opacity="0.9"/>
-        <circle cx="16" cy="16" r="1" fill="white" opacity="0.95"/>
+    // Register a sharper cyclone/eye symbol for peak intensity markers.
+    const HURR_SVG=`<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+      <g fill="none" stroke="white" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="24" cy="24" r="17.5" stroke-width="1.2" opacity=".28"/>
+        <path d="M24 6 C34 6 42 13 42 22 C42 30 36 36 28 36 C22 36 18 33 18 29 C18 25 21 23 25 23 C30 23 34 19 34 15 C34 10 30 7 24 6Z" stroke-width="3.2" opacity=".95"/>
+        <path d="M24 42 C14 42 6 35 6 26 C6 18 12 12 20 12 C26 12 30 15 30 19 C30 23 27 25 23 25 C18 25 14 29 14 33 C14 38 18 41 24 42Z" stroke-width="3.2" opacity=".95"/>
+        <circle cx="24" cy="24" r="5.2" stroke-width="2.2"/>
+        <circle cx="24" cy="24" r="1.7" fill="white" stroke="none"/>
+        <path d="M24 2 L24 8 M24 40 L24 46 M2 24 L8 24 M40 24 L46 24" stroke-width="1.2" opacity=".55"/>
       </g>
     </svg>`;
-    const img=new Image(32,32);
-    img.onload=()=>{ if(!map.hasImage('hurricane-icon')) map.addImage('hurricane-icon',img,{sdf:true}); };
+    const img=new Image(48,48);
+    img.onload=()=>{ if(!map.hasImage('hurricane-icon-v2')) map.addImage('hurricane-icon-v2',img,{sdf:true}); };
     img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(HURR_SVG);
 
     // Landfall marker (X shape)
@@ -645,11 +703,13 @@
 
       // 3. Peak intensity — hurricane icon
       const pkPt=pts.find(p=>p[2]==='pk')||pts[Math.floor(pts.length/2)];
-      map.addSource(`pk-${s.id}`,{type:'geojson',data:{type:'Feature',geometry:{type:'Point',coordinates:[pkPt[0],pkPt[1]]},properties:{name:s.name}}});
+      map.addSource(`pk-${s.id}`,{type:'geojson',data:{type:'Feature',geometry:{type:'Point',coordinates:[pkPt[0],pkPt[1]]},properties:{name:s.name,cat:s.cat,peak:s.peak,mb:s.mb}}});
+      map.addLayer({id:`pk-halo-${s.id}`,type:'circle',source:`pk-${s.id}`,
+        paint:{'circle-radius':16,'circle-color':catColor(s.cat),'circle-opacity':0,'circle-blur':0.65,'circle-stroke-width':1,'circle-stroke-color':catColor(s.cat),'circle-stroke-opacity':0}});
       map.addLayer({id:`pk-icon-${s.id}`,type:'symbol',source:`pk-${s.id}`,
-        layout:{'icon-image':'hurricane-icon','icon-size':0.75,'icon-allow-overlap':true,
-          'text-field':s.name,"text-font":["DIN Offc Pro Bold","Arial Unicode MS Bold"],
-          'text-size':8,'text-anchor':'top','text-offset':[0,0.9],'text-letter-spacing':0.1},
+        layout:{'icon-image':'hurricane-icon-v2','icon-size':0.62,'icon-allow-overlap':true,
+          'text-field':`${s.name}\nC${s.cat} ${s.peak}KT / ${s.mb}MB`,"text-font":["DIN Offc Pro Bold","Arial Unicode MS Bold"],
+          'text-size':8,'text-anchor':'top','text-offset':[0,1.25],'text-letter-spacing':0.08},
         paint:{'icon-color':catColor(s.cat),'icon-opacity':0,
           'text-color':catColor(s.cat),'text-opacity':0,'text-halo-color':'rgba(4,5,13,0.9)','text-halo-width':1.5}});
 
@@ -726,6 +786,10 @@
       if(map.getLayer(`seg-${id}-${i}-l`)) map.setPaintProperty(`seg-${id}-${i}-l`,'line-opacity',visible?op:0);
     });
     // icons
+    if(map.getLayer(`pk-halo-${id}`)){
+      map.setPaintProperty(`pk-halo-${id}`,'circle-opacity',visible?0.18:0);
+      map.setPaintProperty(`pk-halo-${id}`,'circle-stroke-opacity',visible?0.55:0);
+    }
     if(map.getLayer(`pk-icon-${id}`)) map.setPaintProperty(`pk-icon-${id}`,'icon-opacity',visible?0.95:0);
     if(map.getLayer(`pk-icon-${id}`)) map.setPaintProperty(`pk-icon-${id}`,'text-opacity',visible?0.8:0);
     if(map.getLayer(`lf-icon-${id}`)) map.setPaintProperty(`lf-icon-${id}`,'icon-opacity',visible?op:0);
