@@ -455,6 +455,14 @@
     #hex-ticker{ display:none; } /* decorative ticker, not worth the space on small screens */
   }
 </style>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9CMETG9RBQ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-9CMETG9RBQ');
+</script>
 </head>
 <body>
 
@@ -955,10 +963,48 @@
       html += `<text x="${mx}" y="${my}" fill="var(--ink-faint)" font-size="7" font-family="Space Mono, monospace" opacity="0.55">${txt}</text>`;
     });
 
-    // crosshair + label
-    html += `<line x1="${fx-9}" y1="${fy}" x2="${fx+9}" y2="${fy}" stroke="var(--ink)" stroke-width="1" filter="url(#glow)"/>`;
-    html += `<line x1="${fx}" y1="${fy-9}" x2="${fx}" y2="${fy+9}" stroke="var(--ink)" stroke-width="1" filter="url(#glow)"/>`;
-    html += `<text x="${fx+12}" y="${fy-8}" fill="var(--ink-dim)" font-size="9" font-family="Space Mono, monospace" letter-spacing="1">KMSY</text>`;
+    // ---- HUD gun-sight reticle (field marker) ----
+    const RA = 14;   // inner gap radius — lines start outside this
+    const RB = 28;   // main arm length end
+    const RC = 6;    // center circle radius
+    // four main arms with gap
+    [0,90,180,270].forEach(deg=>{
+      const rad = deg*Math.PI/180;
+      const sx = fx + Math.sin(rad)*RA, sy = fy - Math.cos(rad)*RA;
+      const ex = fx + Math.sin(rad)*RB, ey = fy - Math.cos(rad)*RB;
+      html += `<line x1="${sx.toFixed(1)}" y1="${sy.toFixed(1)}" x2="${ex.toFixed(1)}" y2="${ey.toFixed(1)}" stroke="var(--ink)" stroke-width="1.2" filter="url(#glow)"/>`;
+      // tick marks at 60% and 80% along each arm
+      [0.55, 0.75, 1.0].forEach((t,ti)=>{
+        const mx = fx + Math.sin(rad)*(RA + (RB-RA)*t);
+        const my = fy - Math.cos(rad)*(RA + (RB-RA)*t);
+        const perp = (deg+90)*Math.PI/180;
+        const tl = ti===2 ? 4.5 : ti===1 ? 3 : 2;
+        const tx1 = mx + Math.sin(perp)*tl, ty1 = my - Math.cos(perp)*tl;
+        const tx2 = mx - Math.sin(perp)*tl, ty2 = my + Math.cos(perp)*tl;
+        html += `<line x1="${tx1.toFixed(1)}" y1="${ty1.toFixed(1)}" x2="${tx2.toFixed(1)}" y2="${ty2.toFixed(1)}" stroke="var(--ink)" stroke-width="${ti===2?1:0.6}" opacity="${ti===2?0.9:0.55}"/>`;
+      });
+    });
+    // 45° corner brackets
+    [45,135,225,315].forEach(deg=>{
+      const rad = deg*Math.PI/180;
+      const r1 = 18, r2 = 24;
+      const mx1 = fx+Math.sin(rad)*r1, my1 = fy-Math.cos(rad)*r1;
+      const mx2 = fx+Math.sin(rad)*r2, my2 = fy-Math.cos(rad)*r2;
+      html += `<line x1="${mx1.toFixed(1)}" y1="${my1.toFixed(1)}" x2="${mx2.toFixed(1)}" y2="${my2.toFixed(1)}" stroke="var(--ink-dim)" stroke-width="0.6" opacity="0.4"/>`;
+    });
+    // central rings
+    html += `<circle cx="${fx}" cy="${fy}" r="${RC}" fill="none" stroke="var(--ink)" stroke-width="1" filter="url(#glow)"/>`;
+    html += `<circle cx="${fx}" cy="${fy}" r="${RC-3}" fill="none" stroke="var(--ink)" stroke-width="0.5" opacity="0.5"/>`;
+    html += `<circle cx="${fx}" cy="${fy}" r="1.5" fill="var(--white)" opacity="0.9" filter="url(#glow)"/>`;
+    // outer dashed aiming ring
+    html += `<circle cx="${fx}" cy="${fy}" r="38" fill="none" stroke="var(--ink-faint)" stroke-width="0.6" stroke-dasharray="2,4" opacity="0.45"/>`;
+    // KMSY label — positioned below right arm, clean mono
+    html += `<text x="${fx+32}" y="${fy+4}" fill="var(--ink-dim)" font-size="8.5" font-family="Space Mono, monospace" letter-spacing="1.5">KMSY</text>`;
+    html += `<text x="${fx+32}" y="${fy+14}" fill="var(--ink-faint)" font-size="7" font-family="Space Mono, monospace" letter-spacing="0.5">29.99°N 90.26°W</text>`;
+    // coordinate readouts above and left
+    html += `<text x="${fx}" y="${fy-42}" fill="var(--ink-faint)" font-size="7" font-family="Space Mono, monospace" text-anchor="middle" opacity="0.6">000</text>`;
+    html += `<text x="${fx-42}" y="${fy+3}" fill="var(--ink-faint)" font-size="7" font-family="Space Mono, monospace" text-anchor="end" opacity="0.6">270</text>`;
+
 
     // sweep — thin leading line with a long, genuinely transparent fading wedge behind it
     function pieSector(a0, a1){
