@@ -305,14 +305,32 @@
   controls.update();
 
   // Helper: create glowing orbit tube
-  function makeOrbitTube(radius, color, opacity, tubeR){
-    const curve=new THREE.EllipseCurve(0,0,radius,radius,0,Math.PI*2,false,0);
-    const pts=curve.getPoints(256);
-    const path=new THREE.CatmullRomCurve3(pts.map(p=>new THREE.Vector3(p.x,0,p.y)),true);
-    const geo=new THREE.TubeGeometry(path,256,tubeR,8,true);
-    const mat=new THREE.MeshBasicMaterial({color,transparent:true,opacity,
-      blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide});
-    return new THREE.Mesh(geo,mat);
+  // Depth-aware orbit tube — segments get thicker/brighter near camera, thinner/dimmer away
+  function makeOrbitDepthTube(orbitRadius, color, maxOpacity, maxTubeR){
+    // Camera's XZ angle from origin — front of orbit faces this direction
+    const camAngle=Math.atan2(camera.position.x, camera.position.z);
+    const SEGS=32; // segments around full orbit
+    const group=new THREE.Group();
+    for(let i=0;i<SEGS;i++){
+      const a0=(i/SEGS)*Math.PI*2;
+      const a1=((i+1)/SEGS)*Math.PI*2;
+      const aMid=(a0+a1)/2;
+      // frontness: 1 = closest to camera, 0 = furthest
+      const frontness=(Math.cos(aMid-camAngle)+1)/2;
+      const tubeR=maxTubeR*(0.12+0.88*frontness);
+      const opacity=maxOpacity*(0.12+0.88*frontness);
+      const pts=[];
+      for(let j=0;j<=12;j++){
+        const a=a0+(a1-a0)*(j/12);
+        pts.push(new THREE.Vector3(Math.cos(a)*orbitRadius,0,Math.sin(a)*orbitRadius));
+      }
+      const path=new THREE.CatmullRomCurve3(pts);
+      const geo=new THREE.TubeGeometry(path,12,tubeR,8,false);
+      const mat=new THREE.MeshBasicMaterial({color,transparent:true,opacity,
+        blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide});
+      group.add(new THREE.Mesh(geo,mat));
+    }
+    return group;
   }
 
   // Helper: sprite glow
@@ -385,15 +403,15 @@
     const r=def.a*AU;
     const c=orbitColors[i];
     const isEarth=def.glow;
-    // Outer glow
-    scene.add(makeOrbitTube(r,c,isEarth?0.12:0.06,isEarth?0.06:0.035));
-    // Core ring
-    scene.add(makeOrbitTube(r,isEarth?0x00c8e8:c,isEarth?0.65:0.35,isEarth?0.018:0.012));
+    // Wide glow pass
+    scene.add(makeOrbitDepthTube(r,c,isEarth?0.18:0.08,isEarth?0.07:0.04));
+    // Core bright ring
+    scene.add(makeOrbitDepthTube(r,isEarth?0x00c8e8:c,isEarth?0.75:0.4,isEarth?0.022:0.013));
   });
 
-  // NEO zone band (near Earth orbit)
-  scene.add(makeOrbitTube(AU*0.82,0x00c8e8,0.04,0.07));
-  scene.add(makeOrbitTube(AU*1.18,0x00c8e8,0.04,0.07));
+  // NEO zone band
+  scene.add(makeOrbitDepthTube(AU*0.82,0x00c8e8,0.06,0.05));
+  scene.add(makeOrbitDepthTube(AU*1.18,0x00c8e8,0.06,0.05));
 
   // ===== SUN =====
   const sunGeo=new THREE.SphereGeometry(0.18,32,32);
@@ -604,7 +622,12 @@
     const today=new Date(), future=new Date(today.getTime()+90*86400000);
     const fmt=d=>d.toISOString().slice(0,10);
     const url=`https://ssd-api.jpl.nasa.gov/cad.api?dist-max=0.2&date-min=${fmt(today)}&date-max=${fmt(future)}&sort=dist&limit=150&fields=des,cd,dist,v_rel,h,pha,fullname`;
-    const proxies=[url,`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,`https://corsproxy.io/?url=${encodeURIComponent(url)}`];
+    const proxies=[
+      `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+      `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+      `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+      url
+    ];
     for(const src of proxies){
       try{
         const ctrl=new AbortController();setTimeout(()=>ctrl.abort(),12000);
@@ -631,13 +654,27 @@
     }catch(e){
       // Fallback
       const fallback=[
-        {des:'2024 YR4',cd:'2026-Jul-08',dist:'0.00521',v_rel:'10.2',h:'28.7',pha:'N',_pos:null},
-        {des:'2020 XR',cd:'2026-Jul-14',dist:'0.01240',v_rel:'8.5',h:'22.1',pha:'Y',_pos:null},
-        {des:'(415029) 2011 UL21',cd:'2026-Aug-01',dist:'0.01882',v_rel:'21.3',h:'17.4',pha:'Y',_pos:null},
-        {des:'2023 DZ2',cd:'2026-Aug-19',dist:'0.02341',v_rel:'14.8',h:'24.2',pha:'N',_pos:null},
-        {des:'2021 PJ1',cd:'2026-Sep-03',dist:'0.03812',v_rel:'7.1',h:'26.8',pha:'N',_pos:null},
-        {des:'(433) EROS',cd:'2026-Sep-18',dist:'0.06201',v_rel:'4.4',h:'11.2',pha:'N',_pos:null},
-      ];
+        {des:'2024 YR4',        cd:'2026-Jul-08',dist:'0.00521',v_rel:'10.2',h:'28.7',pha:'N',_pos:null},
+        {des:'2020 XR',         cd:'2026-Jul-14',dist:'0.01240',v_rel:'8.5', h:'22.1',pha:'Y',_pos:null},
+        {des:'2011 UL21',       cd:'2026-Aug-01',dist:'0.01882',v_rel:'21.3',h:'17.4',pha:'Y',_pos:null},
+        {des:'2023 DZ2',        cd:'2026-Aug-19',dist:'0.02341',v_rel:'14.8',h:'24.2',pha:'N',_pos:null},
+        {des:'2021 PJ1',        cd:'2026-Sep-03',dist:'0.03812',v_rel:'7.1', h:'26.8',pha:'N',_pos:null},
+        {des:'(433) EROS',      cd:'2026-Sep-18',dist:'0.06201',v_rel:'4.4', h:'11.2',pha:'N',_pos:null},
+        {des:'2023 BU',         cd:'2026-Jul-22',dist:'0.00876',v_rel:'9.3', h:'26.1',pha:'N',_pos:null},
+        {des:'2022 AP7',        cd:'2026-Aug-08',dist:'0.04120',v_rel:'18.7',h:'18.0',pha:'Y',_pos:null},
+        {des:'2019 OK',         cd:'2026-Aug-24',dist:'0.00449',v_rel:'24.5',h:'25.5',pha:'Y',_pos:null},
+        {des:'2010 WC9',        cd:'2026-Sep-10',dist:'0.00534',v_rel:'7.0', h:'23.9',pha:'N',_pos:null},
+        {des:'2014 JO25',       cd:'2026-Sep-25',dist:'0.01118',v_rel:'10.7',h:'18.4',pha:'Y',_pos:null},
+        {des:'(3122) FLORENCE', cd:'2026-Sep-29',dist:'0.04706',v_rel:'8.7', h:'14.1',pha:'N',_pos:null},
+        {des:'2001 FO32',       cd:'2026-Oct-05',dist:'0.01320',v_rel:'34.4',h:'17.7',pha:'Y',_pos:null},
+        {des:'2024 BX1',        cd:'2026-Oct-11',dist:'0.00206',v_rel:'15.3',h:'28.9',pha:'N',_pos:null},
+        {des:'2023 TL2',        cd:'2026-Oct-18',dist:'0.02980',v_rel:'11.2',h:'22.8',pha:'N',_pos:null},
+        {des:'2020 NK1',        cd:'2026-Oct-24',dist:'0.07341',v_rel:'6.8', h:'20.3',pha:'N',_pos:null},
+        {des:'2015 TB145',      cd:'2026-Nov-01',dist:'0.01886',v_rel:'35.5',h:'19.7',pha:'N',_pos:null},
+        {des:'2025 AA',         cd:'2026-Nov-09',dist:'0.03112',v_rel:'8.4', h:'25.5',pha:'N',_pos:null},
+        {des:'1998 OR2',        cd:'2026-Nov-15',dist:'0.04211',v_rel:'8.7', h:'15.8',pha:'Y',_pos:null},
+        {des:'2012 TC4',        cd:'2026-Nov-22',dist:'0.00504',v_rel:'16.1',h:'26.6',pha:'N',_pos:null},
+      ].sort((a,b)=>parseFloat(a.dist)-parseFloat(b.dist));
       applyData(fallback);
       logLine('CACHED ORBITAL DATA');
     }
