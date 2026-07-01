@@ -9,7 +9,7 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;700&family=Barlow:wght@300;400;500;600&display=swap');
   :root{
-    --bg:#030d1c; --panel:rgba(4,12,28,0.82); --line:#0a1e38; --line-dim:#061422;
+    --bg:#010306; --panel:rgba(2,8,20,0.82); --line:#081628; --line-dim:#040e18;
     --ink:#b0cce0; --ink-dim:#3a6080; --ink-faint:#102030; --white:#ddeef8;
     --sun:#ffa040; --earth:#1a90d0; --mars:#c03820; --venus:#c8a060; --mercury:#7888a0;
     --safe:#00c8e8; --pha:#d01c1c; --accent:#00c8e8; --accent2:#d01c1c;
@@ -18,18 +18,18 @@
   html,body{background:var(--bg);color:var(--ink);font-family:'Barlow',sans-serif;width:100%;height:100%;overflow:hidden;}
   #stage{position:relative;width:100%;height:100vh;
     background:
-      radial-gradient(ellipse at 50% 42%,rgba(0,80,160,0.14) 0%,transparent 65%),
-      linear-gradient(rgba(0,140,200,0.016) 1px,transparent 1px),
-      linear-gradient(90deg,rgba(0,140,200,0.016) 1px,transparent 1px),
+      radial-gradient(ellipse at 50% 42%,rgba(0,40,100,0.06) 0%,transparent 65%),
+      linear-gradient(rgba(0,80,160,0.01) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(0,80,160,0.01) 1px,transparent 1px),
       var(--bg);
     background-size:100% 100%,6px 6px,6px 6px;}
-  #grain{position:absolute;inset:0;pointer-events:none;z-index:50;opacity:.04;mix-blend-mode:screen;
+  #grain{position:absolute;inset:0;pointer-events:none;z-index:50;opacity:.03;mix-blend-mode:screen;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
   .scanline{position:absolute;inset:0;pointer-events:none;z-index:49;mix-blend-mode:screen;
-    background-image:repeating-linear-gradient(to bottom,rgba(0,160,220,.02) 0px,rgba(0,160,220,.02) 1px,transparent 1px,transparent 4px);
-    background-size:100% 4px;opacity:.4;}
+    background-image:repeating-linear-gradient(to bottom,rgba(0,100,180,.012) 0px,rgba(0,100,180,.012) 1px,transparent 1px,transparent 4px);
+    background-size:100% 4px;opacity:.3;}
   #vignette{position:absolute;inset:0;pointer-events:none;z-index:48;
-    background:radial-gradient(ellipse at 50% 50%,transparent 40%,rgba(0,0,10,.75) 100%);}
+    background:radial-gradient(ellipse at 50% 50%,transparent 28%,rgba(0,0,4,.88) 100%);}
   #header{position:absolute;top:0;left:0;right:0;z-index:10;display:flex;justify-content:space-between;align-items:flex-start;padding:18px 26px 0;}
   .brand .title{font-weight:300;font-size:22px;letter-spacing:.1em;color:var(--white);}
   .brand .title b{color:var(--safe);font-weight:400;text-shadow:0 0 12px rgba(0,200,232,.4);}
@@ -166,7 +166,7 @@
 </head>
 <body>
 <div id="preloader">
-  <canvas id="pre-canvas" width="160" height="160"></canvas>
+  <canvas id="pre-canvas" width="200" height="200"></canvas>
   <div id="pre-title"><b>TRAN</b>SIT</div>
   <div id="pre-sub">Near-Earth Object Tracking System</div>
   <div id="pre-log" id="pre-log-inner"></div>
@@ -289,8 +289,7 @@
   (()=>{
     const canvas=$('pre-canvas');
     const ctx=canvas.getContext('2d');
-    const cx=80,cy=80;
-    let angle=0,pct=0;
+    let pct=0;
     const STEPS=[
       {t:180,msg:'BOOTING ORBITAL ENGINE…'},
       {t:600,msg:'LOADING THREE.JS SCENE…'},
@@ -309,57 +308,54 @@
     addLog(STEPS[0].msg);
 
     let raf;
+    const S=200, cx=S/2, cy=S/2;
+    let theta=0;
+
     function drawPre(){
-      ctx.clearRect(0,0,160,160);
-      angle+=0.025;
+      ctx.clearRect(0,0,S,S);
+      theta+=0.018;
 
-      // Outer orbit ring
-      ctx.beginPath(); ctx.arc(cx,cy,58,0,Math.PI*2);
-      ctx.strokeStyle='rgba(0,200,232,0.08)'; ctx.lineWidth=1; ctx.stroke();
-
-      // Sweep arc
-      ctx.beginPath(); ctx.arc(cx,cy,58,angle,angle+Math.PI*0.7);
-      const grad=ctx.createConicalGradient?null:null;
-      ctx.strokeStyle='rgba(0,200,232,0.7)'; ctx.lineWidth=1.5; ctx.stroke();
+      // Outer ring
+      ctx.beginPath(); ctx.arc(cx,cy,76,0,Math.PI*2);
+      ctx.strokeStyle='rgba(0,200,232,0.1)'; ctx.lineWidth=1; ctx.stroke();
 
       // Sweep glow
-      ctx.beginPath(); ctx.arc(cx,cy,58,angle,angle+Math.PI*0.4);
-      ctx.strokeStyle='rgba(0,200,232,0.15)'; ctx.lineWidth=8; ctx.stroke();
+      ctx.beginPath(); ctx.arc(cx,cy,76,theta,theta+Math.PI*0.5);
+      ctx.strokeStyle='rgba(0,200,232,0.12)'; ctx.lineWidth=10; ctx.stroke();
 
-      // Mid ring
-      ctx.beginPath(); ctx.arc(cx,cy,40,-angle*0.6,(-angle*0.6)+Math.PI*1.4);
-      ctx.strokeStyle='rgba(0,150,180,0.4)'; ctx.lineWidth=0.8; ctx.stroke();
+      // Sweep arc
+      ctx.beginPath(); ctx.arc(cx,cy,76,theta,theta+Math.PI*0.5);
+      ctx.strokeStyle='rgba(0,200,232,0.7)'; ctx.lineWidth=1.4; ctx.stroke();
 
-      // Inner orbit
-      ctx.beginPath(); ctx.arc(cx,cy,22,angle*1.4,angle*1.4+Math.PI*0.9);
-      ctx.strokeStyle='rgba(0,200,232,0.5)'; ctx.lineWidth=1; ctx.stroke();
-
-      // Sun dot at center
-      const sg=ctx.createRadialGradient(cx,cy,0,cx,cy,10);
-      sg.addColorStop(0,'rgba(255,200,60,0.9)'); sg.addColorStop(1,'rgba(255,150,30,0)');
-      ctx.fillStyle=sg; ctx.beginPath(); ctx.arc(cx,cy,10,0,Math.PI*2); ctx.fill();
-      ctx.fillStyle='#ffb030'; ctx.beginPath(); ctx.arc(cx,cy,3,0,Math.PI*2); ctx.fill();
-
-      // Orbiting dot (Earth-like)
-      const ex=cx+Math.cos(angle)*58, ey=cy+Math.sin(angle)*58;
-      const eg=ctx.createRadialGradient(ex,ey,0,ex,ey,5);
-      eg.addColorStop(0,'rgba(30,160,220,0.9)'); eg.addColorStop(1,'rgba(30,160,220,0)');
-      ctx.fillStyle=eg; ctx.beginPath(); ctx.arc(ex,ey,5,0,Math.PI*2); ctx.fill();
-      ctx.fillStyle='#1a90d0'; ctx.beginPath(); ctx.arc(ex,ey,2.5,0,Math.PI*2); ctx.fill();
-
-      // Small inner orbiting dot
-      const ix=cx+Math.cos(-angle*1.4)*22, iy=cy+Math.sin(-angle*1.4)*22;
-      ctx.fillStyle='rgba(120,180,220,0.7)'; ctx.beginPath(); ctx.arc(ix,iy,1.5,0,Math.PI*2); ctx.fill();
-
-      // Tick marks on outer ring
-      for(let i=0;i<36;i++){
-        const a=i*(Math.PI*2/36);
-        const r0=i%9===0?50:i%3===0?53:55;
+      // Tick marks on ring
+      for(let i=0;i<60;i++){
+        const a=i*(Math.PI*2/60);
+        const long=i%5===0;
+        const r0=long?66:70;
         ctx.beginPath();
         ctx.moveTo(cx+Math.cos(a)*r0,cy+Math.sin(a)*r0);
-        ctx.lineTo(cx+Math.cos(a)*58,cy+Math.sin(a)*58);
-        ctx.strokeStyle=`rgba(0,200,232,${i%9===0?0.45:0.15})`; ctx.lineWidth=i%9===0?1:0.5; ctx.stroke();
+        ctx.lineTo(cx+Math.cos(a)*76,cy+Math.sin(a)*76);
+        ctx.strokeStyle=`rgba(0,200,232,${long?0.35:0.12})`;
+        ctx.lineWidth=long?0.8:0.4; ctx.stroke();
       }
+
+      // Orbiting dot
+      const dx=cx+Math.cos(theta+Math.PI*0.5)*76;
+      const dy=cy+Math.sin(theta+Math.PI*0.5)*76;
+      const dg=ctx.createRadialGradient(dx,dy,0,dx,dy,6);
+      dg.addColorStop(0,'rgba(0,200,232,1)'); dg.addColorStop(1,'rgba(0,200,232,0)');
+      ctx.fillStyle=dg; ctx.beginPath(); ctx.arc(dx,dy,6,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#ffffff'; ctx.beginPath(); ctx.arc(dx,dy,2,0,Math.PI*2); ctx.fill();
+
+      // Inner ring
+      ctx.beginPath(); ctx.arc(cx,cy,36,-theta*0.4,(-theta*0.4)+Math.PI*1.6);
+      ctx.strokeStyle='rgba(0,150,190,0.22)'; ctx.lineWidth=0.7; ctx.stroke();
+
+      // Sun glow
+      const sg=ctx.createRadialGradient(cx,cy,0,cx,cy,14);
+      sg.addColorStop(0,'rgba(255,190,50,0.9)'); sg.addColorStop(1,'rgba(255,130,20,0)');
+      ctx.fillStyle=sg; ctx.beginPath(); ctx.arc(cx,cy,14,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#ffb030'; ctx.beginPath(); ctx.arc(cx,cy,3.5,0,Math.PI*2); ctx.fill();
 
       raf=requestAnimationFrame(drawPre);
     }
@@ -651,15 +647,15 @@
   }
 
   // ===== ECLIPTIC GRID =====
-  const gridHelper=new THREE.GridHelper(16,32,0x061828,0x061828);
+  const gridHelper=new THREE.GridHelper(16,32,0x010408,0x010408);
   gridHelper.material.transparent=true;
-  gridHelper.material.opacity=0.55;
+  gridHelper.material.opacity=0.9;
   gridHelper.position.y=0;
   scene.add(gridHelper);
 
   // Faint plane fill
   const planeGeo=new THREE.PlaneGeometry(16,16);
-  const planeMat=new THREE.MeshBasicMaterial({color:0x001830,transparent:true,opacity:0.18,side:THREE.DoubleSide,depthWrite:false});
+  const planeMat=new THREE.MeshBasicMaterial({color:0x000204,transparent:true,opacity:0.3,side:THREE.DoubleSide,depthWrite:false});
   const plane=new THREE.Mesh(planeGeo,planeMat);
   plane.rotation.x=-Math.PI/2;
   scene.add(plane);
@@ -855,7 +851,42 @@
   const sunLight=new THREE.PointLight(0xffeedd,2.0,300);
   sunLight.position.set(0,0,0);
   scene.add(sunLight);
-  scene.add(new THREE.AmbientLight(0x060818,1.0));
+  scene.add(new THREE.AmbientLight(0x020408,1.0));
+
+  // ===== MOON =====
+  const moonTex=makeTex(256,(ctx,s)=>{
+    ctx.fillStyle='#7a7a88'; ctx.fillRect(0,0,s,s);
+    // Subtle tone variation
+    const bg=ctx.createRadialGradient(s*0.4,s*0.35,0,s*0.5,s*0.5,s*0.6);
+    bg.addColorStop(0,'rgba(140,140,150,0.4)'); bg.addColorStop(1,'rgba(40,40,50,0.3)');
+    ctx.fillStyle=bg; ctx.fillRect(0,0,s,s);
+    // Craters
+    for(let i=0;i<50;i++){
+      const x=tx(i)*s,y=tx(i+50)*s,r=2+tx(i+100)*16;
+      const g=ctx.createRadialGradient(x,y,0,x,y,r);
+      g.addColorStop(0,'rgba(35,35,42,0.7)'); g.addColorStop(0.6,'rgba(55,55,62,0.2)'); g.addColorStop(1,'rgba(35,35,42,0)');
+      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle='rgba(120,120,130,0.3)'; ctx.lineWidth=0.5;
+      ctx.beginPath(); ctx.arc(x,y,r*0.9,0,Math.PI*2); ctx.stroke();
+    }
+    // Mare (dark basalt seas)
+    [  [0.28,0.32,0.18,0.13,0.2],
+       [0.62,0.48,0.12,0.09,-0.15],
+       [0.45,0.65,0.08,0.06,0.0],
+    ].forEach(([cx2,cy2,rx,ry,rot])=>{
+      ctx.fillStyle='rgba(38,38,46,0.55)';
+      ctx.beginPath(); ctx.ellipse(cx2*s,cy2*s,rx*s,ry*s,rot,0,Math.PI*2); ctx.fill();
+    });
+  });
+  const moonMesh=new THREE.Mesh(
+    new THREE.SphereGeometry(0.028,16,16),
+    new THREE.MeshPhongMaterial({map:moonTex,specular:0x050508,shininess:2})
+  );
+  scene.add(moonMesh);
+  // faint moonlight glow sprite
+  const moonGlowSp=makeSpriteGlow(0x8090b0,0.15);
+  moonGlowSp.scale.set(0.18,0.18,1);
+  scene.add(moonGlowSp);
 
   // ===== NEO POINTS (built from data) =====
   let neoPoints=null, neoData=[], selectedNeo=null;
@@ -1168,6 +1199,21 @@
       pd.mesh.position.set(r*Math.cos(angle),0,r*Math.sin(angle));
       if(pd.glow) pd.glow.position.copy(pd.mesh.position);
     });
+
+    // Moon orbits Earth — exaggerated radius (0.28 scene units) so it's visible
+    const earthPD=planetMeshes.find(p=>p.def.name==='EARTH');
+    if(earthPD){
+      const moonAngle=(days/27.32)*Math.PI*2;
+      const moonR=0.28;
+      const ex=earthPD.mesh.position.x, ey=earthPD.mesh.position.y, ez=earthPD.mesh.position.z;
+      moonMesh.position.set(
+        ex+Math.cos(moonAngle)*moonR,
+        ey+Math.sin(moonAngle)*0.08, // slight orbital inclination
+        ez+Math.sin(moonAngle)*moonR
+      );
+      moonGlowSp.position.copy(moonMesh.position);
+      moonMesh.rotation.y=frame*0.004;
+    }
 
     // Pulse selection marker
     if(selMarkerMat.opacity>0){
