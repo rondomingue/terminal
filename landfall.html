@@ -452,7 +452,7 @@
   mapboxgl.accessToken='pk.eyJ1Ijoicm9uZG9taW5ndWUiLCJhIjoiY21yMWtwM2swMDRscDJwcTBoaHZ3aTdybiJ9.oG87gBTRgX_LgwK2Akq0Rg';
   const map=new mapboxgl.Map({
     container:'mapbox-map',
-    style:'mapbox://styles/mapbox/satellite-v9',
+    style:'mapbox://styles/mapbox/dark-v11',
     center:[-90.0,24.5],
     zoom:4.2,
     minZoom:3.5,
@@ -521,6 +521,21 @@
   }
 
   map.on('style.load',()=>{
+    // Desaturate basemap toward pure greyscale — water dark blue-grey, land near-black
+    try{
+      map.setPaintProperty('water','fill-color','#0a0e18');
+      map.setPaintProperty('water-shadow','fill-color','#070a12');
+      map.setPaintProperty('land','background-color','#080a10');
+    }catch(e){}
+    // Dim road/label layers so they don't compete
+    ['road-primary','road-secondary-tertiary','road-street','road-minor','road-motorway-trunk',
+     'road-rail','tunnel-motorway-trunk','bridge-motorway-trunk'].forEach(id=>{
+      try{ map.setPaintProperty(id,'line-opacity',0.15); }catch(e){}
+    });
+    ['country-label','state-label','settlement-label','settlement-subdivision-label'].forEach(id=>{
+      try{ map.setPaintProperty(id,'text-opacity',0.3); }catch(e){}
+    });
+
     if(radarFrames.length) addRadarLayers();
     loadRadar().then(()=>{ if(radarFrames.length) addRadarLayers(); });
 
