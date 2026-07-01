@@ -67,25 +67,30 @@
   #header-rule{position:absolute;top:94px;left:0;right:0;height:10px;z-index:9;padding:0 28px;}
 
   /* PANELS */
-  .panel{background:var(--panel);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  .panel{background:rgba(6,8,18,0.52);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
     border:1px solid rgba(74,144,208,.1);position:relative;overflow:hidden;
-    clip-path:polygon(0 10px,10px 0,calc(100% - 10px) 0,100% 10px,100% 100%,0 100%);
-    box-shadow:inset 0 0 0 1px rgba(74,144,208,.03),0 18px 36px -14px rgba(0,0,0,.75);
+    border-radius:12px;
+    box-shadow:inset 0 0 0 1px rgba(74,144,208,.03),0 18px 36px -14px rgba(0,0,0,.65);
     transition:border-color .2s,background .2s;}
+  .panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+    background:linear-gradient(to right,rgba(74,144,208,.35),transparent 70%);border-radius:12px 12px 0 0;}
+  .panel::after{content:'';position:absolute;top:0;right:0;width:12px;height:12px;
+    background:linear-gradient(135deg,transparent 49%,rgba(74,144,208,.18) 50%,transparent 51%);}
+  .panel.highlighted{border-color:rgba(74,144,208,.45);background:rgba(74,144,208,.07);}
   /* default blue top edge accent */
   .panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
     background:linear-gradient(to right,rgba(74,144,208,.4),transparent 70%);}
   .panel::after{content:'';position:absolute;top:0;right:0;width:12px;height:12px;
     background:linear-gradient(135deg,transparent 49%,rgba(74,144,208,.2) 50%,transparent 51%);}
   /* per-panel accent color overrides */
-  #alerts-card::before{background:linear-gradient(to right,rgba(224,80,64,.55),transparent 70%);}
+  #alerts-card::before{background:linear-gradient(to right,rgba(224,80,64,.55),transparent 70%);border-radius:12px 12px 0 0;}
   #alerts-card::after{background:linear-gradient(135deg,transparent 49%,rgba(224,80,64,.25) 50%,transparent 51%);}
   #alerts-card{border-color:rgba(224,80,64,.12);}
-  #tide-card::before{background:linear-gradient(to right,rgba(42,122,176,.6),transparent 70%);}
+  #tide-card::before{background:linear-gradient(to right,rgba(42,122,176,.6),transparent 70%);border-radius:12px 12px 0 0;}
   #tide-card{border-color:rgba(42,122,176,.14);}
-  #advisory-card::before{background:linear-gradient(to right,rgba(200,48,48,.55),rgba(224,96,32,.3) 50%,transparent 80%);}
+  #advisory-card::before{background:linear-gradient(to right,rgba(200,48,48,.55),rgba(224,96,32,.3) 50%,transparent 80%);border-radius:12px 12px 0 0;}
   #advisory-card{border-color:rgba(200,48,48,.15);}
-  #risk-card::before{background:linear-gradient(to right,rgba(201,162,64,.45),transparent 70%);}
+  #risk-card::before{background:linear-gradient(to right,rgba(201,162,64,.45),transparent 70%);border-radius:12px 12px 0 0;}
   .panel.highlighted{border-color:rgba(74,144,208,.5);background:rgba(74,144,208,.05);
     box-shadow:inset 0 0 0 1px rgba(74,144,208,.18),inset 0 0 60px rgba(74,144,208,.04);}
   .panel.highlighted .panel-label{color:var(--advisory);}
@@ -96,8 +101,8 @@
   .panel-meta{font-family:'Space Mono',monospace;font-size:8.5px;letter-spacing:.08em;color:var(--ink-faint);
     position:absolute;top:8px;right:10px;}
   .ghost-sheet{position:absolute;inset:-9px 9px 9px -9px;pointer-events:none;z-index:-1;
-    border:1px solid rgba(74,144,208,.04);background:rgba(74,144,208,.007);
-    clip-path:polygon(0 10px,10px 0,calc(100% - 10px) 0,100% 10px,100% 100%,0 100%);}
+    border:1px solid rgba(74,144,208,.035);background:rgba(74,144,208,.006);
+    border-radius:12px;}
   .stack-wrap{position:relative;}
 
   /* GRID */
@@ -448,8 +453,13 @@
   const map=new mapboxgl.Map({
     container:'mapbox-map',
     style:'mapbox://styles/mapbox/satellite-v9',
-    center:[-90.0,24.5],zoom:4.2,minZoom:3,maxZoom:10,
-    attributionControl:false,logoPosition:'bottom-right'
+    center:[-90.0,24.5],
+    zoom:4.2,
+    minZoom:3.5,
+    maxZoom:8,
+    maxBounds:[[-107,14],[-72,36]], // Gulf + Caribbean + SE US — hard lock
+    attributionControl:false,
+    logoPosition:'bottom-right'
   });
 
   // ===== RAINVIEWER RADAR =====
@@ -545,32 +555,36 @@
     img3.onload=()=>{ if(!map.hasImage('ri-icon')) map.addImage('ri-icon',img3,{sdf:true}); };
     img3.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(RI_SVG);
 
-    function typeToColor(type, stormCat){
-      if(type==='ri') return '#4af0ff'; // cyan for rapid intensification
-      const catMap={'td':'#a0a8c0','ts':'#f5f580','c1':'#f5d060','c2':'#f0a030','c3':'#e06020','c4':'#c83030','c5':'#a020a0','pk':'#ffffff','lf':'#ffffff'};
-      return catMap[type]||catColor(stormCat);
+    function typeToColor(type){
+      if(type==='ri') return 'rgba(255,255,255,0.9)';   // RI slightly brighter
+      if(type==='pk') return '#ffffff';
+      if(type==='lf') return '#ffffff';
+      if(type==='c5'||type==='c4') return 'rgba(255,255,255,0.75)';
+      if(type==='c3'||type==='c2') return 'rgba(255,255,255,0.55)';
+      if(type==='c1') return 'rgba(255,255,255,0.4)';
+      return 'rgba(255,255,255,0.25)'; // td/ts — faintest
     }
 
     STORMS.forEach(s=>{
       const pts=s.track;
       const allCoords=pts.map(p=>[p[0],p[1]]);
 
-      // 1. Full-track glow (single color, storm max cat)
+      // 1. Full-track glow (white, very subtle)
       map.addSource(`base-${s.id}`,{type:'geojson',data:{type:'Feature',geometry:{type:'LineString',coordinates:allCoords}}});
       map.addLayer({id:`glow-${s.id}`,type:'line',source:`base-${s.id}`,
-        paint:{'line-color':catColor(s.cat),'line-width':10,'line-opacity':0,'line-blur':8}});
+        paint:{'line-color':'rgba(255,255,255,0.15)','line-width':8,'line-opacity':0,'line-blur':8}});
 
-      // 2. Per-segment lines — each segment colored by intensity type
+      // 2. Per-segment lines — opacity varies by intensity, all white
       pts.forEach((pt,i)=>{
         if(i===0) return;
         const segId=`seg-${s.id}-${i}`;
-        const col=typeToColor(pt[2],s.cat);
+        const col=typeToColor(pt[2]);
         const isRI=pt[2]==='ri', isPK=pt[2]==='pk';
         map.addSource(segId,{type:'geojson',data:{type:'Feature',geometry:{type:'LineString',coordinates:[[pts[i-1][0],pts[i-1][1]],[pt[0],pt[1]]]}  }});
         map.addLayer({id:`${segId}-l`,type:'line',source:segId,
           paint:{
             'line-color':col,
-            'line-width':isRI?3:isPK?4:1.8,
+            'line-width':isRI?2.5:isPK?3.5:1.5,
             'line-opacity':0,
             'line-dasharray': pt[2]==='td'||pt[2]==='ts'?[2,3]:[1,0]
           }});
@@ -580,11 +594,11 @@
       const pkPt=pts.find(p=>p[2]==='pk')||pts[Math.floor(pts.length/2)];
       map.addSource(`pk-${s.id}`,{type:'geojson',data:{type:'Feature',geometry:{type:'Point',coordinates:[pkPt[0],pkPt[1]]},properties:{name:s.name}}});
       map.addLayer({id:`pk-icon-${s.id}`,type:'symbol',source:`pk-${s.id}`,
-        layout:{'icon-image':'hurricane-icon','icon-size':0.8,'icon-allow-overlap':true,
+        layout:{'icon-image':'hurricane-icon','icon-size':0.75,'icon-allow-overlap':true,
           'text-field':s.name,"text-font":["DIN Offc Pro Bold","Arial Unicode MS Bold"],
-          'text-size':9,'text-anchor':'top','text-offset':[0,0.9],'text-letter-spacing':0.1},
-        paint:{'icon-color':catColor(s.cat),'icon-opacity':0,
-          'text-color':catColor(s.cat)+'cc','text-halo-color':'rgba(4,5,13,0.9)','text-halo-width':1.5}});
+          'text-size':8,'text-anchor':'top','text-offset':[0,0.9],'text-letter-spacing':0.1},
+        paint:{'icon-color':'rgba(255,255,255,0.9)','icon-opacity':0,
+          'text-color':'rgba(255,255,255,0.55)','text-halo-color':'rgba(4,5,13,0.9)','text-halo-width':1.5}});
 
       // 4. Landfall marker
       const lfPts=pts.filter(p=>p[2]==='lf');
@@ -592,7 +606,7 @@
         map.addSource(`lf-${s.id}`,{type:'geojson',data:{type:'FeatureCollection',features:lfPts.map(p=>({type:'Feature',geometry:{type:'Point',coordinates:[p[0],p[1]]}}))}});
         map.addLayer({id:`lf-icon-${s.id}`,type:'symbol',source:`lf-${s.id}`,
           layout:{'icon-image':'landfall-icon','icon-size':0.9,'icon-allow-overlap':true},
-          paint:{'icon-color':catColor(s.cat),'icon-opacity':0}});
+          paint:{'icon-color':'rgba(255,255,255,0.85)','icon-opacity':0}});
       }
 
       // 5. RI markers
@@ -600,19 +614,19 @@
       if(riPts.length){
         map.addSource(`ri-${s.id}`,{type:'geojson',data:{type:'FeatureCollection',features:riPts.map(p=>({type:'Feature',geometry:{type:'Point',coordinates:[p[0],p[1]]}}))}});
         map.addLayer({id:`ri-icon-${s.id}`,type:'symbol',source:`ri-${s.id}`,
-          layout:{'icon-image':'ri-icon','icon-size':0.8,'icon-allow-overlap':true},
-          paint:{'icon-color':'#4af0ff','icon-opacity':0}});
+          layout:{'icon-image':'ri-icon','icon-size':0.75,'icon-allow-overlap':true},
+          paint:{'icon-color':'rgba(255,255,255,0.7)','icon-opacity':0}});
       }
     });
 
     CITIES.forEach(c=>{
       map.addSource(`city-${c.name}`,{type:'geojson',data:{type:'Feature',geometry:{type:'Point',coordinates:[c.lon,c.lat]},properties:{name:c.name}}});
       map.addLayer({id:`city-dot-${c.name}`,type:'circle',source:`city-${c.name}`,
-        paint:{'circle-radius':3,'circle-color':'transparent','circle-stroke-width':1.2,'circle-stroke-color':c.riskColor,'circle-opacity':0.8}});
+        paint:{'circle-radius':2.5,'circle-color':'transparent','circle-stroke-width':1,'circle-stroke-color':'rgba(255,255,255,0.5)','circle-opacity':1}});
       map.addLayer({id:`city-lbl-${c.name}`,type:'symbol',source:`city-${c.name}`,
         layout:{'text-field':c.name.split(' ')[0],'text-font':['DIN Offc Pro Regular','Arial Unicode MS Regular'],
-          'text-size':10,'text-anchor':'left','text-offset':[0.7,0],'text-letter-spacing':0.05},
-        paint:{'text-color':c.riskColor+'99','text-halo-color':'rgba(4,5,13,0.85)','text-halo-width':1.2}});
+          'text-size':9,'text-anchor':'left','text-offset':[0.6,0],'text-letter-spacing':0.05},
+        paint:{'text-color':'rgba(255,255,255,0.35)','text-halo-color':'rgba(4,5,13,0.85)','text-halo-width':1}});
     });
 
     buildToggles();
