@@ -53,7 +53,7 @@
   .panel.danger{border-color:rgba(208,28,28,.15);}
   .panel.danger::before{background:linear-gradient(to right,rgba(208,28,28,.5),transparent 70%);}
   .panel.highlighted{border-color:rgba(0,200,232,.4);background:rgba(0,20,50,.7);}
-  .panel-label{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.15em;color:var(--ink-dim);
+  .panel-label{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.13em;color:var(--ink-dim);
     position:absolute;top:7px;left:10px;cursor:pointer;user-select:none;}
   .panel-label .flag{color:var(--safe);}
   .panel-meta{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:.07em;color:var(--ink-faint);
@@ -69,13 +69,13 @@
   #neo-table-panel{grid-column:2;grid-row:3;padding:10px 14px 6px;overflow:hidden;}
   #rail-right{grid-column:3;grid-row:1 / span 3;display:flex;flex-direction:column;gap:10px;}
   .stat-card{flex:0 0 auto;padding:14px 12px 8px;}
-  .value-xl{font-family:'IBM Plex Mono',monospace;font-size:28px;color:var(--white);letter-spacing:.04em;margin-top:5px;}
+  .value-xl{font-family:'IBM Plex Mono',monospace;font-size:32px;color:var(--white);letter-spacing:.04em;margin-top:6px;}
   .value-xl.warn{color:var(--pha);text-shadow:0 0 10px rgba(208,28,28,.4);}
   .value-xl.ok{color:var(--safe);text-shadow:0 0 8px rgba(0,200,232,.3);}
-  .label-row{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:8.5px;color:var(--ink-faint);margin-top:4px;letter-spacing:.07em;}
+  .label-row{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--ink-faint);margin-top:5px;letter-spacing:.06em;}
   @keyframes pulse{0%,100%{opacity:.25;}50%{opacity:1;}}
   #log-card{flex:1 1 auto;padding:14px 12px 8px;overflow:hidden;}
-  #log-feed{font-family:'IBM Plex Mono',monospace;font-size:8.5px;line-height:1.8;color:var(--ink-dim);height:100%;overflow:hidden;}
+  #log-feed{font-family:'IBM Plex Mono',monospace;font-size:9.5px;line-height:1.85;color:var(--ink-dim);height:100%;overflow:hidden;}
   .log-entry{padding:2px 0;border-bottom:1px solid var(--line-dim);}
   .log-t{color:var(--ink-faint);margin-right:6px;}
   .log-safe{color:var(--safe);} .log-pha{color:var(--pha);}
@@ -83,8 +83,29 @@
   #three-container{position:absolute;inset:0;border-radius:10px;overflow:hidden;cursor:grab;}
   #three-container:active{cursor:grabbing;}
   #three-container canvas{display:block;width:100%!important;height:100%!important;}
+
+  /* ===== PRELOADER ===== */
+  #preloader{position:fixed;inset:0;z-index:200;background:var(--bg);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    transition:opacity .8s ease;}
+  #preloader.fade-out{opacity:0;pointer-events:none;}
+  #preloader.gone{display:none;}
+  #pre-canvas{display:block;}
+  #pre-title{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:300;
+    letter-spacing:.22em;color:var(--white);margin-top:32px;}
+  #pre-title b{color:var(--safe);font-weight:400;}
+  #pre-sub{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.2em;
+    color:var(--ink-dim);margin-top:8px;text-transform:uppercase;}
+  #pre-log{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.1em;
+    color:var(--ink-faint);margin-top:28px;text-align:left;width:260px;line-height:1.9;}
+  #pre-log .pl{color:var(--safe);}
+  #pre-bar-wrap{width:260px;height:1px;background:var(--line);margin-top:16px;position:relative;}
+  #pre-bar{position:absolute;left:0;top:0;height:1px;background:var(--safe);width:0%;
+    transition:width .3s ease;box-shadow:0 0 6px var(--safe);}
+  #pre-pct{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.12em;
+    color:var(--safe);margin-top:6px;}
   #canvas-label{position:absolute;top:9px;left:12px;z-index:4;
-    font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.15em;color:var(--ink-dim);}
+    font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.13em;color:var(--ink-dim);}
   #canvas-label .flag{color:var(--safe);}
   #canvas-meta-text{position:absolute;top:9px;right:12px;z-index:4;
     font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--ink-faint);}
@@ -102,8 +123,8 @@
   #tooltip .tt-name{color:var(--white);font-size:9px;margin-bottom:2px;}
   #tooltip .tt-safe{color:var(--safe);} #tooltip .tt-pha{color:var(--pha);}
   .neo-row{display:grid;grid-template-columns:110px 56px 56px 52px 1fr;gap:5px;
-    font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--ink-dim);padding:3px 0;border-bottom:1px solid var(--line-dim);cursor:pointer;}
-  .neo-row.head{color:var(--ink-faint);font-size:7.5px;letter-spacing:.07em;border-color:var(--line);}
+    font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--ink-dim);padding:4px 0;border-bottom:1px solid var(--line-dim);cursor:pointer;}
+  .neo-row.head{color:var(--ink-faint);font-size:8.5px;letter-spacing:.06em;border-color:var(--line);}
   .neo-row:not(.head):hover{color:var(--ink);}
   .neo-row .des{color:var(--white);}
   .neo-row .pha-y{color:var(--pha);} .neo-row .pha-n{color:var(--safe);}
@@ -120,18 +141,18 @@
     background:rgba(0,200,232,0.12);}
   #ast-scale-marker{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);
     width:2px;height:8px;background:rgba(0,200,232,0.35);}
-  .sel-row{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:8.5px;color:var(--ink-dim);padding:3px 0;border-bottom:1px solid var(--line-dim);}
+  .sel-row{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--ink-dim);padding:4px 0;border-bottom:1px solid var(--line-dim);}
   .sel-row:last-child{border-bottom:none;}
   .sel-row .v{color:var(--white);}
   .sel-row .v.danger{color:var(--pha);} .sel-row .v.safe{color:var(--safe);}
   #approach-card{flex:1 1 auto;padding:14px 12px 8px;overflow:hidden;}
   .approach-row{display:grid;grid-template-columns:1fr 52px 42px;gap:5px;align-items:center;
-    font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--ink-dim);padding:4px 0;border-bottom:1px solid var(--line-dim);}
+    font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--ink-dim);padding:5px 0;border-bottom:1px solid var(--line-dim);}
   .approach-row:last-child{border-bottom:none;}
   .approach-row.head{color:var(--ink-faint);font-size:7.5px;letter-spacing:.06em;border-color:var(--line);}
   .approach-row .des{color:var(--white);font-size:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   #legend-card{flex:0 0 auto;padding:12px 12px 10px;}
-  .legend-row{display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--ink-dim);padding:2px 0;}
+  .legend-row{display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--ink-dim);padding:3px 0;}
   .legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
   ::-webkit-scrollbar{width:0;height:0;}
   @media(max-width:1000px){
@@ -144,6 +165,14 @@
 </style>
 </head>
 <body>
+<div id="preloader">
+  <canvas id="pre-canvas" width="160" height="160"></canvas>
+  <div id="pre-title"><b>TRAN</b>SIT</div>
+  <div id="pre-sub">Near-Earth Object Tracking System</div>
+  <div id="pre-log" id="pre-log-inner"></div>
+  <div id="pre-bar-wrap"><div id="pre-bar"></div></div>
+  <div id="pre-pct">0%</div>
+</div>
 <div id="stage">
   <div class="scanline"></div><div id="grain"></div><div id="vignette"></div>
 
@@ -255,6 +284,107 @@
 <script>
 (function(){
   const $=id=>document.getElementById(id);
+
+  // ===== PRELOADER =====
+  (()=>{
+    const canvas=$('pre-canvas');
+    const ctx=canvas.getContext('2d');
+    const cx=80,cy=80;
+    let angle=0,pct=0;
+    const STEPS=[
+      {t:180,msg:'BOOTING ORBITAL ENGINE…'},
+      {t:600,msg:'LOADING THREE.JS SCENE…'},
+      {t:1200,msg:'COMPUTING EPHEMERIDES…'},
+      {t:2000,msg:'FETCHING NEO DATA…'},
+      {t:2800,msg:'CALIBRATING SENSOR ARRAY…'},
+    ];
+    let si=0;
+    const logEl=$('pre-log');
+
+    function addLog(msg){
+      const d=document.createElement('div');
+      d.innerHTML=`<span class="pl">●</span> ${msg}`;
+      logEl.appendChild(d);
+    }
+    addLog(STEPS[0].msg);
+
+    let raf;
+    function drawPre(){
+      ctx.clearRect(0,0,160,160);
+      angle+=0.025;
+
+      // Outer orbit ring
+      ctx.beginPath(); ctx.arc(cx,cy,58,0,Math.PI*2);
+      ctx.strokeStyle='rgba(0,200,232,0.08)'; ctx.lineWidth=1; ctx.stroke();
+
+      // Sweep arc
+      ctx.beginPath(); ctx.arc(cx,cy,58,angle,angle+Math.PI*0.7);
+      const grad=ctx.createConicalGradient?null:null;
+      ctx.strokeStyle='rgba(0,200,232,0.7)'; ctx.lineWidth=1.5; ctx.stroke();
+
+      // Sweep glow
+      ctx.beginPath(); ctx.arc(cx,cy,58,angle,angle+Math.PI*0.4);
+      ctx.strokeStyle='rgba(0,200,232,0.15)'; ctx.lineWidth=8; ctx.stroke();
+
+      // Mid ring
+      ctx.beginPath(); ctx.arc(cx,cy,40,-angle*0.6,(-angle*0.6)+Math.PI*1.4);
+      ctx.strokeStyle='rgba(0,150,180,0.4)'; ctx.lineWidth=0.8; ctx.stroke();
+
+      // Inner orbit
+      ctx.beginPath(); ctx.arc(cx,cy,22,angle*1.4,angle*1.4+Math.PI*0.9);
+      ctx.strokeStyle='rgba(0,200,232,0.5)'; ctx.lineWidth=1; ctx.stroke();
+
+      // Sun dot at center
+      const sg=ctx.createRadialGradient(cx,cy,0,cx,cy,10);
+      sg.addColorStop(0,'rgba(255,200,60,0.9)'); sg.addColorStop(1,'rgba(255,150,30,0)');
+      ctx.fillStyle=sg; ctx.beginPath(); ctx.arc(cx,cy,10,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#ffb030'; ctx.beginPath(); ctx.arc(cx,cy,3,0,Math.PI*2); ctx.fill();
+
+      // Orbiting dot (Earth-like)
+      const ex=cx+Math.cos(angle)*58, ey=cy+Math.sin(angle)*58;
+      const eg=ctx.createRadialGradient(ex,ey,0,ex,ey,5);
+      eg.addColorStop(0,'rgba(30,160,220,0.9)'); eg.addColorStop(1,'rgba(30,160,220,0)');
+      ctx.fillStyle=eg; ctx.beginPath(); ctx.arc(ex,ey,5,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#1a90d0'; ctx.beginPath(); ctx.arc(ex,ey,2.5,0,Math.PI*2); ctx.fill();
+
+      // Small inner orbiting dot
+      const ix=cx+Math.cos(-angle*1.4)*22, iy=cy+Math.sin(-angle*1.4)*22;
+      ctx.fillStyle='rgba(120,180,220,0.7)'; ctx.beginPath(); ctx.arc(ix,iy,1.5,0,Math.PI*2); ctx.fill();
+
+      // Tick marks on outer ring
+      for(let i=0;i<36;i++){
+        const a=i*(Math.PI*2/36);
+        const r0=i%9===0?50:i%3===0?53:55;
+        ctx.beginPath();
+        ctx.moveTo(cx+Math.cos(a)*r0,cy+Math.sin(a)*r0);
+        ctx.lineTo(cx+Math.cos(a)*58,cy+Math.sin(a)*58);
+        ctx.strokeStyle=`rgba(0,200,232,${i%9===0?0.45:0.15})`; ctx.lineWidth=i%9===0?1:0.5; ctx.stroke();
+      }
+
+      raf=requestAnimationFrame(drawPre);
+    }
+    drawPre();
+
+    // Progress simulation
+    let start=performance.now();
+    function tick(){
+      const elapsed=performance.now()-start;
+      pct=Math.min(95,elapsed/30); // 3s to 95%
+      $('pre-bar').style.width=pct+'%';
+      $('pre-pct').textContent=Math.floor(pct)+'%';
+      if(si<STEPS.length-1 && elapsed>STEPS[si+1].t){ si++; addLog(STEPS[si].msg); }
+      if(pct<95) requestAnimationFrame(tick);
+    }
+    tick();
+
+    window._preComplete=function(){
+      cancelAnimationFrame(raf);
+      pct=100; $('pre-bar').style.width='100%'; $('pre-pct').textContent='100%';
+      addLog('TRANSIT ONLINE');
+      const el=$('preloader');
+      setTimeout(()=>{ el.classList.add('fade-out'); setTimeout(()=>el.classList.add('gone'),900); },400);
+    };
+  })();
 
   // Clock
   function tick(){
@@ -956,49 +1086,31 @@
 
     const geo=makeAsteroidGeo(neo.des);
     const isPHA=neo.pha==='Y';
-
-    // Update rim light color to match object type
-    if(astRimLight) astRimLight.color.setHex(isPHA?0xd01c1c:0x00a8c8);
+    // no lighting needed for wireframe — clear rim light update
 
     const accentCol=isPHA?0xd01c1c:0x00c8e8;
-    const accentColDim=isPHA?0x3a0808:0x002830;
 
     const g=new THREE.Group();
 
-    // ── Solid Phong mesh — dark rocky surface, lit by scene lights ──
-    const solidMat=new THREE.MeshPhongMaterial({
-      color:0x2a2420,        // dark grey-brown rock
-      emissive:0x050408,
-      specular:0x1a1a28,
-      shininess:6,           // low — rocky, not metallic
-      side:THREE.DoubleSide,
-    });
-    g.add(new THREE.Mesh(geo,solidMat));
-
-    // ── Wireframe overlay — thin, low opacity, additive so it glows ──
-    const wireMat=new THREE.MeshBasicMaterial({
+    // ── Dense wireframe mesh — all triangles visible as a tight data-scan grid ──
+    g.add(new THREE.Mesh(geo,new THREE.MeshBasicMaterial({
       color:accentCol,wireframe:true,
-      transparent:true,opacity:0.18,
+      transparent:true,opacity:0.55,
       blending:THREE.AdditiveBlending,depthWrite:false
-    });
-    g.add(new THREE.Mesh(geo,wireMat));
+    })));
 
-    // ── Edge lines — sharper, brighter, only on significant edges (creaseAngle 20°) ──
-    const edgeGeo=new THREE.EdgesGeometry(geo,20);
-    const edgeMat=new THREE.LineBasicMaterial({
-      color:accentCol,transparent:true,opacity:0.55,
+    // ── Sharp structural edges — tight crease threshold for detail ──
+    const edgeGeo=new THREE.EdgesGeometry(geo,8);
+    g.add(new THREE.LineSegments(edgeGeo,new THREE.LineBasicMaterial({
+      color:accentCol,transparent:true,opacity:0.95,
       blending:THREE.AdditiveBlending,depthWrite:false
-    });
-    g.add(new THREE.LineSegments(edgeGeo,edgeMat));
+    })));
 
-    // ── Silhouette glow — very faint enlarged version tinted accent color ──
-    const glowMat=new THREE.MeshBasicMaterial({
-      color:accentColDim,transparent:true,opacity:0.12,
-      side:THREE.BackSide,depthWrite:false
-    });
-    const glowMesh=new THREE.Mesh(geo,glowMat);
-    glowMesh.scale.setScalar(1.06);
-    g.add(glowMesh);
+    // ── Very faint interior fill — gives the wireframe depth without a surface ──
+    g.add(new THREE.Mesh(geo,new THREE.MeshBasicMaterial({
+      color:0x000000,transparent:true,opacity:0.55,
+      side:THREE.FrontSide,depthWrite:true
+    })));
 
     astGroup=g; astScene.add(g);
 
@@ -1110,6 +1222,7 @@
     buildTable(neoData); buildTimeline(neoData);
     buildNEOScene();
     $('canvas-loader').classList.add('done');
+    if(window._preComplete) window._preComplete();
   }
 
   async function fetchNEOs(){
