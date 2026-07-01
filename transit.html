@@ -383,21 +383,90 @@
   plane.rotation.x=-Math.PI/2;
   scene.add(plane);
 
-  // ===== BACKGROUND STARS =====
+  // ===== BACKGROUND STARS — layered, temperature-colored, with Milky Way band =====
   (()=>{
-    const geo=new THREE.BufferGeometry();
-    const pos=[],col=[];
-    for(let i=0;i<6000;i++){
-      const theta=Math.random()*Math.PI*2, phi=Math.acos(Math.random()*2-1);
-      const r=60+Math.random()*80;
-      pos.push(r*Math.sin(phi)*Math.cos(theta),r*Math.sin(phi)*Math.sin(theta),r*Math.cos(phi));
-      const b=0.4+Math.random()*0.5;
-      const blueish=Math.random()>0.7;
-      col.push(blueish?b*0.7:b,blueish?b*0.85:b,blueish?b:b*0.85);
+    // Stellar temperature palette — O/B blue-white, A white, F/G yellow-white, K orange, M red-orange
+    function starColor(){
+      const t=Math.random();
+      if(t<0.04)  return [0.62,0.71,1.00]; // O/B — blue-white
+      if(t<0.12)  return [0.88,0.92,1.00]; // A — white-blue
+      if(t<0.38)  return [1.00,0.97,0.88]; // F/G — yellow-white
+      if(t<0.58)  return [1.00,0.84,0.62]; // K — orange
+      if(t<0.68)  return [1.00,0.65,0.42]; // M — red-orange
+      return             [0.80,0.85,1.00]; // default cool blue-white
     }
-    geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
-    geo.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
-    scene.add(new THREE.Points(geo,new THREE.PointsMaterial({size:0.06,vertexColors:true,transparent:true,opacity:0.8,depthWrite:false})));
+    function spherePt(rMin,rMax){
+      const theta=Math.random()*Math.PI*2, phi=Math.acos(Math.random()*2-1);
+      const r=rMin+Math.random()*(rMax-rMin);
+      return [r*Math.sin(phi)*Math.cos(theta),r*Math.sin(phi)*Math.sin(theta),r*Math.cos(phi)];
+    }
+
+    // Layer 1 — distant background, 9000 tiny dim stars
+    {
+      const pos=[],col=[];
+      for(let i=0;i<9000;i++){
+        const p=spherePt(100,180); pos.push(...p);
+        const b=0.18+Math.random()*0.28;
+        const c=starColor(); col.push(c[0]*b,c[1]*b,c[2]*b);
+      }
+      const geo=new THREE.BufferGeometry();
+      geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+      geo.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
+      scene.add(new THREE.Points(geo,new THREE.PointsMaterial({size:0.04,vertexColors:true,transparent:true,opacity:1,depthWrite:false})));
+    }
+
+    // Layer 2 — mid-field, 3500 medium stars, more color variety
+    {
+      const pos=[],col=[];
+      for(let i=0;i<3500;i++){
+        const p=spherePt(75,130); pos.push(...p);
+        const b=0.35+Math.random()*0.45;
+        const c=starColor(); col.push(c[0]*b,c[1]*b,c[2]*b);
+      }
+      const geo=new THREE.BufferGeometry();
+      geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+      geo.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
+      scene.add(new THREE.Points(geo,new THREE.PointsMaterial({size:0.065,vertexColors:true,transparent:true,opacity:1,depthWrite:false})));
+    }
+
+    // Layer 3 — bright foreground stars, 300 prominent points
+    {
+      const pos=[],col=[];
+      for(let i=0;i<300;i++){
+        const p=spherePt(60,90); pos.push(...p);
+        const b=0.7+Math.random()*0.3;
+        const c=starColor(); col.push(c[0]*b,c[1]*b,c[2]*b);
+      }
+      const geo=new THREE.BufferGeometry();
+      geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+      geo.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
+      scene.add(new THREE.Points(geo,new THREE.PointsMaterial({size:0.13,vertexColors:true,transparent:true,opacity:1,depthWrite:false})));
+    }
+
+    // Milky Way band — 6000 very tiny dim stars concentrated along a tilted great circle
+    {
+      const pos=[],col=[];
+      const BAND_TILT=0.55; // radians — tilt of galactic plane
+      for(let i=0;i<6000;i++){
+        const lon=Math.random()*Math.PI*2;
+        const lat=(Math.random()-0.5)*0.22; // narrow band in galactic latitude
+        const r=120+Math.random()*60;
+        // Rotate galactic coordinates into scene space
+        const x=r*Math.cos(lat)*Math.cos(lon);
+        const yRaw=r*Math.cos(lat)*Math.sin(lon);
+        const zRaw=r*Math.sin(lat);
+        // Apply tilt around x-axis
+        const y=yRaw*Math.cos(BAND_TILT)-zRaw*Math.sin(BAND_TILT);
+        const z=yRaw*Math.sin(BAND_TILT)+zRaw*Math.cos(BAND_TILT);
+        pos.push(x,y,z);
+        const b=0.06+Math.random()*0.12;
+        col.push(b*0.75,b*0.82,b*1.0); // faint blue-white
+      }
+      const geo=new THREE.BufferGeometry();
+      geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+      geo.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
+      scene.add(new THREE.Points(geo,new THREE.PointsMaterial({size:0.028,vertexColors:true,transparent:true,opacity:1,depthWrite:false})));
+    }
   })();
 
   // ===== ASTEROID BELT =====
@@ -553,24 +622,49 @@
 
   // ===== ASTEROID DETAIL RENDERER =====
   let astRenderer=null, astScene=null, astCamera=null, astGroup=null;
+  let astKeyLight=null, astRimLight=null;
   const astCanvas=$('asteroid-canvas');
 
   function initAstRenderer(){
     if(astRenderer) return;
     astRenderer=new THREE.WebGLRenderer({canvas:astCanvas,antialias:true,alpha:true});
     astRenderer.setClearColor(0x000000,0);
+    astRenderer.shadowMap.enabled=false;
     astScene=new THREE.Scene();
     astCamera=new THREE.PerspectiveCamera(48,16/9,0.01,100);
-    astCamera.position.set(0,0.6,3.2);
+    astCamera.position.set(0.4,0.8,3.0);
     astCamera.lookAt(0,0,0);
-    // Faint ambient stars in mini scene
+
+    // Background stars in mini scene
     const sg=new THREE.BufferGeometry();
-    const sp=[];
-    for(let i=0;i<300;i++){
-      sp.push((Math.random()-0.5)*20,(Math.random()-0.5)*20,(Math.random()-0.5)*20-5);
+    const sp=[],sc=[];
+    for(let i=0;i<400;i++){
+      const phi=Math.acos(Math.random()*2-1),theta=Math.random()*Math.PI*2,r=12+Math.random()*8;
+      sp.push(r*Math.sin(phi)*Math.cos(theta),r*Math.sin(phi)*Math.sin(theta),r*Math.cos(phi));
+      const b=0.3+Math.random()*0.5;
+      sc.push(b*0.8,b*0.9,b);
     }
     sg.setAttribute('position',new THREE.Float32BufferAttribute(sp,3));
-    astScene.add(new THREE.Points(sg,new THREE.PointsMaterial({size:0.04,color:0x4488aa,transparent:true,opacity:0.5})));
+    sg.setAttribute('color',new THREE.Float32BufferAttribute(sc,3));
+    astScene.add(new THREE.Points(sg,new THREE.PointsMaterial({size:0.06,vertexColors:true,transparent:true,opacity:0.8,depthWrite:false})));
+
+    // Ambient fill — very dim, cool
+    astScene.add(new THREE.AmbientLight(0x0a1020,1.0));
+
+    // Key light — warm sun-like from upper right
+    astKeyLight=new THREE.PointLight(0xffa060,3.5,30);
+    astKeyLight.position.set(4,3,3);
+    astScene.add(astKeyLight);
+
+    // Rim/accent light — colored by object type, from behind-left
+    astRimLight=new THREE.PointLight(0x00c8e8,1.2,20);
+    astRimLight.position.set(-3,-1,-2);
+    astScene.add(astRimLight);
+
+    // Very faint fill from below to lift shadow detail
+    const fillLight=new THREE.PointLight(0x102040,0.8,20);
+    fillLight.position.set(0,-4,1);
+    astScene.add(fillLight);
   }
 
   // Deterministic seeded pseudo-random (no library needed)
@@ -580,17 +674,44 @@
   }
 
   function makeAsteroidGeo(designation){
-    // Hash designation to a stable seed
     let seed=0;
     for(let c of designation) seed=(seed*31+c.charCodeAt(0))&0xffff;
-    const geo=new THREE.IcosahedronGeometry(1,2); // 80 faces — recognisably rocky
+
+    // Subdivision 3 = 320 faces — smooth enough for good shading, low enough to read as rocky
+    const geo=new THREE.IcosahedronGeometry(1,3);
     const pos=geo.attributes.position;
+
+    // Multi-octave displacement: large-scale shape + medium craters + small surface detail
     for(let i=0;i<pos.count;i++){
       const x=pos.getX(i),y=pos.getY(i),z=pos.getZ(i);
       const len=Math.sqrt(x*x+y*y+z*z);
-      // Displace each vertex radially — range 0.55–1.15 gives convincing irregularity
-      const disp=0.55+sRnd(seed,i)*0.62+sRnd(seed,i+200)*0.2;
-      pos.setXYZ(i,(x/len)*disp,(y/len)*disp,(z/len)*disp);
+      const nx=x/len,ny=y/len,nz=z/len; // unit normal
+
+      // Octave 1 — global shape (elongation/flattening)
+      const shapeX=1.0+sRnd(seed,0)*0.5; // 1.0–1.5× stretch on X
+      const shapeY=0.65+sRnd(seed,1)*0.45;
+      const shapeZ=0.75+sRnd(seed,2)*0.45;
+      let r=Math.sqrt((nx*shapeX)**2+(ny*shapeY)**2+(nz*shapeZ)**2);
+      r=1/r; // normalize back to unit sphere direction, scale by shape
+
+      // Octave 2 — large bumps (4–6 features, like lobes on real asteroids)
+      const bumps=4+Math.floor(sRnd(seed,3)*3);
+      let bumpVal=0;
+      for(let b=0;b<bumps;b++){
+        const bx=sRnd(seed,b*3+10)*2-1, by=sRnd(seed,b*3+11)*2-1, bz=sRnd(seed,b*3+12)*2-1;
+        const bl=Math.sqrt(bx*bx+by*by+bz*bz);
+        const dot=nx*(bx/bl)+ny*(by/bl)+nz*(bz/bl);
+        bumpVal+=Math.max(0,dot)*0.28;
+      }
+
+      // Octave 3 — medium surface roughness
+      const rough=sRnd(seed,i)*0.18-0.09;
+
+      // Octave 4 — fine grain
+      const fine=sRnd(seed,i+500)*0.06-0.03;
+
+      const disp=r*(0.72+bumpVal+rough+fine);
+      pos.setXYZ(i,x/len*disp,y/len*disp,z/len*disp);
     }
     geo.computeVertexNormals();
     return geo;
@@ -640,17 +761,49 @@
 
     const geo=makeAsteroidGeo(neo.des);
     const isPHA=neo.pha==='Y';
-    const wireCol=isPHA?0xd01c1c:0x00c8e8;
-    const fillCol=isPHA?0x280404:0x001830;
+
+    // Update rim light color to match object type
+    if(astRimLight) astRimLight.color.setHex(isPHA?0xd01c1c:0x00a8c8);
+
+    const accentCol=isPHA?0xd01c1c:0x00c8e8;
+    const accentColDim=isPHA?0x3a0808:0x002830;
 
     const g=new THREE.Group();
-    // Solid fill (dark, subtle)
-    g.add(new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:fillCol,transparent:true,opacity:0.35,side:THREE.DoubleSide,depthWrite:false})));
-    // Wireframe
-    g.add(new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:wireCol,wireframe:true,transparent:true,opacity:0.7,blending:THREE.AdditiveBlending})));
-    // Edge highlight — slightly brighter inner edges
-    const edges=new THREE.EdgesGeometry(geo,15);
-    g.add(new THREE.LineSegments(edges,new THREE.LineBasicMaterial({color:wireCol,transparent:true,opacity:0.4,blending:THREE.AdditiveBlending})));
+
+    // ── Solid Phong mesh — dark rocky surface, lit by scene lights ──
+    const solidMat=new THREE.MeshPhongMaterial({
+      color:0x2a2420,        // dark grey-brown rock
+      emissive:0x050408,
+      specular:0x1a1a28,
+      shininess:6,           // low — rocky, not metallic
+      side:THREE.DoubleSide,
+    });
+    g.add(new THREE.Mesh(geo,solidMat));
+
+    // ── Wireframe overlay — thin, low opacity, additive so it glows ──
+    const wireMat=new THREE.MeshBasicMaterial({
+      color:accentCol,wireframe:true,
+      transparent:true,opacity:0.18,
+      blending:THREE.AdditiveBlending,depthWrite:false
+    });
+    g.add(new THREE.Mesh(geo,wireMat));
+
+    // ── Edge lines — sharper, brighter, only on significant edges (creaseAngle 20°) ──
+    const edgeGeo=new THREE.EdgesGeometry(geo,20);
+    const edgeMat=new THREE.LineBasicMaterial({
+      color:accentCol,transparent:true,opacity:0.55,
+      blending:THREE.AdditiveBlending,depthWrite:false
+    });
+    g.add(new THREE.LineSegments(edgeGeo,edgeMat));
+
+    // ── Silhouette glow — very faint enlarged version tinted accent color ──
+    const glowMat=new THREE.MeshBasicMaterial({
+      color:accentColDim,transparent:true,opacity:0.12,
+      side:THREE.BackSide,depthWrite:false
+    });
+    const glowMesh=new THREE.Mesh(geo,glowMat);
+    glowMesh.scale.setScalar(1.06);
+    g.add(glowMesh);
 
     astGroup=g; astScene.add(g);
 
