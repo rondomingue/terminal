@@ -54,27 +54,27 @@
   .panel.danger::before{background:linear-gradient(to right,rgba(208,28,28,.5),transparent 70%);}
   .panel.highlighted{border-color:rgba(0,200,232,.4);background:rgba(0,20,50,.7);}
   .panel-label{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.15em;color:var(--ink-dim);
-    position:absolute;top:8px;left:10px;cursor:pointer;user-select:none;}
+    position:absolute;top:7px;left:10px;cursor:pointer;user-select:none;}
   .panel-label .flag{color:var(--safe);}
   .panel-meta{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:.07em;color:var(--ink-faint);
     position:absolute;top:8px;right:10px;}
   .ghost-sheet{position:absolute;inset:-9px 9px 9px -9px;pointer-events:none;z-index:-1;
     border:1px solid rgba(0,200,232,.03);border-radius:10px;}
   #grid{position:absolute;inset:0;display:grid;
-    grid-template-columns:200px 1fr 255px;grid-template-rows:90px 1fr 108px;
-    gap:10px;padding:90px 20px 16px;z-index:5;}
+    grid-template-columns:200px 1fr 255px;grid-template-rows:90px 1fr 136px;
+    gap:10px;padding:90px 20px 18px;z-index:5;}
   #rail-left{grid-column:1;grid-row:1 / span 3;display:flex;flex-direction:column;gap:10px;}
   #canvas-stack{grid-column:2;grid-row:1 / span 2;position:relative;}
   #canvas-panel{position:absolute;inset:0;padding:0;overflow:hidden;border-radius:10px;}
-  #neo-table-panel{grid-column:2;grid-row:3;padding:13px 14px 8px;overflow:hidden;}
+  #neo-table-panel{grid-column:2;grid-row:3;padding:10px 14px 6px;overflow:hidden;}
   #rail-right{grid-column:3;grid-row:1 / span 3;display:flex;flex-direction:column;gap:10px;}
-  .stat-card{flex:0 0 auto;padding:20px 12px 10px;}
-  .value-xl{font-family:'IBM Plex Mono',monospace;font-size:32px;color:var(--white);letter-spacing:.04em;margin-top:8px;}
+  .stat-card{flex:0 0 auto;padding:14px 12px 8px;}
+  .value-xl{font-family:'IBM Plex Mono',monospace;font-size:28px;color:var(--white);letter-spacing:.04em;margin-top:5px;}
   .value-xl.warn{color:var(--pha);text-shadow:0 0 10px rgba(208,28,28,.4);}
   .value-xl.ok{color:var(--safe);text-shadow:0 0 8px rgba(0,200,232,.3);}
-  .label-row{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:8.5px;color:var(--ink-faint);margin-top:7px;letter-spacing:.07em;}
+  .label-row{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:8.5px;color:var(--ink-faint);margin-top:4px;letter-spacing:.07em;}
   @keyframes pulse{0%,100%{opacity:.25;}50%{opacity:1;}}
-  #log-card{flex:1 1 auto;padding:20px 12px 10px;overflow:hidden;}
+  #log-card{flex:1 1 auto;padding:14px 12px 8px;overflow:hidden;}
   #log-feed{font-family:'IBM Plex Mono',monospace;font-size:8.5px;line-height:1.8;color:var(--ink-dim);height:100%;overflow:hidden;}
   .log-entry{padding:2px 0;border-bottom:1px solid var(--line-dim);}
   .log-t{color:var(--ink-faint);margin-right:6px;}
@@ -108,19 +108,19 @@
   .neo-row .des{color:var(--white);}
   .neo-row .pha-y{color:var(--pha);} .neo-row .pha-n{color:var(--safe);}
   .neo-row.selected{background:rgba(0,200,232,.05);}
-  #sel-card{flex:0 0 auto;padding:20px 12px 14px;min-height:130px;}
-  .sel-row{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--ink-dim);padding:4px 0;border-bottom:1px solid var(--line-dim);}
+  #sel-card{flex:0 0 auto;padding:14px 12px 10px;min-height:0;}
+  .sel-row{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:8.5px;color:var(--ink-dim);padding:3px 0;border-bottom:1px solid var(--line-dim);}
   .sel-row:last-child{border-bottom:none;}
   .sel-row .v{color:var(--white);}
   .sel-row .v.danger{color:var(--pha);} .sel-row .v.safe{color:var(--safe);}
-  #approach-card{flex:1 1 auto;padding:20px 12px 10px;overflow:hidden;}
+  #approach-card{flex:1 1 auto;padding:14px 12px 8px;overflow:hidden;}
   .approach-row{display:grid;grid-template-columns:1fr 52px 42px;gap:5px;align-items:center;
     font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--ink-dim);padding:4px 0;border-bottom:1px solid var(--line-dim);}
   .approach-row:last-child{border-bottom:none;}
   .approach-row.head{color:var(--ink-faint);font-size:7.5px;letter-spacing:.06em;border-color:var(--line);}
   .approach-row .des{color:var(--white);font-size:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  #legend-card{flex:0 0 auto;padding:18px 12px 12px;}
-  .legend-row{display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--ink-dim);padding:3px 0;}
+  #legend-card{flex:0 0 auto;padding:12px 12px 10px;}
+  .legend-row{display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--ink-dim);padding:2px 0;}
   .legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
   ::-webkit-scrollbar{width:0;height:0;}
   @media(max-width:1000px){
@@ -174,7 +174,7 @@
       </div>
       <div class="panel" id="log-card">
         <div class="panel-label">[ SYS ] — EVENT LOG</div>
-        <div id="log-feed" style="margin-top:22px;"></div>
+        <div id="log-feed" style="margin-top:16px;"></div>
       </div>
     </div>
 
@@ -202,7 +202,7 @@
       <div class="panel" id="sel-card">
         <div class="ghost-sheet"></div>
         <div class="panel-label">SELECTED OBJECT</div>
-        <div style="margin-top:22px;">
+        <div style="margin-top:16px;">
           <div class="sel-row"><span>DESIGNATION</span><span class="v" id="sel-des">—</span></div>
           <div class="sel-row"><span>APPROACH</span><span class="v" id="sel-date">—</span></div>
           <div class="sel-row"><span>DIST</span><span class="v" id="sel-dist">—</span></div>
@@ -213,11 +213,11 @@
       </div>
       <div class="panel" id="approach-card">
         <div class="panel-label">[ TIMELINE ] — NEXT 10 APPROACHES</div>
-        <div style="margin-top:22px;overflow:hidden;height:calc(100% - 28px);" id="timeline-body"></div>
+        <div style="margin-top:16px;overflow:hidden;height:calc(100% - 22px);" id="timeline-body"></div>
       </div>
       <div class="panel" id="legend-card">
         <div class="panel-label">LEGEND</div>
-        <div style="margin-top:20px;">
+        <div style="margin-top:12px;">
           <div class="legend-row"><div class="legend-dot" style="background:#ffb030;box-shadow:0 0 6px #ffa040"></div><span>SUN</span></div>
           <div class="legend-row"><div class="legend-dot" style="background:#7888a0"></div><span>MERCURY</span></div>
           <div class="legend-row"><div class="legend-dot" style="background:#c8a060"></div><span>VENUS</span></div>
@@ -258,7 +258,7 @@
     const el=document.createElement('div');el.className='log-entry';
     el.innerHTML=`<span class="log-t">${t}</span><span class="${type?'log-'+type:''}">${msg}</span>`;
     const feed=$('log-feed');feed.prepend(el);
-    while(feed.children.length>10)feed.removeChild(feed.lastChild);
+    while(feed.children.length>12)feed.removeChild(feed.lastChild);
   }
 
   // Days since J2000
@@ -291,8 +291,8 @@
 
   // Wide-angle perspective camera — positioned low and to the side
   const camera=new THREE.PerspectiveCamera(72,W/H,0.1,500);
-  camera.position.set(1.0, 3.2, 5.5);
-  camera.lookAt(0,-0.4,0);
+  camera.position.set(0.6, 2.8, 5.2);
+  camera.lookAt(0,0.4,0);
 
   // OrbitControls for drag interaction
   const controls=new THREE.OrbitControls(camera,renderer.domElement);
@@ -301,7 +301,7 @@
   controls.minDistance=1.5;
   controls.maxDistance=18;
   controls.maxPolarAngle=Math.PI*0.52; // limit to not go below ecliptic
-  controls.target.set(0,-0.2,0);
+  controls.target.set(0,0.3,0);
   controls.update();
 
   // Helper: create glowing orbit tube
