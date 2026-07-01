@@ -63,8 +63,13 @@
     width:100%; height:100vh;
     background:
       linear-gradient(to bottom, rgba(255,255,255,0.025) 0%, transparent 12%, transparent 88%, rgba(0,0,0,0.2) 100%),
-      radial-gradient(circle, rgba(255,255,255,0.06) 0.6px, transparent 0.6px) 0 0/26px 26px,
+      linear-gradient(rgba(255,255,255,0.028) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.028) 1px, transparent 1px),
       var(--bg);
+    background-size:
+      100% 100%,
+      8px 8px,
+      8px 8px;
   }
 
   /* grain */
@@ -299,13 +304,14 @@
   #table-scroll{ height:100%; overflow:hidden; font-family:'Space Mono',monospace; font-size:10px; }
   .trow{
     display:grid;
-    grid-template-columns: 64px 1fr 56px 56px 56px 44px;
-    gap:8px;
+    grid-template-columns: 62px 1fr 48px 52px 52px 40px 52px 52px;
+    gap:6px;
     padding:3px 0;
     color:var(--ink-dim);
     border-bottom:1px solid var(--line-dim);
     cursor:pointer;
     transition:background 0.15s ease, color 0.15s ease;
+    font-size:9px;
   }
   .trow:not(.head):hover{
     background:rgba(255,255,255,0.045);
@@ -361,11 +367,16 @@
   .sel-card .row:last-child{ border-bottom:none; }
 
   #legend-card{ flex:1 1 auto; padding:22px 12px 12px 12px; }
-  .legend-line{
-    font-family:'Space Mono',monospace; font-size:9px; color:var(--ink-faint);
-    line-height:2.1; letter-spacing:0.06em;
+  .carrier-row{
+    display:grid; grid-template-columns: 38px 1fr 22px;
+    gap:6px; align-items:center;
+    font-family:'Space Mono',monospace; font-size:9px; color:var(--ink-dim);
+    padding:3px 8px; border-bottom:1px solid var(--line-dim);
   }
-  .legend-line .sw{ color:var(--ink); }
+  .carrier-row:last-child{ border-bottom:none; }
+  .carrier-row .prefix{ color:var(--white); font-size:8.5px; }
+  .carrier-row .name{ color:var(--ink-dim); font-size:8px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .carrier-row .count{ color:var(--ink-faint); font-size:8px; text-align:right; }
 
   .footer-strip{
     grid-column:1 / -1; grid-row:4;
@@ -543,7 +554,7 @@
       <div class="panel-label">[ COMMS ] — ACTIVE SQUAWK</div>
       <div id="table-scroll">
         <div class="trow head">
-          <span>CALLSIGN</span><span>AIRLINE</span><span>TYPE</span><span>ALT FT</span><span>SPD KT</span><span>HDG</span>
+          <span>CALLSIGN</span><span>AIRLINE</span><span>TYPE</span><span>REG</span><span>ICAO24</span><span>HDG</span><span>ALT FT</span><span>SPD KT</span>
         </div>
         <div id="table-body"></div>
       </div>
@@ -603,19 +614,13 @@
 
       <div class="panel" id="legend-card">
         <div class="corner tr"></div><div class="corner br"></div>
-        <div class="panel-label">LEGEND</div>
-        <div class="legend-line" style="margin-top:18px;">
-          <span class="sw">●</span> AIRBORNE TARGET<br>
-          <span class="sw">○</span> GROUND CONTACT<br>
-          <span class="sw">— —</span> 25 / 50 NMI RING<br>
-          <span class="sw">×</span> KMSY FIELD REF
-        </div>
+        <div class="panel-label">[ CARRIER INDEX ] — IN SECTOR</div>
+        <div id="carrier-index" style="margin-top:18px; overflow:hidden; height:calc(100% - 28px);"></div>
       </div>
     </div>
 
   </div>
 </div>
-
 <script>
 (function(){
   // ---- bounding box around MSY (Louis Armstrong New Orleans Intl) ----
@@ -1352,12 +1357,14 @@
       const cs = (f.callsign||'').trim() || '----';
       const airline = resolveAirline(cs) || '—';
       const actype = (f.actype && f.actype!=='—') ? f.actype : '—';
+      const reg = (f.registration && f.registration!=='—') ? f.registration : '—';
+      const icao = f.icao24 ? f.icao24.toUpperCase() : '—';
       const alt = f.baro_altitude!=null ? Math.round(f.baro_altitude*3.281) : '--';
       const spd = f.velocity!=null ? Math.round(f.velocity*1.944) : '--';
       const hdg = f.true_track!=null ? Math.round(f.true_track) : '--';
       const isSel = f.icao24 === selectedIcao;
       html += `<div class="trow${isSel?' selected':''}" data-icao="${f.icao24}">
-        <span class="c-id">${cs}</span><span>${airline}</span><span>${actype}</span><span>${alt}</span><span>${spd}</span><span>${hdg}°</span>
+        <span class="c-id">${cs}</span><span>${airline}</span><span>${actype}</span><span style="color:var(--ink-faint)">${reg}</span><span style="color:var(--ink-faint)">${icao}</span><span>${hdg}°</span><span>${alt}</span><span>${spd}</span>
       </div>`;
     });
     body.innerHTML = html;
@@ -1377,6 +1384,32 @@
     const gnd = stateData.filter(f=>f.on_ground).length;
     $('track-count').textContent = String(air).padStart(2,'0');
     $('ground-count').textContent = 'GND ' + String(gnd).padStart(2,'0');
+  }
+
+  function renderCarrierIndex(){
+    const el = $('carrier-index');
+    if(!el) return;
+    // count aircraft per resolved airline/callsign prefix
+    const counts = {};
+    stateData.forEach(f=>{
+      const cs = (f.callsign||'').trim();
+      if(!cs) return;
+      const prefix = cs.slice(0,3).toUpperCase();
+      const carrier = resolveAirline(cs) || ('GA / '+ prefix);
+      counts[carrier] = counts[carrier] || { prefix, carrier, n:0 };
+      counts[carrier].n++;
+    });
+    const rows = Object.values(counts).sort((a,b)=>b.n-a.n);
+    if(!rows.length){
+      el.innerHTML = `<div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--ink-faint);padding:4px 8px;">NO CONTACTS IN SECTOR</div>`;
+      return;
+    }
+    el.innerHTML = rows.map(r=>`
+      <div class="carrier-row">
+        <span class="prefix">${r.prefix}</span>
+        <span class="name">${r.carrier}</span>
+        <span class="count">${r.n}</span>
+      </div>`).join('');
   }
 
   async function poll(){
@@ -1405,7 +1438,7 @@
       $('last-sync').textContent = now.toTimeString().slice(0,8);
       const next = new Date(now.getTime()+POLL_MS);
       $('next-sync').textContent = next.toTimeString().slice(0,8);
-      renderTargets(); renderTable(); renderSelection(); updateCounts();
+      renderTargets(); renderTable(); renderSelection(); updateCounts(); renderCarrierIndex();
     }catch(e){
       $('link-status').textContent = 'ERR';
       logLine(`SYNC FAIL — ${e.message}`);
