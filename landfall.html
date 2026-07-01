@@ -4,41 +4,56 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>LANDFALL // LIVE — TROPICAL CYCLONE OPERATIONS</title>
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.css" rel="stylesheet"/>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow:wght@300;400;500;600&display=swap');
   :root{
-    --bg:#05060a; --panel:rgba(8,10,16,0.72); --line:#1e2130; --line-dim:#151724;
-    --ink:#c8ccd8; --ink-dim:#6b7090; --ink-faint:#2e3350; --white:#e8ecf5;
-    --amber:#d4a84b; --amber-dim:#8a6a25; --amber-faint:#3a2d10;
+    --bg:#04050d;
+    --panel:rgba(6,8,18,0.78);
+    --line:#1a1d2e;
+    --line-dim:#121520;
+    --ink:#bcc2d8;
+    --ink-dim:#5a6080;
+    --ink-faint:#282e45;
+    --white:#dde3f5;
+    /* amber — system chrome */
+    --amber:#c9a240;
+    --amber-dim:#7a601a;
+    /* Saffir-Simpson + alert palette */
+    --cat1:#f5d060;
+    --cat2:#f0a030;
+    --cat3:#e06020;
+    --cat4:#c83030;
+    --cat5:#a020a0;
+    --warning:#e05040;
+    --watch:#d4a020;
+    --advisory:#4a90d0;
+    --clear:#3aaa70;
+    --water:#2a7ab0;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   html,body{background:var(--bg);color:var(--ink);font-family:'Barlow',sans-serif;width:100%;height:100%;overflow:hidden;}
   .mono{font-family:'Space Mono',monospace;letter-spacing:.02em;}
+
   #stage{position:relative;width:100%;height:100vh;
     background:
-      linear-gradient(to bottom,rgba(212,168,75,.018) 0%,transparent 10%,transparent 90%,rgba(0,0,0,.3) 100%),
-      linear-gradient(rgba(212,168,75,0.055) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(212,168,75,0.055) 1px, transparent 1px),
-      linear-gradient(rgba(212,168,75,0.022) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(212,168,75,0.022) 1px, transparent 1px),
+      linear-gradient(to bottom,rgba(74,144,208,.018) 0%,transparent 12%,transparent 88%,rgba(0,0,0,.32) 100%),
+      linear-gradient(rgba(100,130,200,0.022) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(100,130,200,0.022) 1px,transparent 1px),
       var(--bg);
-    background-size:
-      100% 100%,
-      80px 80px,
-      80px 80px,
-      16px 16px,
-      16px 16px;}
-  #grain{position:absolute;inset:0;pointer-events:none;z-index:50;opacity:.04;mix-blend-mode:overlay;
+    background-size:100% 100%,6px 6px,6px 6px;}
+  #grain{position:absolute;inset:0;pointer-events:none;z-index:50;opacity:.045;mix-blend-mode:overlay;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
   .scanline{position:absolute;inset:0;pointer-events:none;z-index:49;mix-blend-mode:overlay;
-    background-image:repeating-linear-gradient(to bottom,rgba(212,168,75,.04) 0px,rgba(212,168,75,.04) 1px,transparent 1px,transparent 4px);
-    background-size:100% 4px;opacity:.35;}
+    background-image:repeating-linear-gradient(to bottom,rgba(74,144,208,.035) 0px,rgba(74,144,208,.035) 1px,transparent 1px,transparent 4px);
+    background-size:100% 4px;opacity:.28;}
   #vignette{position:absolute;inset:0;pointer-events:none;z-index:48;
-    background:radial-gradient(ellipse at 50% 50%,transparent 45%,rgba(0,0,0,.65) 100%);}
+    background:radial-gradient(ellipse at 50% 50%,transparent 42%,rgba(0,0,0,.7) 100%);}
+
   /* HEADER */
   #header{position:absolute;top:0;left:0;right:0;z-index:10;display:flex;justify-content:space-between;align-items:flex-start;padding:20px 28px 0;}
   .brand .title{font-weight:300;font-size:24px;letter-spacing:.1em;color:var(--white);}
-  .brand .title b{color:var(--amber);font-weight:400;}
+  .brand .title b{color:var(--cat3);font-weight:400;text-shadow:0 0 12px rgba(224,96,32,.4);}
   .brand .sub{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.14em;color:var(--ink-dim);margin-top:3px;}
   .id-strip{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.1em;color:var(--ink-faint);margin-top:8px;display:flex;gap:10px;}
   .id-strip b{color:var(--ink-dim);font-weight:400;}
@@ -50,101 +65,148 @@
   .mini-stats{display:flex;gap:10px;justify-content:flex-end;font-family:'Space Mono',monospace;font-size:8px;color:var(--ink-faint);margin-top:6px;}
   .mini-stats b{color:var(--ink-dim);font-weight:400;margin-left:4px;}
   #header-rule{position:absolute;top:94px;left:0;right:0;height:10px;z-index:9;padding:0 28px;}
+
   /* PANELS */
-  .panel{background:var(--panel);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
-    border:1px solid rgba(212,168,75,.1);position:relative;overflow:hidden;
+  .panel{background:var(--panel);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    border:1px solid rgba(74,144,208,.1);position:relative;overflow:hidden;
     clip-path:polygon(0 10px,10px 0,calc(100% - 10px) 0,100% 10px,100% 100%,0 100%);
-    box-shadow:inset 0 0 0 1px rgba(212,168,75,.03),inset 0 0 30px rgba(212,168,75,.015),0 16px 32px -12px rgba(0,0,0,.7);
-    transition:border-color .15s,background .15s;}
+    box-shadow:inset 0 0 0 1px rgba(74,144,208,.03),0 18px 36px -14px rgba(0,0,0,.75);
+    transition:border-color .2s,background .2s;}
+  /* default blue top edge accent */
   .panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
-    background:linear-gradient(to right,rgba(212,168,75,.3),transparent 70%);}
+    background:linear-gradient(to right,rgba(74,144,208,.4),transparent 70%);}
   .panel::after{content:'';position:absolute;top:0;right:0;width:12px;height:12px;
-    background:linear-gradient(135deg,transparent 49%,rgba(212,168,75,.2) 50%,transparent 51%);}
-  .panel.highlighted{border-color:rgba(212,168,75,.45);background:rgba(212,168,75,.055);
-    box-shadow:inset 0 0 0 1px rgba(212,168,75,.15),inset 0 0 50px rgba(212,168,75,.04);}
-  .panel.highlighted .panel-label{color:var(--amber);}
+    background:linear-gradient(135deg,transparent 49%,rgba(74,144,208,.2) 50%,transparent 51%);}
+  /* per-panel accent color overrides */
+  #alerts-card::before{background:linear-gradient(to right,rgba(224,80,64,.55),transparent 70%);}
+  #alerts-card::after{background:linear-gradient(135deg,transparent 49%,rgba(224,80,64,.25) 50%,transparent 51%);}
+  #alerts-card{border-color:rgba(224,80,64,.12);}
+  #tide-card::before{background:linear-gradient(to right,rgba(42,122,176,.6),transparent 70%);}
+  #tide-card{border-color:rgba(42,122,176,.14);}
+  #advisory-card::before{background:linear-gradient(to right,rgba(200,48,48,.55),rgba(224,96,32,.3) 50%,transparent 80%);}
+  #advisory-card{border-color:rgba(200,48,48,.15);}
+  #risk-card::before{background:linear-gradient(to right,rgba(201,162,64,.45),transparent 70%);}
+  .panel.highlighted{border-color:rgba(74,144,208,.5);background:rgba(74,144,208,.05);
+    box-shadow:inset 0 0 0 1px rgba(74,144,208,.18),inset 0 0 60px rgba(74,144,208,.04);}
+  .panel.highlighted .panel-label{color:var(--advisory);}
   .panel-label{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.16em;color:var(--ink-dim);
-    position:absolute;top:8px;left:10px;cursor:pointer;user-select:none;
-    text-shadow:0 0 4px rgba(212,168,75,.15);transition:color .15s,text-shadow .15s;}
-  .panel-label:hover{color:var(--ink);text-shadow:0 0 8px rgba(212,168,75,.35);}
-  .panel-label .flag{color:var(--amber);}
+    position:absolute;top:8px;left:10px;cursor:pointer;user-select:none;transition:color .15s;}
+  .panel-label:hover{color:var(--ink);}
+  .panel-label .flag{color:var(--advisory);}
   .panel-meta{font-family:'Space Mono',monospace;font-size:8.5px;letter-spacing:.08em;color:var(--ink-faint);
     position:absolute;top:8px;right:10px;}
   .ghost-sheet{position:absolute;inset:-9px 9px 9px -9px;pointer-events:none;z-index:-1;
-    border:1px solid rgba(212,168,75,.04);background:rgba(212,168,75,.008);
+    border:1px solid rgba(74,144,208,.04);background:rgba(74,144,208,.007);
     clip-path:polygon(0 10px,10px 0,calc(100% - 10px) 0,100% 10px,100% 100%,0 100%);}
   .stack-wrap{position:relative;}
+
   /* GRID */
   #grid{position:absolute;inset:0;display:grid;
-    grid-template-columns:220px 1fr 260px;grid-template-rows:104px 1fr 110px 110px;
+    grid-template-columns:220px 1fr 265px;grid-template-rows:104px 1fr 120px 120px;
     gap:12px;padding:104px 22px 18px;z-index:5;}
   #rail-left{grid-column:1;grid-row:1 / span 4;display:flex;flex-direction:column;gap:12px;}
   #map-stack{grid-column:2;grid-row:1 / span 3;position:relative;}
-  #map-panel{position:absolute;inset:0;padding:28px 14px 14px;}
-  #storm-table-panel{grid-column:2;grid-row:4;padding:16px 14px 8px;overflow:hidden;}
+  #map-panel{position:absolute;inset:0;padding:0;}
+  #storm-table-panel{grid-column:2;grid-row:4;padding:14px 14px 8px;overflow:hidden;}
   #rail-right{grid-column:3;grid-row:1 / span 4;display:flex;flex-direction:column;gap:12px;}
+
   /* LEFT RAIL */
   .stat-card{flex:0 0 auto;padding:22px 12px 10px;}
   .value-xl{font-family:'Space Mono',monospace;font-size:26px;color:var(--white);letter-spacing:.04em;margin-top:8px;}
-  .value-xl.quiet{color:var(--amber-dim);font-size:16px;margin-top:10px;line-height:1.4;}
-  .value-xl.active{color:var(--amber);text-shadow:0 0 10px rgba(212,168,75,.5);}
+  .value-xl.quiet{color:var(--clear);font-size:14px;margin-top:10px;line-height:1.5;text-shadow:0 0 8px rgba(58,170,112,.3);}
+  .value-xl.active{color:var(--cat4);text-shadow:0 0 12px rgba(200,48,48,.5);}
   .label-row{display:flex;justify-content:space-between;font-family:'Space Mono',monospace;font-size:9px;color:var(--ink-faint);margin-top:8px;letter-spacing:.08em;}
   @keyframes pulse{0%,100%{opacity:.3;}50%{opacity:1;}}
-  @keyframes flicker{0%,100%{opacity:1;}92%{opacity:1;}93%{opacity:.4;}94%{opacity:1;}97%{opacity:.6;}98%{opacity:1;}}
-  .pulse-dot{width:5px;height:5px;border-radius:50%;background:var(--amber);display:inline-block;margin-right:6px;animation:pulse 2.5s ease-in-out infinite;}
+  @keyframes flicker{0%,100%{opacity:1;}92%{opacity:1;}93%{opacity:.3;}94%{opacity:1;}97%{opacity:.5;}98%{opacity:1;}}
+
+  /* ALERTS */
   #alerts-card{flex:1 1 auto;padding:22px 12px 10px;overflow:hidden;}
   #alerts-feed{font-family:'Space Mono',monospace;font-size:9px;line-height:1.7;color:var(--ink-dim);height:100%;overflow:hidden;}
-  .alert-entry{padding:4px 0;border-bottom:1px solid var(--line-dim);}
+  .alert-entry{padding:4px 6px;border-bottom:1px solid var(--line-dim);border-left:2px solid transparent;}
   .alert-entry:last-child{border-bottom:none;}
-  .alert-entry .ev{color:var(--amber);display:block;font-size:8.5px;margin-bottom:1px;}
+  .alert-entry .ev{display:block;font-size:8.5px;font-weight:700;margin-bottom:1px;letter-spacing:.06em;}
   .alert-entry .loc{color:var(--ink-faint);font-size:7.5px;}
+  .alert-warning{border-left-color:var(--warning);}
+  .alert-warning .ev{color:var(--warning);}
+  .alert-watch{border-left-color:var(--watch);}
+  .alert-watch .ev{color:var(--watch);}
+  .alert-advisory{border-left-color:var(--advisory);}
+  .alert-advisory .ev{color:var(--advisory);}
+
+  /* TIDES */
   #tide-card{flex:0 0 auto;padding:22px 12px 10px;}
   .tide-row{display:flex;justify-content:space-between;align-items:center;
     font-family:'Space Mono',monospace;font-size:9px;color:var(--ink-dim);padding:4px 0;border-bottom:1px solid var(--line-dim);}
   .tide-row:last-child{border-bottom:none;}
-  .tide-row .tname{color:var(--ink-faint);font-size:8px;}
-  .tide-row .tval{color:var(--white);}
-  .tide-row .tunit{color:var(--amber-dim);font-size:8px;}
-  /* MAP */
-  #map-svg{width:100%;height:100%;display:block;position:relative;z-index:2;}
-  #map-loader{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-    font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.14em;color:var(--amber-dim);
-    display:flex;align-items:center;gap:8px;pointer-events:none;z-index:6;transition:opacity .5s;}
-  #map-loader.done{opacity:0;}
-  .ml-dot{width:5px;height:5px;border-radius:50%;background:var(--amber);animation:pulse 1s ease-in-out infinite;}
-  #storm-toggles{position:absolute;bottom:28px;left:12px;right:12px;display:flex;flex-wrap:wrap;gap:5px;z-index:4;pointer-events:none;}
-  .stog{font-family:'Space Mono',monospace;font-size:7.5px;letter-spacing:.06em;padding:3px 7px;
-    border:1px solid var(--line);color:var(--ink-faint);cursor:pointer;pointer-events:all;
-    transition:all .15s;background:rgba(5,6,10,.75);}
-  .stog.on{border-color:var(--amber-dim);color:var(--amber);background:rgba(212,168,75,.07);}
-  .stog:hover{border-color:var(--amber-dim);color:var(--ink);}
+  .tide-row .tname{color:var(--ink-faint);font-size:7.5px;}
+  .tide-row .tval{color:var(--water);font-size:11px;}
+  .tide-row .tunit{color:var(--ink-faint);font-size:7.5px;}
+
+  /* MAPBOX */
+  #mapbox-map{position:absolute;inset:0;}
+  .mapboxgl-ctrl-bottom-left,.mapboxgl-ctrl-bottom-right,.mapboxgl-ctrl-top-right,.mapboxgl-ctrl-top-left{display:none!important;}
+  #map-overlay{position:absolute;inset:0;pointer-events:none;z-index:3;}
+  #map-overlay::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+    background:linear-gradient(to right,rgba(74,144,208,.4),transparent 70%);}
+  #map-label-top{position:absolute;top:8px;left:10px;z-index:4;
+    font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.16em;color:var(--ink-dim);cursor:pointer;}
+  #map-label-top .flag{color:var(--advisory);}
+  #map-meta-right{position:absolute;top:8px;right:10px;z-index:4;
+    font-family:'Space Mono',monospace;font-size:8px;color:var(--ink-faint);}
+  #map-credit{position:absolute;bottom:8px;right:10px;z-index:4;
+    font-family:'Space Mono',monospace;font-size:6.5px;color:var(--ink-faint);opacity:.6;}
+  #storm-toggles{position:absolute;bottom:24px;left:10px;right:10px;display:flex;flex-wrap:wrap;gap:5px;z-index:5;pointer-events:none;}
+  .stog{font-family:'Space Mono',monospace;font-size:7.5px;letter-spacing:.05em;padding:3px 8px;
+    border:1px solid rgba(255,255,255,.1);color:var(--ink-faint);cursor:pointer;pointer-events:all;
+    transition:all .15s;background:rgba(4,5,13,.8);}
+  .stog:hover{color:var(--ink);}
+  /* category-colored toggle active states */
+  .stog.on.cat5{border-color:var(--cat5);color:var(--cat5);background:rgba(160,32,160,.1);}
+  .stog.on.cat4{border-color:var(--cat4);color:var(--cat4);background:rgba(200,48,48,.1);}
+  .stog.on.cat3{border-color:var(--cat3);color:var(--cat3);background:rgba(224,96,32,.1);}
+  .stog.on.cat2{border-color:var(--cat2);color:var(--cat2);background:rgba(240,160,48,.1);}
+  .stog.on.cat1{border-color:var(--cat1);color:var(--cat1);background:rgba(245,208,96,.1);}
+
   /* STORM TABLE */
-  .srow{display:grid;grid-template-columns:86px 44px 44px 52px 52px 1fr;gap:6px;
-    font-family:'Space Mono',monospace;font-size:9px;color:var(--ink-dim);padding:3px 0;border-bottom:1px solid var(--line-dim);}
+  .srow{display:grid;grid-template-columns:82px 40px 44px 52px 52px 1fr;gap:6px;
+    font-family:'Space Mono',monospace;font-size:9px;color:var(--ink-dim);padding:4px 0;border-bottom:1px solid var(--line-dim);}
   .srow.head{color:var(--ink-faint);font-size:8px;letter-spacing:.08em;border-color:var(--line);}
   .srow .cs{color:var(--white);}
+
   /* RIGHT RAIL */
   #advisory-card{flex:0 0 auto;padding:22px 12px 14px;min-height:138px;}
-  .adv-quiet{color:var(--amber-dim);font-family:'Space Mono',monospace;font-size:15px;letter-spacing:.06em;margin-top:12px;line-height:1.4;}
-  .adv-active{color:var(--amber);font-family:'Space Mono',monospace;font-size:12px;text-shadow:0 0 8px rgba(212,168,75,.4);animation:flicker 8s infinite;margin-top:12px;}
-  .adv-detail{color:var(--ink-faint);font-family:'Space Mono',monospace;font-size:8.5px;line-height:1.8;margin-top:6px;}
+  .adv-quiet{font-family:'Space Mono',monospace;font-size:13px;letter-spacing:.06em;margin-top:12px;line-height:1.5;color:var(--clear);text-shadow:0 0 8px rgba(58,170,112,.3);}
+  .adv-active{font-family:'Space Mono',monospace;font-size:12px;animation:flicker 7s infinite;margin-top:12px;}
+  .adv-detail{color:var(--ink-faint);font-family:'Space Mono',monospace;font-size:8px;line-height:1.8;margin-top:6px;}
   #risk-card{flex:1 1 auto;padding:22px 12px 10px;overflow:hidden;}
-  .risk-row{display:grid;grid-template-columns:1fr 34px;gap:6px;align-items:center;padding:4px 0;border-bottom:1px solid var(--line-dim);}
+  .risk-row{display:grid;grid-template-columns:1fr 30px;gap:6px;align-items:center;padding:4px 0;border-bottom:1px solid var(--line-dim);}
   .risk-row:last-child{border-bottom:none;}
-  .risk-bar-wrap{position:relative;height:2px;background:var(--line-dim);overflow:hidden;}
-  .risk-bar-fill{position:absolute;left:0;top:0;height:100%;background:var(--amber);transition:width 1s ease;}
+  .risk-bar-wrap{height:2px;background:var(--line-dim);overflow:hidden;margin-top:2px;}
+  .risk-bar-fill{height:100%;transition:width 1.2s ease;}
   .risk-city{font-family:'Space Mono',monospace;font-size:8.5px;color:var(--ink-dim);}
-  .risk-score{font-family:'Space Mono',monospace;font-size:8.5px;color:var(--amber-dim);text-align:right;}
+  .risk-sub{font-family:'Space Mono',monospace;font-size:7px;color:var(--ink-faint);}
+  .risk-score{font-family:'Space Mono',monospace;font-size:9px;text-align:right;}
   #wx-card{flex:0 0 auto;padding:22px 12px 10px;}
-  .wx-row{display:grid;grid-template-columns:1fr 34px 52px;gap:6px;align-items:center;
+  .wx-row{display:grid;grid-template-columns:1fr 36px 60px;gap:6px;align-items:center;
     font-family:'Space Mono',monospace;font-size:8.5px;color:var(--ink-dim);padding:3px 0;border-bottom:1px solid var(--line-dim);}
   .wx-row:last-child{border-bottom:none;}
   .wx-city{color:var(--ink-faint);font-size:7.5px;}
-  .wx-temp{color:var(--white);text-align:center;}
-  .wx-cond{color:var(--amber-dim);font-size:7.5px;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .wx-temp{color:var(--cat2);text-align:center;}
+  .wx-cond{font-size:7.5px;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .wx-cond.storm{color:var(--warning);}
+  .wx-cond.rain{color:var(--advisory);}
+  .wx-cond.cloud{color:var(--ink-dim);}
+  .wx-cond.clear{color:var(--clear);}
+
+  /* SAFFIR-SIMPSON LEGEND STRIP */
+  #ss-strip{position:absolute;bottom:36px;left:0;right:0;z-index:6;
+    display:flex;justify-content:center;gap:4px;pointer-events:none;}
+  .ss-badge{font-family:'Space Mono',monospace;font-size:7px;letter-spacing:.08em;padding:2px 7px;
+    border:1px solid;opacity:.75;}
+
   ::-webkit-scrollbar{width:0;height:0;}
   @media(max-width:1000px){
-    html,body{overflow-y:auto;overflow-x:hidden;height:auto;}
+    html,body{overflow-y:auto;height:auto;}
     #stage{height:auto;min-height:100vh;}
     #header{position:relative;flex-direction:column;padding:16px 16px 10px;gap:12px;}
     #header-rule{position:relative;top:auto;padding:0 16px;}
@@ -174,7 +236,7 @@
     </div>
     <div class="clockblock">
       <div class="big mono" id="clock">00:00:00</div>
-      <div id="datestr" style="font-size:9px; letter-spacing:.06em;">----.--.-- UTC</div>
+      <div id="datestr" style="font-size:9px;letter-spacing:.06em;">----.--.-- UTC</div>
       <div class="mini-stats"><span>BASIN<b>NAL</b></span><span>SEASON<b>2026</b></span><span>SRC<b>NHC/NWS</b></span></div>
     </div>
   </div>
@@ -184,21 +246,21 @@
     <div id="rail-left">
       <div class="panel stat-card">
         <div class="panel-label"><span class="flag">●</span> ACTIVE SYSTEMS</div>
-        <div class="value-xl quiet mono" id="active-count" style="animation:flicker 12s infinite;">QUIET<br>SEASON</div>
-        <div class="label-row"><span>2026 ATL SEASON</span><span>NHC</span></div>
+        <div class="value-xl quiet mono" id="active-count" style="animation:flicker 12s infinite;">NO ACTIVE<br>SYSTEMS</div>
+        <div class="label-row"><span>2026 ATL SEASON</span><span style="color:var(--clear)">QUIET</span></div>
       </div>
       <div class="panel stat-card">
         <div class="panel-label">WX // NEW ORLEANS</div>
-        <div class="value-xl mono" id="wx-main-temp" style="font-size:22px;margin-top:10px;">--°F</div>
-        <div class="label-row"><span id="wx-main-cond">LOADING</span><span id="wx-main-wind">WND —</span></div>
+        <div class="value-xl mono" id="wx-main-temp" style="font-size:22px;margin-top:10px;color:var(--cat2);">--°F</div>
+        <div class="label-row"><span id="wx-main-cond" style="color:var(--advisory)">LOADING</span><span id="wx-main-wind">WND —</span></div>
       </div>
       <div class="panel" id="alerts-card">
         <div class="panel-label">[ NWS ] — GULF COAST ALERTS</div>
-        <div id="alerts-feed" style="margin-top:22px;padding:0 12px 8px;"><div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--ink-faint);">CHECKING…</div></div>
+        <div id="alerts-feed" style="margin-top:22px;padding:0 10px 8px;"><div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--ink-faint);">CHECKING…</div></div>
       </div>
       <div class="panel" id="tide-card">
         <div class="panel-label">TIDE GAUGES — CO-OPS</div>
-        <div style="margin-top:22px;padding:0 12px 8px;" id="tide-body">
+        <div style="margin-top:22px;padding:0 12px 8px;">
           <div class="tide-row"><span class="tname">NEW ORLEANS</span><span class="tval" id="t-8761927">—</span><span class="tunit">FT MLLW</span></div>
           <div class="tide-row"><span class="tname">GRAND ISLE</span><span class="tval" id="t-8761724">—</span><span class="tunit">FT</span></div>
           <div class="tide-row"><span class="tname">GALVESTON</span><span class="tval" id="t-8771341">—</span><span class="tunit">FT</span></div>
@@ -210,18 +272,26 @@
     <div class="stack-wrap" id="map-stack">
       <div class="ghost-sheet"></div>
       <div class="panel" id="map-panel">
-        <div class="panel-label"><span class="flag">[</span> GULF SECTOR // TRACK CHART <span class="flag">]</span></div>
-        <div class="panel-meta">17°N–32°N / 100°W–80°W</div>
-        <div class="panel-meta" style="top:auto;bottom:52px;right:10px;font-size:7.5px;">MAP DATA © OSM CONTRIBUTORS</div>
-        <div id="map-loader"><span class="ml-dot"></span> SYNCING VECTOR GEOMETRY…</div>
+        <div id="mapbox-map"></div>
+        <div id="map-overlay"></div>
+        <div id="map-label-top"><span class="flag">[</span> GULF SECTOR // TRACK CHART <span class="flag">]</span></div>
+        <div id="map-meta-right">17°N–32°N / 100°W–80°W</div>
+        <div id="map-credit">MAP © MAPBOX © OSM CONTRIBUTORS</div>
         <div id="storm-toggles"></div>
-        <svg id="map-svg" viewBox="0 0 900 500" preserveAspectRatio="xMidYMid meet"></svg>
+        <!-- Saffir-Simpson color legend -->
+        <div id="ss-strip">
+          <div class="ss-badge" style="color:var(--cat1);border-color:var(--cat1);">CAT 1</div>
+          <div class="ss-badge" style="color:var(--cat2);border-color:var(--cat2);">CAT 2</div>
+          <div class="ss-badge" style="color:var(--cat3);border-color:var(--cat3);">CAT 3</div>
+          <div class="ss-badge" style="color:var(--cat4);border-color:var(--cat4);">CAT 4</div>
+          <div class="ss-badge" style="color:var(--cat5);border-color:var(--cat5);">CAT 5</div>
+        </div>
       </div>
     </div>
 
     <div class="panel" id="storm-table-panel">
       <div class="panel-label">[ TRACK LOG ] — HISTORICAL RECORD</div>
-      <div style="margin-top:22px;padding:0 12px 8px;overflow:hidden;">
+      <div style="margin-top:20px;padding:0 12px 8px;overflow:hidden;">
         <div class="srow head"><span>STORM</span><span>YR</span><span>CAT</span><span>PEAK</span><span>MIN MB</span><span>NOTES</span></div>
         <div id="storm-table-body"></div>
       </div>
@@ -247,14 +317,16 @@
     </div>
   </div>
 </div>
+
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.js"></script>
 <script>
 (function(){
   const $=id=>document.getElementById(id);
-  const SVG_W=900,SVG_H=500;
-  const BBOX={lamin:17,lomin:-100.5,lamax:32,lomax:-79.5};
-  function proj(lat,lon){
-    return [((lon-BBOX.lomin)/(BBOX.lomax-BBOX.lomin))*SVG_W, SVG_H-((lat-BBOX.lamin)/(BBOX.lamax-BBOX.lamin))*SVG_H];
-  }
+
+  // SAFFIR-SIMPSON category color system
+  const CAT_COLOR={1:'#f5d060',2:'#f0a030',3:'#e06020',4:'#c83030',5:'#a020a0'};
+  function catColor(cat){ return CAT_COLOR[cat]||'#6b7090'; }
+  function catOpacity(cat){ return cat>=4?0.9:cat>=3?0.8:0.7; }
 
   // CLOCK
   function tick(){
@@ -267,214 +339,155 @@
   }
   setInterval(tick,1000);tick();
 
-  // HEADER RULE
+  // HEADER RULE — blue tint
   (()=>{
     const s=$('hrsvg');s.setAttribute('viewBox','0 0 1000 10');
-    let h=`<line x1="0" y1="1" x2="1000" y2="1" stroke="rgba(212,168,75,0.22)" stroke-width="1"/>`;
-    for(let i=0;i<=50;i++){const x=i*20,tall=i%5===0;h+=`<line x1="${x}" y1="1" x2="${x}" y2="${tall?7:4}" stroke="rgba(212,168,75,0.22)" stroke-width="1"/>`;}
+    let h=`<line x1="0" y1="1" x2="1000" y2="1" stroke="rgba(74,144,208,0.25)" stroke-width="1"/>`;
+    for(let i=0;i<=50;i++){const x=i*20,tall=i%5===0;h+=`<line x1="${x}" y1="1" x2="${x}" y2="${tall?7:4}" stroke="rgba(74,144,208,0.25)" stroke-width="1"/>`;}
     s.innerHTML=h;
   })();
 
-  // HISTORICAL STORMS
+  // HISTORICAL STORMS with real category colors
   const STORMS=[
-    {id:'katrina',name:'KATRINA',year:2005,cat:5,peak:175,mb:902,notes:'LA/MS LANDFALL AUG 29',color:'rgba(212,168,75,0.9)',
-     track:[[23.1,-75.1],[23.4,-76.6],[24.0,-78.4],[24.6,-79.6],[25.2,-81.0],[26.1,-82.6],[28.1,-87.5],[28.9,-88.6],[29.3,-89.6],[29.8,-89.6],[31.0,-90.0],[34.0,-90.1]]},
-    {id:'ida',name:'IDA',year:2021,cat:4,peak:150,mb:929,notes:'LA LANDFALL AUG 29',color:'rgba(195,148,58,0.8)',
-     track:[[15.5,-74.0],[16.8,-77.0],[18.5,-80.0],[20.2,-82.5],[22.5,-84.5],[25.5,-86.5],[27.5,-89.0],[28.7,-89.8],[29.2,-90.5],[30.5,-90.9],[32.0,-91.0]]},
-    {id:'laura',name:'LAURA',year:2020,cat:4,peak:150,mb:937,notes:'SW LA LANDFALL AUG 27',color:'rgba(175,130,50,0.75)',
-     track:[[14.0,-71.5],[15.8,-74.5],[17.5,-78.0],[19.8,-81.2],[22.0,-84.0],[24.5,-87.5],[26.5,-90.5],[27.9,-92.0],[29.0,-93.0],[30.5,-93.4],[33.0,-92.5]]},
-    {id:'harvey',name:'HARVEY',year:2017,cat:4,peak:130,mb:937,notes:'TX LANDFALL AUG 25',color:'rgba(160,115,42,0.7)',
-     track:[[13.5,-73.0],[14.5,-76.5],[16.0,-80.0],[18.2,-84.0],[21.0,-87.0],[23.5,-90.0],[25.5,-93.0],[27.0,-95.0],[28.0,-96.5],[29.1,-96.8],[30.5,-96.5]]},
-    {id:'michael',name:'MICHAEL',year:2018,cat:5,peak:160,mb:919,notes:'FL PANHANDLE OCT 10',color:'rgba(210,158,62,0.7)',
-     track:[[16.0,-83.5],[17.5,-83.8],[19.0,-84.5],[20.5,-85.2],[22.5,-86.0],[24.0,-86.8],[25.5,-87.5],[27.0,-88.0],[28.5,-87.5],[29.5,-85.5],[30.5,-85.6],[31.5,-84.8]]},
-    {id:'ian',name:'IAN',year:2022,cat:4,peak:150,mb:952,notes:'SW FLORIDA SEP 28',color:'rgba(180,138,55,0.65)',
-     track:[[15.5,-80.5],[16.5,-81.0],[17.5,-81.5],[19.0,-82.0],[21.0,-82.5],[23.0,-83.0],[24.8,-83.5],[26.0,-83.8],[26.7,-82.1],[27.5,-81.5],[29.0,-81.0],[30.0,-81.0]]},
+    {id:'katrina',name:'KATRINA',year:2005,cat:5,peak:175,mb:902,notes:'LA/MS AUG 29',
+     coords:[[-75.1,23.1],[-76.6,23.4],[-78.4,24.0],[-79.6,24.6],[-81.0,25.2],[-82.6,26.1],[-87.5,28.1],[-88.6,28.9],[-89.6,29.3],[-89.6,29.8],[-90.0,31.0],[-90.1,34.0]]},
+    {id:'ida',name:'IDA',year:2021,cat:4,peak:150,mb:929,notes:'LA AUG 29',
+     coords:[[-74.0,15.5],[-77.0,16.8],[-80.0,18.5],[-82.5,20.2],[-84.5,22.5],[-86.5,25.5],[-89.0,27.5],[-89.8,28.7],[-90.5,29.2],[-90.9,30.5],[-91.0,32.0]]},
+    {id:'laura',name:'LAURA',year:2020,cat:4,peak:150,mb:937,notes:'SW LA AUG 27',
+     coords:[[-71.5,14.0],[-74.5,15.8],[-78.0,17.5],[-81.2,19.8],[-84.0,22.0],[-87.5,24.5],[-90.5,26.5],[-92.0,27.9],[-93.0,29.0],[-93.4,30.5],[-92.5,33.0]]},
+    {id:'harvey',name:'HARVEY',year:2017,cat:4,peak:130,mb:937,notes:'TX AUG 25',
+     coords:[[-73.0,13.5],[-76.5,14.5],[-80.0,16.0],[-84.0,18.2],[-87.0,21.0],[-90.0,23.5],[-93.0,25.5],[-95.0,27.0],[-96.5,28.0],[-96.8,29.1],[-96.5,30.5]]},
+    {id:'michael',name:'MICHAEL',year:2018,cat:5,peak:160,mb:919,notes:'FL PANHANDLE OCT 10',
+     coords:[[-83.5,16.0],[-83.8,17.5],[-84.5,19.0],[-85.2,20.5],[-86.0,22.5],[-86.8,24.0],[-87.5,25.5],[-88.0,27.0],[-87.5,28.5],[-85.5,29.5],[-85.6,30.5],[-84.8,31.5]]},
+    {id:'ian',name:'IAN',year:2022,cat:4,peak:150,mb:952,notes:'SW FLORIDA SEP 28',
+     coords:[[-80.5,15.5],[-81.0,16.5],[-81.5,17.5],[-82.0,19.0],[-82.5,21.0],[-83.0,23.0],[-83.5,24.8],[-83.8,26.0],[-82.1,26.7],[-81.5,27.5],[-81.0,29.0],[-81.0,30.0]]},
   ];
   const shown={};
   STORMS.forEach(s=>{shown[s.id]=false;});
 
-  // CITY RISK
+  // CITY RISK — color-coded by exposure tier
   const CITIES=[
-    {name:'NEW ORLEANS',lat:29.95,lon:-90.07,risk:92},
-    {name:'HOUSTON',lat:29.76,lon:-95.37,risk:78},
-    {name:'TAMPA',lat:27.95,lon:-82.46,risk:85},
-    {name:'MOBILE',lat:30.69,lon:-88.04,risk:70},
-    {name:'LAFOURCHE',lat:29.28,lon:-90.10,risk:88},
-    {name:'PENSACOLA',lat:30.42,lon:-87.22,risk:65},
+    {name:'NEW ORLEANS',lat:29.95,lon:-90.07,risk:92,note:'BELOW SEA LEVEL',riskColor:'#c83030'},
+    {name:'HOUSTON',lat:29.76,lon:-95.37,risk:78,note:'HARVEY 2017',riskColor:'#e06020'},
+    {name:'TAMPA',lat:27.95,lon:-82.46,risk:85,note:'HIGH EXPOSURE',riskColor:'#c83030'},
+    {name:'MOBILE',lat:30.69,lon:-88.04,risk:70,note:'IDA REMNANTS',riskColor:'#f0a030'},
+    {name:'LAFOURCHE',lat:29.28,lon:-90.10,risk:88,note:'CONE PATH',riskColor:'#c83030'},
+    {name:'PENSACOLA',lat:30.42,lon:-87.22,risk:65,note:'MICHAEL 2018',riskColor:'#f5d060'},
   ];
+
   $('risk-body').innerHTML=CITIES.map(c=>`
     <div class="risk-row">
-      <div><div class="risk-city">${c.name}</div><div class="risk-bar-wrap"><div class="risk-bar-fill" style="width:${c.risk}%"></div></div></div>
-      <span class="risk-score">${c.risk}</span>
+      <div>
+        <div class="risk-city">${c.name}</div>
+        <div class="risk-sub">${c.note}</div>
+        <div class="risk-bar-wrap"><div class="risk-bar-fill" style="width:${c.risk}%;background:${c.riskColor};"></div></div>
+      </div>
+      <span class="risk-score" style="color:${c.riskColor}">${c.risk}</span>
     </div>`).join('');
 
-  // STORM TABLE
+  // STORM TABLE with category colors
   $('storm-table-body').innerHTML=STORMS.map(s=>`
     <div class="srow">
-      <span class="cs" style="color:${s.color}">${s.name}</span>
+      <span class="cs" style="color:${catColor(s.cat)};text-shadow:0 0 6px ${catColor(s.cat)}55">${s.name}</span>
       <span>${s.year}</span>
-      <span style="color:${s.cat>=4?'var(--amber)':'var(--ink-dim)'}">C${s.cat}</span>
+      <span style="color:${catColor(s.cat)}">C${s.cat}</span>
       <span>${s.peak}KT</span>
       <span>${s.mb}MB</span>
       <span style="color:var(--ink-faint);font-size:8px;">${s.notes}</span>
     </div>`).join('');
 
-  // MAP
-  function buildMapBase(){
-    const svg=$('map-svg');
-    let h='';
-    h+=`<defs>
-      <filter id="ggl" x="-50%" y="-50%" width="200%" height="200%">
-        <feGaussianBlur stdDeviation="2" result="blur"/>
-        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-      </filter>
-      <filter id="sgl" x="-100%" y="-100%" width="300%" height="300%">
-        <feGaussianBlur stdDeviation="3.5" result="blur"/>
-        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-      </filter>
-      <radialGradient id="halo" cx="50%" cy="50%" r="50%">
-        <stop offset="0%" stop-color="#d4a84b" stop-opacity="0.25"/>
-        <stop offset="100%" stop-color="#d4a84b" stop-opacity="0"/>
-      </radialGradient>
-    </defs>`;
-    // grid
-    for(let i=1;i<9;i++) h+=`<line x1="${(SVG_W/9)*i}" y1="0" x2="${(SVG_W/9)*i}" y2="${SVG_H}" stroke="rgba(212,168,75,0.05)" stroke-width="1"/>`;
-    for(let j=1;j<5;j++) h+=`<line x1="0" y1="${(SVG_H/5)*j}" x2="${SVG_W}" y2="${(SVG_H/5)*j}" stroke="rgba(212,168,75,0.05)" stroke-width="1"/>`;
-    // lat/lon labels
-    for(let la=18;la<=30;la+=3){const[,y]=proj(la,-100);h+=`<text x="3" y="${y+3}" fill="rgba(212,168,75,0.2)" font-size="7" font-family="Space Mono,monospace">${la}°N</text>`;}
-    for(let lo=-99;lo<=-81;lo+=6){const[x]=proj(18,lo);h+=`<text x="${x}" y="${SVG_H-3}" fill="rgba(212,168,75,0.2)" font-size="7" font-family="Space Mono,monospace">${Math.abs(lo)}°W</text>`;}
-    // Gulf label
-    const[gx,gy]=proj(23,-91);h+=`<text x="${gx}" y="${gy}" fill="rgba(212,168,75,0.1)" font-size="14" font-family="Space Mono,monospace" letter-spacing="4" text-anchor="middle">GULF OF MEXICO</text>`;
-    const[ax,ay]=proj(27,-77);h+=`<text x="${ax}" y="${ay}" fill="rgba(212,168,75,0.07)" font-size="10" font-family="Space Mono,monospace" letter-spacing="3" text-anchor="middle">ATLANTIC</text>`;
-    const[cx,cy]=proj(19,-87);h+=`<text x="${cx}" y="${cy}" fill="rgba(212,168,75,0.07)" font-size="8" font-family="Space Mono,monospace" letter-spacing="2" text-anchor="middle">CARIBBEAN</text>`;
-    h+=`<g id="vm" opacity="0.5"></g>`;
-    h+=`<g id="tracks"></g>`;
-    h+=`<g id="cities"></g>`;
-    svg.innerHTML=h;
-    // city dots
-    let cdots='';
-    CITIES.forEach(c=>{
-      const[x,y]=proj(c.lat,c.lon);
-      cdots+=`<circle cx="${x}" cy="${y}" r="2" fill="none" stroke="rgba(212,168,75,0.7)" stroke-width="1"/>`;
-      cdots+=`<circle cx="${x}" cy="${y}" r="0.8" fill="rgba(212,168,75,0.8)"/>`;
-      cdots+=`<text x="${x+4}" y="${y+3}" fill="rgba(212,168,75,0.5)" font-size="7" font-family="Space Mono,monospace">${c.name.split(' ')[0]}</text>`;
-    });
-    $('map-svg').querySelector('#cities').innerHTML=cdots;
-  }
-  buildMapBase();
+  // MAPBOX
+  mapboxgl.accessToken='pk.eyJ1Ijoicm9uZG9taW5ndWUiLCJhIjoiY21yMWtwM2swMDRscDJwcTBoaHZ3aTdybiJ9.oG87gBTRgX_LgwK2Akq0Rg';
+  const map=new mapboxgl.Map({
+    container:'mapbox-map',
+    style:'mapbox://styles/mapbox/dark-v11',
+    center:[-90.0,24.5],zoom:4.2,minZoom:3,maxZoom:10,
+    attributionControl:false,logoPosition:'bottom-right'
+  });
 
-  function renderTracks(){
-    const g=$('map-svg').querySelector('#tracks');
-    let h='';
+  map.on('style.load',()=>{
     STORMS.forEach(s=>{
-      if(!shown[s.id]) return;
-      let d='';
-      s.track.forEach(([la,lo],i)=>{const[x,y]=proj(la,lo);d+=(i?` L ${x.toFixed(1)} ${y.toFixed(1)}`:`M ${x.toFixed(1)} ${y.toFixed(1)}`);});
-      h+=`<path d="${d}" fill="none" stroke="${s.color}" stroke-width="1.5" stroke-dasharray="3,2.5" filter="url(#sgl)"/>`;
-      const mid=s.track[Math.floor(s.track.length/2)];const[tx,ty]=proj(mid[0],mid[1]);
-      h+=`<text x="${tx+5}" y="${ty-5}" fill="${s.color}" font-size="8" font-family="Space Mono,monospace">${s.name} '${String(s.year).slice(2)}</text>`;
-      const lf=s.track[s.track.length-3];const[lx,ly]=proj(lf[0],lf[1]);
-      h+=`<circle cx="${lx}" cy="${ly}" r="4" fill="none" stroke="${s.color}" stroke-width="1" opacity="0.7"/>`;
-      h+=`<circle cx="${lx}" cy="${ly}" r="1.5" fill="${s.color}" opacity="0.9"/>`;
+      const col=catColor(s.cat);
+      const op=catOpacity(s.cat);
+      map.addSource(`track-${s.id}`,{type:'geojson',data:{type:'Feature',geometry:{type:'LineString',coordinates:s.coords}}});
+      map.addLayer({id:`track-glow-${s.id}`,type:'line',source:`track-${s.id}`,
+        paint:{'line-color':col,'line-width':8,'line-opacity':0,'line-blur':5}});
+      map.addLayer({id:`track-line-${s.id}`,type:'line',source:`track-${s.id}`,
+        paint:{'line-color':col,'line-width':1.8,'line-opacity':0,'line-dasharray':[3,2.5]}});
+      const lfPt=s.coords[s.coords.length-3];
+      map.addSource(`lf-${s.id}`,{type:'geojson',data:{type:'Feature',geometry:{type:'Point',coordinates:lfPt}}});
+      map.addLayer({id:`lf-circle-${s.id}`,type:'circle',source:`lf-${s.id}`,
+        paint:{'circle-radius':5,'circle-color':'transparent','circle-opacity':0,'circle-stroke-width':1.5,'circle-stroke-color':col,'circle-stroke-opacity':0}});
     });
-    g.innerHTML=h;
+
+    CITIES.forEach(c=>{
+      map.addSource(`city-${c.name}`,{type:'geojson',data:{type:'Feature',geometry:{type:'Point',coordinates:[c.lon,c.lat]},properties:{name:c.name}}});
+      map.addLayer({id:`city-dot-${c.name}`,type:'circle',source:`city-${c.name}`,
+        paint:{'circle-radius':3,'circle-color':'transparent','circle-stroke-width':1.2,'circle-stroke-color':c.riskColor,'circle-opacity':0.8}});
+      map.addLayer({id:`city-lbl-${c.name}`,type:'symbol',source:`city-${c.name}`,
+        layout:{'text-field':c.name.split(' ')[0],'text-font':['DIN Offc Pro Regular','Arial Unicode MS Regular'],
+          'text-size':10,'text-anchor':'left','text-offset':[0.7,0],'text-letter-spacing':0.05},
+        paint:{'text-color':c.riskColor+'99','text-halo-color':'rgba(4,5,13,0.85)','text-halo-width':1.2}});
+    });
+
+    buildToggles();
+  });
+
+  function setTrackVisible(id,visible){
+    const s=STORMS.find(x=>x.id===id);
+    const op=visible?catOpacity(s.cat):0;
+    if(map.getLayer(`track-line-${id}`)) map.setPaintProperty(`track-line-${id}`,'line-opacity',op);
+    if(map.getLayer(`track-glow-${id}`)) map.setPaintProperty(`track-glow-${id}`,'line-opacity',visible?op*0.3:0);
+    if(map.getLayer(`lf-circle-${id}`)){
+      map.setPaintProperty(`lf-circle-${id}`,'circle-stroke-opacity',visible?op:0);
+    }
   }
 
-  // TOGGLE BUTTONS
   function buildToggles(){
     const w=$('storm-toggles');
-    w.innerHTML=STORMS.map(s=>`<div class="stog${shown[s.id]?' on':''}" data-id="${s.id}" title="${s.name} ${s.year} — Category ${s.cat}">${s.name} '${String(s.year).slice(2)} C${s.cat}</div>`).join('');
+    w.innerHTML=STORMS.map(s=>`<div class="stog cat${s.cat}${shown[s.id]?' on':''}" data-id="${s.id}">${s.name} '${String(s.year).slice(2)} C${s.cat}</div>`).join('');
     w.querySelectorAll('.stog').forEach(b=>{
       b.addEventListener('click',()=>{
         const id=b.getAttribute('data-id');
-        shown[id]=!shown[id];
-        b.classList.toggle('on',shown[id]);
-        renderTracks();
+        shown[id]=!shown[id];b.classList.toggle('on',shown[id]);
+        setTrackVisible(id,shown[id]);
       });
     });
   }
-  buildToggles();
 
-  // OVERPASS
-  const MIRRORS=['https://overpass.kumi.systems/api/interpreter','https://z.overpass-api.de/api/interpreter','https://lz4.overpass-api.de/api/interpreter','https://overpass-api.de/api/interpreter'];
-  const TTL=864e5;
-  function gc(k){try{const r=localStorage.getItem(k);if(!r) return null;const o=JSON.parse(r);if(Date.now()-o.t>TTL) return null;return o;}catch(e){return null;}}
-  function sc(k,h,wc,nc){try{localStorage.setItem(k,JSON.stringify({t:Date.now(),html:h,wayCount:wc,nodeCount:nc}));}catch(e){}}
-  function rway(el){
-    if(!el.geometry||el.geometry.length<2) return '';
-    const d='M '+el.geometry.map(p=>{const[x,y]=proj(p.lat,p.lon);return x.toFixed(1)+' '+y.toFixed(1);}).join(' L ');
-    const t=el.tags||{};
-    let st='rgba(212,168,75,0.25)',w='0.6',op='0.6',da='';
-    if(t.natural==='coastline'){st='rgba(212,168,75,0.85)';w='1.2';op='1';}
-    else if(t.natural==='water'||t.waterway){st='rgba(212,168,75,0.38)';w='0.7';op='0.5';}
-    else if(t.natural==='wetland'){st='rgba(212,168,75,0.18)';w='0.5';op='0.3';da='1,2';}
-    else if(t.highway){st='rgba(212,168,75,0.18)';w='0.4';op='0.3';da='1,3';}
-    else if(t.railway){st='rgba(212,168,75,0.14)';w='0.4';op='0.25';da='3,2';}
-    return `<path d="${d}" fill="none" stroke="${st}" stroke-width="${w}" opacity="${op}"${da?` stroke-dasharray="${da}"`:''}/>`;
-  }
-  function appendVM(h){const g=$('map-svg').querySelector('#vm');if(g)g.insertAdjacentHTML('beforeend',h);}
-
-  async function tryOP(url,q,ms){
-    const c=new AbortController();const t=setTimeout(()=>c.abort(),ms);
-    try{const r=await fetch(url,{method:'POST',headers:{'Accept':'application/json,*/*'},body:'data='+encodeURIComponent(q),signal:c.signal});clearTimeout(t);if(!r.ok)throw new Error('HTTP '+r.status);return await r.json();}
-    catch(e){clearTimeout(t);throw e.name==='AbortError'?new Error('TIMEOUT'):e;}
-  }
-  async function fetchLayer(q,lbl,ck,ms){
-    if(ck){const c=gc(ck);if(c){appendVM(c.html);return lbl+' CACHED';}}
-    const fails=[];
-    for(const m of MIRRORS){
-      try{
-        const data=await tryOP(m,q,ms||20000);
-        let h='',wc=0,nc=0;
-        (data.elements||[]).forEach(el=>{
-          if(el.type==='node'&&el.tags){const[x,y]=proj(el.lat,el.lon);if(x<0||x>SVG_W||y<0||y>SVG_H)return;nc++;if(el.tags.place&&el.tags.name)h+=`<text x="${x+3}" y="${y+3}" fill="rgba(212,168,75,0.35)" font-size="6.5" font-family="Space Mono,monospace">${el.tags.name.slice(0,10).toUpperCase()}</text>`;return;}
-          const w=rway(el);if(w){wc++;h+=w;}
-        });
-        appendVM(h);if(ck&&(wc>0||nc>0))sc(ck,h,wc,nc);
-        return `${lbl} ${wc}W/${nc}N`;
-      }catch(e){fails.push(e.message);}
-    }
-    return `${lbl} FAIL`;
-  }
-  let mld=0;
-  async function buildMap(){
-    const bb=`${BBOX.lamin},${BBOX.lomin},${BBOX.lamax},${BBOX.lomax}`;
-    const results=await Promise.allSettled([
-      fetchLayer(`[out:json][timeout:25][bbox:${bb}];(way["natural"="coastline"];way["natural"="water"];way["waterway"="river"];);out geom;`,'CORE','gulf-core-v3',22000),
-      fetchLayer(`[out:json][timeout:25][bbox:${bb}];(way["waterway"="canal"];way["natural"="wetland"];node["place"~"city|town"]);out geom;`,'TEX','gulf-tex-v3',22000),
-      fetchLayer(`[out:json][timeout:20][bbox:${bb}];(way["highway"~"motorway|trunk|primary"];way["railway"="rail"];);out geom;`,'RDS','gulf-rds-v3',18000),
-    ]);
-    const el=$('map-loader');if(el)el.classList.add('done');
-  }
-  buildMap();
-
-  // NWS ALERTS
+  // NWS ALERTS — color by severity
   const NWS='https://api.weather.gov/alerts/active?area=LA,MS,AL,TX,FL,GA';
+  function alertClass(ev){
+    const l=ev.toLowerCase();
+    if(l.includes('warning')) return 'alert-warning';
+    if(l.includes('watch')) return 'alert-watch';
+    return 'alert-advisory';
+  }
   async function fetchAlerts(){
     const feed=$('alerts-feed');
-    const sources=[NWS,`https://api.allorigins.win/raw?url=${encodeURIComponent(NWS)}`,`https://corsproxy.io/?url=${encodeURIComponent(NWS)}`];
-    for(const src of sources){
+    const srcs=[NWS,`https://api.allorigins.win/raw?url=${encodeURIComponent(NWS)}`,`https://corsproxy.io/?url=${encodeURIComponent(NWS)}`];
+    for(const src of srcs){
       try{
         const c=new AbortController();setTimeout(()=>c.abort(),10000);
-        const res=await fetch(src,{signal:c.signal,headers:{'Accept':'application/geo+json,application/json,*/*'}});
-        if(!res.ok) throw new Error('HTTP '+res.status);
+        const res=await fetch(src,{signal:c.signal,headers:{'Accept':'application/geo+json,*/*'}});
+        if(!res.ok)throw new Error('');
         const data=await res.json();
-        const tropical=['hurricane','tropical storm','tropical depression','storm surge','coastal flood','high wind','tornado'];
-        const feats=(data.features||[]).filter(f=>tropical.some(t=>(f.properties.event||'').toLowerCase().includes(t))).slice(0,7);
+        const keys=['hurricane','tropical','storm surge','coastal flood','high wind','tornado','flash flood'];
+        const feats=(data.features||[]).filter(f=>keys.some(k=>(f.properties.event||'').toLowerCase().includes(k))).slice(0,7);
         if(!feats.length){
-          feed.innerHTML=`<div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--ink-faint);padding-top:4px;">NO ACTIVE TROPICAL<br>ADVISORIES — GULF COAST</div>`;
+          feed.innerHTML=`<div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--clear);padding:4px 6px;">● NO ACTIVE ADVISORIES<br><span style="color:var(--ink-faint)">GULF COAST CLEAR</span></div>`;
         } else {
           feed.innerHTML=feats.map(f=>{
             const p=f.properties;
-            const ev=(p.event||'').toUpperCase().replace('HURRICANE','HURR').replace('TROPICAL STORM','TROP STM').replace('STORM SURGE','SURGE').replace('COASTAL FLOOD','CST FLD');
-            const loc=(p.areaDesc||'').split(';')[0].trim().slice(0,38);
-            return `<div class="alert-entry"><span class="ev">${ev}</span><span class="loc">${loc}</span></div>`;
+            const ev=(p.event||'').toUpperCase();
+            const ac=alertClass(p.event||'');
+            return `<div class="alert-entry ${ac}"><span class="ev">${ev}</span><span class="loc">${(p.areaDesc||'').split(';')[0].trim().slice(0,36)}</span></div>`;
           }).join('');
         }
         return;
       }catch(e){}
     }
-    feed.innerHTML=`<div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--ink-faint);">ALERTS UNAVAILABLE</div>`;
+    feed.innerHTML=`<div style="font-family:'Space Mono',monospace;font-size:9px;color:var(--ink-faint);padding:4px 6px;">UNAVAILABLE</div>`;
   }
   fetchAlerts();setInterval(fetchAlerts,5*60*1000);
 
@@ -490,7 +503,15 @@
           const res=await fetch(src,{signal:c.signal});if(!res.ok)throw new Error('');
           const data=await res.json();
           const latest=data.data&&data.data[data.data.length-1];
-          if(latest&&latest.v){const el=$('t-'+sid);if(el)el.textContent=parseFloat(latest.v).toFixed(2);}
+          if(latest&&latest.v){
+            const el=$('t-'+sid);
+            if(el){
+              const v=parseFloat(latest.v);
+              el.textContent=v.toFixed(2);
+              // color by elevation — surge warning threshold ~2ft above normal
+              el.style.color=v>2.5?'#e06020':v>1.5?'#f0a030':'#2a7ab0';
+            }
+          }
           break;
         }catch(e){}
       }
@@ -498,22 +519,35 @@
   }
   fetchTides();setInterval(fetchTides,10*60*1000);
 
-  // WEATHER
+  // WEATHER — condition-aware coloring
   const WX_CODES={0:'CLEAR',1:'CLEAR',2:'P.CLOUDY',3:'OVERCAST',45:'FOG',48:'FOG',51:'DRIZZLE',53:'DRIZZLE',55:'DRIZZLE',61:'RAIN',63:'RAIN',65:'H.RAIN',80:'SHOWERS',81:'SHOWERS',82:'H.SHOWERS',95:'T-STORM',96:'T-STORM',99:'SEV.STORM'};
+  function wxClass(code){
+    if([95,96,99].includes(code)) return 'storm';
+    if([61,63,65,80,81,82,51,53,55].includes(code)) return 'rain';
+    if([2,3,45,48].includes(code)) return 'cloud';
+    return 'clear';
+  }
   const WX_CITIES=[{n:'N.ORLEANS',la:29.95,lo:-90.07},{n:'HOUSTON',la:29.76,lo:-95.37},{n:'TAMPA',la:27.95,lo:-82.46},{n:'MOBILE',la:30.69,lo:-88.04}];
   async function fetchWX(){
     try{
       const las=WX_CITIES.map(c=>c.la).join(','),los=WX_CITIES.map(c=>c.lo).join(',');
-      const url=`https://api.open-meteo.com/v1/forecast?latitude=${las}&longitude=${los}&current=temperature_2m,weather_code,wind_speed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph`;
-      const res=await fetch(url);const data=await res.json();
-      const arr=Array.isArray(data)?data:[data];
+      const res=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${las}&longitude=${los}&current=temperature_2m,weather_code,wind_speed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph`);
+      const data=await res.json();const arr=Array.isArray(data)?data:[data];
       $('wx-city-body').innerHTML=WX_CITIES.map((c,i)=>{
         const d=arr[i]&&arr[i].current;
-        return `<div class="wx-row"><span class="wx-city">${c.n}</span><span class="wx-temp">${d?Math.round(d.temperature_2m)+'°':'—'}</span><span class="wx-cond">${d?(WX_CODES[d.weather_code]||'—'):'—'}</span></div>`;
+        const code=d?d.weather_code:0;
+        const cls=wxClass(code);
+        return `<div class="wx-row"><span class="wx-city">${c.n}</span><span class="wx-temp">${d?Math.round(d.temperature_2m)+'°':'—'}</span><span class="wx-cond ${cls}">${d?(WX_CODES[code]||'—'):'—'}</span></div>`;
       }).join('');
       const d0=arr[0]&&arr[0].current;
-      if(d0){$('wx-main-temp').textContent=Math.round(d0.temperature_2m)+'°F';$('wx-main-cond').textContent=WX_CODES[d0.weather_code]||'—';$('wx-main-wind').textContent='WND '+Math.round(d0.wind_speed_10m)+'MPH';}
-    }catch(e){$('wx-city-body').innerHTML=WX_CITIES.map(c=>`<div class="wx-row"><span class="wx-city">${c.n}</span><span class="wx-temp">—</span><span class="wx-cond">—</span></div>`).join('');}
+      if(d0){
+        $('wx-main-temp').textContent=Math.round(d0.temperature_2m)+'°F';
+        const cls=wxClass(d0.weather_code);
+        const cond=$('wx-main-cond');cond.textContent=WX_CODES[d0.weather_code]||'—';
+        cond.className='';cond.style.color=cls==='storm'?'#e05040':cls==='rain'?'#4a90d0':cls==='clear'?'#3aaa70':'#6b7090';
+        $('wx-main-wind').textContent='WND '+Math.round(d0.wind_speed_10m)+'MPH';
+      }
+    }catch(e){}
   }
   fetchWX();setInterval(fetchWX,10*60*1000);
 
@@ -526,12 +560,13 @@
         const c=new AbortController();setTimeout(()=>c.abort(),10000);
         const res=await fetch(src,{signal:c.signal});if(!res.ok)throw new Error('');
         const text=await res.text();const xml=new DOMParser().parseFromString(text,'application/xml');
-        if(xml.querySelector('parsererror'))throw new Error('xml');
+        if(xml.querySelector('parsererror'))throw new Error('');
         const items=[...xml.querySelectorAll('item')].filter(it=>{const t=it.querySelector('title');return t&&!t.textContent.toLowerCase().includes('no tropical');});
         if(items.length){
-          $('active-count').textContent=String(items.length);$('active-count').className='value-xl active mono';
           const ti=items[0].querySelector('title');
-          $('adv-status-block').innerHTML=`<div class="adv-active">${items.length} ACTIVE SYSTEM${items.length>1?'S':''}</div><div class="adv-detail">${ti?ti.textContent.slice(0,100):''}</div>`;
+          $('active-count').textContent=String(items.length);
+          $('active-count').className='value-xl active mono';
+          $('adv-status-block').innerHTML=`<div class="adv-active" style="color:var(--cat4);text-shadow:0 0 10px rgba(200,48,48,.5)">${items.length} ACTIVE SYSTEM${items.length>1?'S':''}</div><div class="adv-detail">${ti?ti.textContent.slice(0,100):''}</div>`;
         }
         return;
       }catch(e){}
@@ -542,6 +577,9 @@
   // PANEL HIGHLIGHT
   document.querySelectorAll('.panel-label').forEach(l=>{
     l.addEventListener('click',()=>{const p=l.closest('.panel');if(p)p.classList.toggle('highlighted');});
+  });
+  $('map-label-top').addEventListener('click',()=>{
+    const p=$('map-panel');if(p)p.classList.toggle('highlighted');
   });
 
 })();
