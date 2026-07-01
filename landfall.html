@@ -281,6 +281,9 @@
   .risk-city{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink-dim);}
   .risk-sub{font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--ink-faint);}
   .risk-score{font-family:'IBM Plex Mono',monospace;font-size:10px;text-align:right;}
+  .risk-explain{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.06em;line-height:1.45;color:var(--ink-dim);
+    margin:18px 12px 8px;padding:8px 9px;border:1px solid var(--mui-outline);background:rgba(8,12,22,.5);border-radius:var(--mui-radius-sm);}
+  .risk-explain b{color:var(--white);font-weight:500;}
   #wx-card{flex:0 0 auto;padding:22px 12px 10px;}
   .wx-row{display:grid;grid-template-columns:1fr 36px 60px;gap:6px;align-items:center;
     font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink-dim);padding:4px 6px;border-bottom:1px solid var(--line-dim);border-radius:var(--mui-radius-sm);}
@@ -463,7 +466,8 @@
       </div>
       <div class="panel" id="risk-card">
         <div class="panel-label">GULF CITIES — RISK INDEX</div>
-        <div style="margin-top:22px;padding:0 12px 8px;" id="risk-body"></div>
+        <div class="risk-explain"><b>0-100 exposure score</b> based on surge, flooding, coastal position, and past storm hits.</div>
+        <div style="padding:0 12px 8px;" id="risk-body"></div>
       </div>
       <div class="panel" id="wx-card">
         <div class="panel-label">CITY CONDITIONS</div>
@@ -768,18 +772,12 @@
     loadRadar().then(()=>{ if(radarFrames.length) addRadarLayers(); });
 
     // Register a bold filled hurricane symbol that stays readable at map scale.
-    const HURR_SVG=`<svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 56 56">
-      <g fill="white">
-        <path d="M27.9 3.4c9.8 0 18.5 6.6 20.9 15.9.7 2.8.7 5.8.1 8.6-2.2-8-9.1-13.2-17.5-13.2-6.5 0-11.4 3.1-11.4 7.4 0 2.6 2.1 4.4 5.2 4.4h6.1c8.3 0 14.6 5.2 14.6 12.5 0 2.3-.6 4.4-1.8 6.3 5.2-4.1 8.5-10.5 8.5-17.6 0-13.6-11.1-24.3-24.7-24.3z"/>
-        <path d="M28.1 52.6c-9.8 0-18.5-6.6-20.9-15.9-.7-2.8-.7-5.8-.1-8.6 2.2 8 9.1 13.2 17.5 13.2 6.5 0 11.4-3.1 11.4-7.4 0-2.6-2.1-4.4-5.2-4.4h-6.1c-8.3 0-14.6-5.2-14.6-12.5 0-2.3.6-4.4 1.8-6.3-5.2 4.1-8.5 10.5-8.5 17.6 0 13.6 11.1 24.3 24.7 24.3z"/>
-        <circle cx="28" cy="28" r="5.6"/>
-      </g>
-      <g fill="none" stroke="white" stroke-linecap="round" opacity=".62">
-        <circle cx="28" cy="28" r="20.5" stroke-width="2"/>
-        <path d="M28 1.8v7.4M28 46.8v7.4M1.8 28h7.4M46.8 28h7.4" stroke-width="1.7"/>
-      </g>
+    const HURR_SVG=`<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+      <path fill="white" d="M58.5 27.6c-.7-11.9-10.9-21.7-23.1-22.2-9.1-.4-17 4.2-21.3 11.2 5.2-3.5 13.6-4.8 20.9-1.9 6.5 2.6 10.6 7.5 10.6 12.9 0 4.7-3.1 8.6-7.9 9.9-3.8 1-7.3-.1-9.8-2.7 1.4 6.5 7 11.6 14 12.6 8.1 1.2 15.1-3.2 18.4-9.7-2.4 11.7-13.1 20.9-26 20.9-13.6 0-25-10.3-26.4-23.4-.3-2.8-.1-5.5.5-8.1.9 8.6 8.3 16 17.4 16.8 4.5.4 8.2-.6 10.8-2.5-5.5 2.3-13.2 1-18.6-3.7-4.7-4.1-6.9-10.1-5.4-15.8 1.8-7.3 8.6-12.4 17.4-13.1 13.4-1 25.8 8.5 28.5 21.8z"/>
+      <circle cx="32" cy="32" r="5.2" fill="white"/>
+      <circle cx="32" cy="32" r="2.2" fill="black" opacity=".72"/>
     </svg>`;
-    const img=new Image(56,56);
+    const img=new Image(64,64);
     img.onload=()=>{ if(!map.hasImage('hurricane-icon-v3')) map.addImage('hurricane-icon-v3',img,{sdf:true}); };
     img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(HURR_SVG);
 
@@ -846,9 +844,10 @@
       const pkPt=pts.find(p=>p[2]==='pk')||pts[Math.floor(pts.length/2)];
       map.addSource(`pk-${s.id}`,{type:'geojson',data:{type:'Feature',geometry:{type:'Point',coordinates:[pkPt[0],pkPt[1]]},properties:{name:s.name,cat:s.cat,peak:s.peak,mb:s.mb}}});
       map.addLayer({id:`pk-halo-${s.id}`,type:'circle',source:`pk-${s.id}`,
-        paint:{'circle-radius':16,'circle-color':catColor(s.cat),'circle-opacity':0,'circle-blur':0.65,'circle-stroke-width':1,'circle-stroke-color':catColor(s.cat),'circle-stroke-opacity':0}});
+        paint:{'circle-radius':['interpolate',['linear'],['get','cat'],1,10,2,12,3,14,4,16,5,20],
+          'circle-color':catColor(s.cat),'circle-opacity':0,'circle-blur':0.65,'circle-stroke-width':1,'circle-stroke-color':catColor(s.cat),'circle-stroke-opacity':0}});
       map.addLayer({id:`pk-icon-${s.id}`,type:'symbol',source:`pk-${s.id}`,
-        layout:{'icon-image':'hurricane-icon-v3','icon-size':0.58,'icon-allow-overlap':true,
+        layout:{'icon-image':'hurricane-icon-v3','icon-size':['interpolate',['linear'],['get','cat'],1,0.38,2,0.44,3,0.5,4,0.56,5,0.68],'icon-allow-overlap':true,
           'text-field':`${s.name}\nC${s.cat} ${s.peak}KT / ${s.mb}MB`,"text-font":["DIN Offc Pro Bold","Arial Unicode MS Bold"],
           'text-size':8,'text-anchor':'top','text-offset':[0,1.25],'text-letter-spacing':0.08},
         paint:{'icon-color':catColor(s.cat),'icon-opacity':0,
