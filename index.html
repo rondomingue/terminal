@@ -341,7 +341,7 @@
   <div class="top-right">
     <div class="top-status">
       <span class="status-dot"></span>
-      <span id="live-count">2</span> INTERFACES LIVE
+      <span id="live-count">3</span> INTERFACES LIVE
     </div>
     <a href="https://rondomingue.com" class="top-url">rondomingue.com</a>
   </div>
@@ -368,7 +368,7 @@
 <div class="content">
   <div class="section-header">
     <span class="section-label">Active Systems</span>
-    <span class="section-count">02 / ∞</span>
+    <span class="section-count">03 / ∞</span>
   </div>
 
   <div class="cards">
@@ -433,6 +433,36 @@
       </div>
     </a>
 
+    <!-- TRANSIT -->
+    <a href="/transit.html" class="iface-card anim-3" style="--c:#00c8e8;"
+       onmouseenter="playHover()">
+      <div style="position:absolute;top:0;left:0;right:0;height:1px;z-index:3;background:linear-gradient(to right,rgba(0,200,232,0.45),transparent 70%);"></div>
+      <div class="card-preview" style="background:#030d1c;">
+        <img src="images/transit-preview.png" alt="Transit NEO Tracker" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;filter:brightness(0.92);"/>
+        <div class="card-preview-overlay" style="background:linear-gradient(135deg,rgba(0,200,232,0.05) 0%,transparent 60%);"></div>
+        <div class="card-launch">
+          <span>LAUNCH</span><span class="launch-arrow">↗</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-meta">
+          <span class="card-type">Astronomy / JPL</span>
+          <span class="card-status live"><span class="sd"></span>LIVE</span>
+        </div>
+        <h2 class="card-title">TRAN<em style="color:rgba(0,200,232,0.85)">SIT</em></h2>
+        <p class="card-desc">
+          Near-Earth object tracking — live Three.js inner solar system orrery with real planetary positions, NASA NEO close approach data, asteroid wireframe detail, and JPL orbital mechanics.
+        </p>
+        <div class="card-tags">
+          <span class="tag">three.js</span>
+          <span class="tag">NASA NeoWs</span>
+          <span class="tag">JPL CAD</span>
+          <span class="tag">J2000</span>
+          <span class="tag">FUI</span>
+        </div>
+      </div>
+    </a>
+
   </div>
 </div>
 
@@ -468,7 +498,7 @@
 
   // Glitch the eyebrow text
   const eyebrow = document.getElementById('hero-eyebrow-data');
-  const targets = ['LIVE SYSTEMS / DATA VISUALIZATION','ADS-B / NHC / NOAA / NWS','29.9934°N 90.2581°W // KMSY','LANDFALL // TROPICAL CYCLONE OPS'];
+  const targets = ['LIVE SYSTEMS / DATA VISUALIZATION','ADS-B / NHC / NOAA / NWS','29.9934°N 90.2581°W // KMSY','LANDFALL // TROPICAL CYCLONE OPS','TRANSIT // NEAR-EARTH OBJECT TRACKING'];
   const glitch = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789/\\|<>[]{}!@#$%^&*';
   let ei=0;
   function cycleEyebrow(){
