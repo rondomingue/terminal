@@ -109,6 +109,17 @@
   .neo-row .pha-y{color:var(--pha);} .neo-row .pha-n{color:var(--safe);}
   .neo-row.selected{background:rgba(0,200,232,.05);}
   #sel-card{flex:0 0 auto;padding:14px 12px 10px;min-height:0;}
+  #asteroid-wrap{width:100%;aspect-ratio:16/9;background:rgba(0,20,50,0.5);
+    border:1px solid rgba(0,200,232,0.1);border-radius:4px;overflow:hidden;
+    margin:10px 0 6px;position:relative;display:flex;align-items:center;justify-content:center;}
+  #asteroid-canvas{display:none;width:100%;height:100%;}
+  .ast-empty{font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--ink-faint);letter-spacing:.1em;}
+  #ast-size-bar{position:absolute;bottom:5px;left:8px;right:8px;z-index:2;
+    font-family:'IBM Plex Mono',monospace;font-size:7px;letter-spacing:.08em;color:rgba(0,200,232,0.5);}
+  #ast-ref-line{position:absolute;bottom:14px;left:8px;right:8px;height:1px;
+    background:rgba(0,200,232,0.12);}
+  #ast-scale-marker{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);
+    width:2px;height:8px;background:rgba(0,200,232,0.35);}
   .sel-row{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:8.5px;color:var(--ink-dim);padding:3px 0;border-bottom:1px solid var(--line-dim);}
   .sel-row:last-child{border-bottom:none;}
   .sel-row .v{color:var(--white);}
@@ -203,7 +214,16 @@
         <div class="ghost-sheet"></div>
         <div class="panel-label">SELECTED OBJECT</div>
         <div style="margin-top:16px;">
+          <div id="asteroid-wrap">
+            <span class="ast-empty" id="ast-empty">SELECT AN OBJECT</span>
+            <canvas id="asteroid-canvas"></canvas>
+            <div id="ast-ref-line"></div>
+            <div id="ast-scale-marker"></div>
+            <div id="ast-size-bar" style="display:none;" id="ast-size-bar-inner"></div>
+          </div>
           <div class="sel-row"><span>DESIGNATION</span><span class="v" id="sel-des">—</span></div>
+          <div class="sel-row"><span>EST. DIAMETER</span><span class="v" id="sel-diam">—</span></div>
+          <div class="sel-row"><span>CLASS</span><span class="v" id="sel-class">—</span></div>
           <div class="sel-row"><span>APPROACH</span><span class="v" id="sel-date">—</span></div>
           <div class="sel-row"><span>DIST</span><span class="v" id="sel-dist">—</span></div>
           <div class="sel-row"><span>VELOCITY</span><span class="v" id="sel-vel">—</span></div>
@@ -531,6 +551,128 @@
   const selMarker=new THREE.Mesh(selMarkerGeo,selMarkerMat);
   scene.add(selMarker);
 
+  // ===== ASTEROID DETAIL RENDERER =====
+  let astRenderer=null, astScene=null, astCamera=null, astGroup=null;
+  const astCanvas=$('asteroid-canvas');
+
+  function initAstRenderer(){
+    if(astRenderer) return;
+    astRenderer=new THREE.WebGLRenderer({canvas:astCanvas,antialias:true,alpha:true});
+    astRenderer.setClearColor(0x000000,0);
+    astScene=new THREE.Scene();
+    astCamera=new THREE.PerspectiveCamera(48,16/9,0.01,100);
+    astCamera.position.set(0,0.6,3.2);
+    astCamera.lookAt(0,0,0);
+    // Faint ambient stars in mini scene
+    const sg=new THREE.BufferGeometry();
+    const sp=[];
+    for(let i=0;i<300;i++){
+      sp.push((Math.random()-0.5)*20,(Math.random()-0.5)*20,(Math.random()-0.5)*20-5);
+    }
+    sg.setAttribute('position',new THREE.Float32BufferAttribute(sp,3));
+    astScene.add(new THREE.Points(sg,new THREE.PointsMaterial({size:0.04,color:0x4488aa,transparent:true,opacity:0.5})));
+  }
+
+  // Deterministic seeded pseudo-random (no library needed)
+  function sRnd(seed,i){
+    const x=Math.sin(seed*127.1+i*311.7+seed*i*0.013)*43758.5453;
+    return x-Math.floor(x);
+  }
+
+  function makeAsteroidGeo(designation){
+    // Hash designation to a stable seed
+    let seed=0;
+    for(let c of designation) seed=(seed*31+c.charCodeAt(0))&0xffff;
+    const geo=new THREE.IcosahedronGeometry(1,2); // 80 faces — recognisably rocky
+    const pos=geo.attributes.position;
+    for(let i=0;i<pos.count;i++){
+      const x=pos.getX(i),y=pos.getY(i),z=pos.getZ(i);
+      const len=Math.sqrt(x*x+y*y+z*z);
+      // Displace each vertex radially — range 0.55–1.15 gives convincing irregularity
+      const disp=0.55+sRnd(seed,i)*0.62+sRnd(seed,i+200)*0.2;
+      pos.setXYZ(i,(x/len)*disp,(y/len)*disp,(z/len)*disp);
+    }
+    geo.computeVertexNormals();
+    return geo;
+  }
+
+  function estimateDiamKm(h){
+    // D = 1329 / sqrt(albedo) * 10^(-H/5) km, albedo = 0.14 (average dark rocky)
+    return 1329/Math.sqrt(0.14)*Math.pow(10,-parseFloat(h)/5);
+  }
+
+  function formatDiam(km){
+    if(km>=1)    return km.toFixed(2)+' KM';
+    if(km>=0.1)  return (km*1000).toFixed(0)+' M';
+    return (km*1000).toFixed(1)+' M';
+  }
+
+  function sizeLabel(km){
+    if(km<0.025) return {t:'DUST / FRAGMENT',    c:'var(--ink-dim)'};
+    if(km<0.14)  return {t:'SMALL',              c:'var(--safe)'};
+    if(km<1.0)   return {t:'INTERMEDIATE',       c:'#c8a060'};
+    if(km<10)    return {t:'LARGE',              c:'var(--pha)'};
+    return               {t:'MAJOR / EXTINCTION',c:'var(--pha)'};
+  }
+
+  function sizeComparison(km){
+    if(km<0.02)  return '< CAR';
+    if(km<0.06)  return '≈ HOUSE';
+    if(km<0.14)  return '≈ CITY BLOCK';
+    if(km<0.5)   return '≈ SKYSCRAPER';
+    if(km<1.0)   return '≈ SMALL MOUNTAIN';
+    if(km<5)     return '≈ LARGE MOUNTAIN';
+    return               '> REGIONAL SCALE';
+  }
+
+  function showAsteroid(neo){
+    initAstRenderer();
+    $('ast-empty').style.display='none';
+    astCanvas.style.display='block';
+
+    const wrap=$('asteroid-wrap');
+    const W=wrap.clientWidth||240, H=Math.round(W*(9/16));
+    astRenderer.setSize(W,H);
+    astCamera.aspect=W/H; astCamera.updateProjectionMatrix();
+
+    // Dispose old
+    if(astGroup){ astScene.remove(astGroup); astGroup.traverse(o=>{ if(o.geometry)o.geometry.dispose(); if(o.material)o.material.dispose(); }); }
+
+    const geo=makeAsteroidGeo(neo.des);
+    const isPHA=neo.pha==='Y';
+    const wireCol=isPHA?0xd01c1c:0x00c8e8;
+    const fillCol=isPHA?0x280404:0x001830;
+
+    const g=new THREE.Group();
+    // Solid fill (dark, subtle)
+    g.add(new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:fillCol,transparent:true,opacity:0.35,side:THREE.DoubleSide,depthWrite:false})));
+    // Wireframe
+    g.add(new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:wireCol,wireframe:true,transparent:true,opacity:0.7,blending:THREE.AdditiveBlending})));
+    // Edge highlight — slightly brighter inner edges
+    const edges=new THREE.EdgesGeometry(geo,15);
+    g.add(new THREE.LineSegments(edges,new THREE.LineBasicMaterial({color:wireCol,transparent:true,opacity:0.4,blending:THREE.AdditiveBlending})));
+
+    astGroup=g; astScene.add(g);
+
+    // Size info
+    const km=estimateDiamKm(neo.h);
+    $('sel-diam').textContent=formatDiam(km);
+    const lbl=sizeLabel(km);
+    const clsEl=$('sel-class'); clsEl.textContent=lbl.t; clsEl.style.color=lbl.c;
+    // Size bar label
+    const sbar=$('ast-size-bar-inner')||$('ast-size-bar');
+    if(sbar){ sbar.style.display='block'; sbar.textContent=sizeComparison(km); }
+  }
+
+  let astFrameN=0;
+  function animateAsteroid(){
+    if(!astRenderer||!astGroup) return;
+    astFrameN++;
+    astGroup.rotation.y=astFrameN*0.010;
+    astGroup.rotation.x=0.18+Math.sin(astFrameN*0.004)*0.12;
+    astRenderer.render(astScene,astCamera);
+  }
+
   function selectNeo(neo){
     selectedNeo=neo;
     $('sel-des').textContent=neo.des;
@@ -544,6 +686,7 @@
     if(neo._pos){ selMarker.position.copy(neo._pos); selMarkerMat.opacity=0.7; }
     document.querySelectorAll('.neo-row').forEach(r=>r.classList.remove('selected'));
     document.querySelector(`.neo-row[data-des="${neo.des}"]`)?.classList.add('selected');
+    showAsteroid(neo);
   }
 
   // ===== ANIMATION LOOP =====
@@ -552,6 +695,7 @@
     requestAnimationFrame(animate);
     frame++;
     controls.update();
+    animateAsteroid();
 
     const days=daysSinceJ2000(new Date())+frame*0.04;
 
