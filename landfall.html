@@ -45,7 +45,7 @@
     background:
       linear-gradient(90deg,rgba(2,5,12,.95) 0%,rgba(2,5,12,.62) 34%,rgba(2,5,12,.72) 100%),
       linear-gradient(to bottom,rgba(2,5,12,.5),rgba(2,5,12,.86)),
-      url('https://upload.wikimedia.org/wikipedia/commons/8/82/Ian_2022-09-28_1256Z.jpg');
+      url('nasa-5477L9Z5eqI-unsplash.jpg');
     background-size:cover,cover,cover;
     background-position:center,center,center 42%;
     filter:saturate(.72) contrast(1.12) brightness(.62);}
@@ -153,7 +153,7 @@
   #rail-left{grid-column:1;grid-row:1 / span 4;display:flex;flex-direction:column;gap:12px;}
   #map-stack{grid-column:2;grid-row:1 / span 3;position:relative;}
   #map-panel{position:absolute;inset:0;padding:0;}
-  #storm-table-panel{grid-column:2;grid-row:4;padding:14px 14px 8px;overflow:hidden;}
+  #storm-table-panel{grid-column:2;grid-row:4;padding:0;overflow:visible;align-self:end;height:42px;}
   #rail-right{grid-column:3;grid-row:1 / span 4;display:flex;flex-direction:column;gap:12px;}
 
   /* LEFT RAIL */
@@ -220,10 +220,35 @@
   .stog.on.cat2{border-color:var(--cat2);color:var(--cat2);background:rgba(240,160,48,.1);}
   .stog.on.cat1{border-color:var(--cat1);color:var(--cat1);background:rgba(245,208,96,.1);}
 
-  /* STORM TABLE */
-  .srow{display:grid;grid-template-columns:76px 34px 38px 48px 48px 34px 40px 1fr;gap:6px;
-    font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--ink-dim);padding:5px 0;border-bottom:1px solid var(--line-dim);}
-  .srow.head{color:var(--ink-faint);font-size:9px;letter-spacing:.07em;border-color:var(--line);}
+  /* HISTORICAL STORM DROPDOWN */
+  #storm-focus{position:absolute;top:30px;left:10px;right:10px;z-index:5;pointer-events:none;
+    display:grid;grid-template-columns:1fr auto;gap:14px;align-items:start;
+    padding:12px 14px;border:1px solid rgba(150,175,220,.14);
+    background:linear-gradient(135deg,rgba(0,0,0,.78),rgba(4,7,14,.58));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 20px 35px rgba(0,0,0,.32);}
+  .focus-kicker{font-family:'IBM Plex Mono',monospace;font-size:7px;letter-spacing:.2em;color:var(--ink-faint);}
+  .focus-title{font-family:'IBM Plex Mono',monospace;font-size:15px;letter-spacing:.08em;color:var(--white);margin-top:4px;}
+  .focus-notes{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.06em;color:var(--ink-dim);margin-top:5px;}
+  .focus-metrics{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;}
+  .focus-metrics span{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.08em;color:var(--ink-dim);border-left:1px solid rgba(150,175,220,.18);padding-left:9px;}
+  .focus-metrics b{display:block;font-size:12px;color:var(--white);font-weight:500;margin-bottom:2px;}
+  #history-toggle{position:absolute;inset:0;display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;
+    padding:0 14px;border:0;background:linear-gradient(145deg,rgba(0,0,0,.84),rgba(4,7,14,.72));
+    color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;text-align:left;cursor:pointer;}
+  #history-toggle .hint{font-size:8px;color:var(--ink-faint);letter-spacing:.1em;}
+  #storm-table-panel.open #history-toggle .hint{color:var(--advisory);}
+  #storm-dropdown{position:absolute;left:0;right:0;bottom:46px;max-height:220px;overflow-y:auto;
+    padding:12px 14px 10px;border:1px solid rgba(150,175,220,.16);background:rgba(0,0,0,.88);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    box-shadow:0 -24px 44px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.05);
+    transform:translateY(8px);opacity:0;pointer-events:none;transition:opacity .18s ease,transform .18s ease;}
+  #storm-table-panel.open #storm-dropdown{opacity:1;transform:translateY(0);pointer-events:auto;}
+  .srow{display:grid;grid-template-columns:76px 34px 38px 48px 48px 34px 40px 1fr;gap:6px;align-items:center;
+    font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--ink-dim);padding:6px 0;border-bottom:1px solid var(--line-dim);cursor:pointer;}
+  .srow:hover{background:rgba(255,255,255,.035);}
+  .srow.selected{background:rgba(74,144,208,.08);}
+  .srow.head{color:var(--ink-faint);font-size:9px;letter-spacing:.07em;border-color:var(--line);cursor:default;}
+  .srow.head:hover{background:transparent;}
   .srow .cs{color:var(--white);}
 
   /* RIGHT RAIL */
@@ -264,7 +289,8 @@
     #grid{position:relative;grid-template-columns:1fr;grid-template-rows:none;padding:0 14px 20px;gap:14px;}
     #rail-left,#rail-right{grid-column:1;grid-row:auto;}
     #map-stack{grid-column:1;grid-row:auto;min-height:420px;}
-    #storm-table-panel{grid-column:1;grid-row:auto;}
+    #storm-focus{position:relative;top:auto;left:auto;right:auto;margin:36px 10px 0;}
+    #storm-table-panel{grid-column:1;grid-row:auto;height:42px;}
   }
 </style>
 </head>
@@ -273,7 +299,7 @@
   <div class="scanline"></div>
   <div id="grain"></div>
   <div id="vignette"></div>
-  <div id="bg-credit">BG: HURRICANE IAN SATELLITE / WIKIMEDIA COMMONS</div>
+  <div id="bg-credit">BG: NASA / UNSPLASH SATELLITE HURRICANE</div>
 
   <div id="header">
     <div class="brand">
@@ -364,7 +390,20 @@
         <div id="mapbox-map"></div>
         <div id="map-overlay"></div>
         <div id="map-label-top"><span class="flag">[</span> GULF SECTOR // TRACK CHART <span class="flag">]</span></div>
-        <div id="map-meta-right">17°N–32°N / 100°W–80°W</div>
+        <div id="map-meta-right">18°N–32°N / 99°W–80°W</div>
+        <div id="storm-focus">
+          <div>
+            <div class="focus-kicker">SELECTED HISTORICAL SYSTEM</div>
+            <div class="focus-title" id="focus-title">KATRINA 2005 // CATEGORY 5</div>
+            <div class="focus-notes" id="focus-notes">LA/MS AUG 29 — 1,833 DEATHS</div>
+          </div>
+          <div class="focus-metrics">
+            <span><b id="focus-peak">175KT</b>PEAK</span>
+            <span><b id="focus-mb">902MB</b>MIN</span>
+            <span><b id="focus-lf">2</b>LANDFALLS</span>
+            <span><b id="focus-fixes">14</b>FIXES</span>
+          </div>
+        </div>
         <div id="map-credit">MAP © MAPBOX © OSM · RADAR © RAINVIEWER</div>
         <!-- Radar controls -->
         <div id="radar-controls">
@@ -381,8 +420,11 @@
     </div>
 
     <div class="panel" id="storm-table-panel">
-      <div class="panel-label">[ TRACK LOG ] — HISTORICAL RECORD</div>
-      <div style="margin-top:20px;padding:0 12px 8px;overflow:hidden;">
+      <button id="history-toggle" type="button">
+        <span>[ HISTORICAL RECORD ] — SELECT STORM</span>
+        <span class="hint">OPEN ▲</span>
+      </button>
+      <div id="storm-dropdown">
         <div class="srow head"><span>STORM</span><span>YR</span><span>CAT</span><span>PEAK</span><span>MIN</span><span>LF</span><span>FIXES</span><span>NOTES</span></div>
         <div id="storm-table-body"></div>
       </div>
@@ -415,7 +457,7 @@
   const $=id=>document.getElementById(id);
 
   // SAFFIR-SIMPSON category color system
-  const CAT_COLOR={1:'#ffe66d',2:'#ffb347',3:'#ff6b35',4:'#ff2e63',5:'#b845ff'};
+  const CAT_COLOR={1:'#ffe66d',2:'#ffb347',3:'#ff6b35',4:'#ff2e63',5:'#d946ef'};
   function catColor(cat){ return CAT_COLOR[cat]||'#6b7090'; }
   function catOpacity(cat){ return cat>=4?0.9:cat>=3?0.8:0.7; }
 
@@ -487,8 +529,27 @@
   ];
   const shown={};
   STORMS.forEach(s=>{shown[s.id]=true;});
+  let selectedStormId='katrina';
 
   function landfallCount(storm){ return storm.track.filter(p=>p[2]==='lf').length; }
+  function stormBounds(storm){
+    const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
+    const pts=storm.track.map(p=>[clamp(p[0],-99.5,-80),clamp(p[1],18,32.2)]);
+    const lons=pts.map(p=>p[0]), lats=pts.map(p=>p[1]);
+    return [[Math.max(-99.5,Math.min(...lons)-1),Math.max(18,Math.min(...lats)-1)],
+      [Math.min(-80,Math.max(...lons)+1),Math.min(32.2,Math.max(...lats)+1)]];
+  }
+
+  function updateStormFocus(storm){
+    selectedStormId=storm.id;
+    if($('focus-title')) $('focus-title').textContent=`${storm.name} ${storm.year} // CATEGORY ${storm.cat}`;
+    if($('focus-notes')) $('focus-notes').textContent=storm.notes;
+    if($('focus-peak')) $('focus-peak').textContent=storm.peak+'KT';
+    if($('focus-mb')) $('focus-mb').textContent=storm.mb+'MB';
+    if($('focus-lf')) $('focus-lf').textContent=landfallCount(storm);
+    if($('focus-fixes')) $('focus-fixes').textContent=storm.track.length;
+    document.querySelectorAll('.srow[data-id]').forEach(row=>row.classList.toggle('selected',row.dataset.id===storm.id));
+  }
   function updateHeaderData(){
     const major=STORMS.filter(s=>s.cat>=3).length;
     const maxWind=STORMS.reduce((a,b)=>b.peak>a.peak?b:a,STORMS[0]);
@@ -527,7 +588,7 @@
 
   // STORM TABLE with category colors
   $('storm-table-body').innerHTML=STORMS.map(s=>`
-    <div class="srow">
+    <div class="srow" data-id="${s.id}">
       <span class="cs" style="color:${catColor(s.cat)};text-shadow:0 0 6px ${catColor(s.cat)}55">${s.name}</span>
       <span>${s.year}</span>
       <span style="color:${catColor(s.cat)}">C${s.cat}</span>
@@ -537,17 +598,39 @@
       <span>${s.track.length}</span>
       <span style="color:var(--ink-faint);font-size:8px;">${s.notes}</span>
     </div>`).join('');
+  updateStormFocus(STORMS.find(s=>s.id===selectedStormId)||STORMS[0]);
+
+  const historyPanel=$('storm-table-panel');
+  const historyToggle=$('history-toggle');
+  if(historyToggle&&historyPanel){
+    historyToggle.addEventListener('click',()=>historyPanel.classList.toggle('open'));
+  }
+  document.querySelectorAll('.srow[data-id]').forEach(row=>{
+    row.addEventListener('click',()=>{
+      const storm=STORMS.find(s=>s.id===row.dataset.id);
+      if(!storm) return;
+      updateStormFocus(storm);
+      shown[storm.id]=true;
+      const toggle=document.querySelector(`.stog[data-id="${storm.id}"]`);
+      if(toggle) toggle.classList.add('on');
+      setTrackVisible(storm.id,true);
+      if(map&&map.isStyleLoaded()){
+        try{ map.fitBounds(stormBounds(storm),{padding:80,maxZoom:5.8,duration:700}); }catch(e){}
+      }
+      historyPanel.classList.remove('open');
+    });
+  });
 
   // MAPBOX
   mapboxgl.accessToken='pk.eyJ1Ijoicm9uZG9taW5ndWUiLCJhIjoiY21yMWtwM2swMDRscDJwcTBoaHZ3aTdybiJ9.oG87gBTRgX_LgwK2Akq0Rg';
   const map=new mapboxgl.Map({
     container:'mapbox-map',
     style:'mapbox://styles/mapbox/navigation-night-v1',
-    center:[-90.0,24.5],
-    zoom:4.2,
-    minZoom:3.5,
-    maxZoom:8,
-    maxBounds:[[-107,14],[-72,36]], // Gulf + Caribbean + SE US — hard lock
+    center:[-89.7,25.4],
+    zoom:4.9,
+    minZoom:4.25,
+    maxZoom:7,
+    maxBounds:[[-99.5,18],[-80,32.2]], // Gulf-only hard lock
     attributionControl:false,
     logoPosition:'bottom-right'
   });
@@ -611,27 +694,38 @@
   }
 
   map.on('style.load',()=>{
-    // Keep the map dark, but leave enough color for radar and tracks to feel alive.
-    const MAP_LAND='#071022', MAP_WATER='#071a35', MAP_ROAD='#244065', MAP_LABEL='rgba(205,220,255,0.34)';
+    // Keep the map dark and quiet. Roads/interstates are intentionally hidden.
+    const MAP_LAND='#06101f', MAP_WATER='#071a35', MAP_LABEL='rgba(205,220,255,0.32)';
     try{
       map.getStyle().layers.forEach(layer=>{
         const id=layer.id;
+        const roadish=/road|motorway|trunk|street|bridge|tunnel|shield|exit|junction/i.test(id);
+        const clutter=/poi|transit|airport|rail|ferry|parking/i.test(id);
         try{
           if(layer.type==='background') map.setPaintProperty(id,'background-color',MAP_LAND);
           if(layer.type==='fill'){
             map.setPaintProperty(id,'fill-color',id.includes('water')?MAP_WATER:MAP_LAND);
-            map.setPaintProperty(id,'fill-opacity',id.includes('water')?0.98:0.9);
+            map.setPaintProperty(id,'fill-opacity',id.includes('water')?0.98:0.78);
           }
           if(layer.type==='line'){
-            if(id.includes('road')||id.includes('tunnel')||id.includes('bridge'))
-              map.setPaintProperty(id,'line-color',MAP_ROAD);
-            else map.setPaintProperty(id,'line-color','#15345a');
-            map.setPaintProperty(id,'line-opacity',0.28);
+            if(roadish||clutter){
+              map.setPaintProperty(id,'line-opacity',0);
+            } else {
+              map.setPaintProperty(id,'line-color','#15345a');
+              map.setPaintProperty(id,'line-opacity',0.16);
+            }
           }
           if(layer.type==='symbol'){
-            try{ map.setPaintProperty(id,'text-color',MAP_LABEL); }catch(e){}
-            try{ map.setPaintProperty(id,'text-halo-color',MAP_LAND); }catch(e){}
-            try{ map.setPaintProperty(id,'icon-color',MAP_LABEL); }catch(e){}
+            if(roadish||clutter){
+              try{ map.setPaintProperty(id,'text-opacity',0); }catch(e){}
+              try{ map.setPaintProperty(id,'icon-opacity',0); }catch(e){}
+            } else {
+              try{ map.setPaintProperty(id,'text-color',MAP_LABEL); }catch(e){}
+              try{ map.setPaintProperty(id,'text-halo-color',MAP_LAND); }catch(e){}
+              try{ map.setPaintProperty(id,'text-opacity',0.55); }catch(e){}
+              try{ map.setPaintProperty(id,'icon-color',MAP_LABEL); }catch(e){}
+              try{ map.setPaintProperty(id,'icon-opacity',0.4); }catch(e){}
+            }
           }
         }catch(e){}
       });
