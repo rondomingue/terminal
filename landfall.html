@@ -786,31 +786,16 @@
     if(radarFrames.length) addRadarLayers();
     loadRadar().then(()=>{ if(radarFrames.length) addRadarLayers(); });
 
-    // Register a radar-style, multicolor cyclone marker for peak intensity.
+    // Register a standard hurricane symbol; Mapbox tints it by storm category.
     const HURR_SVG=`<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
-      <defs>
-        <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
-          <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#02050c" flood-opacity=".75"/>
-        </filter>
-      </defs>
-      <g filter="url(#shadow)">
-        <path fill="#1267b1" d="M54 5c16 4 28 15 33 31-11-8-24-8-35-1 15 1 31 12 39 27-18-8-35-4-47 12-2-17 2-31 17-40-9-5-12-15-7-29z"/>
-        <path fill="#1267b1" d="M54 5c16 4 28 15 33 31-11-8-24-8-35-1 15 1 31 12 39 27-18-8-35-4-47 12-2-17 2-31 17-40-9-5-12-15-7-29z" transform="rotate(120 48 48)"/>
-        <path fill="#1267b1" d="M54 5c16 4 28 15 33 31-11-8-24-8-35-1 15 1 31 12 39 27-18-8-35-4-47 12-2-17 2-31 17-40-9-5-12-15-7-29z" transform="rotate(240 48 48)"/>
-        <path fill="#20b45d" d="M52 10c14 5 24 15 28 28-9-6-20-6-29-1 13 2 25 10 32 22-15-6-29-2-39 11-1-14 3-26 15-33-8-5-10-14-7-27z"/>
-        <path fill="#20b45d" d="M52 10c14 5 24 15 28 28-9-6-20-6-29-1 13 2 25 10 32 22-15-6-29-2-39 11-1-14 3-26 15-33-8-5-10-14-7-27z" transform="rotate(120 48 48)"/>
-        <path fill="#20b45d" d="M52 10c14 5 24 15 28 28-9-6-20-6-29-1 13 2 25 10 32 22-15-6-29-2-39 11-1-14 3-26 15-33-8-5-10-14-7-27z" transform="rotate(240 48 48)"/>
-        <path fill="#f4dc28" d="M50 16c11 5 20 13 24 24-8-4-17-4-25 1 11 1 22 8 29 18-13-5-25-1-34 9 0-12 4-22 14-28-6-4-9-12-8-24z"/>
-        <path fill="#f4dc28" d="M50 16c11 5 20 13 24 24-8-4-17-4-25 1 11 1 22 8 29 18-13-5-25-1-34 9 0-12 4-22 14-28-6-4-9-12-8-24z" transform="rotate(120 48 48)"/>
-        <path fill="#f4dc28" d="M50 16c11 5 20 13 24 24-8-4-17-4-25 1 11 1 22 8 29 18-13-5-25-1-34 9 0-12 4-22 14-28-6-4-9-12-8-24z" transform="rotate(240 48 48)"/>
-        <path fill="#f27d1f" d="M48 23c10 6 16 14 18 23-7-4-15-3-22 2 9 0 18 5 24 13-10-2-20 1-28 9 1-10 5-18 14-23-6-5-8-13-6-24z"/>
-        <path fill="#f27d1f" d="M48 23c10 6 16 14 18 23-7-4-15-3-22 2 9 0 18 5 24 13-10-2-20 1-28 9 1-10 5-18 14-23-6-5-8-13-6-24z" transform="rotate(120 48 48)"/>
-        <path fill="#f27d1f" d="M48 23c10 6 16 14 18 23-7-4-15-3-22 2 9 0 18 5 24 13-10-2-20 1-28 9 1-10 5-18 14-23-6-5-8-13-6-24z" transform="rotate(240 48 48)"/>
-        <path fill="#ef1b18" d="M36 40c5-10 17-13 26-8 8 5 11 18 5 27-6 9-19 12-29 5-8-6-9-16-2-24z"/>
+      <g fill="white">
+        <path d="M49 7c17.8 0 33 12.6 36.2 29.6.8 4.4.7 8.7-.2 12.8-4-13.3-15.7-21.7-30-21.7-10.8 0-19.1 5.2-19.1 12.2 0 4.2 3.5 7.2 8.6 7.2h9.9c14.7 0 25.7 9 25.7 21.2 0 4.7-1.6 9.1-4.6 12.8C84 74.5 89.5 64 89.5 52.1 89.5 27 73.2 7 49 7z"/>
+        <path d="M47 89c-17.8 0-33-12.6-36.2-29.6-.8-4.4-.7-8.7.2-12.8 4 13.3 15.7 21.7 30 21.7 10.8 0 19.1-5.2 19.1-12.2 0-4.2-3.5-7.2-8.6-7.2h-9.9c-14.7 0-25.7-9-25.7-21.2 0-4.7 1.6-9.1 4.6-12.8C12 21.5 6.5 32 6.5 43.9 6.5 69 22.8 89 47 89z"/>
+        <circle cx="48" cy="48" r="8.5"/>
       </g>
     </svg>`;
     const img=new Image(96,96);
-    img.onload=()=>{ if(!map.hasImage('hurricane-icon-v3')) map.addImage('hurricane-icon-v3',img); };
+    img.onload=()=>{ if(!map.hasImage('hurricane-icon-v3')) map.addImage('hurricane-icon-v3',img,{sdf:true}); };
     img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(HURR_SVG);
 
     // Landfall marker (X shape)
@@ -882,7 +867,7 @@
         layout:{'icon-image':'hurricane-icon-v3','icon-size':['interpolate',['linear'],['get','cat'],1,0.38,2,0.44,3,0.5,4,0.56,5,0.68],'icon-allow-overlap':true,
           'text-field':`${s.name}\nC${s.cat} ${s.peak}KT / ${s.mb}MB`,"text-font":["DIN Offc Pro Bold","Arial Unicode MS Bold"],
           'text-size':8,'text-anchor':'top','text-offset':[0,1.25],'text-letter-spacing':0.08},
-        paint:{'icon-opacity':0,
+        paint:{'icon-color':catColor(s.cat),'icon-opacity':0,
           'text-color':catColor(s.cat),'text-opacity':0,'text-halo-color':'rgba(4,5,13,0.9)','text-halo-width':1.5}});
 
       // 4. Landfall marker
