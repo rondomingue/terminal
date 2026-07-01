@@ -130,7 +130,7 @@
   .neo-row .pha-y{color:var(--pha);} .neo-row .pha-n{color:var(--safe);}
   .neo-row.selected{background:rgba(0,200,232,.05);}
   #sel-card{flex:0 0 auto;padding:14px 12px 10px;min-height:0;}
-  #asteroid-wrap{width:100%;aspect-ratio:16/9;background:rgba(0,20,50,0.5);
+  #asteroid-wrap{width:100%;aspect-ratio:4/3;background:rgba(0,20,50,0.5);
     border:1px solid rgba(0,200,232,0.1);border-radius:4px;overflow:hidden;
     margin:10px 0 6px;position:relative;display:flex;align-items:center;justify-content:center;}
   #asteroid-canvas{display:none;width:100%;height:100%;}
@@ -145,11 +145,16 @@
   .sel-row:last-child{border-bottom:none;}
   .sel-row .v{color:var(--white);}
   .sel-row .v.danger{color:var(--pha);} .sel-row .v.safe{color:var(--safe);}
-  #approach-card{flex:1 1 auto;padding:14px 12px 8px;overflow:hidden;}
+  #approach-card{flex:1 1 auto;padding:14px 12px 8px;overflow:hidden;display:flex;flex-direction:column;}
+  #timeline-scroll{flex:1 1 auto;overflow-y:auto;overflow-x:hidden;margin-top:2px;}
+  #timeline-scroll::-webkit-scrollbar{width:3px;}
+  #timeline-scroll::-webkit-scrollbar-track{background:transparent;}
+  #timeline-scroll::-webkit-scrollbar-thumb{background:rgba(0,200,232,0.2);border-radius:2px;}
+  #timeline-scroll::-webkit-scrollbar-thumb:hover{background:rgba(0,200,232,0.4);}
   .approach-row{display:grid;grid-template-columns:1fr 52px 42px;gap:5px;align-items:center;
     font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--ink-dim);padding:5px 0;border-bottom:1px solid var(--line-dim);}
   .approach-row:last-child{border-bottom:none;}
-  .approach-row.head{color:var(--ink-faint);font-size:7.5px;letter-spacing:.06em;border-color:var(--line);}
+  .approach-row.head{color:var(--ink-faint);font-size:7.5px;letter-spacing:.06em;border-color:var(--line);position:sticky;top:0;background:var(--panel);z-index:2;}
   .approach-row .des{color:var(--white);font-size:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   #legend-card{flex:0 0 auto;padding:12px 12px 10px;}
   .legend-row{display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--ink-dim);padding:3px 0;}
@@ -261,8 +266,8 @@
         </div>
       </div>
       <div class="panel" id="approach-card">
-        <div class="panel-label">[ TIMELINE ] — NEXT 10 APPROACHES</div>
-        <div style="margin-top:16px;overflow:hidden;height:calc(100% - 22px);" id="timeline-body"></div>
+        <div class="panel-label">[ TIMELINE ] — UPCOMING APPROACHES</div>
+        <div id="timeline-scroll" id="timeline-body"></div>
       </div>
       <div class="panel" id="legend-card">
         <div class="panel-label">LEGEND</div>
@@ -1108,7 +1113,7 @@
     astCanvas.style.display='block';
 
     const wrap=$('asteroid-wrap');
-    const W=wrap.clientWidth||240, H=Math.round(W*(9/16));
+    const W=wrap.clientWidth||240, H=Math.round(W*(3/4));
     astRenderer.setSize(W,H);
     astCamera.aspect=W/H; astCamera.updateProjectionMatrix();
 
@@ -1249,12 +1254,13 @@
   }
 
   function buildTimeline(data){
-    $('timeline-body').innerHTML=`
+    const el=$('timeline-scroll')||$('timeline-body');
+    el.innerHTML=`
       <div class="approach-row head"><span>OBJECT</span><span>DATE</span><span>DIST</span></div>
-      ${data.slice(0,10).map(n=>`<div class="approach-row">
-        <span class="des">${n.des.length>14?n.des.slice(0,13)+'…':n.des}</span>
+      ${data.map(n=>`<div class="approach-row">
+        <span class="des">${n.des.length>15?n.des.slice(0,14)+'…':n.des}</span>
         <span style="color:${n.pha==='Y'?'var(--pha)':'var(--ink-dim)'}">${n.cd.slice(5,10)}</span>
-        <span style="color:${parseFloat(n.dist)<0.05?'var(--pha)':'var(--safe)'}">${parseFloat(n.dist).toFixed(3)}</span>
+        <span style="color:${parseFloat(n.dist)<0.05?'var(--pha)':parseFloat(n.dist)<0.1?'var(--watch, #d4a020)':'var(--safe)'}">${parseFloat(n.dist).toFixed(3)}</span>
       </div>`).join('')}`;
   }
 
