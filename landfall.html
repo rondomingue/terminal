@@ -665,7 +665,7 @@
     document.querySelectorAll(`.stog[data-id="${storm.id}"]`).forEach(toggle=>toggle.classList.add('on'));
     setTrackVisible(storm.id,true);
     if(map&&map.isStyleLoaded()){
-      try{ map.fitBounds(stormBounds(storm),{padding:80,maxZoom:5.8,duration:700}); }catch(e){}
+      try{ map.fitBounds(stormBounds(storm),{padding:80,maxZoom:5.8,duration:700,pitch:MAP_PITCH,bearing:MAP_BEARING}); }catch(e){}
     }
     if(closeDropdown&&historyPanel){
       historyPanel.classList.remove('open');
@@ -683,17 +683,22 @@
 
   // MAPBOX
   mapboxgl.accessToken='pk.eyJ1Ijoicm9uZG9taW5ndWUiLCJhIjoiY21yMjh4d2o5MDJ5aDMxcHZjcGNscTFsdSJ9.NrQSRTkspTB3_YnIPRAVGA';
+  const MAP_PITCH=34;
+  const MAP_BEARING=-7;
   const map=new mapboxgl.Map({
     container:'mapbox-map',
     style:'mapbox://styles/mapbox/navigation-night-v1',
     center:[-89.7,25.4],
     zoom:4.9,
+    pitch:MAP_PITCH,
+    bearing:MAP_BEARING,
     minZoom:4.25,
     maxZoom:7,
     maxBounds:[[-99.5,18],[-80,32.2]], // Gulf-only hard lock
     attributionControl:false,
     logoPosition:'bottom-right'
   });
+  window.landfallMap=map;
 
   // ===== RAINVIEWER RADAR =====
   let radarFrames=[], radarPos=0, radarTimer=null, radarVisible=true;
@@ -720,6 +725,7 @@
         paint:{'raster-opacity':i===radarPos&&radarVisible?0.72:0,'raster-opacity-transition':{duration:300,delay:0}}
       });
     });
+    bringApproxUserLocationForward();
     updateRadarTimestamp();
   }
 
@@ -751,6 +757,95 @@
   }
   function stopRadarAnimation(){
     if(radarTimer){ clearInterval(radarTimer); radarTimer=null; }
+  }
+
+  function addTacticalGrid(){
+    ['grid-labels-layer','grid-major-layer','grid-minor-layer','grid-glow-layer'].forEach(id=>{
+      if(map.getLayer(id)) map.removeLayer(id);
+    });
+    ['grid-labels','grid-major','grid-minor'].forEach(id=>{
+      if(map.getSource(id)) map.removeSource(id);
+    });
+
+    const bounds={west:-99.5,east:-80,south:18,north:32.2};
+    const minor=[], major=[], labels=[];
+    const line=(coords,props={})=>({type:'Feature',properties:props,geometry:{type:'LineString',coordinates:coords}});
+    const point=(coord,props)=>({type:'Feature',properties:props,geometry:{type:'Point',coordinates:coord}});
+
+    for(let lon=-99;lon<=-80;lon+=1){
+      const isMajor=lon%5===0;
+      const feature=line([[lon,bounds.south],[lon,bounds.north]],{axis:'lon',value:lon});
+      (isMajor?major:minor).push(feature);
+      if(isMajor) labels.push(point([lon,bounds.south+.35],{label:`${Math.abs(lon)}W`}));
+    }
+    for(let lat=19;lat<=32;lat+=1){
+      const isMajor=lat%5===0;
+      const feature=line([[bounds.west,lat],[bounds.east,lat]],{axis:'lat',value:lat});
+      (isMajor?major:minor).push(feature);
+      if(isMajor) labels.push(point([bounds.west+.55,lat],{label:`${lat}N`}));
+    }
+
+    map.addSource('grid-minor',{type:'geojson',data:{type:'FeatureCollection',features:minor}});
+    map.addSource('grid-major',{type:'geojson',data:{type:'FeatureCollection',features:major}});
+    map.addSource('grid-labels',{type:'geojson',data:{type:'FeatureCollection',features:labels}});
+
+    map.addLayer({id:'grid-glow-layer',type:'line',source:'grid-major',
+      layout:{'line-cap':'round','line-join':'round'},
+      paint:{'line-color':'rgba(106,152,183,0.65)','line-width':3,'line-opacity':0.12,'line-blur':4}});
+    map.addLayer({id:'grid-minor-layer',type:'line',source:'grid-minor',
+      layout:{'line-cap':'round','line-join':'round'},
+      paint:{'line-color':'rgba(120,170,210,0.45)','line-width':0.55,'line-opacity':0.22,'line-dasharray':[1,3]}});
+    map.addLayer({id:'grid-major-layer',type:'line',source:'grid-major',
+      layout:{'line-cap':'round','line-join':'round'},
+      paint:{'line-color':'rgba(190,220,245,0.55)','line-width':1,'line-opacity':0.34}});
+    map.addLayer({id:'grid-labels-layer',type:'symbol',source:'grid-labels',
+      layout:{'text-field':['get','label'],'text-font':['DIN Offc Pro Regular','Arial Unicode MS Regular'],
+        'text-size':9,'text-letter-spacing':0.12,'text-allow-overlap':true},
+      paint:{'text-color':'rgba(190,220,245,0.42)','text-halo-color':'rgba(2,5,12,0.88)','text-halo-width':1.2}});
+  }
+
+  let userLocationRequested=false;
+  function bringApproxUserLocationForward(){
+    ['user-approx-halo','user-approx-ring','user-approx-dot','user-approx-label'].forEach(id=>{
+      try{ if(map.getLayer(id)) map.moveLayer(id); }catch(e){}
+    });
+  }
+
+  function setApproxUserLocation(lon,lat,accuracy){
+    const approxLon=Math.round(lon*20)/20;
+    const approxLat=Math.round(lat*20)/20;
+    const feature={type:'Feature',properties:{label:'APPROX POSITION',accuracy:Math.round(accuracy||0)},
+      geometry:{type:'Point',coordinates:[approxLon,approxLat]}};
+    const data={type:'FeatureCollection',features:[feature]};
+
+    if(map.getSource('user-approx-location')){
+      map.getSource('user-approx-location').setData(data);
+    } else {
+      map.addSource('user-approx-location',{type:'geojson',data});
+      map.addLayer({id:'user-approx-halo',type:'circle',source:'user-approx-location',
+        paint:{'circle-radius':22,'circle-color':'rgba(106,168,131,0.16)','circle-blur':0.8,'circle-opacity':0.95}});
+      map.addLayer({id:'user-approx-ring',type:'circle',source:'user-approx-location',
+        paint:{'circle-radius':8,'circle-color':'rgba(106,168,131,0.10)','circle-stroke-width':1.4,
+          'circle-stroke-color':'rgba(186,236,202,0.75)','circle-opacity':0.95}});
+      map.addLayer({id:'user-approx-dot',type:'circle',source:'user-approx-location',
+        paint:{'circle-radius':3,'circle-color':'rgba(220,255,230,0.95)','circle-stroke-width':1,
+          'circle-stroke-color':'rgba(106,168,131,0.9)'}});
+      map.addLayer({id:'user-approx-label',type:'symbol',source:'user-approx-location',
+        layout:{'text-field':['get','label'],'text-font':['DIN Offc Pro Bold','Arial Unicode MS Bold'],
+          'text-size':9,'text-anchor':'top','text-offset':[0,1.35],'text-letter-spacing':0.12,'text-allow-overlap':true},
+        paint:{'text-color':'rgba(186,236,202,0.82)','text-halo-color':'rgba(2,5,12,0.9)','text-halo-width':1.4}});
+    }
+    bringApproxUserLocationForward();
+  }
+
+  function requestApproxUserLocation(){
+    if(userLocationRequested||!navigator.geolocation) return;
+    userLocationRequested=true;
+    navigator.geolocation.getCurrentPosition(
+      pos=>setApproxUserLocation(pos.coords.longitude,pos.coords.latitude,pos.coords.accuracy),
+      ()=>{},
+      {enableHighAccuracy:false,timeout:9000,maximumAge:15*60*1000}
+    );
   }
 
   map.on('style.load',()=>{
@@ -790,6 +885,9 @@
         }catch(e){}
       });
     }catch(e){}
+
+    addTacticalGrid();
+    requestApproxUserLocation();
 
     if(radarFrames.length) addRadarLayers();
     loadRadar().then(()=>{ if(radarFrames.length) addRadarLayers(); });
@@ -906,7 +1004,7 @@
     ensureSSTLayer();
     buildToggles();
     STORMS.forEach(s=>setTrackVisible(s.id,shown[s.id]));
-    try{ map.fitBounds(stormBounds(initialStorm),{padding:80,maxZoom:5.8,duration:700}); }catch(e){}
+    try{ map.fitBounds(stormBounds(initialStorm),{padding:80,maxZoom:5.8,duration:700,pitch:MAP_PITCH,bearing:MAP_BEARING}); }catch(e){}
   });
 
   // Cubic Bezier tracks from storm fixes. Neighboring fixes become handles so each leg curves naturally.
@@ -972,7 +1070,7 @@
         setTrackVisible(id,shown[id]);
         updateStormFocus(storm);
         if(shown[id]&&map&&map.isStyleLoaded()){
-          try{ map.fitBounds(stormBounds(storm),{padding:80,maxZoom:5.8,duration:700}); }catch(e){}
+          try{ map.fitBounds(stormBounds(storm),{padding:80,maxZoom:5.8,duration:700,pitch:MAP_PITCH,bearing:MAP_BEARING}); }catch(e){}
         }
       });
     });
