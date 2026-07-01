@@ -155,6 +155,11 @@
     font-family:'Space Mono',monospace;font-size:8px;color:var(--ink-faint);}
   #map-credit{position:absolute;bottom:8px;right:10px;z-index:4;
     font-family:'Space Mono',monospace;font-size:6.5px;color:var(--ink-faint);opacity:.6;}
+  #radar-controls{position:absolute;bottom:40px;right:10px;z-index:5;
+    display:flex;align-items:center;gap:8px;
+    font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.08em;
+    background:rgba(4,5,13,.8);border:1px solid rgba(74,144,208,.2);padding:4px 10px;}
+  #radar-toggle{cursor:pointer;color:var(--advisory);border:1px solid rgba(74,144,208,.5);padding:1px 6px;transition:all .15s;}
   #storm-toggles{position:absolute;bottom:24px;left:10px;right:10px;display:flex;flex-wrap:wrap;gap:5px;z-index:5;pointer-events:none;}
   .stog{font-family:'Space Mono',monospace;font-size:7.5px;letter-spacing:.05em;padding:3px 8px;
     border:1px solid rgba(255,255,255,.1);color:var(--ink-faint);cursor:pointer;pointer-events:all;
@@ -225,7 +230,21 @@
 
   <div id="header">
     <div class="brand">
-      <div class="title"><b>LAND</b>FALL <span style="color:var(--ink-faint);font-weight:300;">// LIVE</span></div>
+      <div class="title">
+        <svg width="28" height="28" viewBox="0 0 28 28" style="display:inline-block;vertical-align:middle;margin-right:8px;filter:drop-shadow(0 0 6px rgba(200,48,48,0.6))">
+          <g fill="none" stroke-width="1.8" stroke-linecap="round">
+            <!-- outer spiral arm -->
+            <path d="M 14 5 C 20 5, 24 9, 23 14 C 22 19, 17 22, 12 20 C 7 18, 5 13, 7 9 C 9 5, 14 4, 18 7" stroke="#c83030" opacity="0.9"/>
+            <!-- mid spiral arm -->
+            <path d="M 14 8 C 18 8, 21 11, 20 14 C 19 17, 16 19, 13 18 C 10 17, 8 14, 9 11 C 10 9, 13 8, 16 10" stroke="#e06020" opacity="0.8"/>
+            <!-- inner spiral -->
+            <path d="M 14 10.5 C 16.5 10.5, 18 12, 17.5 14 C 17 16, 15 17, 13 16.5 C 11 16, 10 14, 11 12.5" stroke="#f0a030" opacity="0.75"/>
+            <!-- eye -->
+            <circle cx="14" cy="14" r="2.2" stroke="#f5d060" stroke-width="1.2" opacity="0.9"/>
+            <circle cx="14" cy="14" r="0.8" fill="#ffffff" opacity="0.9"/>
+          </g>
+        </svg><b>LAND</b>FALL <span style="color:var(--ink-faint);font-weight:300;">// LIVE</span>
+      </div>
       <div class="sub">TROPICAL CYCLONE OPERATIONS // GULF OF MEXICO — NHC WATCH</div>
       <div class="id-strip">
         <span>REGION <b>NAL/GOM</b></span><span class="sep">/</span>
@@ -276,7 +295,17 @@
         <div id="map-overlay"></div>
         <div id="map-label-top"><span class="flag">[</span> GULF SECTOR // TRACK CHART <span class="flag">]</span></div>
         <div id="map-meta-right">17°N–32°N / 100°W–80°W</div>
-        <div id="map-credit">MAP © MAPBOX © OSM CONTRIBUTORS</div>
+        <div id="map-credit">MAP © MAPBOX © OSM · RADAR © RAINVIEWER</div>
+        <!-- Radar controls -->
+        <div id="radar-controls">
+          <span id="radar-toggle" onclick="window._radarToggle&&window._radarToggle()" title="toggle radar">⬡ RADAR</span>
+          <span style="color:var(--line)">|</span>
+          <span onclick="window._radarPrev&&window._radarPrev()" style="cursor:pointer;color:var(--ink-faint)">◀</span>
+          <span id="radar-ts" style="color:var(--advisory);font-size:8px;">—</span>
+          <span onclick="window._radarNext&&window._radarNext()" style="cursor:pointer;color:var(--ink-faint)">▶</span>
+          <span style="color:var(--line)">|</span>
+          <span onclick="window._radarPlay&&window._radarPlay()" id="radar-play" style="cursor:pointer;color:var(--ink-faint)">▷ PLAY</span>
+        </div>
         <div id="storm-toggles"></div>
         <!-- Saffir-Simpson color legend -->
         <div id="ss-strip">
@@ -400,12 +429,73 @@
   mapboxgl.accessToken='pk.eyJ1Ijoicm9uZG9taW5ndWUiLCJhIjoiY21yMWtwM2swMDRscDJwcTBoaHZ3aTdybiJ9.oG87gBTRgX_LgwK2Akq0Rg';
   const map=new mapboxgl.Map({
     container:'mapbox-map',
-    style:'mapbox://styles/mapbox/dark-v11',
+    style:'mapbox://styles/mapbox/satellite-v9',
     center:[-90.0,24.5],zoom:4.2,minZoom:3,maxZoom:10,
     attributionControl:false,logoPosition:'bottom-right'
   });
 
+  // ===== RAINVIEWER RADAR =====
+  let radarFrames=[], radarPos=0, radarTimer=null, radarVisible=true;
+
+  async function loadRadar(){
+    try{
+      const res=await fetch('https://api.rainviewer.com/public/weather-maps.json');
+      const data=await res.json();
+      radarFrames=[...data.radar.past.slice(-6)]; // last 2 hours, 6 frames
+      if(map.isStyleLoaded()) addRadarLayers();
+    }catch(e){ console.warn('radar load fail',e); }
+  }
+
+  function addRadarLayers(){
+    // remove old layers
+    radarFrames.forEach((_,i)=>{
+      if(map.getLayer(`radar-${i}`)) map.removeLayer(`radar-${i}`);
+      if(map.getSource(`radar-src-${i}`)) map.removeSource(`radar-src-${i}`);
+    });
+    radarFrames.forEach((frame,i)=>{
+      const tileUrl=`https://tilecache.rainviewer.com${frame.path}/512/{z}/{x}/{y}/6/1_1.png`;
+      map.addSource(`radar-src-${i}`,{type:'raster',tiles:[tileUrl],tileSize:512,attribution:'RainViewer'});
+      map.addLayer({id:`radar-${i}`,type:'raster',source:`radar-src-${i}`,
+        paint:{'raster-opacity':i===radarPos&&radarVisible?0.72:0,'raster-opacity-transition':{duration:300,delay:0}}
+      });
+    });
+    updateRadarTimestamp();
+  }
+
+  function updateRadarTimestamp(){
+    const f=radarFrames[radarPos];
+    if(f&&$('radar-ts')) $('radar-ts').textContent=new Date(f.time*1000).toUTCString().slice(17,22)+' UTC';
+  }
+
+  function stepRadar(dir=1){
+    // fade out current
+    if(map.getLayer(`radar-${radarPos}`)) map.setPaintProperty(`radar-${radarPos}`,'raster-opacity',0);
+    radarPos=(radarPos+dir+radarFrames.length)%radarFrames.length;
+    if(map.getLayer(`radar-${radarPos}`)) map.setPaintProperty(`radar-${radarPos}`,'raster-opacity',radarVisible?0.72:0);
+    updateRadarTimestamp();
+  }
+
+  function toggleRadar(){
+    radarVisible=!radarVisible;
+    if(map.getLayer(`radar-${radarPos}`)) map.setPaintProperty(`radar-${radarPos}`,'raster-opacity',radarVisible?0.72:0);
+    const btn=$('radar-toggle');
+    if(btn){ btn.style.color=radarVisible?'var(--advisory)':'var(--ink-faint)';
+      btn.style.borderColor=radarVisible?'rgba(74,144,208,.5)':'rgba(255,255,255,.1)'; }
+    if($('radar-ts')) $('radar-ts').style.opacity=radarVisible?'1':'0.4';
+  }
+
+  function startRadarAnimation(){
+    if(radarTimer) clearInterval(radarTimer);
+    radarTimer=setInterval(()=>stepRadar(1),700);
+  }
+  function stopRadarAnimation(){
+    if(radarTimer){ clearInterval(radarTimer); radarTimer=null; }
+  }
+
   map.on('style.load',()=>{
+    // Add radar if frames already loaded
+    if(radarFrames.length) addRadarLayers();
+    loadRadar().then(()=>{ if(radarFrames.length) addRadarLayers(); });
     STORMS.forEach(s=>{
       const col=catColor(s.cat);
       const op=catOpacity(s.cat);
@@ -454,6 +544,21 @@
       });
     });
   }
+
+  // expose radar controls for inline handlers
+  window._radarToggle=toggleRadar;
+  window._radarPrev=()=>{ stopRadarAnimation(); stepRadar(-1); const b=$('radar-play'); if(b)b.textContent='▷ PLAY'; };
+  window._radarNext=()=>{ stopRadarAnimation(); stepRadar(1); const b=$('radar-play'); if(b)b.textContent='▷ PLAY'; };
+  let _playing=false;
+  window._radarPlay=()=>{
+    _playing=!_playing;
+    const b=$('radar-play');
+    if(_playing){ startRadarAnimation(); if(b)b.textContent='■ STOP'; }
+    else{ stopRadarAnimation(); if(b)b.textContent='▷ PLAY'; }
+  };
+
+  // initial radar fetch (before map style loads — will apply on load)
+  loadRadar();
 
   // NWS ALERTS — color by severity
   const NWS='https://api.weather.gov/alerts/active?area=LA,MS,AL,TX,FL,GA';
