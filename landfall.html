@@ -8,11 +8,11 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;700&family=Barlow:wght@300;400;500;600&display=swap');
   :root{
-    --bg:#04050d;
+    --bg:#030713;
     --panel:rgba(6,8,18,0.78);
-    --line:#1a1d2e;
-    --line-dim:#121520;
-    --ink:#bcc2d8;
+    --line:#243050;
+    --line-dim:#141b31;
+    --ink:#cbd5f2;
     --ink-dim:#5a6080;
     --ink-faint:#282e45;
     --white:#dde3f5;
@@ -20,11 +20,11 @@
     --amber:#c9a240;
     --amber-dim:#7a601a;
     /* Saffir-Simpson + alert palette */
-    --cat1:#f5d060;
-    --cat2:#f0a030;
-    --cat3:#e06020;
-    --cat4:#c83030;
-    --cat5:#a020a0;
+    --cat1:#ffe66d;
+    --cat2:#ffb347;
+    --cat3:#ff6b35;
+    --cat4:#ff2e63;
+    --cat5:#b845ff;
     --warning:#e05040;
     --watch:#d4a020;
     --advisory:#4a90d0;
@@ -37,11 +37,14 @@
 
   #stage{position:relative;width:100%;height:100vh;
     background:
-      linear-gradient(to bottom,rgba(74,144,208,.018) 0%,transparent 12%,transparent 88%,rgba(0,0,0,.32) 100%),
-      linear-gradient(rgba(100,130,200,0.022) 1px,transparent 1px),
-      linear-gradient(90deg,rgba(100,130,200,0.022) 1px,transparent 1px),
+      radial-gradient(circle at 18% 15%,rgba(255,107,53,.12),transparent 24%),
+      radial-gradient(circle at 78% 12%,rgba(184,69,255,.12),transparent 26%),
+      radial-gradient(circle at 50% 92%,rgba(42,122,176,.14),transparent 34%),
+      linear-gradient(to bottom,rgba(74,144,208,.03) 0%,transparent 12%,transparent 88%,rgba(0,0,0,.32) 100%),
+      linear-gradient(rgba(120,160,255,0.035) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(120,160,255,0.035) 1px,transparent 1px),
       var(--bg);
-    background-size:100% 100%,6px 6px,6px 6px;}
+    background-size:100% 100%,100% 100%,100% 100%,100% 100%,6px 6px,6px 6px;}
   #grain{position:absolute;inset:0;pointer-events:none;z-index:50;opacity:.045;mix-blend-mode:overlay;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
   .scanline{position:absolute;inset:0;pointer-events:none;z-index:49;mix-blend-mode:overlay;
@@ -51,7 +54,7 @@
     background:radial-gradient(ellipse at 50% 50%,transparent 42%,rgba(0,0,0,.7) 100%);}
 
   /* HEADER */
-  #header{position:absolute;top:0;left:0;right:0;z-index:10;display:flex;justify-content:space-between;align-items:flex-start;padding:20px 28px 0;}
+  #header{position:absolute;top:0;left:0;right:0;z-index:10;display:grid;grid-template-columns:minmax(330px,1fr) auto minmax(220px,1fr);align-items:flex-start;gap:18px;padding:20px 28px 0;}
   .brand .title{font-weight:300;font-size:24px;letter-spacing:.1em;color:var(--white);}
   .brand .title b{color:var(--cat3);font-weight:400;text-shadow:0 0 12px rgba(224,96,32,.4);}
   .brand .sub{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.14em;color:var(--ink-dim);margin-top:3px;}
@@ -64,15 +67,20 @@
   .clockblock .big{font-size:20px;letter-spacing:.1em;color:var(--white);}
   .mini-stats{display:flex;gap:10px;justify-content:flex-end;font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--ink-faint);margin-top:6px;}
   .mini-stats b{color:var(--ink-dim);font-weight:400;margin-left:4px;}
+  #category-strip{align-self:start;justify-self:center;display:flex;flex-direction:column;align-items:center;gap:6px;padding-top:1px;}
+  .cat-title{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.22em;color:var(--ink-dim);}
+  .cat-badges{display:flex;gap:6px;align-items:center;}
+  .ss-badge{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.08em;padding:4px 9px;
+    border:1px solid;border-radius:999px;opacity:.92;background:rgba(4,5,13,.72);box-shadow:0 0 18px currentColor;}
   #header-rule{position:absolute;top:94px;left:0;right:0;height:10px;z-index:9;padding:0 28px;}
 
   /* PANELS */
-  .panel{background:rgba(6,8,18,0.52);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-    border:1px solid rgba(74,144,208,.12);position:relative;overflow:hidden;
+  .panel{background:linear-gradient(145deg,rgba(8,12,28,0.72),rgba(3,5,14,0.56));backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    border:1px solid rgba(95,145,255,.18);position:relative;overflow:hidden;
     border-radius:12px;
     box-shadow:
       inset 0 1px 0 rgba(255,255,255,0.06),
-      inset 0 0 0 1px rgba(74,144,208,.04),
+      inset 0 0 0 1px rgba(95,145,255,.06),
       inset 0 -1px 0 rgba(0,0,0,0.3),
       0 4px 6px -2px rgba(0,0,0,.4),
       0 12px 24px -8px rgba(0,0,0,.6),
@@ -222,17 +230,13 @@
   .wx-cond.cloud{color:var(--ink-dim);}
   .wx-cond.clear{color:var(--clear);}
 
-  /* SAFFIR-SIMPSON LEGEND STRIP */
-  #ss-strip{position:absolute;top:32px;right:10px;z-index:6;
-    display:flex;gap:4px;pointer-events:none;}
-  .ss-badge{font-family:'IBM Plex Mono',monospace;font-size:7px;letter-spacing:.08em;padding:2px 7px;
-    border:1px solid;opacity:.75;}
-
   ::-webkit-scrollbar{width:0;height:0;}
   @media(max-width:1000px){
     html,body{overflow-y:auto;height:auto;}
     #stage{height:auto;min-height:100vh;}
-    #header{position:relative;flex-direction:column;padding:16px 16px 10px;gap:12px;}
+    #header{position:relative;display:flex;flex-direction:column;padding:16px 16px 10px;gap:12px;}
+    #category-strip{align-items:flex-start;justify-self:start;}
+    .cat-badges{flex-wrap:wrap;}
     #header-rule{position:relative;top:auto;padding:0 16px;}
     #grid{position:relative;grid-template-columns:1fr;grid-template-rows:none;padding:0 14px 20px;gap:14px;}
     #rail-left,#rail-right{grid-column:1;grid-row:auto;}
@@ -256,6 +260,16 @@
         <span>BUILD <b>01.6.30</b></span><span class="sep">/</span>
         <span>NODE <b>LNDF-OP-01</b></span><span class="sep">/</span>
         <span>BY <a href="https://rondomingue.com" target="_blank" rel="noopener">RONDOMINGUE.COM</a></span>
+      </div>
+    </div>
+    <div id="category-strip" aria-label="Category hurricanes">
+      <div class="cat-title">CATEGORY HURRICANES</div>
+      <div class="cat-badges">
+        <div class="ss-badge" style="color:var(--cat1);border-color:var(--cat1);">CAT 1</div>
+        <div class="ss-badge" style="color:var(--cat2);border-color:var(--cat2);">CAT 2</div>
+        <div class="ss-badge" style="color:var(--cat3);border-color:var(--cat3);">CAT 3</div>
+        <div class="ss-badge" style="color:var(--cat4);border-color:var(--cat4);">CAT 4</div>
+        <div class="ss-badge" style="color:var(--cat5);border-color:var(--cat5);">CAT 5</div>
       </div>
     </div>
     <div class="clockblock">
@@ -312,14 +326,6 @@
           <span onclick="window._radarPlay&&window._radarPlay()" id="radar-play" style="cursor:pointer;color:var(--ink-faint)">▷ PLAY</span>
         </div>
         <div id="storm-toggles"></div>
-        <!-- Saffir-Simpson color legend -->
-        <div id="ss-strip">
-          <div class="ss-badge" style="color:var(--cat1);border-color:var(--cat1);">CAT 1</div>
-          <div class="ss-badge" style="color:var(--cat2);border-color:var(--cat2);">CAT 2</div>
-          <div class="ss-badge" style="color:var(--cat3);border-color:var(--cat3);">CAT 3</div>
-          <div class="ss-badge" style="color:var(--cat4);border-color:var(--cat4);">CAT 4</div>
-          <div class="ss-badge" style="color:var(--cat5);border-color:var(--cat5);">CAT 5</div>
-        </div>
       </div>
     </div>
 
@@ -358,7 +364,7 @@
   const $=id=>document.getElementById(id);
 
   // SAFFIR-SIMPSON category color system
-  const CAT_COLOR={1:'#f5d060',2:'#f0a030',3:'#e06020',4:'#c83030',5:'#a020a0'};
+  const CAT_COLOR={1:'#ffe66d',2:'#ffb347',3:'#ff6b35',4:'#ff2e63',5:'#b845ff'};
   function catColor(cat){ return CAT_COLOR[cat]||'#6b7090'; }
   function catOpacity(cat){ return cat>=4?0.9:cat>=3?0.8:0.7; }
 
@@ -367,9 +373,9 @@
     const n=new Date();
     $('clock').textContent=n.toUTCString().slice(17,25);
     $('datestr').textContent=n.toISOString().slice(0,10).replace(/-/g,'.')+' UTC';
-    $('adv-ts').textContent=n.toUTCString().slice(5,16).toUpperCase();
+    if($('adv-ts')) $('adv-ts').textContent=n.toUTCString().slice(5,16).toUpperCase();
     const nx=new Date(n.getTime()+6*3600*1000);
-    $('adv-next').textContent=nx.toUTCString().slice(17,25)+' UTC';
+    if($('adv-next')) $('adv-next').textContent=nx.toUTCString().slice(17,25)+' UTC';
   }
   setInterval(tick,1000);tick();
 
@@ -429,7 +435,7 @@
             [-82.1,26.7,'c4'],[-81.5,27.5,'lf'],[-81.0,29.0,'c1'],[-81.0,30.0,'ts']]},
   ];
   const shown={};
-  STORMS.forEach(s=>{shown[s.id]=false;});
+  STORMS.forEach(s=>{shown[s.id]=true;});
 
   // CITY RISK — color-coded by exposure tier
   const CITIES=[
@@ -471,7 +477,6 @@
     zoom:4.2,
     minZoom:3.5,
     maxZoom:8,
-    maxBounds:[[-107,14],[-72,36]],
     maxBounds:[[-107,14],[-72,36]], // Gulf + Caribbean + SE US — hard lock
     attributionControl:false,
     logoPosition:'bottom-right'
@@ -536,27 +541,27 @@
   }
 
   map.on('style.load',()=>{
-    // Nuke all color from basemap — iterate every layer and grey it out
-    const GREY_BG='#07090f', GREY_WATER='#0c1018', GREY_ROAD='#1a1e28', GREY_LABEL='rgba(180,185,200,0.28)';
+    // Keep the map dark, but leave enough color for radar and tracks to feel alive.
+    const MAP_LAND='#071022', MAP_WATER='#071a35', MAP_ROAD='#244065', MAP_LABEL='rgba(205,220,255,0.34)';
     try{
       map.getStyle().layers.forEach(layer=>{
         const id=layer.id;
         try{
-          if(layer.type==='background') map.setPaintProperty(id,'background-color',GREY_BG);
+          if(layer.type==='background') map.setPaintProperty(id,'background-color',MAP_LAND);
           if(layer.type==='fill'){
-            map.setPaintProperty(id,'fill-color',id.includes('water')?GREY_WATER:GREY_BG);
-            map.setPaintProperty(id,'fill-opacity',id.includes('water')?0.95:0.85);
+            map.setPaintProperty(id,'fill-color',id.includes('water')?MAP_WATER:MAP_LAND);
+            map.setPaintProperty(id,'fill-opacity',id.includes('water')?0.98:0.9);
           }
           if(layer.type==='line'){
             if(id.includes('road')||id.includes('tunnel')||id.includes('bridge'))
-              map.setPaintProperty(id,'line-color',GREY_ROAD);
-            else map.setPaintProperty(id,'line-color',GREY_WATER);
-            map.setPaintProperty(id,'line-opacity',0.18);
+              map.setPaintProperty(id,'line-color',MAP_ROAD);
+            else map.setPaintProperty(id,'line-color','#15345a');
+            map.setPaintProperty(id,'line-opacity',0.28);
           }
           if(layer.type==='symbol'){
-            try{ map.setPaintProperty(id,'text-color',GREY_LABEL); }catch(e){}
-            try{ map.setPaintProperty(id,'text-halo-color',GREY_BG); }catch(e){}
-            try{ map.setPaintProperty(id,'icon-color',GREY_LABEL); }catch(e){}
+            try{ map.setPaintProperty(id,'text-color',MAP_LABEL); }catch(e){}
+            try{ map.setPaintProperty(id,'text-halo-color',MAP_LAND); }catch(e){}
+            try{ map.setPaintProperty(id,'icon-color',MAP_LABEL); }catch(e){}
           }
         }catch(e){}
       });
@@ -596,39 +601,43 @@
     img3.onload=()=>{ if(!map.hasImage('ri-icon')) map.addImage('ri-icon',img3,{sdf:true}); };
     img3.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(RI_SVG);
 
-    function typeToColor(type){
-      if(type==='ri') return 'rgba(255,255,255,0.9)';   // RI slightly brighter
-      if(type==='pk') return '#ffffff';
+    function typeToColor(type,cat){
+      if(type==='ri') return '#00e5ff';
+      if(type==='pk') return catColor(cat);
       if(type==='lf') return '#ffffff';
-      if(type==='c5'||type==='c4') return 'rgba(255,255,255,0.75)';
-      if(type==='c3'||type==='c2') return 'rgba(255,255,255,0.55)';
-      if(type==='c1') return 'rgba(255,255,255,0.4)';
-      return 'rgba(255,255,255,0.25)'; // td/ts — faintest
+      if(type==='c5') return CAT_COLOR[5];
+      if(type==='c4') return CAT_COLOR[4];
+      if(type==='c3') return CAT_COLOR[3];
+      if(type==='c2') return CAT_COLOR[2];
+      if(type==='c1') return CAT_COLOR[1];
+      if(type==='ts') return '#40d6ff';
+      return '#6f7dff';
     }
 
     STORMS.forEach(s=>{
       const pts=s.track;
       const rawCoords=pts.map(p=>[p[0],p[1]]);
-      const allCoords=catmullRom(rawCoords,14); // smooth wire curve
+      const allCoords=bezierPath(rawCoords,18);
 
-      // 1. Full-track glow (white, very subtle)
+      // 1. Full-track color glow
       map.addSource(`base-${s.id}`,{type:'geojson',data:{type:'Feature',geometry:{type:'LineString',coordinates:allCoords}}});
       map.addLayer({id:`glow-${s.id}`,type:'line',source:`base-${s.id}`,
-        paint:{'line-color':'rgba(255,255,255,0.15)','line-width':8,'line-opacity':0,'line-blur':8}});
+        layout:{'line-cap':'round','line-join':'round'},
+        paint:{'line-color':catColor(s.cat),'line-width':12,'line-opacity':0,'line-blur':10}});
 
-      // 2. Per-segment lines — opacity varies by intensity, all white
+      // 2. Per-segment cubic Bezier curves, color-coded by intensity
       pts.forEach((pt,i)=>{
         if(i===0) return;
         const segId=`seg-${s.id}-${i}`;
-        const col=typeToColor(pt[2]);
+        const col=typeToColor(pt[2],s.cat);
         const isRI=pt[2]==='ri', isPK=pt[2]==='pk';
-        const segCoords=catmullRom([[pts[i-1][0],pts[i-1][1]],[pt[0],pt[1]]].map(c=>[c[0],c[1]]),6);
+        const segCoords=bezierSegment(pts,i,18);
         map.addSource(segId,{type:'geojson',data:{type:'Feature',geometry:{type:'LineString',coordinates:segCoords}}});
         map.addLayer({id:`${segId}-l`,type:'line',source:segId,
           layout:{'line-cap':'round','line-join':'round'},
           paint:{
             'line-color':col,
-            'line-width':isRI?2.5:isPK?3.5:1.5,
+            'line-width':isRI?3.3:isPK?4.2:2.1,
             'line-opacity':0,
             'line-dasharray': pt[2]==='td'||pt[2]==='ts'?[2,3]:[1,0]
           }});
@@ -641,8 +650,8 @@
         layout:{'icon-image':'hurricane-icon','icon-size':0.75,'icon-allow-overlap':true,
           'text-field':s.name,"text-font":["DIN Offc Pro Bold","Arial Unicode MS Bold"],
           'text-size':8,'text-anchor':'top','text-offset':[0,0.9],'text-letter-spacing':0.1},
-        paint:{'icon-color':'rgba(255,255,255,0.9)','icon-opacity':0,
-          'text-color':'rgba(255,255,255,0.55)','text-halo-color':'rgba(4,5,13,0.9)','text-halo-width':1.5}});
+        paint:{'icon-color':catColor(s.cat),'icon-opacity':0,
+          'text-color':catColor(s.cat),'text-opacity':0,'text-halo-color':'rgba(4,5,13,0.9)','text-halo-width':1.5}});
 
       // 4. Landfall marker
       const lfPts=pts.filter(p=>p[2]==='lf');
@@ -674,23 +683,37 @@
     });
 
     buildToggles();
+    STORMS.forEach(s=>setTrackVisible(s.id,shown[s.id]));
   });
 
-  // Catmull-Rom spline — turns sharp waypoints into smooth wire curves
-  function catmullRom(pts, steps=12){
-    if(pts.length<2) return pts;
-    const result=[];
-    const p=[[...pts[0]],...pts,[...pts[pts.length-1]]]; // duplicate endpoints
-    for(let i=1;i<p.length-2;i++){
-      for(let t=0;t<steps;t++){
-        const tt=t/steps, t2=tt*tt, t3=t2*tt;
-        const x=0.5*((2*p[i][0])+(-p[i-1][0]+p[i+1][0])*tt+(2*p[i-1][0]-5*p[i][0]+4*p[i+1][0]-p[i+2][0])*t2+(-p[i-1][0]+3*p[i][0]-3*p[i+1][0]+p[i+2][0])*t3);
-        const y=0.5*((2*p[i][1])+(-p[i-1][1]+p[i+1][1])*tt+(2*p[i-1][1]-5*p[i][1]+4*p[i+1][1]-p[i+2][1])*t2+(-p[i-1][1]+3*p[i][1]-3*p[i+1][1]+p[i+2][1])*t3);
-        result.push([x,y]);
-      }
+  // Cubic Bezier tracks from storm fixes. Neighboring fixes become handles so each leg curves naturally.
+  function cubicPoint(p0,p1,p2,p3,t){
+    const mt=1-t, mt2=mt*mt, t2=t*t;
+    return [
+      mt2*mt*p0[0]+3*mt2*t*p1[0]+3*mt*t2*p2[0]+t2*t*p3[0],
+      mt2*mt*p0[1]+3*mt2*t*p1[1]+3*mt*t2*p2[1]+t2*t*p3[1]
+    ];
+  }
+
+  function bezierSegment(track,i,steps=18){
+    const p0=track[Math.max(0,i-2)], p1=track[i-1], p2=track[i], p3=track[Math.min(track.length-1,i+1)];
+    const a=[p1[0],p1[1]], b=[p2[0],p2[1]];
+    const c1=[a[0]+(b[0]-p0[0])/6,a[1]+(b[1]-p0[1])/6];
+    const c2=[b[0]-(p3[0]-a[0])/6,b[1]-(p3[1]-a[1])/6];
+    const out=[];
+    for(let step=0;step<=steps;step++) out.push(cubicPoint(a,c1,c2,b,step/steps));
+    return out;
+  }
+
+  function bezierPath(pts,steps=18){
+    const track=pts.map(p=>[p[0],p[1],'']);
+    const out=[];
+    for(let i=1;i<track.length;i++){
+      const seg=bezierSegment(track,i,steps);
+      if(i>1) seg.shift();
+      out.push(...seg);
     }
-    result.push([...pts[pts.length-1]]);
-    return result;
+    return out;
   }
 
   function setTrackVisible(id,visible){
