@@ -61,12 +61,17 @@
   .ghost-sheet{position:absolute;inset:-9px 9px 9px -9px;pointer-events:none;z-index:-1;
     border:1px solid rgba(0,200,232,.03);border-radius:10px;}
   #grid{position:absolute;inset:0;display:grid;
-    grid-template-columns:200px 1fr 255px;grid-template-rows:90px 1fr 136px;
+    grid-template-columns:200px 1fr 255px;grid-template-rows:90px 1fr 200px;
     gap:10px;padding:90px 20px 18px;z-index:5;}
   #rail-left{grid-column:1;grid-row:1 / span 3;display:flex;flex-direction:column;gap:10px;}
   #canvas-stack{grid-column:2;grid-row:1 / span 2;position:relative;}
   #canvas-panel{position:absolute;inset:0;padding:0;overflow:hidden;border-radius:10px;}
-  #neo-table-panel{grid-column:2;grid-row:3;padding:10px 14px 6px;overflow:hidden;}
+  #neo-table-panel{grid-column:2;grid-row:3;padding:10px 14px 6px;overflow:hidden;display:flex;flex-direction:column;}
+  #neo-table-scroll{flex:1 1 auto;overflow-y:auto;overflow-x:hidden;margin-top:2px;}
+  #neo-table-scroll::-webkit-scrollbar{width:3px;}
+  #neo-table-scroll::-webkit-scrollbar-track{background:transparent;}
+  #neo-table-scroll::-webkit-scrollbar-thumb{background:rgba(0,200,232,0.2);border-radius:2px;}
+  #neo-table-scroll::-webkit-scrollbar-thumb:hover{background:rgba(0,200,232,0.4);}
   #rail-right{grid-column:3;grid-row:1 / span 3;display:flex;flex-direction:column;gap:10px;}
   .stat-card{flex:0 0 auto;padding:14px 12px 8px;}
   .value-xl{font-family:'IBM Plex Mono',monospace;font-size:32px;color:var(--white);letter-spacing:.04em;margin-top:6px;}
@@ -130,7 +135,7 @@
   .neo-row .pha-y{color:var(--pha);} .neo-row .pha-n{color:var(--safe);}
   .neo-row.selected{background:rgba(0,200,232,.05);}
   #sel-card{flex:0 0 auto;padding:14px 12px 10px;min-height:0;}
-  #asteroid-wrap{width:100%;aspect-ratio:4/3;background:rgba(0,20,50,0.5);
+  #asteroid-wrap{width:100%;aspect-ratio:1/1;background:rgba(0,20,50,0.5);
     border:1px solid rgba(0,200,232,0.1);border-radius:4px;overflow:hidden;
     margin:10px 0 6px;position:relative;display:flex;align-items:center;justify-content:center;}
   #asteroid-canvas{display:none;width:100%;height:100%;}
@@ -156,7 +161,7 @@
   .approach-row:last-child{border-bottom:none;}
   .approach-row.head{color:var(--ink-faint);font-size:7.5px;letter-spacing:.06em;border-color:var(--line);position:sticky;top:0;background:var(--panel);z-index:2;}
   .approach-row .des{color:var(--white);font-size:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  #legend-card{flex:0 0 auto;padding:12px 12px 10px;}
+  #legend-card{display:none;}
   .legend-row{display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--ink-dim);padding:3px 0;}
   .legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
   ::-webkit-scrollbar{width:0;height:0;}
@@ -237,8 +242,12 @@
 
     <div class="panel" id="neo-table-panel">
       <div class="panel-label">[ APPROACH LOG ] — UPCOMING CLOSE ENCOUNTERS</div>
-      <div style="margin-top:20px;overflow:hidden;height:calc(100% - 24px);">
-        <div class="neo-row head"><span>DESIGNATION</span><span>DIST AU</span><span>V KM/S</span><span>H MAG</span><span>DATE</span></div>
+      <div style="margin-top:20px;">
+        <div class="neo-row head" style="position:sticky;top:0;background:var(--panel);z-index:2;">
+          <span>DESIGNATION</span><span>DIST AU</span><span>V KM/S</span><span>H MAG</span><span>DATE</span>
+        </div>
+      </div>
+      <div id="neo-table-scroll">
         <div id="neo-table-body"></div>
       </div>
     </div>
@@ -1041,7 +1050,7 @@
     astRenderer.setClearColor(0x000000,0);
     astRenderer.shadowMap.enabled=false;
     astScene=new THREE.Scene();
-    astCamera=new THREE.PerspectiveCamera(48,16/9,0.01,100);
+    astCamera=new THREE.PerspectiveCamera(48,1,0.01,100);
     astCamera.position.set(0.4,0.8,3.0);
     astCamera.lookAt(0,0,0);
 
@@ -1162,7 +1171,7 @@
     astCanvas.style.display='block';
 
     const wrap=$('asteroid-wrap');
-    const W=wrap.clientWidth||240, H=Math.round(W*(3/4));
+    const W=wrap.clientWidth||240, H=Math.round(W*(1/1));
     astRenderer.setSize(W,H);
     astCamera.aspect=W/H; astCamera.updateProjectionMatrix();
 
@@ -1289,14 +1298,19 @@
 
   // ===== DATA FETCH =====
   function buildTable(data){
-    $('neo-table-body').innerHTML=data.slice(0,6).map(n=>`
-      <div class="neo-row${selectedNeo?.des===n.des?' selected':''}" data-des="${n.des}">
-        <span class="des">${n.des.length>16?n.des.slice(0,15)+'…':n.des}</span>
-        <span>${parseFloat(n.dist).toFixed(4)}</span>
+    $('neo-table-body').innerHTML=data.map(n=>{
+      const dist=parseFloat(n.dist);
+      const distCol=dist<0.05?'var(--pha)':dist<0.1?'#d4a020':'var(--ink-dim)';
+      const isPHA=n.pha==='Y';
+      const desLabel=n.des.length>16?n.des.slice(0,15)+'…':n.des;
+      return `<div class="neo-row${selectedNeo?.des===n.des?' selected':''}" data-des="${n.des}">
+        <span class="des">${desLabel}${isPHA?' <span style="color:var(--pha);font-size:7.5px;margin-left:3px;">⚠</span>':''}</span>
+        <span style="color:${distCol}">${dist.toFixed(4)}</span>
         <span>${parseFloat(n.v_rel).toFixed(1)}</span>
-        <span>${parseFloat(n.h).toFixed(1)}</span>
-        <span class="${n.pha==='Y'?'pha-y':'pha-n'}">${n.cd.slice(0,10)}</span>
-      </div>`).join('');
+        <span style="color:var(--ink-faint)">${parseFloat(n.h).toFixed(1)}</span>
+        <span class="${isPHA?'pha-y':'pha-n'}">${n.cd.slice(0,10)}</span>
+      </div>`;
+    }).join('');
     $('neo-table-body').querySelectorAll('.neo-row').forEach(row=>{
       row.addEventListener('click',()=>{const neo=neoData.find(n=>n.des===row.getAttribute('data-des'));if(neo)selectNeo(neo);});
     });
