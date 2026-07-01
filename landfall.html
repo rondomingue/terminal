@@ -195,6 +195,13 @@
   .tide-row .tname{color:var(--ink-faint);font-size:8.5px;}
   .tide-row .tval{color:var(--water);font-size:11px;}
   .tide-row .tunit{color:var(--ink-faint);font-size:8.5px;}
+  #sst-card{flex:0 0 auto;padding:22px 12px 10px;}
+  .sst-row{display:grid;grid-template-columns:1fr 44px 48px;gap:6px;align-items:center;
+    font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink-dim);padding:5px 6px;border-bottom:1px solid var(--line-dim);border-radius:var(--mui-radius-sm);}
+  .sst-row:last-child{border-bottom:none;}
+  .sst-zone{color:var(--ink-faint);font-size:8.5px;}
+  .sst-temp{color:var(--water);font-size:11px;text-align:right;}
+  .sst-note{color:var(--ink-faint);font-size:8px;text-align:right;}
 
   /* MAPBOX */
   #mapbox-map{position:absolute;inset:0;opacity:1;}
@@ -388,6 +395,14 @@
         <div class="panel-label">WX // NEW ORLEANS</div>
         <div class="value-xl mono" id="wx-main-temp" style="font-size:22px;margin-top:10px;color:var(--cat2);">--°F</div>
         <div class="label-row"><span id="wx-main-cond" style="color:var(--advisory)">LOADING</span><span id="wx-main-wind">WND —</span></div>
+      </div>
+      <div class="panel" id="sst-card">
+        <div class="panel-label">GULF WATER TEMP</div>
+        <div style="margin-top:22px;padding:0 12px 8px;" id="sst-body">
+          <div class="sst-row"><span class="sst-zone">N. GULF</span><span class="sst-temp">—</span><span class="sst-note">SST</span></div>
+          <div class="sst-row"><span class="sst-zone">CENTRAL</span><span class="sst-temp">—</span><span class="sst-note">SST</span></div>
+          <div class="sst-row"><span class="sst-zone">LOOP CURRENT</span><span class="sst-temp">—</span><span class="sst-note">SST</span></div>
+        </div>
       </div>
       <div class="panel" id="alerts-card">
         <div class="panel-label">[ NWS ] — GULF COAST ALERTS</div>
