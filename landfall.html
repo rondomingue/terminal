@@ -1049,6 +1049,43 @@
   }
   fetchTides();setInterval(fetchTides,10*60*1000);
 
+  // SEA SURFACE TEMPERATURE — Open-Meteo Marine API
+  const SST_ZONES=[
+    {n:'N. GULF',la:28.5,lo:-89.5},
+    {n:'CENTRAL',la:25.8,lo:-90.0},
+    {n:'LOOP CURRENT',la:24.8,lo:-84.8},
+  ];
+  function sstColor(v){
+    return v>=86?'#b04f59':v>=84?'#b86e48':v>=82?'#c79b57':'#5f8eaa';
+  }
+  function toFahrenheit(v,unit){
+    if(typeof v!=='number'||Number.isNaN(v)) return null;
+    return unit&&unit.includes('C')?(v*9/5)+32:v;
+  }
+  async function fetchSST(){
+    const body=$('sst-body');
+    if(!body) return;
+    try{
+      const las=SST_ZONES.map(z=>z.la).join(','),los=SST_ZONES.map(z=>z.lo).join(',');
+      const res=await fetch(`https://marine-api.open-meteo.com/v1/marine?latitude=${las}&longitude=${los}&current=sea_surface_temperature&temperature_unit=fahrenheit&timezone=GMT`);
+      if(!res.ok) throw new Error('');
+      const data=await res.json();
+      const arr=Array.isArray(data)?data:[data];
+      body.innerHTML=SST_ZONES.map((z,i)=>{
+        const d=arr[i]&&arr[i].current;
+        const units=(arr[i]&&arr[i].current_units&&arr[i].current_units.sea_surface_temperature)||'';
+        const raw=d&&typeof d.sea_surface_temperature==='number'?d.sea_surface_temperature:null;
+        const temp=toFahrenheit(raw,units);
+        const label=temp===null?'—':Math.round(temp)+'°F';
+        const note=temp===null?'SST':temp>=84?'VERY WARM':temp>=82?'WARM':'SST';
+        return `<div class="sst-row"><span class="sst-zone">${z.n}</span><span class="sst-temp" style="color:${temp===null?'var(--ink-faint)':sstColor(temp)}">${label}</span><span class="sst-note">${note}</span></div>`;
+      }).join('');
+    }catch(e){
+      body.innerHTML=SST_ZONES.map(z=>`<div class="sst-row"><span class="sst-zone">${z.n}</span><span class="sst-temp" style="color:var(--ink-faint)">—</span><span class="sst-note">SST</span></div>`).join('');
+    }
+  }
+  fetchSST();setInterval(fetchSST,30*60*1000);
+
   // WEATHER — condition-aware coloring
   const WX_CODES={0:'CLEAR',1:'CLEAR',2:'P.CLOUDY',3:'OVERCAST',45:'FOG',48:'FOG',51:'DRIZZLE',53:'DRIZZLE',55:'DRIZZLE',61:'RAIN',63:'RAIN',65:'H.RAIN',80:'SHOWERS',81:'SHOWERS',82:'H.SHOWERS',95:'T-STORM',96:'T-STORM',99:'SEV.STORM'};
   function wxClass(code){
