@@ -286,16 +286,167 @@
 
   // Planet definitions — a in AU, L0/T for position calculation
   const PLANET_DEFS=[
-    {name:'MERCURY',a:0.387,L0:252.25,T:87.97, col:0x7888a0,radius:0.05},
-    {name:'VENUS',  a:0.723,L0:181.98,T:224.70,col:0xc8a060,radius:0.08},
-    {name:'EARTH',  a:1.000,L0:100.46,T:365.25,col:0x1a90d0,radius:0.09,glow:true},
-    {name:'MARS',   a:1.524,L0:355.45,T:686.97,col:0xc03820,radius:0.07},
+    {name:'MERCURY',a:0.387, L0:252.25,T:87.97,   col:0x888898,radius:0.048,orbitCol:0x304060},
+    {name:'VENUS',  a:0.723, L0:181.98,T:224.70,  col:0xe8c070,radius:0.092,orbitCol:0x406080},
+    {name:'EARTH',  a:1.000, L0:100.46,T:365.25,  col:0x1a90d0,radius:0.10, orbitCol:0x00c8e8,glow:true},
+    {name:'MARS',   a:1.524, L0:355.45,T:686.97,  col:0xc03820,radius:0.058,orbitCol:0x603010},
+    {name:'JUPITER',a:5.203, L0:34.40, T:4332.59, col:0xc8a868,radius:0.38, orbitCol:0x706040,outer:true},
+    {name:'SATURN', a:9.537, L0:49.94, T:10759.22,col:0xe0d090,radius:0.32, orbitCol:0x605840,outer:true,rings:true},
+    {name:'URANUS', a:19.19,L0:313.23,T:30687.15, col:0x7fd8e8,radius:0.18, orbitCol:0x205060,outer:true},
+    {name:'NEPTUNE',a:30.07,L0:304.88,T:60190.03, col:0x3858d8,radius:0.17, orbitCol:0x203068,outer:true},
   ];
-  const AU=2.0; // 1 AU = 2 scene units
+  const AU=2.0;
 
   function planetAngleRad(def,days){
     return ((def.L0+360/def.T*days)%360)*Math.PI/180;
   }
+
+  // ===== SHARED ROUND SPRITE TEXTURE (makes all Points circular instead of square) =====
+  function makeRoundTex(size=64){
+    const c=document.createElement('canvas'); c.width=c.height=size;
+    const ctx=c.getContext('2d');
+    const g=ctx.createRadialGradient(size/2,size/2,0,size/2,size/2,size/2);
+    g.addColorStop(0,'rgba(255,255,255,1)');
+    g.addColorStop(0.45,'rgba(255,255,255,0.85)');
+    g.addColorStop(0.75,'rgba(255,255,255,0.25)');
+    g.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.fillStyle=g; ctx.fillRect(0,0,size,size);
+    return new THREE.CanvasTexture(c);
+  }
+  const ROUND_TEX=makeRoundTex(64);
+
+  // ===== PROCEDURAL PLANET TEXTURES =====
+  function makeTex(size,fn){
+    const c=document.createElement('canvas'); c.width=c.height=size;
+    fn(c.getContext('2d'),size); return new THREE.CanvasTexture(c);
+  }
+  // Seeded random for deterministic textures
+  function tx(n){ const x=Math.sin(n*9301+49297)*233280; return x-Math.floor(x); }
+
+  const planetTextures={
+    MERCURY: makeTex(256,(ctx,s)=>{
+      ctx.fillStyle='#5a5a6a'; ctx.fillRect(0,0,s,s);
+      for(let i=0;i<80;i++){
+        const x=tx(i)*s,y=tx(i+80)*s,r=2+tx(i+160)*14;
+        const g=ctx.createRadialGradient(x,y,0,x,y,r);
+        g.addColorStop(0,'rgba(30,30,40,0.7)'); g.addColorStop(1,'rgba(30,30,40,0)');
+        ctx.fillStyle=g; ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+      }
+    }),
+    VENUS: makeTex(256,(ctx,s)=>{
+      ctx.fillStyle='#c8a840'; ctx.fillRect(0,0,s,s);
+      for(let i=0;i<18;i++){
+        const y=i*(s/18);
+        ctx.fillStyle=`rgba(${i%2?220:180},${i%2?160:120},${i%2?50:30},0.3)`;
+        ctx.fillRect(0,y,s,s/18);
+      }
+      ctx.fillStyle='rgba(255,240,180,0.35)';
+      for(let i=0;i<12;i++){
+        ctx.beginPath(); ctx.ellipse(tx(i)*s,tx(i+12)*s,60+tx(i+24)*80,10+tx(i+36)*20,tx(i+48)*Math.PI,0,Math.PI*2); ctx.fill();
+      }
+    }),
+    EARTH: makeTex(512,(ctx,s)=>{
+      // Ocean
+      ctx.fillStyle='#1a4a8a'; ctx.fillRect(0,0,s,s);
+      // Land masses (simplified equirectangular)
+      ctx.fillStyle='#2a6a2a';
+      // N/S America
+      [[0.04,0.08,0.22,0.82],[0.07,0.25,0.12,0.4]].forEach(([x,y,w,h])=>{ ctx.fillRect(x*s,y*s,w*s,h*s); });
+      // Europe+Africa
+      [[0.48,0.06,0.08,0.5],[0.44,0.44,0.12,0.5]].forEach(([x,y,w,h])=>{ ctx.fillRect(x*s,y*s,w*s,h*s); });
+      // Asia
+      ctx.fillRect(0.52*s,0.05*s,0.38*s,0.48*s);
+      // Australia
+      ctx.fillRect(0.72*s,0.58*s,0.15*s,0.18*s);
+      // Ice caps
+      ctx.fillStyle='#ddeeff'; ctx.fillRect(0,0,s,s*0.05); ctx.fillRect(0,s*0.9,s,s*0.1);
+      // Cloud wisps
+      ctx.fillStyle='rgba(255,255,255,0.28)';
+      for(let i=0;i<30;i++){
+        ctx.beginPath(); ctx.ellipse(tx(i)*s,tx(i+30)*s,35+tx(i+60)*55,6+tx(i+90)*10,tx(i+120)*Math.PI,0,Math.PI*2); ctx.fill();
+      }
+    }),
+    MARS: makeTex(256,(ctx,s)=>{
+      ctx.fillStyle='#a02818'; ctx.fillRect(0,0,s,s);
+      // Surface variation
+      for(let i=0;i<60;i++){
+        const g=ctx.createRadialGradient(tx(i)*s,tx(i+60)*s,0,tx(i)*s,tx(i+60)*s,8+tx(i+120)*30);
+        g.addColorStop(0,`rgba(${80+tx(i+180)*40},${20+tx(i+240)*15},${10+tx(i+300)*10},0.45)`);
+        g.addColorStop(1,'rgba(0,0,0,0)');
+        ctx.fillStyle=g; ctx.fillRect(0,0,s,s);
+      }
+      // Polar caps
+      ctx.fillStyle='rgba(240,235,235,0.75)'; ctx.fillRect(0,0,s,s*0.05); ctx.fillRect(0,s*0.92,s,s*0.08);
+      // Valles Marineris
+      ctx.strokeStyle='rgba(60,10,5,0.5)'; ctx.lineWidth=4;
+      ctx.beginPath(); ctx.moveTo(s*0.3,s*0.45); ctx.lineTo(s*0.75,s*0.5); ctx.stroke();
+    }),
+    JUPITER: makeTex(512,(ctx,s)=>{
+      const bands=['#c8a060','#b88040','#d8b880','#a06830','#e0c090','#906020','#d0a870','#b87840'];
+      bands.forEach((col,i)=>{
+        const y=i*(s/bands.length);
+        ctx.fillStyle=col; ctx.fillRect(0,y,s,s/bands.length+1);
+        // Wavy edge
+        ctx.fillStyle=`rgba(0,0,0,0.15)`;
+        for(let x=0;x<s;x+=4){
+          const wy=y+Math.sin(x*0.08+i)*6;
+          ctx.fillRect(x,wy,4,3);
+        }
+      });
+      // Great Red Spot
+      const grs=ctx.createRadialGradient(s*0.65,s*0.62,0,s*0.65,s*0.62,s*0.07);
+      grs.addColorStop(0,'rgba(180,60,30,0.85)'); grs.addColorStop(1,'rgba(180,60,30,0)');
+      ctx.fillStyle=grs; ctx.beginPath(); ctx.ellipse(s*0.65,s*0.62,s*0.09,s*0.06,0,0,Math.PI*2); ctx.fill();
+    }),
+    SATURN: makeTex(512,(ctx,s)=>{
+      const bands=['#d8cc80','#c8b860','#e0d090','#b8a850','#d4c878','#a89840'];
+      bands.forEach((col,i)=>{
+        ctx.fillStyle=col; ctx.fillRect(0,i*(s/bands.length),s,s/bands.length+1);
+      });
+      ctx.fillStyle='rgba(255,248,200,0.15)';
+      for(let i=0;i<20;i++){ ctx.fillRect(0,tx(i)*s,s,1+tx(i+20)*3); }
+    }),
+    URANUS: makeTex(256,(ctx,s)=>{
+      const g=ctx.createLinearGradient(0,0,0,s);
+      g.addColorStop(0,'#5ab0c8'); g.addColorStop(0.5,'#7fd8e8'); g.addColorStop(1,'#4898b8');
+      ctx.fillStyle=g; ctx.fillRect(0,0,s,s);
+      ctx.fillStyle='rgba(200,240,255,0.12)';
+      for(let i=0;i<10;i++){ ctx.fillRect(0,tx(i)*s,s,2+tx(i+10)*4); }
+    }),
+    NEPTUNE: makeTex(256,(ctx,s)=>{
+      const g=ctx.createLinearGradient(0,0,0,s);
+      g.addColorStop(0,'#2040b8'); g.addColorStop(0.5,'#3858d8'); g.addColorStop(1,'#1830a0');
+      ctx.fillStyle=g; ctx.fillRect(0,0,s,s);
+      // Great Dark Spot
+      const ds=ctx.createRadialGradient(s*0.4,s*0.45,0,s*0.4,s*0.45,s*0.12);
+      ds.addColorStop(0,'rgba(10,20,80,0.7)'); ds.addColorStop(1,'rgba(10,20,80,0)');
+      ctx.fillStyle=ds; ctx.beginPath(); ctx.ellipse(s*0.4,s*0.45,s*0.14,s*0.09,0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='rgba(140,180,255,0.15)';
+      for(let i=0;i<8;i++){ ctx.fillRect(0,tx(i)*s,s,1+tx(i+8)*3); }
+    }),
+  };
+
+  const SUN_TEX=makeTex(512,(ctx,s)=>{
+    const g=ctx.createRadialGradient(s/2,s/2,0,s/2,s/2,s/2);
+    g.addColorStop(0,'#fff8e0'); g.addColorStop(0.25,'#ffe060'); g.addColorStop(0.6,'#ff8820'); g.addColorStop(1,'#cc3800');
+    ctx.fillStyle=g; ctx.fillRect(0,0,s,s);
+    // Sunspots
+    for(let i=0;i<12;i++){
+      const x=tx(i)*s,y=tx(i+12)*s,r=4+tx(i+24)*18;
+      const sg=ctx.createRadialGradient(x,y,0,x,y,r);
+      sg.addColorStop(0,'rgba(80,30,0,0.55)'); sg.addColorStop(1,'rgba(80,30,0,0)');
+      ctx.fillStyle=sg; ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+    }
+    // Convection grain
+    ctx.globalAlpha=0.08;
+    for(let i=0;i<80;i++){
+      const x=tx(i+50)*s,y=tx(i+130)*s,r=8+tx(i+210)*28;
+      const cg=ctx.createRadialGradient(x,y,0,x,y,r);
+      cg.addColorStop(0,'rgba(255,255,180,1)'); cg.addColorStop(1,'rgba(255,255,180,0)');
+      ctx.fillStyle=cg; ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha=1;
+  });
 
   // ===== THREE.JS SCENE =====
   const container=$('three-container');
@@ -319,7 +470,7 @@
   controls.enableDamping=true;
   controls.dampingFactor=0.06;
   controls.minDistance=1.5;
-  controls.maxDistance=18;
+  controls.maxDistance=80;
   controls.maxPolarAngle=Math.PI*0.52; // limit to not go below ecliptic
   controls.target.set(0,0.3,0);
   controls.update();
@@ -412,7 +563,7 @@
       const geo=new THREE.BufferGeometry();
       geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
       geo.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
-      scene.add(new THREE.Points(geo,new THREE.PointsMaterial({size:0.04,vertexColors:true,transparent:true,opacity:1,depthWrite:false})));
+      scene.add(new THREE.Points(geo,new THREE.PointsMaterial({size:0.05,map:ROUND_TEX,vertexColors:true,transparent:true,opacity:1,depthWrite:false,alphaTest:0.01})));
     }
 
     // Layer 2 — mid-field, 3500 medium stars, more color variety
@@ -426,7 +577,7 @@
       const geo=new THREE.BufferGeometry();
       geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
       geo.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
-      scene.add(new THREE.Points(geo,new THREE.PointsMaterial({size:0.065,vertexColors:true,transparent:true,opacity:1,depthWrite:false})));
+      scene.add(new THREE.Points(geo,new THREE.PointsMaterial({size:0.08,map:ROUND_TEX,vertexColors:true,transparent:true,opacity:1,depthWrite:false,alphaTest:0.01})));
     }
 
     // Layer 3 — bright foreground stars, 300 prominent points
@@ -440,97 +591,141 @@
       const geo=new THREE.BufferGeometry();
       geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
       geo.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
-      scene.add(new THREE.Points(geo,new THREE.PointsMaterial({size:0.13,vertexColors:true,transparent:true,opacity:1,depthWrite:false})));
+      scene.add(new THREE.Points(geo,new THREE.PointsMaterial({size:0.16,map:ROUND_TEX,vertexColors:true,transparent:true,opacity:1,depthWrite:false,alphaTest:0.01})));
     }
 
     // Milky Way band — 6000 very tiny dim stars concentrated along a tilted great circle
     {
       const pos=[],col=[];
-      const BAND_TILT=0.55; // radians — tilt of galactic plane
+      const BAND_TILT=0.55;
       for(let i=0;i<6000;i++){
         const lon=Math.random()*Math.PI*2;
-        const lat=(Math.random()-0.5)*0.22; // narrow band in galactic latitude
+        const lat=(Math.random()-0.5)*0.22;
         const r=120+Math.random()*60;
-        // Rotate galactic coordinates into scene space
         const x=r*Math.cos(lat)*Math.cos(lon);
         const yRaw=r*Math.cos(lat)*Math.sin(lon);
         const zRaw=r*Math.sin(lat);
-        // Apply tilt around x-axis
         const y=yRaw*Math.cos(BAND_TILT)-zRaw*Math.sin(BAND_TILT);
         const z=yRaw*Math.sin(BAND_TILT)+zRaw*Math.cos(BAND_TILT);
         pos.push(x,y,z);
         const b=0.06+Math.random()*0.12;
-        col.push(b*0.75,b*0.82,b*1.0); // faint blue-white
+        col.push(b*0.75,b*0.82,b*1.0);
       }
       const geo=new THREE.BufferGeometry();
       geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
       geo.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
-      scene.add(new THREE.Points(geo,new THREE.PointsMaterial({size:0.028,vertexColors:true,transparent:true,opacity:1,depthWrite:false})));
+      scene.add(new THREE.Points(geo,new THREE.PointsMaterial({size:0.035,map:ROUND_TEX,vertexColors:true,transparent:true,opacity:1,depthWrite:false,alphaTest:0.01})));
     }
   })();
 
-  // ===== ASTEROID BELT =====
+  // ===== ASTEROID BELT + KUIPER BELT HINT =====
   (()=>{
-    const geo=new THREE.BufferGeometry();
+    // Main asteroid belt (2.2–3.3 AU)
     const pos=[],col=[];
-    for(let i=0;i<4000;i++){
+    for(let i=0;i<5000;i++){
       const angle=Math.random()*Math.PI*2;
       const r=(2.2+Math.random()*1.1)*AU;
-      const y=(Math.random()-0.5)*0.08; // slight thickness
+      const y=(Math.random()-0.5)*0.1;
       pos.push(r*Math.cos(angle),y,r*Math.sin(angle));
-      const b=0.15+Math.random()*0.25;
-      col.push(b*0.5,b*0.4,b*0.9);
+      const b=0.12+Math.random()*0.22;
+      col.push(b*0.55,b*0.45,b*0.9);
     }
+    const geo=new THREE.BufferGeometry();
     geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
     geo.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
-    scene.add(new THREE.Points(geo,new THREE.PointsMaterial({size:0.025,vertexColors:true,transparent:true,opacity:0.75,depthWrite:false})));
+    scene.add(new THREE.Points(geo,new THREE.PointsMaterial({size:0.04,map:ROUND_TEX,vertexColors:true,transparent:true,opacity:0.8,depthWrite:false,alphaTest:0.01})));
+
+    // Kuiper belt hint (30–50 AU) — very sparse, tiny, visible when zoomed out
+    const kpos=[],kcol=[];
+    for(let i=0;i<3000;i++){
+      const angle=Math.random()*Math.PI*2;
+      const r=(30+Math.random()*20)*AU;
+      const y=(Math.random()-0.5)*0.8;
+      kpos.push(r*Math.cos(angle),y,r*Math.sin(angle));
+      const b=0.06+Math.random()*0.1;
+      kcol.push(b*0.6,b*0.65,b*1.0);
+    }
+    const kgeo=new THREE.BufferGeometry();
+    kgeo.setAttribute('position',new THREE.Float32BufferAttribute(kpos,3));
+    kgeo.setAttribute('color',new THREE.Float32BufferAttribute(kcol,3));
+    scene.add(new THREE.Points(kgeo,new THREE.PointsMaterial({size:0.08,map:ROUND_TEX,vertexColors:true,transparent:true,opacity:0.5,depthWrite:false,alphaTest:0.01})));
   })();
 
   // ===== ORBIT RINGS =====
-  const orbitColors=[0x3060a0,0x4070b0,0x00b8e0,0x804020];
-  PLANET_DEFS.forEach((def,i)=>{
+  PLANET_DEFS.forEach(def=>{
     const r=def.a*AU;
-    const c=orbitColors[i];
+    const c=def.orbitCol||0x304060;
     const isEarth=def.glow;
-    // Wide glow pass
-    scene.add(makeOrbitDepthTube(r,c,isEarth?0.18:0.08,isEarth?0.07:0.04));
-    // Core bright ring
-    scene.add(makeOrbitDepthTube(r,isEarth?0x00c8e8:c,isEarth?0.75:0.4,isEarth?0.022:0.013));
+    const isOuter=def.outer;
+    scene.add(makeOrbitDepthTube(r,c,isEarth?0.18:isOuter?0.04:0.08,isEarth?0.07:isOuter?0.025:0.04));
+    scene.add(makeOrbitDepthTube(r,isEarth?0x00c8e8:c,isEarth?0.75:isOuter?0.22:0.4,isEarth?0.022:isOuter?0.008:0.013));
   });
-
   // NEO zone band
   scene.add(makeOrbitDepthTube(AU*0.82,0x00c8e8,0.06,0.05));
   scene.add(makeOrbitDepthTube(AU*1.18,0x00c8e8,0.06,0.05));
 
-  // ===== SUN =====
-  const sunGeo=new THREE.SphereGeometry(0.18,32,32);
-  const sunMat=new THREE.MeshBasicMaterial({color:0xffb030});
-  const sun=new THREE.Mesh(sunGeo,sunMat);
-  scene.add(sun);
-  // Sun glow layers
-  [0.35,0.6,1.0].forEach((s,i)=>{
-    const sp=makeSpriteGlow(0xffa040,s);
-    sp.scale.set(s*2,s*2,1);
-    scene.add(sp);
+  // ===== SUN — textured sphere + glow =====
+  const sunMesh=new THREE.Mesh(
+    new THREE.SphereGeometry(0.22,32,32),
+    new THREE.MeshBasicMaterial({map:SUN_TEX})
+  );
+  scene.add(sunMesh);
+  [0.5,0.9,1.5].forEach(s=>{
+    const sp=makeSpriteGlow(0xffa040,s); sp.scale.set(s*1.6,s*1.6,1); scene.add(sp);
   });
 
-  // ===== PLANETS =====
+  // ===== PLANETS — textured, lit, with Saturn rings =====
   const planetMeshes=[];
   PLANET_DEFS.forEach(def=>{
-    const geo=new THREE.SphereGeometry(def.radius,16,16);
-    const mat=new THREE.MeshBasicMaterial({color:def.col});
+    const geo=new THREE.SphereGeometry(def.radius,def.outer?24:20,def.outer?24:20);
+    const tex=planetTextures[def.name];
+    const mat=tex
+      ? new THREE.MeshPhongMaterial({map:tex,specular:0x111122,shininess:def.glow?18:6})
+      : new THREE.MeshPhongMaterial({color:def.col,shininess:6});
+    // Scene light for planet shading — single directional from sun direction
     const mesh=new THREE.Mesh(geo,mat);
     scene.add(mesh);
+
     const pd={mesh,def};
-    // glow sprite for Earth
+
+    // Earth: atmosphere glow shell
     if(def.glow){
-      const glow=makeSpriteGlow(def.col,0.5);
-      glow.scale.set(0.9,0.9,1);
-      scene.add(glow);
-      pd.glow=glow;
+      const atmos=new THREE.Mesh(
+        new THREE.SphereGeometry(def.radius*1.08,24,24),
+        new THREE.MeshBasicMaterial({color:0x2080d0,transparent:true,opacity:0.18,side:THREE.BackSide,depthWrite:false})
+      );
+      mesh.add(atmos);
+      const glowSp=makeSpriteGlow(def.col,0.5); glowSp.scale.set(0.7,0.7,1); scene.add(glowSp);
+      pd.glow=glowSp;
     }
+
+    // Saturn: ring geometry
+    if(def.rings){
+      const ringGeo=new THREE.RingGeometry(def.radius*1.45,def.radius*2.55,80);
+      // Map UV so texture wraps radially
+      const rPos=ringGeo.attributes.position;
+      const uv=[];
+      for(let i=0;i<rPos.count;i++){
+        const x=rPos.getX(i),z=rPos.getZ(i);
+        const r=Math.sqrt(x*x+z*z);
+        uv.push((r-def.radius*1.45)/(def.radius*1.1),0);
+      }
+      ringGeo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
+      const ringMat=new THREE.MeshBasicMaterial({color:0xd4c880,transparent:true,opacity:0.72,side:THREE.DoubleSide,depthWrite:false});
+      const ring=new THREE.Mesh(ringGeo,ringMat);
+      ring.rotation.x=Math.PI*0.42; // tilt ~25°
+      mesh.add(ring);
+    }
+
+    // Add point light near sun for planet shading
     planetMeshes.push(pd);
   });
+
+  // Global sun light (illuminates all planet surfaces)
+  const sunLight=new THREE.PointLight(0xffeedd,2.0,300);
+  sunLight.position.set(0,0,0);
+  scene.add(sunLight);
+  scene.add(new THREE.AmbientLight(0x060818,1.0));
 
   // ===== NEO POINTS (built from data) =====
   let neoPoints=null, neoData=[], selectedNeo=null;
@@ -561,8 +756,8 @@
     geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
     geo.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
     neoPoints=new THREE.Points(geo,new THREE.PointsMaterial({
-      size:0.07,vertexColors:true,transparent:true,opacity:0.9,depthWrite:false,
-      sizeAttenuation:true
+      size:0.09,map:ROUND_TEX,vertexColors:true,transparent:true,opacity:0.95,depthWrite:false,
+      sizeAttenuation:true,alphaTest:0.01
     }));
     scene.add(neoPoints);
 
@@ -849,6 +1044,8 @@
     frame++;
     controls.update();
     animateAsteroid();
+    // Slowly rotate sun texture
+    if(sunMesh) sunMesh.rotation.y=frame*0.002;
 
     const days=daysSinceJ2000(new Date())+frame*0.04;
 
