@@ -173,6 +173,7 @@
     #neo-table-panel{grid-column:1;grid-row:auto;}
   }
 </style>
+<!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-9CMETG9RBQ"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -969,13 +970,39 @@
     if(neoPoints){ scene.remove(neoPoints); neoPoints=null; }
     if(!neoData.length) return;
 
+    // Stable per-designation hash → consistent positions across reloads
+    function desHash(str){
+      let h=2166136261;
+      for(let c of str) h=Math.imul(h^c.charCodeAt(0),16777619)>>>0;
+      return h;
+    }
+
     const pos=[],col=[];
+    // Golden angle in radians — guarantees no visual repetition at any dataset size
+    const GOLDEN=2.39996323;
+
     neoData.forEach((neo,i)=>{
-      const spread=(i/neoData.length)*Math.PI*2+(i%3)*0.8;
-      const distAU=1.0+(parseFloat(neo.dist)-0.05)*0.4;
+      const h=desHash(neo.des);
+      const t0=h/0xffffffff; // 0..1 stable per object
+
+      // Angle: golden angle base + small designation-derived nudge so
+      // objects with similar indices don't cluster if dataset is reloaded in different order
+      const angle=i*GOLDEN + t0*0.6;
+
+      // Radial distance: close approaches near 1 AU, further ones spread outward,
+      // plus a small per-object jitter so they don't all sit on a perfect ring
+      const approachDist=parseFloat(neo.dist);
+      const distAU=0.82 + approachDist*2.2 + t0*0.18;
       const r=distAU*AU;
-      const y=(Math.random()-0.5)*0.05;
-      const x=r*Math.cos(spread), z=r*Math.sin(spread);
+
+      // Y scatter — simulates orbital inclination (real NEOs have 0°–40° inclination)
+      // Use a second hash value for independent Y variation
+      const t1=((h*1664525+1013904223)>>>0)/0xffffffff;
+      const incl=(t1-0.5)*0.32; // ±0.16 scene units (~±4° at 1 AU)
+
+      const x=r*Math.cos(angle);
+      const y=incl;
+      const z=r*Math.sin(angle);
       neo._pos=new THREE.Vector3(x,y,z);
       pos.push(x,y,z);
       const isPHA=neo.pha==='Y';
