@@ -222,17 +222,18 @@
   #map-label-top{position:absolute;top:8px;left:10px;z-index:4;
     font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.13em;color:var(--ink-dim);cursor:pointer;}
   #map-label-top .flag{color:var(--advisory);}
-  #map-meta-right{position:absolute;top:8px;right:10px;z-index:4;
+  #map-meta-right{position:absolute;top:38px;right:12px;z-index:4;
     font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--ink-faint);}
   #map-credit{position:absolute;bottom:8px;right:10px;z-index:4;
     font-family:'IBM Plex Mono',monospace;font-size:6.5px;color:var(--ink-faint);opacity:.6;}
   #bg-credit{position:absolute;left:28px;bottom:8px;z-index:6;
     font-family:'IBM Plex Mono',monospace;font-size:6.5px;letter-spacing:.08em;color:rgba(203,213,242,.28);pointer-events:none;}
-  #radar-controls{position:absolute;bottom:74px;right:10px;z-index:5;
+  #radar-controls{position:absolute;top:8px;right:10px;z-index:7;
     display:flex;align-items:center;gap:8px;
     font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.08em;
     background:var(--mui-surface-strong);border:1px solid var(--mui-outline);padding:4px 10px;border-radius:var(--mui-radius-sm);box-shadow:var(--mui-shadow);}
   #radar-toggle{cursor:pointer;color:var(--advisory);border:1px solid rgba(74,144,208,.5);padding:1px 6px;transition:all .15s;border-radius:999px;background:var(--mui-surface-soft);}
+  #sst-map-status{color:var(--cat3);border:1px solid rgba(215,138,61,.42);padding:1px 6px;border-radius:999px;background:rgba(215,138,61,.08);}
   #storm-toggles{display:none;}
   .stog{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.06em;padding:6px 12px;
     border:1px solid var(--mui-outline);color:var(--ink-faint);cursor:pointer;pointer-events:all;
@@ -248,7 +249,7 @@
   .stog.on.cat1{border-color:var(--cat1);color:var(--cat1);background:rgba(244,246,248,.1);}
 
   /* HISTORICAL STORM DROPDOWN */
-  #storm-focus{position:absolute;top:30px;left:10px;right:10px;z-index:5;pointer-events:none;
+  #storm-focus{position:absolute;top:58px;left:10px;right:10px;z-index:5;pointer-events:none;
     display:grid;grid-template-columns:1fr auto;gap:14px;align-items:start;
     padding:12px 14px;border:1px solid rgba(150,175,220,.14);
     background:linear-gradient(135deg,var(--mui-surface-strong),rgba(6,10,18,.2));
@@ -460,6 +461,8 @@
         <div id="map-credit">MAP © MAPBOX © OSM · RADAR © RAINVIEWER</div>
         <!-- Radar controls -->
         <div id="radar-controls">
+          <span id="sst-map-status">SST —</span>
+          <span style="color:var(--line)">|</span>
           <span id="radar-toggle" onclick="window._radarToggle&&window._radarToggle()" title="toggle radar">⬡ RADAR</span>
           <span style="color:var(--line)">|</span>
           <span onclick="window._radarPrev&&window._radarPrev()" style="cursor:pointer;color:var(--ink-faint)">◀</span>
@@ -824,7 +827,7 @@
   }
 
   function bringSSTLayerForward(){
-    ['sst-current-field','sst-current-halo','sst-current-ring','sst-current-dot','sst-current-label'].forEach(id=>{
+    ['sst-current-heat','sst-current-field','sst-current-halo','sst-current-ring','sst-current-dot','sst-current-label'].forEach(id=>{
       try{ if(map.getLayer(id)) map.moveLayer(id); }catch(e){}
     });
     bringApproxUserLocationForward();
@@ -1202,22 +1205,34 @@
     if(!map||!map.isStyleLoaded()) return;
     if(!map.getSource('sst-current')){
       map.addSource('sst-current',{type:'geojson',data:currentSSTFeatures});
+      map.addLayer({id:'sst-current-heat',type:'heatmap',source:'sst-current',
+        maxzoom:7,
+        paint:{'heatmap-weight':['interpolate',['linear'],['get','tempValue'],78,0.15,82,0.45,84,0.7,87,1],
+          'heatmap-intensity':['interpolate',['linear'],['zoom'],4,1.1,7,1.9],
+          'heatmap-radius':['interpolate',['linear'],['zoom'],4,66,5.5,105,7,150],
+          'heatmap-opacity':0.62,
+          'heatmap-color':['interpolate',['linear'],['heatmap-density'],
+            0,'rgba(38,102,148,0)',
+            0.18,'rgba(76,148,184,0.34)',
+            0.42,'rgba(229,201,95,0.44)',
+            0.68,'rgba(216,117,61,0.54)',
+            1,'rgba(216,32,47,0.62)']}});
       map.addLayer({id:'sst-current-field',type:'circle',source:'sst-current',
         paint:{'circle-radius':['interpolate',['linear'],['zoom'],4,72,5.5,105,7,150],
-          'circle-color':['get','color'],'circle-opacity':0.34,'circle-blur':1}});
+          'circle-color':['get','color'],'circle-opacity':0.24,'circle-blur':1}});
       map.addLayer({id:'sst-current-halo',type:'circle',source:'sst-current',
-        filter:['==',['get','showLabel'],true],
+        filter:['==','showLabel',true],
         paint:{'circle-radius':24,'circle-color':['get','color'],'circle-opacity':0.18,'circle-blur':0.8}});
       map.addLayer({id:'sst-current-ring',type:'circle',source:'sst-current',
-        filter:['==',['get','showLabel'],true],
+        filter:['==','showLabel',true],
         paint:{'circle-radius':8.5,'circle-color':'rgba(2,5,12,0.18)','circle-opacity':0.95,
           'circle-stroke-color':['get','color'],'circle-stroke-width':1.5}});
       map.addLayer({id:'sst-current-dot',type:'circle',source:'sst-current',
-        filter:['==',['get','showLabel'],true],
+        filter:['==','showLabel',true],
         paint:{'circle-radius':3.8,'circle-color':['get','color'],'circle-opacity':0.92,
           'circle-stroke-color':'rgba(240,248,255,.82)','circle-stroke-width':1}});
       map.addLayer({id:'sst-current-label',type:'symbol',source:'sst-current',
-        filter:['==',['get','showLabel'],true],
+        filter:['==','showLabel',true],
         layout:{'text-field':['format',
             ['get','zone'],{'font-scale':0.78},
             '\n',{},
@@ -1237,6 +1252,15 @@
   function updateSSTMap(features){
     currentSSTFeatures={type:'FeatureCollection',features};
     ensureSSTLayer();
+  }
+  function updateSSTStatus(features){
+    const el=$('sst-map-status');
+    if(!el) return;
+    const vals=features.map(f=>f.properties.tempValue).filter(v=>typeof v==='number'&&Number.isFinite(v));
+    if(!vals.length){ el.textContent='SST —'; return; }
+    const min=Math.round(Math.min(...vals));
+    const max=Math.round(Math.max(...vals));
+    el.textContent=min===max?`SST ${max}°F`:`SST ${min}-${max}°F`;
   }
   async function fetchSST(){
     const body=$('sst-body');
@@ -1265,10 +1289,13 @@
         return `<div class="sst-row"><span class="sst-zone">${z.n}</span><span class="sst-temp" style="color:${reading.temp===null?'var(--ink-faint)':reading.color}">${reading.label}</span><span class="sst-note">${reading.note}</span></div>`;
       }).join('');
       updateSSTMap(features);
+      updateSSTStatus(features);
     }catch(e){
       body.innerHTML=SST_ZONES.map(z=>`<div class="sst-row"><span class="sst-zone">${z.n}</span><span class="sst-temp" style="color:var(--ink-faint)">—</span><span class="sst-note">SST</span></div>`).join('');
-      updateSSTMap(SST_SAMPLES.map(z=>({type:'Feature',geometry:{type:'Point',coordinates:[z.lo,z.la]},
-        properties:{zone:z.n,temp:'—',tempValue:80,note:'CURRENT',label:'CURRENT SST',color:'#5a6080',showLabel:!!z.display}})));
+      const fallback=SST_SAMPLES.map(z=>({type:'Feature',geometry:{type:'Point',coordinates:[z.lo,z.la]},
+        properties:{zone:z.n,temp:'—',tempValue:80,note:'CURRENT',label:'CURRENT SST',color:'#5a6080',showLabel:!!z.display}}));
+      updateSSTMap(fallback);
+      updateSSTStatus([]);
     }
   }
   fetchSST();setInterval(fetchSST,30*60*1000);

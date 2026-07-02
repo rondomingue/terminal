@@ -206,9 +206,9 @@
       </div>
     </div>
     <div class="clockblock">
-      <div class="big mono" id="clock">00:00:00</div>
-      <div id="datestr" style="font-size:8.5px;letter-spacing:.06em;">----.--.-- UTC</div>
-      <div class="mini-stats"><span>REF<b>HELIOCENTRIC</b></span><span>FRAME<b>ECLIPTIC</b></span></div>
+      <div style="font-size:10px;letter-spacing:.12em;color:var(--safe);text-shadow:0 0 8px rgba(0,200,232,0.35);">HELIOCENTRIC</div>
+      <div style="font-size:8px;letter-spacing:.1em;color:var(--ink-dim);margin-top:3px;">ECLIPTIC J2000.0</div>
+      <div class="mini-stats"><span>SRC<b>NASA / JPL</b></span><span>AU<b>1.496×10⁸ KM</b></span></div>
     </div>
   </div>
   <div id="header-rule"><svg width="100%" height="10" id="hrsvg" preserveAspectRatio="none"></svg></div>
@@ -405,13 +405,6 @@
   })();
 
   // Clock
-  function tick(){
-    const n=new Date();
-    $('clock').textContent=n.toUTCString().slice(17,25);
-    $('datestr').textContent=n.toISOString().slice(0,10).replace(/-/g,'.')+' UTC';
-  }
-  setInterval(tick,1000);tick();
-
   // Header rule
   (()=>{
     const s=$('hrsvg');s.setAttribute('viewBox','0 0 1000 10');
