@@ -824,7 +824,7 @@
   }
 
   function bringSSTLayerForward(){
-    ['sst-current-halo','sst-current-ring','sst-current-dot','sst-current-label'].forEach(id=>{
+    ['sst-current-field','sst-current-halo','sst-current-ring','sst-current-dot','sst-current-label'].forEach(id=>{
       try{ if(map.getLayer(id)) map.moveLayer(id); }catch(e){}
     });
     bringApproxUserLocationForward();
@@ -1180,10 +1180,16 @@
     {n:'CENTRAL',la:25.8,lo:-90.0},
     {n:'LOOP CURRENT',la:24.8,lo:-84.8},
   ];
-  let currentSSTFeatures={type:'FeatureCollection',features:SST_ZONES.map(z=>({
+  const SST_SAMPLES=[
+    {n:'NW GULF',la:28.6,lo:-94.0},{n:'N. GULF',la:28.5,lo:-89.5,display:true},{n:'NE GULF',la:28.6,lo:-85.5},
+    {n:'W GULF',la:26.2,lo:-95.0},{n:'CENTRAL',la:25.8,lo:-90.0,display:true},{n:'E GULF',la:26.1,lo:-84.6},
+    {n:'BAY CAMPECHE',la:22.4,lo:-94.0},{n:'S. CENTRAL',la:23.4,lo:-90.0},{n:'LOOP CURRENT',la:24.8,lo:-84.8,display:true},
+    {n:'YUCATAN',la:21.6,lo:-87.0},{n:'FL STRAITS',la:24.2,lo:-82.4}
+  ];
+  let currentSSTFeatures={type:'FeatureCollection',features:SST_SAMPLES.map(z=>({
     type:'Feature',
     geometry:{type:'Point',coordinates:[z.lo,z.la]},
-    properties:{zone:z.n,label:'CURRENT SST',temp:'—',note:'CURRENT',color:'#5f8eaa'}
+    properties:{zone:z.n,label:'CURRENT SST',temp:'—',tempValue:80,note:'CURRENT',color:'#5f8eaa',showLabel:!!z.display}
   }))};
   function sstColor(v){
     return v>=86?'#d8202f':v>=84?'#c84f38':v>=82?'#e5c95f':'#5f8eaa';
@@ -1196,15 +1202,22 @@
     if(!map||!map.isStyleLoaded()) return;
     if(!map.getSource('sst-current')){
       map.addSource('sst-current',{type:'geojson',data:currentSSTFeatures});
+      map.addLayer({id:'sst-current-field',type:'circle',source:'sst-current',
+        paint:{'circle-radius':['interpolate',['linear'],['zoom'],4,72,5.5,105,7,150],
+          'circle-color':['get','color'],'circle-opacity':0.34,'circle-blur':1}});
       map.addLayer({id:'sst-current-halo',type:'circle',source:'sst-current',
+        filter:['==',['get','showLabel'],true],
         paint:{'circle-radius':24,'circle-color':['get','color'],'circle-opacity':0.18,'circle-blur':0.8}});
       map.addLayer({id:'sst-current-ring',type:'circle',source:'sst-current',
+        filter:['==',['get','showLabel'],true],
         paint:{'circle-radius':8.5,'circle-color':'rgba(2,5,12,0.18)','circle-opacity':0.95,
           'circle-stroke-color':['get','color'],'circle-stroke-width':1.5}});
       map.addLayer({id:'sst-current-dot',type:'circle',source:'sst-current',
+        filter:['==',['get','showLabel'],true],
         paint:{'circle-radius':3.8,'circle-color':['get','color'],'circle-opacity':0.92,
           'circle-stroke-color':'rgba(240,248,255,.82)','circle-stroke-width':1}});
       map.addLayer({id:'sst-current-label',type:'symbol',source:'sst-current',
+        filter:['==',['get','showLabel'],true],
         layout:{'text-field':['format',
             ['get','zone'],{'font-scale':0.78},
             '\n',{},
@@ -1229,13 +1242,13 @@
     const body=$('sst-body');
     if(!body) return;
     try{
-      const las=SST_ZONES.map(z=>z.la).join(','),los=SST_ZONES.map(z=>z.lo).join(',');
+      const las=SST_SAMPLES.map(z=>z.la).join(','),los=SST_SAMPLES.map(z=>z.lo).join(',');
       const res=await fetch(`https://marine-api.open-meteo.com/v1/marine?latitude=${las}&longitude=${los}&current=sea_surface_temperature&temperature_unit=fahrenheit&timezone=GMT`);
       if(!res.ok) throw new Error('');
       const data=await res.json();
       const arr=Array.isArray(data)?data:[data];
-      const features=[];
-      body.innerHTML=SST_ZONES.map((z,i)=>{
+      const byName={};
+      const features=SST_SAMPLES.map((z,i)=>{
         const d=arr[i]&&arr[i].current;
         const units=(arr[i]&&arr[i].current_units&&arr[i].current_units.sea_surface_temperature)||'';
         const raw=d&&typeof d.sea_surface_temperature==='number'?d.sea_surface_temperature:null;
@@ -1243,15 +1256,19 @@
         const label=temp===null?'—':Math.round(temp)+'°F';
         const note=temp===null?'SST':temp>=84?'VERY WARM':temp>=82?'WARM':'SST';
         const color=temp===null?'#5a6080':sstColor(temp);
-        features.push({type:'Feature',geometry:{type:'Point',coordinates:[z.lo,z.la]},
-          properties:{zone:z.n,temp:label,note:'CURRENT',label:'CURRENT SST',color}});
-        return `<div class="sst-row"><span class="sst-zone">${z.n}</span><span class="sst-temp" style="color:${temp===null?'var(--ink-faint)':sstColor(temp)}">${label}</span><span class="sst-note">${note}</span></div>`;
+        byName[z.n]={label,note,color,temp};
+        return {type:'Feature',geometry:{type:'Point',coordinates:[z.lo,z.la]},
+          properties:{zone:z.n,temp:label,tempValue:temp||80,note:'CURRENT',label:'CURRENT SST',color,showLabel:!!z.display}};
+      });
+      body.innerHTML=SST_ZONES.map(z=>{
+        const reading=byName[z.n]||{label:'—',note:'SST',color:'#5a6080',temp:null};
+        return `<div class="sst-row"><span class="sst-zone">${z.n}</span><span class="sst-temp" style="color:${reading.temp===null?'var(--ink-faint)':reading.color}">${reading.label}</span><span class="sst-note">${reading.note}</span></div>`;
       }).join('');
       updateSSTMap(features);
     }catch(e){
       body.innerHTML=SST_ZONES.map(z=>`<div class="sst-row"><span class="sst-zone">${z.n}</span><span class="sst-temp" style="color:var(--ink-faint)">—</span><span class="sst-note">SST</span></div>`).join('');
-      updateSSTMap(SST_ZONES.map(z=>({type:'Feature',geometry:{type:'Point',coordinates:[z.lo,z.la]},
-        properties:{zone:z.n,temp:'—',note:'CURRENT',label:'CURRENT SST',color:'#5a6080'}})));
+      updateSSTMap(SST_SAMPLES.map(z=>({type:'Feature',geometry:{type:'Point',coordinates:[z.lo,z.la]},
+        properties:{zone:z.n,temp:'—',tempValue:80,note:'CURRENT',label:'CURRENT SST',color:'#5a6080',showLabel:!!z.display}})));
     }
   }
   fetchSST();setInterval(fetchSST,30*60*1000);
