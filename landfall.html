@@ -737,6 +737,7 @@
       });
     });
     bringApproxUserLocationForward();
+    bringSSTLayerForward();
     updateRadarTimestamp();
   }
 
@@ -820,6 +821,13 @@
     ['user-approx-halo','user-approx-ring','user-approx-dot','user-approx-label'].forEach(id=>{
       try{ if(map.getLayer(id)) map.moveLayer(id); }catch(e){}
     });
+  }
+
+  function bringSSTLayerForward(){
+    ['sst-current-halo','sst-current-ring','sst-current-dot','sst-current-label'].forEach(id=>{
+      try{ if(map.getLayer(id)) map.moveLayer(id); }catch(e){}
+    });
+    bringApproxUserLocationForward();
   }
 
   function setApproxUserLocation(lon,lat,accuracy){
@@ -1189,25 +1197,29 @@
     if(!map.getSource('sst-current')){
       map.addSource('sst-current',{type:'geojson',data:currentSSTFeatures});
       map.addLayer({id:'sst-current-halo',type:'circle',source:'sst-current',
-        paint:{'circle-radius':17,'circle-color':['get','color'],'circle-opacity':0.14,'circle-blur':0.7}});
+        paint:{'circle-radius':24,'circle-color':['get','color'],'circle-opacity':0.18,'circle-blur':0.8}});
+      map.addLayer({id:'sst-current-ring',type:'circle',source:'sst-current',
+        paint:{'circle-radius':8.5,'circle-color':'rgba(2,5,12,0.18)','circle-opacity':0.95,
+          'circle-stroke-color':['get','color'],'circle-stroke-width':1.5}});
       map.addLayer({id:'sst-current-dot',type:'circle',source:'sst-current',
-        paint:{'circle-radius':3.2,'circle-color':['get','color'],'circle-opacity':0.78,
-          'circle-stroke-color':'rgba(220,232,245,.72)','circle-stroke-width':1}});
+        paint:{'circle-radius':3.8,'circle-color':['get','color'],'circle-opacity':0.92,
+          'circle-stroke-color':'rgba(240,248,255,.82)','circle-stroke-width':1}});
       map.addLayer({id:'sst-current-label',type:'symbol',source:'sst-current',
         layout:{'text-field':['format',
             ['get','zone'],{'font-scale':0.78},
             '\n',{},
             ['get','temp'],{'font-scale':1.22},
-            '  CURRENT SST',{'font-scale':0.68}
+            '  SST',{'font-scale':0.68}
           ],
           'text-font':['DIN Offc Pro Bold','Arial Unicode MS Bold'],
-          'text-size':10,'text-anchor':'top','text-offset':[0,1.05],
-          'text-letter-spacing':0.06,'text-allow-overlap':true},
+          'text-size':11,'text-anchor':'top','text-offset':[0,1.18],
+          'text-letter-spacing':0.08,'text-allow-overlap':true},
         paint:{'text-color':['get','color'],'text-opacity':0.92,
-          'text-halo-color':'rgba(2,5,12,.92)','text-halo-width':1.5}});
+          'text-halo-color':'rgba(2,5,12,.94)','text-halo-width':1.8}});
     } else {
       map.getSource('sst-current').setData(currentSSTFeatures);
     }
+    bringSSTLayerForward();
   }
   function updateSSTMap(features){
     currentSSTFeatures={type:'FeatureCollection',features};
