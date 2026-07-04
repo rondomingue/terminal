@@ -91,6 +91,7 @@
   .mapboot.off{display:none}
 
   /* Ethiopia detail section */
+  .detail-head{margin-top:26px; padding-top:20px; border-top:1px solid var(--line)}
   .eth{display:grid; grid-template-columns:minmax(0,1fr) 264px; gap:0; border:1px solid var(--line); border-radius:2px}
   .eth .ethmap{padding:14px 16px}
   .eth svg.detail{width:100%; height:auto; display:block; overflow:visible}
@@ -338,6 +339,47 @@
         </div>
         <span class="hint">Drag to rotate · scroll to zoom · hover a point for detail</span>
       </div>
+
+      <div class="stage-head detail-head">
+        <span class="t disp">Ethiopia, in detail</span>
+        <span class="eyebrow">Marburg · contained 26 Jan 2026 · first for country</span>
+      </div>
+      <div class="eth">
+        <div class="ethmap">
+          <svg class="detail" id="ethmap" viewBox="0 0 860 660" role="img" aria-label="Detailed map of southern Ethiopia showing Marburg outbreak woredas, spread routes, the Omo River and Rift Valley lakes"></svg>
+        </div>
+        <div class="side">
+          <div class="blk2">
+            <span class="lab eyebrow">Confirmed cases</span>
+            <div class="big tnum">19<span class="u">14 conf · 5 prob</span></div>
+          </div>
+          <div class="blk2">
+            <div class="duo">
+              <div class="m"><div class="v tnum">14</div><div class="k">Deaths</div></div>
+              <div class="m"><div class="v tnum">64.3%</div><div class="k">Case fatality</div></div>
+            </div>
+          </div>
+          <div class="blk2">
+            <div class="duo">
+              <div class="m"><div class="v tnum">857</div><div class="k">Contacts traced</div></div>
+              <div class="m"><div class="v tnum">3,800</div><div class="k">Samples tested</div></div>
+            </div>
+          </div>
+          <div class="blk2">
+            <span class="lab eyebrow">Chronology</span>
+            <div class="tl">
+              <div class="ev"><span class="mk" style="background:var(--severe)"></span><div><div class="d">23 Oct 2025</div><div class="t">Index case, Jinka. Symptoms onset.</div></div></div>
+              <div class="ev"><span class="mk" style="background:var(--watch)"></span><div><div class="d">14 Nov 2025</div><div class="t">Outbreak declared. Marburg confirmed.</div></div></div>
+              <div class="ev"><span class="mk" style="background:var(--watch)"></span><div><div class="d">14 Dec 2025</div><div class="t">Last confirmed case dies.</div></div></div>
+              <div class="ev"><span class="mk" style="background:var(--contained)"></span><div><div class="d">26 Jan 2026</div><div class="t">Ended, after 42 days clear.</div></div></div>
+            </div>
+          </div>
+          <div class="blk2">
+            <span class="lab eyebrow">Reservoir</span>
+            <p class="note"><b>Rousettus aegyptiacus</b>, the Egyptian fruit bat, roosts in caves along the Omo valley. Marburg spills over from bats, then spreads person to person through bodily fluids.</p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -395,49 +437,6 @@
         </div>
         <div class="foot"><svg class="cspark" data-spark="fall" viewBox="0 0 88 26" preserveAspectRatio="none"></svg><span class="chip sev1">Ended 26 Jan</span></div>
       </article>
-    </div>
-  </section>
-
-  <section class="blk">
-    <div class="blk-head">
-      <span class="t disp">Ethiopia, in detail <span class="sm">Marburg · South Ethiopia &amp; Sidama</span></span>
-      <span class="eyebrow">Contained 26 Jan 2026 · first for country</span>
-    </div>
-    <div class="eth">
-      <div class="ethmap">
-        <svg class="detail" id="ethmap" viewBox="0 0 860 660" role="img" aria-label="Detailed map of southern Ethiopia showing Marburg outbreak woredas, spread routes, the Omo River and Rift Valley lakes"></svg>
-      </div>
-      <div class="side">
-        <div class="blk2">
-          <span class="lab eyebrow">Confirmed cases</span>
-          <div class="big tnum">19<span class="u">14 conf · 5 prob</span></div>
-        </div>
-        <div class="blk2">
-          <div class="duo">
-            <div class="m"><div class="v tnum">14</div><div class="k">Deaths</div></div>
-            <div class="m"><div class="v tnum">64.3%</div><div class="k">Case fatality</div></div>
-          </div>
-        </div>
-        <div class="blk2">
-          <div class="duo">
-            <div class="m"><div class="v tnum">857</div><div class="k">Contacts traced</div></div>
-            <div class="m"><div class="v tnum">3,800</div><div class="k">Samples tested</div></div>
-          </div>
-        </div>
-        <div class="blk2">
-          <span class="lab eyebrow">Chronology</span>
-          <div class="tl">
-            <div class="ev"><span class="mk" style="background:var(--severe)"></span><div><div class="d">23 Oct 2025</div><div class="t">Index case, Jinka. Symptoms onset.</div></div></div>
-            <div class="ev"><span class="mk" style="background:var(--watch)"></span><div><div class="d">14 Nov 2025</div><div class="t">Outbreak declared. Marburg confirmed.</div></div></div>
-            <div class="ev"><span class="mk" style="background:var(--watch)"></span><div><div class="d">14 Dec 2025</div><div class="t">Last confirmed case dies.</div></div></div>
-            <div class="ev"><span class="mk" style="background:var(--contained)"></span><div><div class="d">26 Jan 2026</div><div class="t">Ended, after 42 days clear.</div></div></div>
-          </div>
-        </div>
-        <div class="blk2">
-          <span class="lab eyebrow">Reservoir</span>
-          <p class="note"><b>Rousettus aegyptiacus</b>, the Egyptian fruit bat, roosts in caves along the Omo valley. Marburg spills over from bats, then spreads person to person through bodily fluids.</p>
-        </div>
-      </div>
     </div>
   </section>
 
