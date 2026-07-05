@@ -297,18 +297,23 @@
   .stog.on.cat2{border-color:var(--cat2);color:var(--cat2);background:rgba(229,201,95,.12);}
   .stog.on.cat1{border-color:var(--cat1);color:var(--cat1);background:rgba(244,246,248,.1);}
 
-  /* HISTORICAL STORM DROPDOWN */
-  #storm-focus{position:absolute;top:58px;left:10px;right:10px;z-index:5;pointer-events:none;
-    display:grid;grid-template-columns:1fr auto;gap:14px;align-items:start;
-    padding:12px 14px;border:1px solid rgba(150,175,220,.14);
-    background:linear-gradient(135deg,var(--mui-surface-strong),rgba(6,10,18,.2));
-    box-shadow:var(--mui-shadow-raised);border-radius:var(--mui-radius);}
-  .focus-kicker{font-family:'IBM Plex Mono',monospace;font-size:7px;letter-spacing:.2em;color:var(--ink-faint);}
-  .focus-title{font-family:'IBM Plex Mono',monospace;font-size:15px;letter-spacing:.08em;color:var(--white);margin-top:4px;}
-  .focus-notes{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.06em;color:var(--ink-dim);margin-top:5px;}
-  .focus-metrics{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;}
+  /* SELECTED SYSTEM — sidebar card (was a map overlay; now lives in #rail-right) */
+  #storm-focus-card{padding:22px 14px 14px;position:relative;}
+  .focus-clear-btn{position:absolute;top:9px;right:10px;z-index:2;
+    font-family:'IBM Plex Mono',monospace;font-size:7px;letter-spacing:.1em;color:var(--ink-faint);
+    background:transparent;border:1px solid var(--mui-outline);border-radius:999px;padding:3px 8px;
+    cursor:pointer;opacity:0;pointer-events:none;transition:opacity .15s,color .15s,border-color .15s;}
+  #storm-focus-card.has-selection .focus-clear-btn{opacity:1;pointer-events:all;}
+  .focus-clear-btn:hover{color:var(--warning);border-color:var(--warning);}
+  .focus-title{font-family:'IBM Plex Mono',monospace;font-size:14px;letter-spacing:.06em;color:var(--ink-faint);line-height:1.3;}
+  #storm-focus-card.has-selection .focus-title{color:var(--white);}
+  .focus-notes{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.06em;color:var(--ink-dim);margin-top:6px;line-height:1.5;}
+  .focus-metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;margin-top:14px;}
   .focus-metrics span{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.08em;color:var(--ink-dim);border-left:1px solid rgba(150,175,220,.18);padding-left:9px;}
-  .focus-metrics b{display:block;font-size:12px;color:var(--white);font-weight:500;margin-bottom:2px;}
+  .focus-metrics b{display:block;font-size:13px;color:var(--ink-faint);font-weight:500;margin-bottom:2px;}
+  #storm-focus-card.has-selection .focus-metrics b{color:var(--white);}
+
+  /* HISTORICAL STORM DROPDOWN */
   #history-toggle{position:absolute;inset:0;display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;
     padding:0 16px;border:1px solid var(--mui-outline-strong);background:linear-gradient(145deg,var(--mui-surface-strong),rgba(6,10,18,.34));
     color:var(--white);font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.12em;text-align:left;cursor:pointer;
@@ -376,7 +381,6 @@
     #grid{position:relative;grid-template-columns:1fr;grid-template-rows:none;padding:0 14px 20px;gap:14px;}
     #rail-left,#rail-right{grid-column:1;grid-row:auto;}
     #map-stack{grid-column:1;grid-row:auto;min-height:420px;}
-    #storm-focus{position:relative;top:auto;left:auto;right:auto;margin:36px 10px 0;}
     #storm-table-panel{left:10px;right:10px;bottom:12px;height:48px;}
   }
 </style>
@@ -560,19 +564,6 @@
         <div id="map-overlay"></div>
         <div id="map-label-top"><span class="flag">[</span> GULF SECTOR // TRACK CHART <span class="flag">]</span></div>
         <div id="map-meta-right">18°N–32°N / 99°W–80°W</div>
-        <div id="storm-focus">
-          <div>
-            <div class="focus-kicker">SELECTED HISTORICAL SYSTEM</div>
-            <div class="focus-title" id="focus-title">KATRINA 2005 // CATEGORY 5</div>
-            <div class="focus-notes" id="focus-notes">LA/MS AUG 29 — 1,833 DEATHS</div>
-          </div>
-          <div class="focus-metrics">
-            <span><b id="focus-peak">175KT</b>PEAK</span>
-            <span><b id="focus-mb">902MB</b>MIN</span>
-            <span><b id="focus-lf">2</b>LANDFALLS</span>
-            <span><b id="focus-fixes">14</b>FIXES</span>
-          </div>
-        </div>
         <div id="map-credit">MAP © MAPBOX © OSM · RADAR © RAINVIEWER</div>
         <div id="advisory-clock" aria-label="Coordinated Universal Time and countdown to next NHC advisory">
           <div class="ring-wrap">
@@ -625,6 +616,21 @@
         <div id="adv-status-block">
           <div class="adv-quiet">NO ACTIVE<br>SYSTEMS</div>
           <div class="adv-detail">ATLANTIC BASIN QUIET<br>AS OF <span id="adv-ts">—</span><br>NXT CHECK: <span id="adv-next">—</span></div>
+        </div>
+      </div>
+      <div class="panel" id="storm-focus-card">
+        <div class="ghost-sheet"></div>
+        <div class="panel-label">[ SELECTED SYSTEM ] — HISTORICAL RECORD</div>
+        <button type="button" id="focus-clear" class="focus-clear-btn">CLEAR ✕</button>
+        <div id="focus-body">
+          <div class="focus-title" id="focus-title">NO SYSTEM SELECTED</div>
+          <div class="focus-notes" id="focus-notes">CHOOSE A STORM FROM THE HISTORICAL RECORD BELOW</div>
+          <div class="focus-metrics">
+            <span><b id="focus-peak">—</b>PEAK</span>
+            <span><b id="focus-mb">—</b>MIN</span>
+            <span><b id="focus-lf">—</b>LANDFALLS</span>
+            <span><b id="focus-fixes">—</b>FIXES</span>
+          </div>
         </div>
       </div>
       <div class="panel" id="history-sidebar-card">
@@ -742,9 +748,8 @@
             [-82.1,26.7,'c4'],[-81.5,27.5,'lf'],[-81.0,29.0,'c1'],[-81.0,30.0,'ts']]},
   ];
   const shown={};
-  const initialStorm=STORMS[Math.floor(Math.random()*STORMS.length)]||STORMS[0];
-  STORMS.forEach(s=>{shown[s.id]=s.id===initialStorm.id;});
-  let selectedStormId=initialStorm.id;
+  STORMS.forEach(s=>{shown[s.id]=false;});
+  let selectedStormId=null;
 
   function landfallCount(storm){ return storm.track.filter(p=>p[2]==='lf').length; }
   function stormBounds(storm){
@@ -756,7 +761,19 @@
   }
 
   function updateStormFocus(storm){
-    selectedStormId=storm.id;
+    selectedStormId=storm?storm.id:null;
+    const card=$('storm-focus-card');
+    if(card) card.classList.toggle('has-selection',!!storm);
+    if(!storm){
+      if($('focus-title')) $('focus-title').textContent='NO SYSTEM SELECTED';
+      if($('focus-notes')) $('focus-notes').textContent='CHOOSE A STORM FROM THE HISTORICAL RECORD BELOW';
+      if($('focus-peak')) $('focus-peak').textContent='—';
+      if($('focus-mb')) $('focus-mb').textContent='—';
+      if($('focus-lf')) $('focus-lf').textContent='—';
+      if($('focus-fixes')) $('focus-fixes').textContent='—';
+      document.querySelectorAll('.srow[data-id]').forEach(row=>row.classList.remove('selected'));
+      return;
+    }
     if($('focus-title')) $('focus-title').textContent=`${storm.name} ${storm.year} // CATEGORY ${storm.cat}`;
     if($('focus-notes')) $('focus-notes').textContent=storm.notes;
     if($('focus-peak')) $('focus-peak').textContent=storm.peak+'KT';
@@ -764,6 +781,16 @@
     if($('focus-lf')) $('focus-lf').textContent=landfallCount(storm);
     if($('focus-fixes')) $('focus-fixes').textContent=storm.track.length;
     document.querySelectorAll('.srow[data-id]').forEach(row=>row.classList.toggle('selected',row.dataset.id===storm.id));
+  }
+  function clearAllAndReset(){
+    STORMS.forEach(s=>{
+      if(shown[s.id]){ shown[s.id]=false; setTrackVisible(s.id,false); }
+    });
+    document.querySelectorAll('.stog').forEach(t=>t.classList.remove('on'));
+    updateStormFocus(null);
+    if(mapOK&&map&&map.isStyleLoaded()){
+      try{ map.flyTo({center:[-89.7,25.4],zoom:4.9,pitch:MAP_PITCH,bearing:MAP_BEARING,duration:700}); }catch(e){}
+    }
   }
   function updateHeaderData(){
     const major=STORMS.filter(s=>s.cat>=3).length;
@@ -813,7 +840,8 @@
       <span>${s.track.length}</span>
       <span style="color:var(--ink-faint);font-size:8px;">${s.notes}</span>
     </div>`).join('');
-  updateStormFocus(STORMS.find(s=>s.id===selectedStormId)||STORMS[0]);
+  updateStormFocus(null);
+  if($('focus-clear')) $('focus-clear').addEventListener('click',clearAllAndReset);
 
   const historyPanel=$('storm-table-panel');
   const historyToggle=$('history-toggle');
@@ -842,6 +870,7 @@
     row.addEventListener('click',()=>{
       const storm=STORMS.find(s=>s.id===row.dataset.id);
       if(!storm) return;
+      if(selectedStormId===storm.id){ clearAllAndReset(); return; }
       selectStorm(storm,false);
     });
   });
@@ -1264,7 +1293,6 @@
     ensureSSTLayer();
     buildToggles();
     STORMS.forEach(s=>setTrackVisible(s.id,shown[s.id]));
-    try{ map.fitBounds(stormBounds(initialStorm),{padding:80,maxZoom:5.8,duration:700,pitch:MAP_PITCH,bearing:MAP_BEARING}); }catch(e){}
   });
 
   // Cubic Bezier tracks from storm fixes. Neighboring fixes become handles so each leg curves naturally.
@@ -1328,9 +1356,13 @@
         shown[id]=!shown[id];
         b.classList.toggle('on',shown[id]);
         setTrackVisible(id,shown[id]);
-        updateStormFocus(storm);
-        if(shown[id]&&map&&map.isStyleLoaded()){
-          try{ map.fitBounds(stormBounds(storm),{padding:80,maxZoom:5.8,duration:700,pitch:MAP_PITCH,bearing:MAP_BEARING}); }catch(e){}
+        if(shown[id]){
+          updateStormFocus(storm);
+          if(map&&map.isStyleLoaded()){
+            try{ map.fitBounds(stormBounds(storm),{padding:80,maxZoom:5.8,duration:700,pitch:MAP_PITCH,bearing:MAP_BEARING}); }catch(e){}
+          }
+        } else if(selectedStormId===id){
+          updateStormFocus(null);
         }
       });
     });
