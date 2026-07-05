@@ -48,11 +48,11 @@
 
   #bg-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 42%;
     z-index:-1;filter:saturate(.9) contrast(1.04) brightness(.94);background:#02050b;}
-  #stage{position:relative;width:100%;height:100vh;
+  #stage{position:relative;z-index:0;width:100%;height:100vh;
     background:
       linear-gradient(rgba(120,160,255,0.025) 1px,transparent 1px),
       linear-gradient(90deg,rgba(120,160,255,0.025) 1px,transparent 1px),
-      #02050b;
+      transparent;
     background-size:6px 6px,6px 6px,100% 100%;}
   #stage::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;
     background:
