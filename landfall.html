@@ -34,8 +34,8 @@
     --mui-radius-sm:8px;
     --mui-radius:12px;
     --mui-radius-lg:16px;
-    --mui-surface:rgba(12,18,30,.18);
-    --mui-surface-strong:rgba(9,15,26,.26);
+    --mui-surface:rgba(8,12,22,.46);
+    --mui-surface-strong:rgba(6,10,18,.58);
     --mui-surface-soft:rgba(255,255,255,.045);
     --mui-outline:rgba(180,200,235,.18);
     --mui-outline-strong:rgba(210,225,255,.28);
@@ -89,7 +89,7 @@
   /* HEADER */
   #header{position:absolute;top:0;left:0;right:0;z-index:10;display:grid;grid-template-columns:minmax(260px,.6fr) minmax(600px,1.4fr);align-items:start;gap:18px;padding:12px 28px 0;}
   .brand{position:relative;min-height:62px;padding:9px 0 0 15px;border-left:3px solid var(--cat4);
-    background:linear-gradient(90deg,rgba(200,79,56,.10),rgba(9,14,24,.08) 52%,transparent);
+    background:linear-gradient(90deg,rgba(200,79,56,.14),rgba(6,9,16,.5) 52%,rgba(4,6,11,.34));
     box-shadow:inset 0 1px 0 rgba(255,255,255,.05);}
   .brand::before{content:'';position:absolute;left:0;top:0;width:78%;height:1px;background:linear-gradient(90deg,rgba(200,79,56,.55),transparent);}
   .brand::after{content:'';position:absolute;left:0;bottom:0;width:42%;height:1px;background:linear-gradient(90deg,rgba(180,200,235,.18),transparent);}
@@ -527,7 +527,7 @@
         <div class="label-row"><span>2026 ATL SEASON</span><span style="color:var(--clear)">QUIET</span></div>
       </div>
       <div class="panel stat-card">
-        <div class="panel-label">WX // NEW ORLEANS</div>
+        <div class="panel-label" id="wx-main-label">WX // NEW ORLEANS</div>
         <div class="value-xl mono" id="wx-main-temp" style="font-size:22px;margin-top:10px;color:var(--cat2);">--°F</div>
         <div class="label-row"><span id="wx-main-cond" style="color:var(--advisory)">LOADING</span><span id="wx-main-wind">WND —</span></div>
       </div>
@@ -937,7 +937,7 @@
       padding:MAP_DEFAULT_PADDING,
       minZoom:4.25,
       maxZoom:7,
-      maxBounds:[[-99.5,18],[-80,32.2]], // Gulf-only hard locked
+      maxBounds:[[-99.5,18],[-80,32.2]], // Gulf-only hard lock
       attributionControl:false,
       logoPosition:'bottom-right'
     });
@@ -1636,17 +1636,57 @@
         const cls=wxClass(code);
         return `<div class="wx-row"><span class="wx-city">${c.n}</span><span class="wx-temp">${d?Math.round(d.temperature_2m)+'°':'—'}</span><span class="wx-cond ${cls}">${d?(WX_CODES[code]||'—'):'—'}</span></div>`;
       }).join('');
-      const d0=arr[0]&&arr[0].current;
+    }catch(e){}
+  }
+  fetchWX();setInterval(fetchWX,10*60*1000);
+
+  // LOCAL WX — try the visitor's real location; fall back to New Orleans if geolocation
+  // is denied, unsupported, or times out. Panel label updates to match whichever it used.
+  let localWX=null; // {lat, lon, label}
+  function reverseGeocodeLabel(lat,lon){
+    return fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`)
+      .then(r=>r.json())
+      .then(d=>{ const name=d&&(d.city||d.locality); return name?name.toUpperCase():'YOUR LOCATION'; })
+      .catch(()=>'YOUR LOCATION');
+  }
+  async function refreshLocalWX(){
+    if(!localWX) return;
+    const lbl=$('wx-main-label'); if(lbl) lbl.textContent='WX // '+localWX.label;
+    try{
+      const res=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${localWX.lat}&longitude=${localWX.lon}&current=temperature_2m,weather_code,wind_speed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph`);
+      const data=await res.json();
+      const d0=data&&data.current;
       if(d0){
         $('wx-main-temp').textContent=Math.round(d0.temperature_2m)+'°F';
         const cls=wxClass(d0.weather_code);
-        const cond=$('wx-main-cond');cond.textContent=WX_CODES[d0.weather_code]||'—';
-        cond.className='';cond.style.color=cls==='storm'?'#b85b54':cls==='rain'?'#6f98b7':cls==='clear'?'#6aa883':'#6b7090';
+        const cond=$('wx-main-cond'); cond.textContent=WX_CODES[d0.weather_code]||'—';
+        cond.style.color=cls==='storm'?'#b85b54':cls==='rain'?'#6f98b7':cls==='clear'?'#6aa883':'#6b7090';
         $('wx-main-wind').textContent='WND '+Math.round(d0.wind_speed_10m)+'MPH';
       }
     }catch(e){}
   }
-  fetchWX();setInterval(fetchWX,10*60*1000);
+  function useFallbackWX(){
+    localWX={lat:29.95,lon:-90.07,label:'NEW ORLEANS'};
+    refreshLocalWX();
+  }
+  function initLocalWX(){
+    if(!navigator.geolocation){ useFallbackWX(); return; }
+    navigator.geolocation.getCurrentPosition(
+      pos=>{
+        const lat=pos.coords.latitude, lon=pos.coords.longitude;
+        localWX={lat,lon,label:'YOUR LOCATION'};
+        refreshLocalWX();
+        reverseGeocodeLabel(lat,lon).then(name=>{
+          if(localWX&&localWX.lat===lat){ localWX.label=name; const lbl=$('wx-main-label'); if(lbl) lbl.textContent='WX // '+name; }
+        });
+      },
+      ()=>{ useFallbackWX(); },
+      {enableHighAccuracy:false,timeout:8000,maximumAge:15*60*1000}
+    );
+  }
+  initLocalWX();
+  setInterval(refreshLocalWX,10*60*1000);
+
 
   // NHC
   async function fetchNHC(){
