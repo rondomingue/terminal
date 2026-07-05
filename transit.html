@@ -102,11 +102,18 @@
 
   /* ===== PRELOADER ===== */
   #preloader{position:fixed;inset:0;z-index:200;background:
+    radial-gradient(ellipse at 50% 45%,rgba(255,122,26,.08) 0%,transparent 56%),
     repeating-linear-gradient(90deg,rgba(246,241,222,.035) 0 1px,transparent 1px 72px),
     repeating-linear-gradient(0deg,rgba(246,241,222,.026) 0 1px,transparent 1px 72px),
     var(--bg);
+    overflow:hidden;
     display:flex;flex-direction:column;align-items:center;justify-content:center;
     transition:opacity .8s ease;}
+  #preloader::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.08;mix-blend-mode:screen;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+  #preloader::after{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.35;mix-blend-mode:screen;
+    background-image:repeating-linear-gradient(to bottom,rgba(246,241,222,.018) 0px,rgba(246,241,222,.018) 1px,transparent 1px,transparent 5px);}
+  #preloader>*{position:relative;z-index:1;}
   #preloader.fade-out{opacity:0;pointer-events:none;}
   #preloader.gone{display:none;}
   #pre-canvas{display:block;}
@@ -495,6 +502,20 @@
   // Seeded random for deterministic textures
   function tx(n){ const x=Math.sin(n*9301+49297)*233280; return x-Math.floor(x); }
 
+  function ditherCanvas(ctx,w,h,amount=4){
+    const img=ctx.getImageData(0,0,w,h);
+    const d=img.data;
+    for(let i=0,p=0;i<d.length;i+=4,p++){
+      if(d[i+3]===0) continue;
+      const n=(tx(p+7000)-0.5)*amount;
+      d[i]=Math.max(0,Math.min(255,d[i]+n));
+      d[i+1]=Math.max(0,Math.min(255,d[i+1]+n));
+      d[i+2]=Math.max(0,Math.min(255,d[i+2]+n));
+      d[i+3]=Math.max(0,Math.min(255,d[i+3]+n*0.65));
+    }
+    ctx.putImageData(img,0,0);
+  }
+
   const planetTextures={
     MERCURY: makeTex(256,(ctx,s)=>{
       ctx.fillStyle='#5a5a6a'; ctx.fillRect(0,0,s,s);
@@ -648,7 +669,7 @@
   const W=container.clientWidth||800, H=container.clientHeight||500;
 
   const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
-  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));
   renderer.setSize(W,H);
   renderer.setClearColor(0x000000,0);
   container.appendChild(renderer.domElement);
@@ -741,6 +762,7 @@
     g.addColorStop(falloff,`rgba(${r},${gv},${b},0.28)`);
     g.addColorStop(1,`rgba(${r},${gv},${b},0)`);
     ctx.fillStyle=g;ctx.fillRect(0,0,128,128);
+    ditherCanvas(ctx,128,128,5);
     const tex=new THREE.CanvasTexture(c);
     return new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,
       blending:THREE.AdditiveBlending,depthWrite:false,sizeAttenuation:true,opacity}));
@@ -776,6 +798,7 @@
     ctx.arc(cx,cy,65,Math.PI*1.0,Math.PI*1.92);
     ctx.stroke();
     ctx.restore();
+    ditherCanvas(ctx,256,256,5);
 
     const tex=new THREE.CanvasTexture(c);
     return new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,
@@ -814,10 +837,10 @@
       return [r*Math.sin(phi)*Math.cos(theta),r*Math.sin(phi)*Math.sin(theta),r*Math.cos(phi)];
     }
 
-    // Layer 1 — distant background, 9000 tiny dim stars
+    // Layer 1 — distant background, tiny dim stars
     {
       const pos=[],col=[];
-      for(let i=0;i<9000;i++){
+      for(let i=0;i<6200;i++){
         const p=spherePt(100,180); pos.push(...p);
         const b=0.18+Math.random()*0.28;
         const c=starColor(); col.push(c[0]*b,c[1]*b,c[2]*b);
@@ -828,10 +851,10 @@
       scene.add(new THREE.Points(geo,new THREE.PointsMaterial({size:0.05,map:ROUND_TEX,vertexColors:true,transparent:true,opacity:1,depthWrite:false,alphaTest:0.01})));
     }
 
-    // Layer 2 — mid-field, 3500 medium stars, more color variety
+    // Layer 2 — mid-field, medium stars with color variety
     {
       const pos=[],col=[];
-      for(let i=0;i<3500;i++){
+      for(let i=0;i<2400;i++){
         const p=spherePt(75,130); pos.push(...p);
         const b=0.35+Math.random()*0.45;
         const c=starColor(); col.push(c[0]*b,c[1]*b,c[2]*b);
@@ -856,11 +879,11 @@
       scene.add(new THREE.Points(geo,new THREE.PointsMaterial({size:0.16,map:ROUND_TEX,vertexColors:true,transparent:true,opacity:1,depthWrite:false,alphaTest:0.01})));
     }
 
-    // Milky Way band — 6000 very tiny dim stars concentrated along a tilted great circle
+    // Milky Way band — tiny dim stars concentrated along a tilted great circle
     {
       const pos=[],col=[];
       const BAND_TILT=0.55;
-      for(let i=0;i<6000;i++){
+      for(let i=0;i<3800;i++){
         const lon=Math.random()*Math.PI*2;
         const lat=(Math.random()-0.5)*0.22;
         const r=120+Math.random()*60;
@@ -884,7 +907,7 @@
   (()=>{
     // Main asteroid belt (2.2–3.3 AU)
     const pos=[],col=[];
-    for(let i=0;i<5000;i++){
+    for(let i=0;i<3400;i++){
       const angle=Math.random()*Math.PI*2;
       const r=(2.2+Math.random()*1.1)*AU;
       const y=(Math.random()-0.5)*0.1;
@@ -1469,9 +1492,41 @@
     if(window._preComplete) window._preComplete();
   }
 
+  function getFallbackNEOs(){
+    return [
+      {des:'2024 YR4',        cd:'2026-Jul-08',dist:'0.00521',v_rel:'10.2',h:'28.7',pha:'N',_pos:null},
+      {des:'2020 XR',         cd:'2026-Jul-14',dist:'0.01240',v_rel:'8.5', h:'22.1',pha:'Y',_pos:null},
+      {des:'2011 UL21',       cd:'2026-Aug-01',dist:'0.01882',v_rel:'21.3',h:'17.4',pha:'Y',_pos:null},
+      {des:'2023 DZ2',        cd:'2026-Aug-19',dist:'0.02341',v_rel:'14.8',h:'24.2',pha:'N',_pos:null},
+      {des:'2021 PJ1',        cd:'2026-Sep-03',dist:'0.03812',v_rel:'7.1', h:'26.8',pha:'N',_pos:null},
+      {des:'(433) EROS',      cd:'2026-Sep-18',dist:'0.06201',v_rel:'4.4', h:'11.2',pha:'N',_pos:null},
+      {des:'2023 BU',         cd:'2026-Jul-22',dist:'0.00876',v_rel:'9.3', h:'26.1',pha:'N',_pos:null},
+      {des:'2022 AP7',        cd:'2026-Aug-08',dist:'0.04120',v_rel:'18.7',h:'18.0',pha:'Y',_pos:null},
+      {des:'2019 OK',         cd:'2026-Aug-24',dist:'0.00449',v_rel:'24.5',h:'25.5',pha:'Y',_pos:null},
+      {des:'2010 WC9',        cd:'2026-Sep-10',dist:'0.00534',v_rel:'7.0', h:'23.9',pha:'N',_pos:null},
+      {des:'2014 JO25',       cd:'2026-Sep-25',dist:'0.01118',v_rel:'10.7',h:'18.4',pha:'Y',_pos:null},
+      {des:'(3122) FLORENCE', cd:'2026-Sep-29',dist:'0.04706',v_rel:'8.7', h:'14.1',pha:'N',_pos:null},
+      {des:'2001 FO32',       cd:'2026-Oct-05',dist:'0.01320',v_rel:'34.4',h:'17.7',pha:'Y',_pos:null},
+      {des:'2024 BX1',        cd:'2026-Oct-11',dist:'0.00206',v_rel:'15.3',h:'28.9',pha:'N',_pos:null},
+      {des:'2023 TL2',        cd:'2026-Oct-18',dist:'0.02980',v_rel:'11.2',h:'22.8',pha:'N',_pos:null},
+      {des:'2015 TB145',      cd:'2026-Nov-01',dist:'0.01886',v_rel:'35.5',h:'19.7',pha:'N',_pos:null},
+      {des:'1998 OR2',        cd:'2026-Nov-15',dist:'0.04211',v_rel:'8.7', h:'15.8',pha:'Y',_pos:null},
+      {des:'2012 TC4',        cd:'2026-Nov-22',dist:'0.00504',v_rel:'16.1',h:'26.6',pha:'N',_pos:null},
+    ].sort((a,b)=>parseFloat(a.dist)-parseFloat(b.dist));
+  }
+
   async function fetchNEOs(){
     const fmt=d=>d.toISOString().slice(0,10);
     const today=new Date();
+    const initialLoad=neoData.length===0;
+    let usedFallback=false;
+    const fallbackTimer=initialLoad?setTimeout(()=>{
+      if(neoData.length===0){
+        usedFallback=true;
+        applyData(getFallbackNEOs());
+        logLine('CACHED ORBITAL DATA — LIVE REFRESH PENDING');
+      }
+    },2400):null;
 
     // ── 1. NASA NeoWs (try direct then via proxy) — known to work ──
     const nasaKey='DEMO_KEY';
@@ -1485,7 +1540,7 @@
       const nasaSrcs=[nasaUrl,`https://api.allorigins.win/raw?url=${encodeURIComponent(nasaUrl)}`,`https://corsproxy.io/?url=${encodeURIComponent(nasaUrl)}`];
       for(const src of nasaSrcs){
         try{
-          const ctrl=new AbortController();setTimeout(()=>ctrl.abort(),10000);
+          const ctrl=new AbortController();setTimeout(()=>ctrl.abort(),4500);
           const res=await fetch(src,{signal:ctrl.signal});
           if(!res.ok) throw new Error('HTTP '+res.status);
           const data=await res.json();
@@ -1504,9 +1559,12 @@
             };
           }).sort((a,b)=>parseFloat(a.dist)-parseFloat(b.dist));
           // Merge with any already-loaded data
-          const existing=neoData.map(n=>n.des);
-          const merged=[...neoData,...parsed.filter(n=>!existing.includes(n.des))].sort((a,b)=>parseFloat(a.dist)-parseFloat(b.dist));
+          const base=usedFallback?[]:neoData;
+          const existing=base.map(n=>n.des);
+          const merged=[...base,...parsed.filter(n=>!existing.includes(n.des))].sort((a,b)=>parseFloat(a.dist)-parseFloat(b.dist));
+          if(fallbackTimer) clearTimeout(fallbackTimer);
           applyData(merged);
+          usedFallback=false;
           logLine(`NASA NeoWs — ${merged.length} NEOs, ${merged.filter(n=>n.pha==='Y').length} PHA`,'safe');
           break; // got this window, move to next
         }catch(e){ /* try next src */ }
@@ -1525,14 +1583,16 @@
       ];
       for(const src of jplSrcs){
         try{
-          const ctrl=new AbortController();setTimeout(()=>ctrl.abort(),12000);
+          const ctrl=new AbortController();setTimeout(()=>ctrl.abort(),5500);
           const res=await fetch(src,{signal:ctrl.signal});
           if(!res.ok) throw new Error('HTTP '+res.status);
           const data=await res.json();
           if(!data.data) throw new Error('no data');
           const fi=f=>data.fields.indexOf(f);
           const parsed=data.data.map(row=>({des:row[fi('des')],cd:row[fi('cd')],dist:row[fi('dist')],v_rel:row[fi('v_rel')],h:row[fi('h')],pha:row[fi('pha')],_pos:null}));
+          if(fallbackTimer) clearTimeout(fallbackTimer);
           applyData(parsed);
+          usedFallback=false;
           logLine(`JPL — ${parsed.length} NEOs`,'safe');
           return;
         }catch(e){ logLine(`JPL FAIL: ${e.message}`); }
@@ -1541,27 +1601,7 @@
 
     // ── 3. Static fallback — only if both APIs returned nothing ──
     if(neoData.length===0){
-      const fallback=[
-        {des:'2024 YR4',        cd:'2026-Jul-08',dist:'0.00521',v_rel:'10.2',h:'28.7',pha:'N',_pos:null},
-        {des:'2020 XR',         cd:'2026-Jul-14',dist:'0.01240',v_rel:'8.5', h:'22.1',pha:'Y',_pos:null},
-        {des:'2011 UL21',       cd:'2026-Aug-01',dist:'0.01882',v_rel:'21.3',h:'17.4',pha:'Y',_pos:null},
-        {des:'2023 DZ2',        cd:'2026-Aug-19',dist:'0.02341',v_rel:'14.8',h:'24.2',pha:'N',_pos:null},
-        {des:'2021 PJ1',        cd:'2026-Sep-03',dist:'0.03812',v_rel:'7.1', h:'26.8',pha:'N',_pos:null},
-        {des:'(433) EROS',      cd:'2026-Sep-18',dist:'0.06201',v_rel:'4.4', h:'11.2',pha:'N',_pos:null},
-        {des:'2023 BU',         cd:'2026-Jul-22',dist:'0.00876',v_rel:'9.3', h:'26.1',pha:'N',_pos:null},
-        {des:'2022 AP7',        cd:'2026-Aug-08',dist:'0.04120',v_rel:'18.7',h:'18.0',pha:'Y',_pos:null},
-        {des:'2019 OK',         cd:'2026-Aug-24',dist:'0.00449',v_rel:'24.5',h:'25.5',pha:'Y',_pos:null},
-        {des:'2010 WC9',        cd:'2026-Sep-10',dist:'0.00534',v_rel:'7.0', h:'23.9',pha:'N',_pos:null},
-        {des:'2014 JO25',       cd:'2026-Sep-25',dist:'0.01118',v_rel:'10.7',h:'18.4',pha:'Y',_pos:null},
-        {des:'(3122) FLORENCE', cd:'2026-Sep-29',dist:'0.04706',v_rel:'8.7', h:'14.1',pha:'N',_pos:null},
-        {des:'2001 FO32',       cd:'2026-Oct-05',dist:'0.01320',v_rel:'34.4',h:'17.7',pha:'Y',_pos:null},
-        {des:'2024 BX1',        cd:'2026-Oct-11',dist:'0.00206',v_rel:'15.3',h:'28.9',pha:'N',_pos:null},
-        {des:'2023 TL2',        cd:'2026-Oct-18',dist:'0.02980',v_rel:'11.2',h:'22.8',pha:'N',_pos:null},
-        {des:'2015 TB145',      cd:'2026-Nov-01',dist:'0.01886',v_rel:'35.5',h:'19.7',pha:'N',_pos:null},
-        {des:'1998 OR2',        cd:'2026-Nov-15',dist:'0.04211',v_rel:'8.7', h:'15.8',pha:'Y',_pos:null},
-        {des:'2012 TC4',        cd:'2026-Nov-22',dist:'0.00504',v_rel:'16.1',h:'26.6',pha:'N',_pos:null},
-      ].sort((a,b)=>parseFloat(a.dist)-parseFloat(b.dist));
-      applyData(fallback);
+      applyData(getFallbackNEOs());
       logLine('CACHED ORBITAL DATA — LIVE APIS UNAVAILABLE');
     }
   }
