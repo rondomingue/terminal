@@ -961,27 +961,27 @@
     const cx=384,cy=76;
     const line=ctx.createLinearGradient(40,cy,728,cy);
     line.addColorStop(0,'rgba(255,178,76,0)');
-    line.addColorStop(0.42,'rgba(255,210,126,0.18)');
-    line.addColorStop(0.50,'rgba(255,245,205,0.36)');
-    line.addColorStop(0.58,'rgba(255,166,56,0.16)');
+    line.addColorStop(0.40,'rgba(255,210,126,0.26)');
+    line.addColorStop(0.50,'rgba(255,245,205,0.50)');
+    line.addColorStop(0.60,'rgba(255,166,56,0.24)');
     line.addColorStop(1,'rgba(255,126,24,0)');
     ctx.strokeStyle=line;
-    ctx.lineWidth=2.2;
+    ctx.lineWidth=3.0;
     ctx.beginPath();
     ctx.moveTo(42,cy);
     ctx.lineTo(726,cy);
     ctx.stroke();
 
     const bloom=ctx.createRadialGradient(cx,cy,0,cx,cy,90);
-    bloom.addColorStop(0,'rgba(255,232,162,0.22)');
-    bloom.addColorStop(0.42,'rgba(255,156,48,0.075)');
+    bloom.addColorStop(0,'rgba(255,232,162,0.32)');
+    bloom.addColorStop(0.42,'rgba(255,156,48,0.11)');
     bloom.addColorStop(1,'rgba(255,156,48,0)');
     ctx.fillStyle=bloom;
     ctx.fillRect(cx-110,cy-90,220,180);
 
     const tex=new THREE.CanvasTexture(c);
     return new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,
-      blending:THREE.AdditiveBlending,depthWrite:false,sizeAttenuation:true,opacity:0.52}));
+      blending:THREE.AdditiveBlending,depthWrite:false,sizeAttenuation:true,opacity:0.68}));
   }
 
   // ===== BACKGROUND STARS — layered, temperature-colored, with Milky Way band =====
@@ -1007,13 +1007,13 @@
       const pos=[],col=[];
       for(let i=0;i<7600;i++){
         const p=spherePt(100,180); pos.push(...p);
-        const b=0.23+Math.random()*0.34;
+        const b=0.30+Math.random()*0.38;
         const c=starColor(); col.push(c[0]*b,c[1]*b,c[2]*b);
       }
       const geo=new THREE.BufferGeometry();
       geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
       geo.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
-      scene.add(new THREE.Points(geo,new THREE.PointsMaterial({size:0.055,map:ROUND_TEX,vertexColors:true,transparent:true,opacity:1,depthWrite:false,alphaTest:0.01})));
+      scene.add(new THREE.Points(geo,new THREE.PointsMaterial({size:0.062,map:ROUND_TEX,vertexColors:true,transparent:true,opacity:1,depthWrite:false,alphaTest:0.01})));
     }
 
     // Layer 2 — mid-field, medium stars with color variety
@@ -1021,13 +1021,13 @@
       const pos=[],col=[];
       for(let i=0;i<3000;i++){
         const p=spherePt(75,130); pos.push(...p);
-        const b=0.42+Math.random()*0.48;
+        const b=0.52+Math.random()*0.50;
         const c=starColor(); col.push(c[0]*b,c[1]*b,c[2]*b);
       }
       const geo=new THREE.BufferGeometry();
       geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
       geo.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
-      scene.add(new THREE.Points(geo,new THREE.PointsMaterial({size:0.092,map:ROUND_TEX,vertexColors:true,transparent:true,opacity:1,depthWrite:false,alphaTest:0.01})));
+      scene.add(new THREE.Points(geo,new THREE.PointsMaterial({size:0.108,map:ROUND_TEX,vertexColors:true,transparent:true,opacity:1,depthWrite:false,alphaTest:0.01})));
     }
 
     // Layer 3 — bright foreground stars, prominent points
@@ -1035,13 +1035,13 @@
       const pos=[],col=[];
       for(let i=0;i<420;i++){
         const p=spherePt(60,90); pos.push(...p);
-        const b=0.76+Math.random()*0.34;
+        const b=0.88+Math.random()*0.36;
         const c=starColor(); col.push(c[0]*b,c[1]*b,c[2]*b);
       }
       const geo=new THREE.BufferGeometry();
       geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
       geo.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
-      scene.add(new THREE.Points(geo,new THREE.PointsMaterial({size:0.18,map:ROUND_TEX,vertexColors:true,transparent:true,opacity:1,depthWrite:false,alphaTest:0.01})));
+      scene.add(new THREE.Points(geo,new THREE.PointsMaterial({size:0.205,map:ROUND_TEX,vertexColors:true,transparent:true,opacity:1,depthWrite:false,alphaTest:0.01})));
     }
 
     // Layer 4 — sparse soft glints for depth and detail.
@@ -1049,13 +1049,13 @@
       const pos=[],col=[];
       for(let i=0;i<34;i++){
         const p=spherePt(68,118); pos.push(...p);
-        const c=starColor(), b=0.74+Math.random()*0.22;
+        const c=starColor(), b=0.84+Math.random()*0.26;
         col.push(c[0]*b,c[1]*b,c[2]*b);
       }
       const geo=new THREE.BufferGeometry();
       geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
       geo.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
-      scene.add(new THREE.Points(geo,new THREE.PointsMaterial({size:0.44,map:STAR_GLINT_TEX,vertexColors:true,transparent:true,opacity:0.72,depthWrite:false,alphaTest:0.01})));
+      scene.add(new THREE.Points(geo,new THREE.PointsMaterial({size:0.52,map:STAR_GLINT_TEX,vertexColors:true,transparent:true,opacity:0.82,depthWrite:false,alphaTest:0.01})));
     }
 
     // Milky Way band — tiny dim stars concentrated along a tilted great circle
@@ -1072,13 +1072,13 @@
         const y=yRaw*Math.cos(BAND_TILT)-zRaw*Math.sin(BAND_TILT);
         const z=yRaw*Math.sin(BAND_TILT)+zRaw*Math.cos(BAND_TILT);
         pos.push(x,y,z);
-        const b=0.09+Math.random()*0.16;
+        const b=0.13+Math.random()*0.19;
         col.push(b*0.80,b*0.86,b*1.0);
       }
       const geo=new THREE.BufferGeometry();
       geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
       geo.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
-      scene.add(new THREE.Points(geo,new THREE.PointsMaterial({size:0.044,map:ROUND_TEX,vertexColors:true,transparent:true,opacity:1,depthWrite:false,alphaTest:0.01})));
+      scene.add(new THREE.Points(geo,new THREE.PointsMaterial({size:0.052,map:ROUND_TEX,vertexColors:true,transparent:true,opacity:1,depthWrite:false,alphaTest:0.01})));
     }
   })();
 
@@ -1165,7 +1165,7 @@
   sunCorona.position.set(0,0.045,0);
   scene.add(sunCorona);
   const sunFlare=makeSunFlareSprite();
-  sunFlare.scale.set(2.15,0.42,1);
+  sunFlare.scale.set(2.55,0.52,1);
   sunFlare.position.set(0,0.13,0);
   scene.add(sunFlare);
   const sunAura=makeSpriteGlow(0xff8c22,0.72,0.16,0.28);
