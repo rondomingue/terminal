@@ -465,10 +465,10 @@
 
   // Planet definitions — a in AU, L0/T for position calculation
   const PLANET_DEFS=[
-    {name:'MERCURY',a:0.387, L0:252.25,T:87.97,   col:0xa8a396,radius:0.048,orbitCol:0x767063},
-    {name:'VENUS',  a:0.723, L0:181.98,T:224.70,  col:0xd9b56f,radius:0.092,orbitCol:0x8e7a52},
-    {name:'EARTH',  a:1.000, L0:100.46,T:365.25,  col:0x55b8d5,radius:0.10, orbitCol:0xf3eedb,glow:true},
-    {name:'MARS',   a:1.524, L0:355.45,T:686.97,  col:0xb71916,radius:0.058,orbitCol:0x7a211d},
+    {name:'MERCURY',a:0.387, L0:252.25,T:87.97,   col:0xa8a396,radius:0.034,orbitCol:0x767063},
+    {name:'VENUS',  a:0.723, L0:181.98,T:224.70,  col:0xd9b56f,radius:0.064,orbitCol:0x8e7a52},
+    {name:'EARTH',  a:1.000, L0:100.46,T:365.25,  col:0x55b8d5,radius:0.070, orbitCol:0xf3eedb,glow:true},
+    {name:'MARS',   a:1.524, L0:355.45,T:686.97,  col:0xb71916,radius:0.041,orbitCol:0x7a211d},
     {name:'JUPITER',a:5.203, L0:34.40, T:4332.59, col:0xc8a868,radius:0.38, orbitCol:0x8c7651,outer:true},
     {name:'SATURN', a:9.537, L0:49.94, T:10759.22,col:0xe0d090,radius:0.32, orbitCol:0x8b8060,outer:true,rings:true},
     {name:'URANUS', a:19.19,L0:313.23,T:30687.15, col:0x7fd8e8,radius:0.18, orbitCol:0x4b6970,outer:true},
@@ -805,20 +805,6 @@
       blending:THREE.AdditiveBlending,depthWrite:false,sizeAttenuation:true,opacity:0.95}));
   }
 
-  // ===== ECLIPTIC GRID =====
-  const gridHelper=new THREE.GridHelper(16,32,0x1a1712,0x0c0b09);
-  gridHelper.material.transparent=true;
-  gridHelper.material.opacity=0.55;
-  gridHelper.position.y=0;
-  scene.add(gridHelper);
-
-  // Faint plane fill
-  const planeGeo=new THREE.PlaneGeometry(16,16);
-  const planeMat=new THREE.MeshBasicMaterial({color:0x050402,transparent:true,opacity:0.28,side:THREE.DoubleSide,depthWrite:false});
-  const plane=new THREE.Mesh(planeGeo,planeMat);
-  plane.rotation.x=-Math.PI/2;
-  scene.add(plane);
-
   // ===== BACKGROUND STARS — layered, temperature-colored, with Milky Way band =====
   (()=>{
     // Stellar temperature palette — O/B blue-white, A white, F/G yellow-white, K orange, M red-orange
@@ -918,7 +904,7 @@
     const geo=new THREE.BufferGeometry();
     geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
     geo.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
-    scene.add(new THREE.Points(geo,new THREE.PointsMaterial({size:0.026,map:ROUND_TEX,vertexColors:true,transparent:true,opacity:0.68,depthWrite:false,alphaTest:0.01})));
+    scene.add(new THREE.Points(geo,new THREE.PointsMaterial({size:0.018,map:ROUND_TEX,vertexColors:true,transparent:true,opacity:0.56,depthWrite:false,alphaTest:0.01})));
 
     // Kuiper belt hint (30–50 AU) — very sparse, tiny, visible when zoomed out
     const kpos=[],kcol=[];
@@ -1068,13 +1054,13 @@
     });
   });
   const moonMesh=new THREE.Mesh(
-    new THREE.SphereGeometry(0.028,16,16),
+    new THREE.SphereGeometry(0.020,16,16),
     new THREE.MeshPhongMaterial({map:moonTex,specular:0x050508,shininess:2})
   );
   scene.add(moonMesh);
   // faint moonlight glow sprite
   const moonGlowSp=makeSpriteGlow(0x8090b0,0.1,0.26,0.25);
-  moonGlowSp.scale.set(0.12,0.12,1);
+  moonGlowSp.scale.set(0.08,0.08,1);
   scene.add(moonGlowSp);
 
   // ===== NEO POINTS (built from data) =====
@@ -1132,7 +1118,7 @@
     geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
     geo.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
     neoPoints=new THREE.Points(geo,new THREE.PointsMaterial({
-      size:0.034,map:ROUND_TEX,vertexColors:true,transparent:true,opacity:0.72,depthWrite:false,
+      size:0.024,map:ROUND_TEX,vertexColors:true,transparent:true,opacity:0.64,depthWrite:false,
       sizeAttenuation:true,alphaTest:0.01
     }));
     scene.add(neoPoints);
@@ -1140,7 +1126,7 @@
     // PHA glow sprites
     neoData.filter(n=>n.pha==='Y').forEach(n=>{
       const sp=makeSpriteGlow(0xe21b1b,0.12,0.36,0.2);
-      sp.scale.set(0.16,0.16,1);
+      sp.scale.set(0.10,0.10,1);
       sp.position.copy(n._pos);
       scene.add(sp);
       neoSprites.push(sp);
@@ -1186,7 +1172,7 @@
   });
 
   // Selection marker
-  const selMarkerGeo=new THREE.SphereGeometry(0.075,16,16);
+  const selMarkerGeo=new THREE.SphereGeometry(0.052,16,16);
   const selMarkerMat=new THREE.MeshBasicMaterial({color:0xff7a1a,transparent:true,opacity:0,wireframe:true});
   const selMarker=new THREE.Mesh(selMarkerGeo,selMarkerMat);
   scene.add(selMarker);
