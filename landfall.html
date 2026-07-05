@@ -6,7 +6,7 @@
 <title>LANDFALL // LIVE — TROPICAL CYCLONE OPERATIONS</title>
 <link href="https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.css" rel="stylesheet"/>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;700&family=Barlow:wght@300;400;500;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;700&family=Barlow:wght@300;400;500;600&family=Oswald:wght@400;500;600;700&display=swap');
   :root{
     --bg:#030713;
     --panel:rgba(6,8,18,0.28);
@@ -75,14 +75,18 @@
     background:radial-gradient(ellipse at 50% 50%,transparent 46%,rgba(0,0,0,.5) 100%);}
 
   /* HEADER */
-  #header{position:absolute;top:0;left:0;right:0;z-index:10;display:grid;grid-template-columns:minmax(280px,.82fr) minmax(520px,1.28fr) minmax(220px,.68fr);align-items:start;gap:14px;padding:12px 28px 0;}
+  #header{position:absolute;top:0;left:0;right:0;z-index:10;display:grid;grid-template-columns:minmax(260px,.6fr) minmax(600px,1.4fr);align-items:start;gap:18px;padding:12px 28px 0;}
   .brand{position:relative;min-height:62px;padding:9px 0 0 15px;border-left:3px solid var(--cat3);
     background:linear-gradient(90deg,rgba(215,138,61,.10),rgba(9,14,24,.08) 52%,transparent);
     box-shadow:inset 0 1px 0 rgba(255,255,255,.05);}
   .brand::before{content:'';position:absolute;left:0;top:0;width:78%;height:1px;background:linear-gradient(90deg,rgba(215,138,61,.55),transparent);}
   .brand::after{content:'';position:absolute;left:0;bottom:0;width:42%;height:1px;background:linear-gradient(90deg,rgba(180,200,235,.18),transparent);}
-  .brand .title{font-weight:300;font-size:24px;letter-spacing:.18em;color:var(--white);line-height:.95;}
-  .brand .title b{color:var(--cat3);font-weight:500;text-shadow:0 0 12px rgba(215,138,61,.32);}
+  .brand .title{font-family:'Oswald',sans-serif;font-weight:500;font-size:26px;letter-spacing:.11em;color:var(--white);line-height:.95;}
+  .brand-row{display:flex;align-items:center;gap:9px;}
+  #brand-flag{flex:0 0 auto;filter:drop-shadow(0 0 4px rgba(200,79,56,.4));transform-origin:6px 6px;animation:flag-flutter 3.6s ease-in-out infinite;}
+  @media(prefers-reduced-motion:reduce){#brand-flag{animation:none;}}
+  @keyframes flag-flutter{0%,100%{transform:skewY(0deg) scaleX(1);}50%{transform:skewY(-2.5deg) scaleX(.985);}}
+  .brand .title b{color:var(--cat3);font-weight:700;text-shadow:0 0 12px rgba(215,138,61,.32);}
   .brand .live-mark{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.16em;color:var(--ink-dim);font-weight:300;}
   .brand .sub{font-family:'IBM Plex Mono',monospace;font-size:7.5px;letter-spacing:.16em;color:var(--ink-dim);margin-top:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
   .id-strip{font-family:'IBM Plex Mono',monospace;font-size:6.8px;letter-spacing:.12em;color:var(--ink-faint);margin-top:7px;display:flex;gap:7px;flex-wrap:wrap;align-items:center;}
@@ -93,25 +97,19 @@
     outline:2px solid rgba(74,144,208,.75);outline-offset:2px;
   }
   .id-strip .sep{color:var(--line);}
-  .clockblock{position:relative;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.08em;color:var(--ink-dim);line-height:1.55;padding:8px 14px 0 0;min-height:62px;
-    background:linear-gradient(270deg,rgba(74,144,208,.08),rgba(9,14,24,.06) 58%,transparent);
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.04);}
-  .clockblock::before{content:'';position:absolute;right:0;top:0;width:78%;height:1px;background:linear-gradient(270deg,rgba(111,152,183,.5),transparent);}
-  .clockblock::after{content:'';position:absolute;right:0;top:0;bottom:0;width:3px;background:linear-gradient(to bottom,var(--advisory),rgba(111,152,183,.12));}
-  .clockblock .clock-label{font-size:6.8px;letter-spacing:.22em;color:var(--ink-faint);text-transform:uppercase;}
-  .clockblock .big{font-size:21px;letter-spacing:.14em;color:var(--white);line-height:1.05;margin-top:2px;}
-  .mini-stats{display:flex;gap:6px;justify-content:flex-end;font-family:'IBM Plex Mono',monospace;font-size:6.8px;color:var(--ink-faint);margin-top:8px;flex-wrap:wrap;}
-  .mini-stats span{padding:2px 6px;border:1px solid rgba(180,200,235,.12);border-radius:999px;background:rgba(255,255,255,.025);}
-  .mini-stats b{color:var(--ink-dim);font-weight:400;margin-left:4px;}
-  #header-data{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;align-self:stretch;}
+  .meta-tag{display:flex;gap:6px;align-items:center;font-family:'IBM Plex Mono',monospace;font-size:6.8px;color:var(--ink-faint);flex-wrap:wrap;}
+  .meta-tag span{padding:2px 6px;border:1px solid rgba(180,200,235,.12);border-radius:999px;background:rgba(255,255,255,.025);}
+  .meta-tag b{color:var(--ink-dim);font-weight:400;margin-left:4px;}
+  #header-data{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;align-self:stretch;}
   .hstat{position:relative;min-height:48px;padding:7px 7px 6px;border:1px solid var(--mui-outline);
     background:linear-gradient(180deg,var(--mui-surface),rgba(5,9,17,.2));box-shadow:var(--mui-shadow);border-radius:var(--mui-radius);}
   .hstat::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;background:linear-gradient(90deg,currentColor,transparent);}
   .hstat-label{font-family:'IBM Plex Mono',monospace;font-size:6.5px;letter-spacing:.14em;color:var(--ink-faint);white-space:nowrap;}
   .hstat-value{font-family:'IBM Plex Mono',monospace;font-size:15px;letter-spacing:.04em;color:var(--white);margin-top:4px;}
   .hstat-sub{font-family:'IBM Plex Mono',monospace;font-size:7px;letter-spacing:.08em;color:var(--ink-dim);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  #category-strip{grid-column:1 / -1;align-self:end;justify-self:stretch;display:flex;align-items:center;justify-content:center;gap:8px;padding:0;}
+  #category-strip{grid-column:1 / -1;align-self:end;justify-self:stretch;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0;}
   .cat-title{font-family:'IBM Plex Mono',monospace;font-size:7px;letter-spacing:.2em;color:var(--ink-dim);white-space:nowrap;}
+  .cat-badges-group{display:flex;align-items:center;gap:8px;}
   .cat-badges{display:flex;gap:6px;align-items:center;}
   .ss-badge{font-family:'IBM Plex Mono',monospace;font-size:7px;letter-spacing:.08em;padding:3px 8px;
     border:1px solid;border-radius:999px;opacity:.92;background:var(--mui-surface-strong);box-shadow:var(--mui-shadow);}
@@ -226,6 +224,27 @@
     font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--ink-faint);}
   #map-credit{position:absolute;bottom:8px;right:10px;z-index:4;
     font-family:'IBM Plex Mono',monospace;font-size:6.5px;color:var(--ink-faint);opacity:.6;}
+
+  /* ADVISORY CLOCK — map-mounted UTC + NHC 6-hour advisory-cycle instrument */
+  #advisory-clock{position:absolute;left:12px;bottom:72px;z-index:4;
+    display:flex;align-items:center;gap:10px;
+    padding:6px 14px 6px 7px;border:1px solid var(--mui-outline);
+    background:linear-gradient(135deg,var(--mui-surface-strong),rgba(6,10,18,.24));
+    border-radius:999px;box-shadow:var(--mui-shadow);
+    backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);}
+  #advisory-clock .ring-wrap{position:relative;width:40px;height:40px;flex:0 0 auto;}
+  #advisory-clock svg{transform:rotate(-90deg);display:block;}
+  #advisory-clock .ring-bg{fill:none;stroke:rgba(180,200,235,.16);stroke-width:3.4;}
+  #advisory-clock .ring-progress{fill:none;stroke:var(--advisory);stroke-width:3.4;stroke-linecap:round;
+    transition:stroke-dashoffset 1s linear;}
+  #advisory-clock .ring-tick{stroke:rgba(180,200,235,.4);stroke-width:1.3;}
+  #advisory-clock .ring-center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-family:'IBM Plex Mono',monospace;font-size:5.6px;letter-spacing:.05em;color:var(--ink-dim);}
+  #advisory-clock .adv-text{font-family:'IBM Plex Mono',monospace;line-height:1.5;}
+  #advisory-clock .adv-time{font-size:13px;letter-spacing:.09em;color:var(--white);}
+  #advisory-clock .adv-date{font-size:7px;letter-spacing:.1em;color:var(--ink-faint);}
+  #advisory-clock .adv-next{font-size:7.5px;letter-spacing:.05em;color:var(--advisory);margin-top:1px;white-space:nowrap;}
+  #advisory-clock .adv-next b{color:var(--white);font-weight:400;}
   #bg-credit{position:absolute;left:28px;bottom:8px;z-index:6;
     font-family:'IBM Plex Mono',monospace;font-size:6.5px;letter-spacing:.08em;color:rgba(203,213,242,.28);pointer-events:none;}
   #radar-controls{position:absolute;top:8px;right:10px;z-index:7;
@@ -321,7 +340,7 @@
     #header{position:relative;display:flex;flex-direction:column;padding:16px 16px 10px;gap:12px;}
     #header-data{grid-template-columns:repeat(2,minmax(0,1fr));width:100%;}
     .hstat{min-height:52px;}
-    #category-strip{align-items:flex-start;justify-self:start;}
+    #category-strip{align-items:flex-start;justify-self:start;flex-wrap:wrap;row-gap:8px;}
     .cat-badges{flex-wrap:wrap;}
     #header-rule{position:relative;top:auto;padding:0 16px;}
     #grid{position:relative;grid-template-columns:1fr;grid-template-rows:none;padding:0 14px 20px;gap:14px;}
@@ -348,7 +367,18 @@
 
   <div id="header">
     <div class="brand">
-      <div class="title"><b>LAND</b>FALL <span class="live-mark">// LIVE</span></div>
+      <div class="brand-row">
+        <svg id="brand-flag" viewBox="0 0 40 40" width="28" height="28" aria-hidden="true" role="img">
+          <title>Hurricane Warning signal</title>
+          <circle cx="6" cy="4" r="1.1" fill="var(--ink-dim)"/>
+          <line x1="6" y1="4" x2="6" y2="36" stroke="var(--ink-dim)" stroke-width="1.4"/>
+          <rect x="6" y="6" width="11" height="11" fill="var(--cat4)"/>
+          <rect x="9.7" y="9.7" width="3.6" height="3.6" fill="#050607"/>
+          <rect x="6" y="20" width="11" height="11" fill="var(--cat4)"/>
+          <rect x="9.7" y="23.7" width="3.6" height="3.6" fill="#050607"/>
+        </svg>
+        <div class="title"><b>LAND</b>FALL <span class="live-mark">// LIVE</span></div>
+      </div>
       <div class="sub">TROPICAL CYCLONE OPERATIONS // GULF OF MEXICO — NHC WATCH</div>
       <div class="id-strip">
         <span>REGION <b>NAL/GOM</b></span><span class="sep">/</span>
@@ -383,22 +413,24 @@
         <div class="hstat-value" id="hd-points">—</div>
         <div class="hstat-sub">BEZIER SOURCE</div>
       </div>
-      <div id="category-strip" aria-label="Category hurricanes">
-        <div class="cat-title">CATEGORY HURRICANES</div>
-        <div class="cat-badges">
-          <div class="ss-badge" style="color:var(--cat1);border-color:var(--cat1);">CAT 1</div>
-          <div class="ss-badge" style="color:var(--cat2);border-color:var(--cat2);">CAT 2</div>
-          <div class="ss-badge" style="color:var(--cat3);border-color:var(--cat3);">CAT 3</div>
-          <div class="ss-badge" style="color:var(--cat4);border-color:var(--cat4);">CAT 4</div>
-          <div class="ss-badge" style="color:var(--cat5);border-color:var(--cat5);">CAT 5</div>
-        </div>
+      <div class="hstat" id="hd-status-card" style="color:var(--clear)">
+        <div class="hstat-label">BASIN STATUS</div>
+        <div class="hstat-value" id="hd-status">QUIET</div>
+        <div class="hstat-sub" id="hd-status-sub">NO ACTIVE SYSTEMS</div>
       </div>
-    </div>
-    <div class="clockblock">
-      <div class="clock-label">System Time</div>
-      <div class="big mono" id="clock">00:00:00</div>
-      <div id="datestr" style="font-size:8.5px;letter-spacing:.08em;">----.--.-- UTC</div>
-      <div class="mini-stats"><span>BASIN<b>NAL</b></span><span>SEASON<b>2026</b></span><span>SRC<b>NHC/NWS</b></span></div>
+      <div id="category-strip" aria-label="Category hurricanes">
+        <div class="cat-badges-group">
+          <div class="cat-title">CATEGORY HURRICANES</div>
+          <div class="cat-badges">
+            <div class="ss-badge" style="color:var(--cat1);border-color:var(--cat1);">CAT 1</div>
+            <div class="ss-badge" style="color:var(--cat2);border-color:var(--cat2);">CAT 2</div>
+            <div class="ss-badge" style="color:var(--cat3);border-color:var(--cat3);">CAT 3</div>
+            <div class="ss-badge" style="color:var(--cat4);border-color:var(--cat4);">CAT 4</div>
+            <div class="ss-badge" style="color:var(--cat5);border-color:var(--cat5);">CAT 5</div>
+          </div>
+        </div>
+        <div class="meta-tag"><span>BASIN<b>NAL</b></span><span>SEASON<b>2026</b></span><span>SRC<b>NHC/NWS</b></span></div>
+      </div>
     </div>
   </div>
   <div id="header-rule"><svg width="100%" height="10" id="hrsvg" preserveAspectRatio="none"></svg></div>
@@ -459,6 +491,25 @@
           </div>
         </div>
         <div id="map-credit">MAP © MAPBOX © OSM · RADAR © RAINVIEWER</div>
+        <div id="advisory-clock" aria-label="Coordinated Universal Time and countdown to next NHC advisory">
+          <div class="ring-wrap">
+            <svg viewBox="0 0 40 40" width="40" height="40">
+              <circle class="ring-bg" cx="20" cy="20" r="16"></circle>
+              <circle class="ring-progress" id="adv-ring" cx="20" cy="20" r="16"
+                stroke-dasharray="100.53" stroke-dashoffset="100.53"></circle>
+              <line class="ring-tick" x1="20" y1="2" x2="20" y2="5"></line>
+              <line class="ring-tick" x1="20" y1="2" x2="20" y2="5" transform="rotate(90 20 20)"></line>
+              <line class="ring-tick" x1="20" y1="2" x2="20" y2="5" transform="rotate(180 20 20)"></line>
+              <line class="ring-tick" x1="20" y1="2" x2="20" y2="5" transform="rotate(270 20 20)"></line>
+            </svg>
+            <div class="ring-center">UTC</div>
+          </div>
+          <div class="adv-text">
+            <div class="adv-time mono" id="map-clock">00:00:00</div>
+            <div class="adv-date mono" id="map-datestr">----.--.--</div>
+            <div class="adv-next mono">NEXT ADV <b id="map-adv-countdown">--:--:--</b></div>
+          </div>
+        </div>
         <!-- Radar controls -->
         <div id="radar-controls">
           <span id="sst-map-status">SST —</span>
@@ -523,11 +574,28 @@
   function catColor(cat){ return CAT_COLOR[cat]||'#6b7090'; }
   function catOpacity(cat){ return cat>=4?0.9:cat>=3?0.8:0.7; }
 
-  // CLOCK
+  // CLOCK + ADVISORY CYCLE (NHC issues synoptic advisories every 6h: 0300/0900/1500/2100 UTC)
+  const ADV_RING_CIRC=2*Math.PI*16; // matches r=16 in the SVG
   function tick(){
     const n=new Date();
-    $('clock').textContent=n.toUTCString().slice(17,25);
-    $('datestr').textContent=n.toISOString().slice(0,10).replace(/-/g,'.')+' UTC';
+    const clockStr=n.toUTCString().slice(17,25);
+    const dateStr=n.toISOString().slice(0,10).replace(/-/g,'.');
+    if($('map-clock')) $('map-clock').textContent=clockStr;
+    if($('map-datestr')) $('map-datestr').textContent=dateStr;
+
+    const h=n.getUTCHours(),m=n.getUTCMinutes(),s=n.getUTCSeconds();
+    const totalSec=h*3600+m*60+s;
+    const cycleSec=6*3600;
+    const offset=3*3600; // NHC synoptic advisories issue at 0300/0900/1500/2100 UTC
+    const elapsed=((totalSec-offset)%cycleSec+cycleSec)%cycleSec;
+    const fraction=elapsed/cycleSec;
+    const remain=cycleSec-elapsed;
+    const rh=Math.floor(remain/3600),rm=Math.floor((remain%3600)/60),rs=Math.floor(remain%60);
+    const pad=v=>String(v).padStart(2,'0');
+    if($('map-adv-countdown')) $('map-adv-countdown').textContent=`${pad(rh)}:${pad(rm)}:${pad(rs)}`;
+    const ring=$('adv-ring');
+    if(ring) ring.style.strokeDashoffset=String(ADV_RING_CIRC*(1-fraction));
+
     if($('adv-ts')) $('adv-ts').textContent=n.toUTCString().slice(5,16).toUpperCase();
     const nx=new Date(n.getTime()+6*3600*1000);
     if($('adv-next')) $('adv-next').textContent=nx.toUTCString().slice(17,25)+' UTC';
@@ -1348,6 +1416,11 @@
           $('active-count').textContent=String(items.length);
           $('active-count').className='value-xl active mono';
           $('adv-status-block').innerHTML=`<div class="adv-active" style="color:var(--cat4);text-shadow:0 0 8px rgba(200,79,56,.28)">${items.length} ACTIVE SYSTEM${items.length>1?'S':''}</div><div class="adv-detail">${ti?ti.textContent.slice(0,100):''}</div>`;
+          if($('hd-status')){
+            $('hd-status').textContent='ACTIVE';
+            $('hd-status-sub').textContent=`${items.length} SYSTEM${items.length>1?'S':''}`;
+            const card=$('hd-status-card'); if(card) card.style.color='var(--cat4)';
+          }
         }
         return;
       }catch(e){}
