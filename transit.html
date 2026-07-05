@@ -90,6 +90,8 @@
   .value-xl.ok{color:var(--accent);text-shadow:0 0 12px rgba(255,122,26,.32);}
   .label-row{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--ink-faint);margin-top:5px;letter-spacing:.06em;}
   @keyframes pulse{0%,100%{opacity:.25;}50%{opacity:1;}}
+  @keyframes hudSpin{to{transform:rotate(360deg);}}
+  @keyframes hudSpinReverse{to{transform:rotate(-360deg);}}
   #log-card{flex:1 1 auto;padding:14px 12px 8px;overflow:hidden;}
   #log-feed{font-family:'IBM Plex Mono',monospace;font-size:9.5px;line-height:1.85;color:var(--ink-dim);height:100%;overflow:hidden;}
   .log-entry{padding:2px 0;border-bottom:1px solid var(--line-dim);}
@@ -176,9 +178,10 @@
       conic-gradient(from -18deg,transparent 0 18deg,rgba(246,241,222,.42) 18deg 51deg,transparent 51deg 96deg,rgba(255,122,26,.48) 96deg 132deg,transparent 132deg 202deg,rgba(246,241,222,.28) 202deg 238deg,transparent 238deg 360deg);
     -webkit-mask:radial-gradient(circle,transparent 0 55%,#000 56% 57%,transparent 58% 72%,#000 73% 74%,transparent 75%);
     mask:radial-gradient(circle,transparent 0 55%,#000 56% 57%,transparent 58% 72%,#000 73% 74%,transparent 75%);
-    opacity:.52;}
+    opacity:.52;transform-origin:50% 50%;animation:hudSpin 42s linear infinite;}
   #asteroid-wrap::after{content:'';position:absolute;inset:18%;z-index:1;pointer-events:none;border-radius:50%;
-    border:1px solid rgba(246,241,222,.16);box-shadow:0 0 0 22px rgba(246,241,222,.018),inset 0 0 0 34px rgba(255,122,26,.018);}
+    border:1px solid rgba(246,241,222,.16);box-shadow:0 0 0 22px rgba(246,241,222,.018),inset 0 0 0 34px rgba(255,122,26,.018);
+    transform-origin:50% 50%;animation:hudSpinReverse 68s linear infinite;}
   #asteroid-canvas{display:none;width:100%;height:100%;}
   .ast-hud{position:absolute;inset:0;z-index:3;pointer-events:none;font-family:'IBM Plex Mono',monospace;font-size:7px;letter-spacing:.08em;color:rgba(246,241,222,.78);}
   .ast-hud span{position:absolute;text-shadow:0 0 6px rgba(0,0,0,.8);}
@@ -493,7 +496,7 @@
 
     function drawPre(){
       ctx.clearRect(0,0,S,S);
-      theta+=0.014;
+      theta+=0.0045;
 
       drawHudReticle(ctx,cx,cy,112,theta,{
         label:String(Math.floor(pct)).padStart(3,'0')+'0000',
@@ -504,7 +507,7 @@
         dotAlpha:0.84
       });
 
-      const sweep=theta*1.25;
+      const sweep=theta*1.15;
       ctx.save();
       ctx.globalCompositeOperation='lighter';
       ctx.beginPath();
@@ -1573,6 +1576,7 @@
       selMarkerMat.opacity=0.38+pulse*0.22;
       const s=0.86+Math.sin(frame*0.08)*0.035;
       selMarker.scale.set(s,s,1);
+      selMarkerMat.rotation=frame*0.003;
     }
 
     renderer.render(scene,camera);
