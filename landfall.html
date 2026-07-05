@@ -187,7 +187,7 @@
   #map-stack{grid-column:2;grid-row:1 / span 3;position:relative;}
   #map-panel{position:absolute;inset:0;padding:0;}
   #storm-table-panel{position:absolute;left:10px;right:10px;bottom:16px;height:48px;z-index:12;overflow:visible;}
-  #rail-right{grid-column:3;grid-row:1 / span 4;display:flex;flex-direction:column;gap:12px;}
+  #rail-right{grid-column:3;grid-row:1 / span 4;display:flex;flex-direction:column;gap:12px;overflow-y:auto;overflow-x:hidden;}
 
   /* LEFT RAIL */
   .stat-card{flex:0 0 auto;padding:22px 12px 10px;}
@@ -310,7 +310,7 @@
   .stog.on.cat1{border-color:var(--cat1);color:var(--cat1);background:rgba(244,246,248,.1);}
 
   /* SELECTED SYSTEM — sidebar card (was a map overlay; now lives in #rail-right) */
-  #storm-focus-card{padding:32px 20px 22px;position:relative;}
+  #storm-focus-card{flex:0 0 auto;padding:32px 20px 22px;position:relative;}
   #storm-focus-card > .panel-label{max-width:calc(100% - 90px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .focus-clear-btn{position:absolute;top:14px;right:16px;z-index:2;
     font-family:'IBM Plex Mono',monospace;font-size:7px;letter-spacing:.1em;color:var(--ink-faint);
@@ -354,7 +354,7 @@
   .adv-quiet{font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.06em;margin-top:12px;line-height:1.5;color:var(--clear);text-shadow:0 0 8px rgba(58,170,112,.3);}
   .adv-active{font-family:'IBM Plex Mono',monospace;font-size:12px;animation:flicker 7s infinite;margin-top:12px;}
   .adv-detail{color:var(--ink-faint);font-family:'IBM Plex Mono',monospace;font-size:9.5px;line-height:1.8;margin-top:6px;}
-  #risk-card{flex:1 1 auto;padding:22px 12px 10px;overflow:hidden;}
+  #risk-card{flex:1 1 auto;padding:22px 12px 10px;overflow:hidden;min-height:300px;}
   #history-sidebar-card{flex:1.35 1 auto;padding:22px 12px 10px;min-height:230px;overflow:hidden;}
   #history-sidebar-card .history-table-wrap{margin-top:22px;padding:0 8px 8px;height:calc(100% - 22px);overflow-y:auto;}
   #history-sidebar-card .srow{font-size:9px;grid-template-columns:64px 34px 30px 42px 42px 22px 34px minmax(120px,1fr);}
@@ -660,7 +660,7 @@
       <div class="panel" id="risk-card">
         <div class="panel-label">GULF CITIES — RISK INDEX</div>
         <div class="risk-explain"><b>0-100 exposure score</b> based on surge, flooding, coastal position, and past storm hits.</div>
-        <div style="padding:0 12px 8px;" id="risk-body"></div>
+        <div style="padding:0 12px 8px;max-height:230px;overflow-y:auto;" id="risk-body"></div>
       </div>
       <div class="panel" id="wx-card">
         <div class="panel-label">CITY CONDITIONS</div>
