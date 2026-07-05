@@ -768,6 +768,44 @@
       blending:THREE.AdditiveBlending,depthWrite:false,sizeAttenuation:true,opacity}));
   }
 
+  function makeSelectionReticle(){
+    const c=document.createElement('canvas');c.width=c.height=160;
+    const ctx=c.getContext('2d');
+    const cx=80,cy=80;
+    ctx.clearRect(0,0,160,160);
+    ctx.lineCap='round';
+    ctx.strokeStyle='rgba(255,122,26,0.78)';
+    ctx.lineWidth=2.4;
+    [[-0.98,-0.30],[0.30,0.98],[2.16,2.84],[3.44,4.12]].forEach(a=>{
+      ctx.beginPath();
+      ctx.arc(cx,cy,48,a[0],a[1]);
+      ctx.stroke();
+    });
+    ctx.strokeStyle='rgba(255,214,148,0.42)';
+    ctx.lineWidth=1.2;
+    ctx.beginPath();
+    ctx.arc(cx,cy,31,0,Math.PI*2);
+    ctx.stroke();
+    ctx.strokeStyle='rgba(255,122,26,0.52)';
+    [[80,18,80,32],[80,128,80,142],[18,80,32,80],[128,80,142,80]].forEach(l=>{
+      ctx.beginPath();
+      ctx.moveTo(l[0],l[1]);
+      ctx.lineTo(l[2],l[3]);
+      ctx.stroke();
+    });
+    ctx.fillStyle='rgba(255,214,148,0.72)';
+    ctx.beginPath();
+    ctx.arc(cx,cy,2.2,0,Math.PI*2);
+    ctx.fill();
+    ditherCanvas(ctx,160,160,3);
+    const tex=new THREE.CanvasTexture(c);
+    return new THREE.SpriteMaterial({
+      map:tex,transparent:true,opacity:0,
+      blending:THREE.AdditiveBlending,depthWrite:false,depthTest:false,
+      sizeAttenuation:true
+    });
+  }
+
   function makeSunCoronaSprite(){
     const c=document.createElement('canvas');c.width=c.height=256;
     const ctx=c.getContext('2d');
@@ -1172,9 +1210,9 @@
   });
 
   // Selection marker
-  const selMarkerGeo=new THREE.SphereGeometry(0.052,16,16);
-  const selMarkerMat=new THREE.MeshBasicMaterial({color:0xff7a1a,transparent:true,opacity:0,wireframe:true});
-  const selMarker=new THREE.Mesh(selMarkerGeo,selMarkerMat);
+  const selMarkerMat=makeSelectionReticle();
+  const selMarker=new THREE.Sprite(selMarkerMat);
+  selMarker.scale.set(0.86,0.86,1);
   scene.add(selMarker);
 
   // ===== ASTEROID DETAIL RENDERER =====
@@ -1375,7 +1413,7 @@
     const phaEl=$('sel-pha');
     phaEl.textContent=neo.pha==='Y'?'POTENTIALLY HAZARDOUS':'SAFE';
     phaEl.className='v '+(neo.pha==='Y'?'danger':'safe');
-    if(neo._pos){ selMarker.position.copy(neo._pos); selMarkerMat.opacity=0.7; }
+    if(neo._pos){ selMarker.position.copy(neo._pos); selMarkerMat.opacity=0.56; }
     document.querySelectorAll('.neo-row').forEach(r=>r.classList.remove('selected'));
     document.querySelector(`.neo-row[data-des="${neo.des}"]`)?.classList.add('selected');
     showAsteroid(neo);
@@ -1419,8 +1457,9 @@
     // Pulse selection marker
     if(selMarkerMat.opacity>0){
       const pulse=0.6+Math.sin(frame*0.08)*0.3;
-      selMarkerMat.opacity=pulse*0.7;
-      selMarker.scale.setScalar(0.9+Math.sin(frame*0.08)*0.15);
+      selMarkerMat.opacity=0.38+pulse*0.22;
+      const s=0.86+Math.sin(frame*0.08)*0.035;
+      selMarker.scale.set(s,s,1);
     }
 
     renderer.render(scene,camera);
