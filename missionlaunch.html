@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>MISSIONLAUNCH — Upcoming Space Missions</title>
+<link rel="stylesheet" href="https://use.typekit.net/xhf1nbc.css">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#05070a;
+    --panel:#0a0e13;
+    --panel2:#0d131a;
+    --line:rgba(181,218,226,.19);
+    --line2:rgba(181,218,226,.08);
+    --ink:#d9e4df;
+    --muted:#7f908d;
+    --faint:#465353;
+    --cyan:#55d6e8;
+    --cyan2:#87f4ff;
+    --amber:#f7a63a;
+    --red:#ff4a48;
+    --green:#91e8b3;
+    --white:#fff8e8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{width:100%;min-height:100%;background:var(--bg);color:var(--ink);overflow:hidden;}
+  body{
+    font-family:'Rajdhani','Arial Narrow',Arial,sans-serif;
+    letter-spacing:.03em;
+    background:
+      radial-gradient(circle at 48% 35%,rgba(35,80,88,.16),transparent 34%),
+      linear-gradient(180deg,#061019 0%,#05070a 54%,#030405 100%);
+  }
+  body::before{
+    content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.52;
+    background-image:
+      linear-gradient(rgba(181,218,226,.055) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(181,218,226,.045) 1px,transparent 1px),
+      linear-gradient(rgba(247,166,58,.032) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(247,166,58,.026) 1px,transparent 1px);
+    background-size:42px 42px,42px 42px,168px 168px,168px 168px;
+    mask-image:linear-gradient(180deg,rgba(0,0,0,.8),rgba(0,0,0,.25) 62%,rgba(0,0,0,.75));
+  }
+  body::after{
+    content:'';position:fixed;inset:0;pointer-events:none;z-index:20;opacity:.28;
+    background:
+      repeating-linear-gradient(0deg,rgba(255,255,255,.028) 0 1px,transparent 1px 4px),
+      radial-gradient(circle at 20% 12%,rgba(255,255,255,.08),transparent 1px),
+      radial-gradient(circle at 72% 26%,rgba(255,255,255,.08),transparent 1px),
+      radial-gradient(circle at 82% 78%,rgba(255,255,255,.07),transparent 1px);
+    mix-blend-mode:screen;
+  }
+  button,input{font:inherit;color:inherit;}
+  button{border:0;background:none;cursor:pointer;}
+  .app{position:relative;z-index:2;width:100vw;height:100vh;padding:18px;display:grid;grid-template-rows:auto 1fr;gap:12px;}
+  .topbar{
+    min-height:76px;border:1px solid var(--line);background:linear-gradient(180deg,rgba(10,14,19,.78),rgba(5,7,10,.38));
+    display:grid;grid-template-columns:1fr auto;gap:18px;padding:14px 16px;position:relative;overflow:hidden;
+  }
+  .topbar::before,.panel::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),var(--amber),transparent);opacity:.45;}
+  .brand{display:flex;flex-direction:column;gap:5px;min-width:0;}
+  .brand h1{
+    font-family:'Rajdhani','Arial Narrow',Arial,sans-serif;font-size:31px;line-height:.9;font-weight:600;
+    letter-spacing:.31em;color:var(--white);text-transform:uppercase;
+  }
+  .brand h1 span{color:var(--amber);}
+  .meta{display:flex;gap:14px;flex-wrap:wrap;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;}
+  .meta b{color:var(--cyan);font-weight:500;}
+  .status-strip{display:flex;align-items:center;gap:9px;justify-content:flex-end;min-width:360px;}
+  .clock{font-family:'IBM Plex Mono',monospace;color:var(--white);font-size:22px;letter-spacing:.05em;}
+  .pill{border:1px solid var(--line);padding:7px 10px;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;background:rgba(255,255,255,.02);}
+  .pill.live{color:var(--green);border-color:rgba(145,232,179,.34);}
+  .layout{min-height:0;display:grid;grid-template-columns:300px minmax(0,1fr) 345px;grid-template-rows:minmax(0,1fr) 180px;gap:12px;}
+  .panel{position:relative;border:1px solid var(--line);background:linear-gradient(180deg,rgba(13,19,26,.82),rgba(5,7,10,.68));overflow:hidden;}
+  .panel-label{
+    position:absolute;top:9px;left:12px;right:12px;z-index:5;font-family:'IBM Plex Mono',monospace;font-size:10px;line-height:1;
+    letter-spacing:.18em;color:var(--muted);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .panel-label::before{content:'[';color:var(--amber);margin-right:8px;}
+  .panel-label::after{content:']';color:var(--amber);margin-left:8px;}
+  .left{grid-row:1/3;display:flex;flex-direction:column;padding:36px 10px 10px;gap:10px;}
+  .search{height:34px;border:1px solid var(--line);background:rgba(0,0,0,.25);padding:0 10px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;outline:none;color:var(--ink);}
+  .search:focus{border-color:rgba(85,214,232,.55);}
+  .filters{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+  .filter{
+    border:1px solid var(--line2);background:rgba(255,255,255,.025);min-height:30px;padding:4px 7px;
+    font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;
+  }
+  .filter.active{color:var(--white);border-color:rgba(247,166,58,.62);background:rgba(247,166,58,.12);}
+  .summary{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+  .stat{border:1px solid var(--line2);padding:8px;background:rgba(0,0,0,.18);min-height:61px;}
+  .stat .k{font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--faint);letter-spacing:.12em;text-transform:uppercase;}
+  .stat .v{font-family:'Rajdhani',sans-serif;font-size:30px;line-height:1;color:var(--cyan);font-weight:600;}
+  .stat.warn .v{color:var(--amber);}
+  .mission-list{min-height:0;overflow:auto;border-top:1px solid var(--line2);padding-top:5px;}
+  .mission-row{
+    display:grid;grid-template-columns:52px minmax(0,1fr) 42px;gap:8px;align-items:center;border-bottom:1px solid var(--line2);
+    padding:8px 3px 8px 0;cursor:pointer;color:var(--muted);
+  }
+  .mission-row:hover,.mission-row.active{background:linear-gradient(90deg,rgba(85,214,232,.08),transparent);color:var(--ink);}
+  .mission-row.active{box-shadow:inset 2px 0 0 var(--amber);}
+  .datebox{font-family:'IBM Plex Mono',monospace;font-size:8px;text-align:center;color:var(--cyan);border:1px solid var(--line2);padding:4px 2px;background:rgba(0,0,0,.18);}
+  .datebox b{display:block;color:var(--white);font-size:14px;line-height:1.15;}
+  .row-title{min-width:0;}
+  .row-title b{display:block;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .row-title span{display:block;font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .badge{font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--amber);text-align:right;text-transform:uppercase;}
+  .main{grid-column:2;grid-row:1;display:grid;grid-template-rows:1fr 74px;padding:0;}
+  .viz-wrap{position:relative;min-height:0;}
+  #mission-canvas{position:absolute;inset:0;width:100%;height:100%;}
+  .viz-readout{
+    position:absolute;left:16px;bottom:14px;display:grid;grid-template-columns:repeat(4,auto);gap:9px;
+    font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.09em;text-transform:uppercase;
+  }
+  .readout-cell{border-top:1px solid var(--line);padding-top:5px;min-width:78px;}
+  .readout-cell b{display:block;color:var(--white);font-size:12px;margin-top:2px;}
+  .countdown{border-top:1px solid var(--line);display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:12px 16px;background:rgba(0,0,0,.18);}
+  .count-name{min-width:0;}
+  .count-name .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--amber);letter-spacing:.16em;text-transform:uppercase;}
+  .count-name h2{font-size:24px;line-height:1;font-weight:500;letter-spacing:.11em;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase;}
+  .timer{display:flex;gap:10px;}
+  .timer div{min-width:58px;text-align:center;border-left:1px solid var(--line2);padding-left:10px;}
+  .timer b{display:block;font-family:'IBM Plex Mono',monospace;font-size:24px;line-height:1;color:var(--cyan2);font-weight:500;}
+  .timer span{font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;}
+  .right{grid-column:3;grid-row:1/3;display:grid;grid-template-rows:330px minmax(0,1fr);gap:12px;background:none;border:0;overflow:visible;}
+  .detail,.agency{padding:36px 13px 12px;}
+  .mission-image{height:158px;border:1px solid var(--line);background:#030507 center/cover no-repeat;position:relative;margin-bottom:10px;overflow:hidden;}
+  .mission-image::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent,rgba(0,0,0,.62));}
+  .detail-grid{display:grid;gap:6px;}
+  .drow{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line2);padding:4px 0;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);text-transform:uppercase;}
+  .drow b{font-weight:500;color:var(--white);text-align:right;max-width:190px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .drow b.good{color:var(--green)} .drow b.warn{color:var(--amber)} .drow b.bad{color:var(--red)}
+  .agency{min-height:0;display:grid;grid-template-rows:auto 1fr;gap:10px;}
+  .agency-bars{display:grid;gap:7px;align-content:start;}
+  .bar{display:grid;grid-template-columns:82px 1fr 34px;gap:8px;align-items:center;font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--muted);text-transform:uppercase;}
+  .track{height:5px;background:rgba(255,255,255,.06);position:relative;overflow:hidden;}
+  .track i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--amber));}
+  .notes{overflow:auto;border-top:1px solid var(--line2);padding-top:9px;font-family:'IBM Plex Mono',monospace;font-size:9px;line-height:1.55;color:var(--muted);}
+  .notes b{color:var(--white);font-weight:500;}
+  .timeline{grid-column:2;grid-row:2;padding:34px 12px 10px;display:flex;flex-direction:column;}
+  .timeline-track{position:relative;flex:1;border-top:1px solid var(--line);margin-top:24px;}
+  .tick{position:absolute;top:-20px;width:1px;height:34px;background:var(--line);transform:translateX(-50%);}
+  .tick strong{position:absolute;top:-13px;left:50%;transform:translateX(-50%);font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--muted);font-weight:400;white-space:nowrap;}
+  .tick i{position:absolute;top:27px;left:50%;width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px rgba(85,214,232,.45);transform:translateX(-50%);}
+  .tick.warn i{background:var(--amber);box-shadow:0 0 12px rgba(247,166,58,.5);}
+  .tick.bad i{background:var(--red);box-shadow:0 0 12px rgba(255,74,72,.5);}
+  .empty{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;padding:12px;}
+  .loading{
+    position:fixed;inset:0;z-index:50;background:#030405;display:grid;place-items:center;transition:opacity .45s ease,visibility .45s ease;
+  }
+  .loading.hide{opacity:0;visibility:hidden;}
+  .loader-ring{width:230px;height:230px;border-radius:50%;position:relative;border:1px solid rgba(181,218,226,.18);
+    background:repeating-conic-gradient(from 0deg,rgba(85,214,232,.42) 0deg 1deg,transparent 1deg 8deg);
+    -webkit-mask:radial-gradient(circle,transparent 0 62%,#000 63% 64%,transparent 65% 75%,#000 76% 77%,transparent 78%);
+    mask:radial-gradient(circle,transparent 0 62%,#000 63% 64%,transparent 65% 75%,#000 76% 77%,transparent 78%);
+    animation:spin 18s linear infinite;
+  }
+  .loader-text{position:absolute;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--cyan);}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  @media (max-width:1180px){
+    html,body{overflow:auto;}
+    .app{height:auto;min-height:100vh;}
+    .layout{grid-template-columns:280px 1fr;grid-template-rows:600px 220px auto;}
+    .right{grid-column:1/3;grid-row:3;grid-template-columns:1fr 1fr;grid-template-rows:auto;}
+    .left{grid-row:1/3;}
+    .main{grid-column:2;grid-row:1;}
+    .timeline{grid-column:2;grid-row:2;}
+  }
+  @media (max-width:760px){
+    .app{padding:10px;overflow:auto;}
+    .topbar{grid-template-columns:1fr;}
+    .status-strip{min-width:0;justify-content:flex-start;flex-wrap:wrap;}
+    .brand h1{font-size:25px;letter-spacing:.2em;}
+    .layout{display:flex;flex-direction:column;}
+    .left{min-height:420px;}
+    .main{height:560px;}
+    .right{display:flex;flex-direction:column;}
+    .timer div{min-width:46px;}
+    .timer b{font-size:19px;}
+  }
+</style>
+</head>
+<body>
+<div class="loading" id="loading"><div class="loader-ring"></div><div class="loader-text">ACQUIRING LAUNCH WINDOWS</div></div>
+<main class="app">
+  <header class="topbar">
+    <div class="brand">
+      <h1>Mission<span>Launch</span></h1>
+      <div class="meta">
+        <span>Upcoming orbital / deep-space missions</span>
+        <span>source <b id="source-label">launch library</b></span>
+        <span>build <b>ML-00.01</b></span>
+      </div>
+    </div>
+    <div class="status-strip">
+      <div class="pill live" id="feed-status">feed pending</div>
+      <div class="pill" id="range-label">range pending</div>
+      <div class="clock" id="clock">00:00:00</div>
+    </div>
+  </header>
+
+  <section class="layout">
+    <aside class="panel left">
+      <div class="panel-label">Mission Stack</div>
+      <input id="search" class="search" type="search" placeholder="FILTER MISSION / AGENCY">
+      <div class="filters" id="filters"></div>
+      <div class="summary">
+        <div class="stat"><div class="k">Tracked</div><div class="v" id="stat-total">0</div></div>
+        <div class="stat warn"><div class="k">Crewed</div><div class="v" id="stat-crew">0</div></div>
+        <div class="stat"><div class="k">Science</div><div class="v" id="stat-science">0</div></div>
+        <div class="stat warn"><div class="k">Next T-</div><div class="v" id="stat-next">--</div></div>
+      </div>
+      <div class="mission-list" id="mission-list"></div>
+    </aside>
+
+    <section class="panel main">
+      <div class="panel-label">Orbital Schedule Map</div>
+      <div class="viz-wrap">
+        <canvas id="mission-canvas"></canvas>
+        <div class="viz-readout">
+          <div class="readout-cell">agency focus<b id="ro-agency">ALL</b></div>
+          <div class="readout-cell">window<b id="ro-window">--</b></div>
+          <div class="readout-cell">mission type<b id="ro-type">--</b></div>
+          <div class="readout-cell">provider<b id="ro-provider">--</b></div>
+        </div>
+      </div>
+      <div class="countdown">
+        <div class="count-name">
+          <div class="eyebrow" id="count-agency">NEXT MISSION</div>
+          <h2 id="count-title">Awaiting Launch Feed</h2>
+        </div>
+        <div class="timer">
+          <div><b id="t-days">--</b><span>days</span></div>
+          <div><b id="t-hours">--</b><span>hours</span></div>
+          <div><b id="t-mins">--</b><span>mins</span></div>
+          <div><b id="t-secs">--</b><span>secs</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="right">
+      <article class="panel detail">
+        <div class="panel-label">Selected Mission</div>
+        <div class="mission-image" id="mission-image"></div>
+        <div class="detail-grid">
+          <div class="drow"><span>Mission</span><b id="d-name">--</b></div>
+          <div class="drow"><span>Provider</span><b id="d-provider">--</b></div>
+          <div class="drow"><span>Vehicle</span><b id="d-vehicle">--</b></div>
+          <div class="drow"><span>Pad</span><b id="d-pad">--</b></div>
+          <div class="drow"><span>Window</span><b id="d-window">--</b></div>
+          <div class="drow"><span>Status</span><b id="d-status">--</b></div>
+        </div>
+      </article>
+      <article class="panel agency">
+        <div class="panel-label">Agency Load</div>
+        <div class="agency-bars" id="agency-bars"></div>
+        <div class="notes" id="mission-notes"></div>
+      </article>
+    </section>
+
+    <section class="panel timeline">
+      <div class="panel-label">Launch Timeline</div>
+      <div class="timeline-track" id="timeline-track"></div>
+    </section>
+  </section>
+</main>
+
+<script>
+const API='https://ll.thespacedevs.com/2.2.0/launch/upcoming/?limit=80&mode=detailed';
+const IMPORTANT_AGENCIES=['NASA','JPL','SpaceX','Blue Origin','ESA','Arianespace','Rocket Lab','ULA','JAXA','ISRO','Roscosmos','CNSA'];
+const FALLBACK=[
+  {name:'SpaceX Falcon 9 | Commercial Crew Rotation',provider:'SpaceX',vehicle:'Falcon 9 / Dragon',net:'2026-08-01T12:34:00Z',pad:'Kennedy Space Center LC-39A',type:'Crewed',status:'Window TBD',agency:'SpaceX',image:'https://images.unsplash.com/photo-1517976547714-720226b864c1?auto=format&fit=crop&w=1200&q=70',description:'Fallback mission record used when live launch data cannot be reached. Crew transportation and station operations are prioritized in this view.'},
+  {name:'NASA Science Payload Deployment',provider:'NASA',vehicle:'TBD',net:'2026-09-12T18:00:00Z',pad:'Cape Canaveral Space Force Station',type:'Science',status:'Planning',agency:'NASA',image:'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1200&q=70',description:'Representative science payload deployment. Live mode replaces this with current Launch Library records.'},
+  {name:'ESA Earth Observation Mission',provider:'European Space Agency',vehicle:'Ariane / Vega family',net:'2026-10-04T07:20:00Z',pad:'Guiana Space Centre',type:'Earth Observation',status:'Planning',agency:'ESA',image:'https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?auto=format&fit=crop&w=1200&q=70',description:'Representative Earth-observation launch and payload detail.'},
+  {name:'Blue Origin New Glenn Demonstration',provider:'Blue Origin',vehicle:'New Glenn',net:'2026-11-18T22:15:00Z',pad:'Cape Canaveral LC-36',type:'Commercial',status:'Window TBD',agency:'Blue Origin',image:'https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?auto=format&fit=crop&w=1200&q=70',description:'Representative commercial launch record for schedule layout testing.'},
+  {name:'JPL Planetary Instrument Transfer',provider:'NASA / JPL',vehicle:'TBD',net:'2027-01-09T15:00:00Z',pad:'Mission integration',type:'Planetary',status:'Integration',agency:'JPL',image:'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1200&q=70',description:'Representative JPL planetary mission milestone shown when the live feed is unavailable.'}
+];
+const filters=[
+  ['all','All'],
+  ['crew','Crewed'],
+  ['science','Science / Telescope'],
+  ['moon','Lunar / Planetary'],
+  ['station','Station / Cargo'],
+  ['commercial','Commercial'],
+  ['agency','NASA / JPL / ESA']
+];
+let missions=[],filtered=[],selected=null,activeFilter='all',query='',frame=0;
+const $=id=>document.getElementById(id);
+
+function agencyName(text=''){
+  const t=text.toLowerCase();
+  if(t.includes('jpl')||t.includes('jet propulsion')) return 'JPL';
+  if(t.includes('nasa')) return 'NASA';
+  if(t.includes('spacex')||t.includes('space x')) return 'SpaceX';
+  if(t.includes('blue origin')) return 'Blue Origin';
+  if(t.includes('european space')||t.includes('esa')) return 'ESA';
+  if(t.includes('arianespace')) return 'Arianespace';
+  if(t.includes('rocket lab')) return 'Rocket Lab';
+  if(t.includes('united launch')||t==='ula') return 'ULA';
+  if(t.includes('jaxa')) return 'JAXA';
+  if(t.includes('isro')) return 'ISRO';
+  if(t.includes('roscosmos')) return 'Roscosmos';
+  if(t.includes('china')||t.includes('casc')||t.includes('cnsa')) return 'CNSA';
+  return text.split('/')[0].trim()||'Unknown';
+}
+function missionType(m){
+  const s=[m.name,m.mission?.name,m.mission?.type,m.mission?.description,m.provider].filter(Boolean).join(' ').toLowerCase();
+  if(s.includes('crew')||s.includes('dragon')||s.includes('shenzhou')||s.includes('soyuz')) return 'Crewed';
+  if(s.includes('telescope')||s.includes('observatory')) return 'Telescope';
+  if(s.includes('moon')||s.includes('lunar')||s.includes('artemis')) return 'Lunar';
+  if(s.includes('mars')||s.includes('planet')||s.includes('asteroid')||s.includes('comet')) return 'Planetary';
+  if(s.includes('station')||s.includes('cargo')||s.includes('resupply')||s.includes('cygnus')||s.includes('progress')) return 'Station';
+  if(s.includes('earth')||s.includes('weather')||s.includes('observation')) return 'Earth Observation';
+  if(s.includes('science')||s.includes('probe')) return 'Science';
+  if(s.includes('test')||s.includes('demo')||s.includes('flight')) return 'Test';
+  return 'Launch';
+}
+function normalizeLaunch(x){
+  const provider=x.launch_service_provider?.name||x.provider||'Unknown provider';
+  const vehicle=x.rocket?.configuration?.full_name||x.rocket?.configuration?.name||x.vehicle||'Vehicle TBD';
+  const mission=x.mission||{};
+  const text=[provider,mission.agencies?.map(a=>a.name).join(' '),x.name,mission.name,mission.description].filter(Boolean).join(' ');
+  return {
+    id:x.id||x.name,
+    name:x.name||mission.name||'Unnamed mission',
+    provider,
+    vehicle,
+    net:x.net||x.window_start||x.net_precision?.abbrev||new Date().toISOString(),
+    windowStart:x.window_start||x.net||null,
+    windowEnd:x.window_end||null,
+    pad:x.pad?.name?`${x.pad.name}, ${x.pad.location?.name||''}`.replace(/, $/,''):x.pad||'Pad TBD',
+    type:x.type||missionType({name:x.name,mission,provider}),
+    status:x.status?.name||x.status||'Status pending',
+    agency:agencyName(text),
+    image:x.image||mission.image||x.image_url||'',
+    description:mission.description||x.description||'Mission details are limited in the current feed. The launch record is still tracked for timing, provider, pad and vehicle.',
+    webcast:x.webcast_live||false,
+    raw:x
+  };
+}
+async function loadMissions(){
+  try{
+    const controller=new AbortController();
+    const timeout=setTimeout(()=>controller.abort(),8500);
+    const res=await fetch(API,{cache:'no-store',signal:controller.signal});
+    clearTimeout(timeout);
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data=await res.json();
+    missions=(data.results||[]).map(normalizeLaunch).filter(m=>new Date(m.net)>new Date(Date.now()-86400000));
+    $('feed-status').textContent='live feed';
+    $('source-label').textContent='launch library 2';
+  }catch(err){
+    missions=FALLBACK.map(normalizeLaunch);
+    $('feed-status').textContent='cached sample';
+    $('source-label').textContent='offline fallback';
+  }
+  missions.sort((a,b)=>new Date(a.net)-new Date(b.net));
+  selected=missions[0]||null;
+  applyFilters();
+  setTimeout(()=>$('loading').classList.add('hide'),500);
+}
+function filterMatch(m){
+  const hay=[m.name,m.provider,m.vehicle,m.pad,m.agency,m.type,m.status].join(' ').toLowerCase();
+  if(query&& !hay.includes(query)) return false;
+  const type=m.type.toLowerCase(), provider=m.provider.toLowerCase(), agency=m.agency;
+  if(activeFilter==='crew') return type.includes('crew');
+  if(activeFilter==='science') return ['science','telescope','earth observation'].some(k=>type.includes(k));
+  if(activeFilter==='moon') return ['lunar','planetary'].some(k=>type.includes(k));
+  if(activeFilter==='station') return ['station','cargo'].some(k=>type.includes(k));
+  if(activeFilter==='commercial') return ['spacex','blue origin','rocket lab','arianespace','ula'].some(k=>provider.includes(k));
+  if(activeFilter==='agency') return ['NASA','JPL','ESA'].includes(agency);
+  return true;
+}
+function applyFilters(){
+  filtered=missions.filter(filterMatch);
+  if(!filtered.includes(selected)) selected=filtered[0]||missions[0]||null;
+  renderFilters();renderList();renderStats();renderDetail();renderTimeline();renderAgencyBars();
+}
+function renderFilters(){
+  $('filters').innerHTML=filters.map(([id,label])=>`<button class="filter ${id===activeFilter?'active':''}" data-id="${id}">${label}</button>`).join('');
+  document.querySelectorAll('.filter').forEach(b=>b.onclick=()=>{activeFilter=b.dataset.id;applyFilters();});
+}
+function shortDate(d){
+  const date=new Date(d);
+  return {mon:date.toLocaleString('en-US',{month:'short'}).toUpperCase(),day:String(date.getUTCDate()).padStart(2,'0'),time:date.toISOString().slice(11,16)+'Z'};
+}
+function renderList(){
+  if(!filtered.length){$('mission-list').innerHTML='<div class="empty">No missions in current filter</div>';return;}
+  $('mission-list').innerHTML=filtered.map(m=>{
+    const d=shortDate(m.net);
+    return `<div class="mission-row ${selected&&m.id===selected.id?'active':''}" data-id="${m.id}">
+      <div class="datebox">${d.mon}<b>${d.day}</b>${d.time}</div>
+      <div class="row-title"><b>${escapeHtml(m.name)}</b><span>${escapeHtml(m.provider)} / ${escapeHtml(m.vehicle)}</span></div>
+      <div class="badge">${escapeHtml(m.agency)}</div>
+    </div>`;
+  }).join('');
+  document.querySelectorAll('.mission-row').forEach(row=>row.onclick=()=>{
+    selected=missions.find(m=>String(m.id)===String(row.dataset.id));renderList();renderDetail();renderTimeline();renderAgencyBars();
+  });
+}
+function renderStats(){
+  $('stat-total').textContent=filtered.length;
+  $('stat-crew').textContent=filtered.filter(m=>m.type.toLowerCase().includes('crew')).length;
+  $('stat-science').textContent=filtered.filter(m=>/science|telescope|observation|planetary|lunar/i.test(m.type)).length;
+  const next=filtered[0]||missions[0];
+  if(next){
+    const days=Math.max(0,Math.ceil((new Date(next.net)-new Date())/86400000));
+    $('stat-next').textContent=String(days);
+  }
+  if(filtered.length){
+    const first=new Date(filtered[0].net), last=new Date(filtered[filtered.length-1].net);
+    $('range-label').textContent=`${first.toLocaleString('en-US',{month:'short'})} - ${last.toLocaleString('en-US',{month:'short',year:'numeric'})}`;
+  }
+}
+function renderDetail(){
+  if(!selected) return;
+  const d=shortDate(selected.net);
+  $('count-title').textContent=selected.name;
+  $('count-agency').textContent=`${selected.agency} / ${selected.type}`;
+  $('ro-agency').textContent=selected.agency;
+  $('ro-window').textContent=`${d.mon} ${d.day}`;
+  $('ro-type').textContent=selected.type;
+  $('ro-provider').textContent=selected.provider;
+  $('d-name').textContent=selected.name;
+  $('d-provider').textContent=selected.provider;
+  $('d-vehicle').textContent=selected.vehicle;
+  $('d-pad').textContent=selected.pad;
+  $('d-window').textContent=new Date(selected.net).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',timeZoneName:'short'});
+  $('d-status').textContent=selected.status;
+  $('d-status').className=/go|success|confirmed/i.test(selected.status)?'good':/hold|tbd|pending|to be/i.test(selected.status)?'warn':'';
+  $('mission-image').style.backgroundImage=selected.image?`url("${selected.image}")`:radarBackground(selected.agency);
+  $('mission-notes').innerHTML=`<b>${escapeHtml(selected.name)}</b><br>${escapeHtml(selected.description)}<br><br><b>Coverage note:</b> payload depth depends on the launch record. Timing, vehicle, provider and pad are tracked first; instrument-level details can be layered in from agency-specific feeds next.`;
+}
+function renderAgencyBars(){
+  const counts={};
+  filtered.forEach(m=>counts[m.agency]=(counts[m.agency]||0)+1);
+  const max=Math.max(1,...Object.values(counts));
+  const rows=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,9);
+  $('agency-bars').innerHTML=rows.map(([name,count])=>`<div class="bar"><span>${escapeHtml(name)}</span><div class="track"><i style="width:${Math.max(8,count/max*100)}%"></i></div><b>${count}</b></div>`).join('');
+}
+function renderTimeline(){
+  const list=filtered.slice(0,14), now=Date.now();
+  if(!list.length){$('timeline-track').innerHTML='';return;}
+  const min=new Date(list[0].net).getTime(), max=new Date(list[list.length-1].net).getTime();
+  const span=Math.max(1,max-min);
+  $('timeline-track').innerHTML=list.map(m=>{
+    const p=((new Date(m.net)-min)/span)*94+3;
+    const cls=m.id===selected?.id?'warn':m.type.toLowerCase().includes('crew')?'bad':'';
+    const d=shortDate(m.net);
+    return `<div class="tick ${cls}" style="left:${p}%"><strong>${d.mon} ${d.day}</strong><i></i></div>`;
+  }).join('');
+}
+function updateTimer(){
+  $('clock').textContent=new Date().toLocaleTimeString('en-US',{hour12:false});
+  if(!selected) return;
+  const delta=Math.max(0,new Date(selected.net)-new Date());
+  const days=Math.floor(delta/86400000);
+  const hrs=Math.floor(delta/3600000)%24;
+  const mins=Math.floor(delta/60000)%60;
+  const secs=Math.floor(delta/1000)%60;
+  $('t-days').textContent=String(days).padStart(2,'0');
+  $('t-hours').textContent=String(hrs).padStart(2,'0');
+  $('t-mins').textContent=String(mins).padStart(2,'0');
+  $('t-secs').textContent=String(secs).padStart(2,'0');
+}
+function radarBackground(seed){
+  return `radial-gradient(circle at 50% 50%,rgba(85,214,232,.24),transparent 2px),linear-gradient(135deg,rgba(85,214,232,.16),rgba(247,166,58,.08)),#030507`;
+}
+function escapeHtml(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+const canvas=$('mission-canvas'),ctx=canvas.getContext('2d');
+function resizeCanvas(){
+  const r=canvas.getBoundingClientRect(), dpr=Math.min(2,window.devicePixelRatio||1);
+  canvas.width=Math.max(1,Math.floor(r.width*dpr));canvas.height=Math.max(1,Math.floor(r.height*dpr));
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+function drawCanvas(){
+  frame+=1;
+  const w=canvas.clientWidth,h=canvas.clientHeight,cx=w*.5,cy=h*.48;
+  ctx.clearRect(0,0,w,h);
+  ctx.save();
+  ctx.fillStyle='rgba(255,255,255,.018)';
+  for(let i=0;i<120;i++){
+    const x=(i*97+frame*.09)%w,y=(i*53)%h,a=((i*17)%100)/100;
+    ctx.globalAlpha=.15+a*.42;ctx.fillRect(x,y,1,1);
+  }
+  ctx.globalAlpha=1;
+  ctx.strokeStyle='rgba(181,218,226,.08)';ctx.lineWidth=1;
+  for(let x=0;x<w;x+=42){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}
+  for(let y=0;y<h;y+=42){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
+  const r=Math.min(w,h)*.26;
+  const grad=ctx.createRadialGradient(cx,cy,r*.18,cx,cy,r);
+  grad.addColorStop(0,'rgba(85,214,232,.34)');
+  grad.addColorStop(.55,'rgba(85,214,232,.13)');
+  grad.addColorStop(1,'rgba(85,214,232,0)');
+  ctx.fillStyle=grad;ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='rgba(135,244,255,.26)';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(cx,cy,r*.62,0,Math.PI*2);ctx.stroke();
+  ctx.strokeStyle='rgba(181,218,226,.18)';
+  for(let i=0;i<5;i++){ctx.beginPath();ctx.ellipse(cx,cy,r*(1.08+i*.23),r*(.26+i*.055),-.2+i*.12,0,Math.PI*2);ctx.stroke();}
+  ctx.save();ctx.translate(cx,cy);ctx.rotate(frame*.0022);
+  ctx.strokeStyle='rgba(247,166,58,.72)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,r*1.55,-.35,.3);ctx.stroke();
+  ctx.strokeStyle='rgba(85,214,232,.72)';ctx.beginPath();ctx.arc(0,0,r*1.33,2.6,3.48);ctx.stroke();
+  ctx.restore();
+  const list=filtered.slice(0,24);
+  list.forEach((m,i)=>{
+    const t=(i/list.length)*Math.PI*2+frame*.0018;
+    const rr=r*(1.05+(i%5)*.23);
+    const x=cx+Math.cos(t)*rr*1.5,y=cy+Math.sin(t)*rr*.42;
+    const sel=m.id===selected?.id;
+    ctx.strokeStyle=sel?'rgba(247,166,58,.75)':'rgba(85,214,232,.22)';
+    ctx.fillStyle=sel?'rgba(247,166,58,.95)':m.type.toLowerCase().includes('crew')?'rgba(255,74,72,.86)':'rgba(135,244,255,.75)';
+    ctx.lineWidth=sel?1.5:1;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(x,y);ctx.stroke();
+    ctx.beginPath();ctx.arc(x,y,sel?4.5:2.5,0,Math.PI*2);ctx.fill();
+    if(sel){
+      ctx.strokeStyle='rgba(247,166,58,.62)';
+      ctx.beginPath();ctx.arc(x,y,12+Math.sin(frame*.05)*2,0,Math.PI*2);ctx.stroke();
+    }
+  });
+  ctx.fillStyle='rgba(255,248,232,.72)';
+  ctx.font='10px IBM Plex Mono, monospace';
+  ctx.fillText('EARTH RELAY / UPCOMING LAUNCH WINDOWS',18,28);
+  ctx.fillText('TRACKED OBJECTS '+String(filtered.length).padStart(2,'0'),w-210,28);
+  ctx.restore();
+  requestAnimationFrame(drawCanvas);
+}
+$('search').addEventListener('input',e=>{query=e.target.value.trim().toLowerCase();applyFilters();});
+window.addEventListener('resize',resizeCanvas);
+renderFilters();
+resizeCanvas();
+drawCanvas();
+loadMissions();
+setInterval(updateTimer,1000);
+updateTimer();
+</script>
+</body>
+</html>

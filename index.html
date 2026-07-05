@@ -319,6 +319,31 @@
   #msy-preview {
     width: 100%; height: 100%;
   }
+  .mission-preview {
+    position:absolute;inset:0;
+    background:
+      linear-gradient(rgba(135,244,255,0.08) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(135,244,255,0.06) 1px,transparent 1px),
+      radial-gradient(circle at 52% 47%,rgba(85,214,232,0.26),transparent 24%),
+      #061019;
+    background-size:34px 34px,34px 34px,100% 100%,100% 100%;
+  }
+  .mission-preview::before {
+    content:'';position:absolute;left:50%;top:50%;width:46%;aspect-ratio:1;border-radius:50%;
+    transform:translate(-50%,-50%);
+    border:1px solid rgba(135,244,255,0.28);
+    box-shadow:0 0 0 22px rgba(85,214,232,0.035),0 0 0 54px rgba(247,166,58,0.03);
+  }
+  .mission-orbit {
+    position:absolute;left:50%;top:50%;width:74%;height:28%;border:1px solid rgba(216,218,219,0.32);
+    border-radius:50%;transform:translate(-50%,-50%) rotate(-12deg);
+  }
+  .mission-orbit.o2{width:88%;height:34%;border-color:rgba(85,214,232,0.26);transform:translate(-50%,-50%) rotate(16deg);}
+  .mission-dot{position:absolute;width:5px;height:5px;border-radius:50%;background:#f7a63a;box-shadow:0 0 12px rgba(247,166,58,0.8);}
+  .mission-dot.d1{left:22%;top:58%;}.mission-dot.d2{right:23%;top:35%;background:#55d6e8;box-shadow:0 0 12px rgba(85,214,232,0.8);}
+  .mission-dot.d3{left:52%;top:24%;background:#fff8e8;}
+  .mission-readouts{position:absolute;left:22px;right:22px;bottom:20px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+  .mission-readouts i{display:block;height:30px;border-top:1px solid rgba(216,218,219,0.22);font-family:'Space Mono',monospace;font-style:normal;font-size:8px;color:rgba(238,238,240,0.48);letter-spacing:.12em;padding-top:7px;}
 
   /* ===== RESPONSIVE ===== */
   @media (max-width: 860px) {
@@ -375,7 +400,7 @@
 <div class="content">
   <div class="section-header">
     <span class="section-label">Active Systems</span>
-    <span class="section-count">03 / ∞</span>
+    <span class="section-count">04 / ∞</span>
   </div>
 
   <div class="cards">
@@ -465,6 +490,43 @@
           <span class="tag">NASA NeoWs</span>
           <span class="tag">JPL CAD</span>
           <span class="tag">J2000</span>
+          <span class="tag">FUI</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- MISSIONLAUNCH -->
+    <a href="/missionlaunch.html" class="iface-card anim-4" style="--c:#f7a63a;"
+       onmouseenter="playHover()">
+      <div style="position:absolute;top:0;left:0;right:0;height:1px;z-index:3;background:linear-gradient(to right,rgba(247,166,58,0.55),transparent 70%);"></div>
+      <div class="card-preview" style="background:#061019;">
+        <div class="mission-preview preview-drift">
+          <div class="mission-orbit"></div>
+          <div class="mission-orbit o2"></div>
+          <span class="mission-dot d1"></span>
+          <span class="mission-dot d2"></span>
+          <span class="mission-dot d3"></span>
+          <div class="mission-readouts"><i>T- WINDOW</i><i>AGENCY</i><i>VEHICLE</i><i>PAD</i></div>
+        </div>
+        <div class="card-preview-overlay" style="background:linear-gradient(135deg,rgba(247,166,58,0.08) 0%,transparent 60%);"></div>
+        <div class="card-launch">
+          <span>LAUNCH</span><span class="launch-arrow">↗</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-meta">
+          <span class="card-type">Spaceflight / Launches</span>
+          <span class="card-status live"><span class="sd"></span>LIVE</span>
+        </div>
+        <h2 class="card-title">MISSION<em style="color:rgba(247,166,58,0.9)">LAUNCH</em></h2>
+        <p class="card-desc">
+          Upcoming orbital and deep-space mission board — launch windows, providers, vehicles, pads, crewed flights, science payloads, telescope deployments, and agency-level filtering.
+        </p>
+        <div class="card-tags">
+          <span class="tag">Launch Library 2</span>
+          <span class="tag">NASA / ESA</span>
+          <span class="tag">SpaceX</span>
+          <span class="tag">Blue Origin</span>
           <span class="tag">FUI</span>
         </div>
       </div>
