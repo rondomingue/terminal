@@ -957,32 +957,67 @@
   }
 
   function makeSunFlareSprite(){
-    const c=document.createElement('canvas');c.width=768;c.height=160;
+    const c=document.createElement('canvas');c.width=1024;c.height=220;
     const ctx=c.getContext('2d');
-    const cx=384,cy=76;
-    const line=ctx.createLinearGradient(40,cy,728,cy);
+    const cx=512,cy=104;
+    ctx.save();
+    ctx.globalCompositeOperation='lighter';
+
+    const line=ctx.createLinearGradient(54,cy,970,cy);
     line.addColorStop(0,'rgba(255,178,76,0)');
-    line.addColorStop(0.40,'rgba(255,210,126,0.26)');
-    line.addColorStop(0.50,'rgba(255,245,205,0.50)');
-    line.addColorStop(0.60,'rgba(255,166,56,0.24)');
+    line.addColorStop(0.31,'rgba(255,166,56,0.12)');
+    line.addColorStop(0.43,'rgba(255,210,126,0.34)');
+    line.addColorStop(0.50,'rgba(255,248,218,0.78)');
+    line.addColorStop(0.57,'rgba(255,178,68,0.33)');
+    line.addColorStop(0.70,'rgba(255,126,24,0.12)');
     line.addColorStop(1,'rgba(255,126,24,0)');
     ctx.strokeStyle=line;
-    ctx.lineWidth=3.0;
+    ctx.lineWidth=3.8;
     ctx.beginPath();
-    ctx.moveTo(42,cy);
-    ctx.lineTo(726,cy);
+    ctx.moveTo(54,cy);
+    ctx.lineTo(970,cy);
     ctx.stroke();
 
-    const bloom=ctx.createRadialGradient(cx,cy,0,cx,cy,90);
-    bloom.addColorStop(0,'rgba(255,232,162,0.32)');
-    bloom.addColorStop(0.42,'rgba(255,156,48,0.11)');
+    const hairline=ctx.createLinearGradient(140,cy,884,cy);
+    hairline.addColorStop(0,'rgba(255,236,188,0)');
+    hairline.addColorStop(0.5,'rgba(255,255,236,0.52)');
+    hairline.addColorStop(1,'rgba(255,236,188,0)');
+    ctx.strokeStyle=hairline;
+    ctx.lineWidth=0.7;
+    ctx.beginPath();
+    ctx.moveTo(140,cy-7);
+    ctx.lineTo(884,cy-7);
+    ctx.stroke();
+
+    const bloom=ctx.createRadialGradient(cx,cy,0,cx,cy,132);
+    bloom.addColorStop(0,'rgba(255,242,190,0.50)');
+    bloom.addColorStop(0.30,'rgba(255,174,54,0.18)');
+    bloom.addColorStop(0.66,'rgba(255,126,24,0.052)');
     bloom.addColorStop(1,'rgba(255,156,48,0)');
     ctx.fillStyle=bloom;
-    ctx.fillRect(cx-110,cy-90,220,180);
+    ctx.fillRect(cx-158,cy-132,316,264);
+
+    [
+      {x:365,y:cy+3,r:18,a:0.13,c:'255,221,145'},
+      {x:297,y:cy+7,r:10,a:0.10,c:'255,122,26'},
+      {x:646,y:cy-5,r:13,a:0.11,c:'255,221,145'},
+      {x:714,y:cy-9,r:24,a:0.08,c:'255,126,24'},
+      {x:790,y:cy+5,r:8,a:0.10,c:'255,236,188'}
+    ].forEach(g=>{
+      const ghost=ctx.createRadialGradient(g.x,g.y,0,g.x,g.y,g.r);
+      ghost.addColorStop(0,`rgba(${g.c},${g.a})`);
+      ghost.addColorStop(0.45,`rgba(${g.c},${g.a*0.34})`);
+      ghost.addColorStop(1,`rgba(${g.c},0)`);
+      ctx.fillStyle=ghost;
+      ctx.beginPath();
+      ctx.arc(g.x,g.y,g.r,0,Math.PI*2);
+      ctx.fill();
+    });
+    ctx.restore();
 
     const tex=new THREE.CanvasTexture(c);
     return new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,
-      blending:THREE.AdditiveBlending,depthWrite:false,sizeAttenuation:true,opacity:0.68}));
+      blending:THREE.AdditiveBlending,depthWrite:false,sizeAttenuation:true,opacity:0.88}));
   }
 
   // ===== BACKGROUND STARS — layered, temperature-colored, with Milky Way band =====
@@ -1166,7 +1201,7 @@
   sunCorona.position.set(0,0.045,0);
   scene.add(sunCorona);
   const sunFlare=makeSunFlareSprite();
-  sunFlare.scale.set(2.55,0.52,1);
+  sunFlare.scale.set(3.35,0.76,1);
   sunFlare.position.set(0,0.13,0);
   scene.add(sunFlare);
   const sunAura=makeSpriteGlow(0xff8c22,0.72,0.16,0.28);
