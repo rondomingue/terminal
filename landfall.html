@@ -13,8 +13,8 @@
     --line:#243050;
     --line-dim:#141b31;
     --ink:#cbd5f2;
-    --ink-dim:#5a6080;
-    --ink-faint:#282e45;
+    --ink-dim:#98a1c9;
+    --ink-faint:#747da8;
     --white:#dde3f5;
     /* amber — system chrome */
     --amber:#b8975b;
@@ -34,8 +34,8 @@
     --mui-radius-sm:8px;
     --mui-radius:12px;
     --mui-radius-lg:16px;
-    --mui-surface:rgba(8,12,22,.46);
-    --mui-surface-strong:rgba(6,10,18,.58);
+    --mui-surface:rgba(6,9,16,.56);
+    --mui-surface-strong:rgba(4,7,13,.68);
     --mui-surface-soft:rgba(255,255,255,.045);
     --mui-outline:rgba(180,200,235,.18);
     --mui-outline-strong:rgba(210,225,255,.28);
@@ -776,8 +776,9 @@
             [-82.1,26.7,'c4'],[-81.5,27.5,'lf'],[-81.0,29.0,'c1'],[-81.0,30.0,'ts']]},
   ];
   const shown={};
-  STORMS.forEach(s=>{shown[s.id]=false;});
-  let selectedStormId=null;
+  const initialStorm=STORMS[Math.floor(Math.random()*STORMS.length)]||STORMS[0];
+  STORMS.forEach(s=>{shown[s.id]=s.id===initialStorm.id;});
+  let selectedStormId=initialStorm.id;
 
   function landfallCount(storm){ return storm.track.filter(p=>p[2]==='lf').length; }
   function stormBounds(storm){
@@ -868,7 +869,7 @@
       <span>${s.track.length}</span>
       <span style="color:var(--ink-faint);font-size:8px;">${s.notes}</span>
     </div>`).join('');
-  updateStormFocus(null);
+  updateStormFocus(initialStorm);
   if($('focus-clear')) $('focus-clear').addEventListener('click',clearAllAndReset);
 
   const historyPanel=$('storm-table-panel');
@@ -1337,6 +1338,7 @@
     ensureSSTLayer();
     buildToggles();
     STORMS.forEach(s=>setTrackVisible(s.id,shown[s.id]));
+    try{ map.fitBounds(stormBounds(initialStorm),{padding:80,maxZoom:5.8,duration:700,pitch:MAP_PITCH,bearing:MAP_BEARING}); }catch(e){}
   });
 
   // Cubic Bezier tracks from storm fixes. Neighboring fixes become handles so each leg curves naturally.
