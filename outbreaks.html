@@ -73,6 +73,9 @@
 
   .barlist{display:flex; flex-direction:column; gap:9px}
   .bar{display:grid; grid-template-columns:1fr auto; align-items:center; gap:10px}
+  .bar.clickbar{cursor:pointer; padding:2px 4px; margin:0 -4px; border-radius:2px; transition:background .15s}
+  .bar.clickbar:hover{background:rgba(233,229,217,.05)}
+  .bar.clickbar:hover .name{color:var(--bone)}
   .bar .name{font-size:12.5px; color:var(--bone-dim)}
   .bar .val{font-family:'Space Mono',monospace; font-size:11px; color:var(--bone-dim); font-variant-numeric:tabular-nums}
   .bar .track{grid-column:1/3; height:3px; border-radius:2px; background:repeating-linear-gradient(90deg, var(--line) 0 2px, transparent 2px 5px)}
@@ -246,6 +249,7 @@
   .fs-stat .v{font-family:'Fraunces',serif; font-weight:500; font-size:22px; line-height:1.05; color:var(--bone)}
   .fs-stat .v.warn{color:var(--severe)}
   .fs-stat .v.ok{color:var(--contained)}
+  .fs-stat .v.mid{color:var(--watch)}
   .fs-stat .sub{margin-top:6px; font-size:11.5px; color:var(--muted); line-height:1.4}
   .fs-body{display:grid; grid-template-columns:1fr 1fr; gap:26px}
   .fs-sec{padding-bottom:4px}
@@ -257,6 +261,9 @@
   .fs-tags span{font-family:'Space Mono',monospace; font-size:10px; letter-spacing:.06em; color:var(--bone-dim); border:1px solid var(--line); border-radius:2px; padding:4px 9px}
   .fs-compare{margin-top:10px; padding:12px 14px; border-left:2px solid var(--watch); background:rgba(227,178,60,.06); font-size:12.5px; color:var(--bone-dim); line-height:1.55}
   .fs-src{margin-top:20px; padding-top:14px; border-top:1px solid var(--line-2); font-family:'Space Mono',monospace; font-size:10px; letter-spacing:.04em; color:var(--faint); line-height:1.7}
+  .fs-divider{display:flex; align-items:center; gap:12px; margin:26px 0 18px}
+  .fs-divider::before,.fs-divider::after{content:''; flex:1; height:1px; background:var(--line)}
+  .fs-divider span{font-family:'Space Mono',monospace; font-size:9.5px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted)}
   .pathlink{color:var(--bone-dim); text-decoration:none; border-bottom:1px solid var(--line)}
   .pathlink:hover{color:var(--bone); border-color:var(--bone-dim)}
   @media (max-width:820px){ .fs-stats{grid-template-columns:1fr 1fr} .fs-body{grid-template-columns:1fr} }
@@ -429,56 +436,6 @@
     </div>
   </div>
 
-  <!-- Ethiopia · Marburg detail modal -->
-  <div id="ethModal" class="modal" hidden aria-hidden="true">
-    <div class="modal-back" data-close></div>
-    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="ethModalTitle">
-      <div class="modal-head">
-        <div>
-          <span class="eyebrow">Regional detail · click-through</span>
-          <h3 id="ethModalTitle" class="disp">Ethiopia · Marburg</h3>
-        </div>
-        <button class="modal-x mono" data-close aria-label="Close detail">CLOSE ✕</button>
-      </div>
-      <div class="eth eth-modal">
-        <div class="ethmap">
-          <svg class="detail" id="ethmap" viewBox="0 0 860 660" role="img" aria-label="Detailed map of southern Ethiopia showing Marburg outbreak woredas, spread routes, the Omo River and Rift Valley lakes"></svg>
-        </div>
-        <div class="side">
-          <div class="blk2">
-            <span class="lab eyebrow">Confirmed cases</span>
-            <div class="big tnum">19<span class="u">14 conf · 5 prob</span></div>
-          </div>
-          <div class="blk2">
-            <div class="duo">
-              <div class="m"><div class="v tnum">14</div><div class="k">Deaths</div></div>
-              <div class="m"><div class="v tnum">64.3%</div><div class="k">Case fatality</div></div>
-            </div>
-          </div>
-          <div class="blk2">
-            <div class="duo">
-              <div class="m"><div class="v tnum">857</div><div class="k">Contacts traced</div></div>
-              <div class="m"><div class="v tnum">3,800</div><div class="k">Samples tested</div></div>
-            </div>
-          </div>
-          <div class="blk2">
-            <span class="lab eyebrow">Chronology</span>
-            <div class="tl">
-              <div class="ev"><span class="mk" style="background:var(--severe)"></span><div><div class="d">23 Oct 2025</div><div class="t">Index case, Jinka. Symptoms onset.</div></div></div>
-              <div class="ev"><span class="mk" style="background:var(--watch)"></span><div><div class="d">14 Nov 2025</div><div class="t">Outbreak declared. Marburg confirmed.</div></div></div>
-              <div class="ev"><span class="mk" style="background:var(--watch)"></span><div><div class="d">14 Dec 2025</div><div class="t">Last confirmed case dies.</div></div></div>
-              <div class="ev"><span class="mk" style="background:var(--contained)"></span><div><div class="d">26 Jan 2026</div><div class="t">Ended, after 42 days clear.</div></div></div>
-            </div>
-          </div>
-          <div class="blk2">
-            <span class="lab eyebrow">Reservoir</span>
-            <p class="note"><b>Rousettus aegyptiacus</b>, the Egyptian fruit bat, roosts in caves along the Omo valley. Marburg spills over from bats, then spreads person to person through bodily fluids.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- Ebola · pathogen fact sheet modal -->
   <div id="ebolaModal" class="modal" hidden aria-hidden="true">
     <div class="modal-back" data-close></div>
@@ -595,6 +552,39 @@
         </div>
 
         <div class="fs-src">Sources · WHO fact sheet — Marburg virus disease · WHO Regional Office for Africa · peer-reviewed clinical trial protocols (rVSV-Marburg candidates).</div>
+
+        <div class="fs-divider"><span>Regional detail</span></div>
+
+        <div class="stage-head" style="margin:0 0 12px">
+          <span class="t disp" style="font-size:17px">Ethiopia · where this outbreak happened</span>
+          <span class="eyebrow">Contained 26 Jan 2026 · first for country</span>
+        </div>
+        <div class="eth eth-modal">
+          <div class="ethmap">
+            <svg class="detail" id="ethmap" viewBox="0 0 860 660" role="img" aria-label="Detailed map of southern Ethiopia showing Marburg outbreak woredas, spread routes, the Omo River and Rift Valley lakes"></svg>
+          </div>
+          <div class="side">
+            <div class="blk2">
+              <span class="lab eyebrow">Confirmed cases</span>
+              <div class="big tnum">19<span class="u">14 conf · 5 prob</span></div>
+            </div>
+            <div class="blk2">
+              <div class="duo">
+                <div class="m"><div class="v tnum">857</div><div class="k">Contacts traced</div></div>
+                <div class="m"><div class="v tnum">3,800</div><div class="k">Samples tested</div></div>
+              </div>
+            </div>
+            <div class="blk2">
+              <span class="lab eyebrow">Chronology</span>
+              <div class="tl">
+                <div class="ev"><span class="mk" style="background:var(--severe)"></span><div><div class="d">23 Oct 2025</div><div class="t">Index case, Jinka. Symptoms onset.</div></div></div>
+                <div class="ev"><span class="mk" style="background:var(--watch)"></span><div><div class="d">14 Nov 2025</div><div class="t">Outbreak declared. Marburg confirmed.</div></div></div>
+                <div class="ev"><span class="mk" style="background:var(--watch)"></span><div><div class="d">14 Dec 2025</div><div class="t">Last confirmed case dies.</div></div></div>
+                <div class="ev"><span class="mk" style="background:var(--contained)"></span><div><div class="d">26 Jan 2026</div><div class="t">Ended, after 42 days clear.</div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -718,6 +708,346 @@
     </div>
   </div>
 
+  <!-- Dengue · pathogen fact sheet modal -->
+  <div id="dengueModal" class="modal" hidden aria-hidden="true">
+    <div class="modal-back" data-close></div>
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="dengueModalTitle">
+      <div class="modal-head">
+        <div>
+          <span class="eyebrow">Pathogen fact sheet</span>
+          <h3 id="dengueModalTitle" class="disp">Dengue fever</h3>
+        </div>
+        <button class="modal-x mono" data-close aria-label="Close fact sheet">CLOSE ✕</button>
+      </div>
+      <div class="factsheet">
+        <div class="fs-stats">
+          <div class="fs-stat">
+            <span class="lab eyebrow">Reservoir host</span>
+            <div class="v ok">Confirmed</div>
+            <div class="sub">Humans and Aedes mosquitoes sustain transmission in cities — no animal reservoir needed.</div>
+          </div>
+          <div class="fs-stat">
+            <span class="lab eyebrow">Licensed vaccine</span>
+            <div class="v mid">Limited</div>
+            <div class="sub">Two vaccines exist, but both carry restrictions on who can safely take them.</div>
+          </div>
+          <div class="fs-stat">
+            <span class="lab eyebrow">Targeted treatment</span>
+            <div class="v warn">None</div>
+            <div class="sub">No antiviral exists; care is fluids and monitoring, avoiding NSAIDs.</div>
+          </div>
+          <div class="fs-stat">
+            <span class="lab eyebrow">Case fatality</span>
+            <div class="v">&lt;1%<span class="u" style="font-size:12px;color:var(--muted);margin-left:6px">treated</span></div>
+            <div class="sub">Untreated severe dengue (shock syndrome) can reach 20% fatality.</div>
+          </div>
+        </div>
+        <div class="fs-body">
+          <div class="fs-sec">
+            <h4>What it is</h4>
+            <p><b>Dengue virus</b> has four distinct serotypes, and infection with one gives only partial, temporary protection against the others — a second infection with a different serotype is often more severe than the first.</p>
+            <p>It's the most common mosquito-borne viral disease in the world, with an estimated 100–400 million infections a year across the tropics and subtropics.</p>
+            <h4 style="margin-top:18px">Transmission</h4>
+            <p>Spread entirely by the bite of infected <i>Aedes aegypti</i> or <i>Aedes albopictus</i> mosquitoes, which breed in small pockets of standing water even in dense cities. There is no person-to-person spread.</p>
+          </div>
+          <div class="fs-sec">
+            <h4>Symptoms</h4>
+            <p>High fever, severe headache, pain behind the eyes, joint and muscle pain severe enough to earn the nickname "breakbone fever," and a rash. A small share progress to severe dengue, with bleeding, plasma leakage, and shock.</p>
+            <div class="fs-tags">
+              <span>High fever</span><span>Joint pain</span><span>Rash</span><span>Bleeding (severe cases)</span>
+            </div>
+            <h4 style="margin-top:18px">Why the vaccines are complicated</h4>
+            <div class="fs-compare">Dengvaxia raises the risk of severe disease in people who've never had dengue before, so WHO restricts it to those with a confirmed prior infection. The newer Qdenga is broader but still isn't recommended everywhere. Vaccination here has to be targeted, not universal.</div>
+          </div>
+        </div>
+        <div class="fs-src">Sources · WHO position paper on dengue vaccines (2024) · CDC ACIP recommendations · Pan American Health Organization.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cholera · pathogen fact sheet modal -->
+  <div id="choleraModal" class="modal" hidden aria-hidden="true">
+    <div class="modal-back" data-close></div>
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="choleraModalTitle">
+      <div class="modal-head">
+        <div>
+          <span class="eyebrow">Pathogen fact sheet</span>
+          <h3 id="choleraModalTitle" class="disp">Cholera</h3>
+        </div>
+        <button class="modal-x mono" data-close aria-label="Close fact sheet">CLOSE ✕</button>
+      </div>
+      <div class="factsheet">
+        <div class="fs-stats">
+          <div class="fs-stat">
+            <span class="lab eyebrow">Reservoir</span>
+            <div class="v ok">Confirmed</div>
+            <div class="sub">Contaminated water and food; the bacterium also persists freely in some aquatic environments.</div>
+          </div>
+          <div class="fs-stat">
+            <span class="lab eyebrow">Licensed vaccine</span>
+            <div class="v ok">Yes</div>
+            <div class="sub">Oral vaccines give moderate, multi-year protection and are used in outbreak response.</div>
+          </div>
+          <div class="fs-stat">
+            <span class="lab eyebrow">Targeted treatment</span>
+            <div class="v ok">Yes</div>
+            <div class="sub">Rehydration therapy is simple, cheap, and highly effective; antibiotics help severe cases.</div>
+          </div>
+          <div class="fs-stat">
+            <span class="lab eyebrow">Case fatality</span>
+            <div class="v">&lt;1%<span class="u" style="font-size:12px;color:var(--muted);margin-left:6px">treated</span></div>
+            <div class="sub">Can exceed 50% without prompt rehydration treatment.</div>
+          </div>
+        </div>
+        <div class="fs-body">
+          <div class="fs-sec">
+            <h4>What it is</h4>
+            <p><b>Vibrio cholerae</b> is a waterborne bacterium, not a virus. It produces a toxin that causes the body to expel enormous volumes of fluid — the defining danger of cholera is rapid, severe dehydration, not the infection itself.</p>
+            <p>Outbreaks track closely with breakdowns in clean water and sanitation infrastructure — after conflict, displacement, flooding, or the collapse of water systems.</p>
+            <h4 style="margin-top:18px">Transmission</h4>
+            <p>People are infected by swallowing water or food contaminated with the bacterium, typically traced back to sewage-contaminated drinking water. It is not spread through casual person-to-person contact.</p>
+          </div>
+          <div class="fs-sec">
+            <h4>Symptoms</h4>
+            <p>Sudden, profuse watery diarrhoea and vomiting, leading to dehydration that can become life-threatening within hours without treatment.</p>
+            <div class="fs-tags">
+              <span>Watery diarrhoea</span><span>Vomiting</span><span>Severe dehydration</span>
+            </div>
+            <h4 style="margin-top:18px">The most treatable disease on this list</h4>
+            <div class="fs-compare">Cholera is arguably the most preventable and treatable disease here: oral rehydration salts cost pennies and cut fatality from over 50% to under 1%. Where cholera still kills, it's almost always a story about access to clean water and basic care, not a lack of medical knowledge.</div>
+          </div>
+        </div>
+        <div class="fs-src">Sources · WHO fact sheet — Cholera · CDC Cholera · Global Task Force on Cholera Control.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Measles · pathogen fact sheet modal -->
+  <div id="measlesModal" class="modal" hidden aria-hidden="true">
+    <div class="modal-back" data-close></div>
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="measlesModalTitle">
+      <div class="modal-head">
+        <div>
+          <span class="eyebrow">Pathogen fact sheet</span>
+          <h3 id="measlesModalTitle" class="disp">Measles</h3>
+        </div>
+        <button class="modal-x mono" data-close aria-label="Close fact sheet">CLOSE ✕</button>
+      </div>
+      <div class="factsheet">
+        <div class="fs-stats">
+          <div class="fs-stat">
+            <span class="lab eyebrow">Reservoir host</span>
+            <div class="v ok">Humans only</div>
+            <div class="sub">No animal reservoir exists — which is what makes eradication theoretically possible.</div>
+          </div>
+          <div class="fs-stat">
+            <span class="lab eyebrow">Licensed vaccine</span>
+            <div class="v ok">Yes, since 1963</div>
+            <div class="sub">Two doses of MMR give about 97% protection, essentially for life.</div>
+          </div>
+          <div class="fs-stat">
+            <span class="lab eyebrow">Targeted treatment</span>
+            <div class="v warn">None</div>
+            <div class="sub">No antiviral exists; care is supportive, with vitamin A recommended.</div>
+          </div>
+          <div class="fs-stat">
+            <span class="lab eyebrow">Case fatality</span>
+            <div class="v">≈0.2%<span class="u" style="font-size:12px;color:var(--muted);margin-left:6px">well-resourced</span></div>
+            <div class="sub">Can reach 5–10% among malnourished or unvaccinated children in low-resource outbreaks.</div>
+          </div>
+        </div>
+        <div class="fs-body">
+          <div class="fs-sec">
+            <h4>What it is</h4>
+            <p><b>Measles virus</b> is among the most contagious pathogens known to science — a single infected person can pass it to 12 to 18 others in a fully susceptible population, several times the spread rate of most other respiratory viruses.</p>
+            <p>Because it spreads so efficiently, outbreaks are an early warning sign: measles resurges the moment vaccination coverage in a community drops, even slightly, below the roughly 95% needed for herd immunity.</p>
+            <h4 style="margin-top:18px">Transmission</h4>
+            <p>Airborne — through coughing and sneezing. The virus can linger in a room for up to two hours after an infected person leaves it.</p>
+          </div>
+          <div class="fs-sec">
+            <h4>Symptoms</h4>
+            <p>High fever, cough, runny nose, and red, watery eyes, followed by a characteristic rash that spreads from the face down the body. Complications include pneumonia and, rarely, brain swelling.</p>
+            <div class="fs-tags">
+              <span>High fever</span><span>Cough</span><span>Rash</span><span>Pneumonia (complication)</span>
+            </div>
+            <h4 style="margin-top:18px">A near-solved problem that keeps returning</h4>
+            <div class="fs-compare">Measles has had a highly effective vaccine for over 60 years, and large regions have eliminated local transmission entirely. Nearly every modern outbreak traces back to a gap in vaccination coverage, not a gap in medical science.</div>
+          </div>
+        </div>
+        <div class="fs-src">Sources · WHO fact sheet — Measles · CDC Measles (MMWR) · Ballotpedia/Reuters outbreak reporting.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mpox · pathogen fact sheet modal -->
+  <div id="mpoxModal" class="modal" hidden aria-hidden="true">
+    <div class="modal-back" data-close></div>
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="mpoxModalTitle">
+      <div class="modal-head">
+        <div>
+          <span class="eyebrow">Pathogen fact sheet</span>
+          <h3 id="mpoxModalTitle" class="disp">Mpox</h3>
+        </div>
+        <button class="modal-x mono" data-close aria-label="Close fact sheet">CLOSE ✕</button>
+      </div>
+      <div class="factsheet">
+        <div class="fs-stats">
+          <div class="fs-stat">
+            <span class="lab eyebrow">Reservoir host</span>
+            <div class="v warn">Unconfirmed</div>
+            <div class="sub">African rodents are suspected; despite decades of searching, none is confirmed.</div>
+          </div>
+          <div class="fs-stat">
+            <span class="lab eyebrow">Licensed vaccine</span>
+            <div class="v mid">Repurposed</div>
+            <div class="sub">Smallpox vaccines (JYNNEOS/MVA-BN) offer strong cross-protection.</div>
+          </div>
+          <div class="fs-stat">
+            <span class="lab eyebrow">Targeted treatment</span>
+            <div class="v warn">Unproven</div>
+            <div class="sub">Tecovirimat is used, but trials haven't shown clear benefit for the common clade.</div>
+          </div>
+          <div class="fs-stat">
+            <span class="lab eyebrow">Case fatality</span>
+            <div class="v">1–11%<span class="u" style="font-size:12px;color:var(--muted);margin-left:6px">Clade I</span></div>
+            <div class="sub">Clade II, behind the 2022 global outbreak, runs under 1%.</div>
+          </div>
+        </div>
+        <div class="fs-body">
+          <div class="fs-sec">
+            <h4>What it is</h4>
+            <p><b>Monkeypox virus</b> is a relative of smallpox, first identified in captive research monkeys in 1958 despite its animal reservoir never having been pinned down. Two genetically distinct clades exist: Clade I (Central Africa), historically far more severe, and Clade II (West Africa), which caused the 2022 global outbreak.</p>
+            <h4 style="margin-top:18px">Transmission</h4>
+            <p>Zoonotic spillover — likely from rodents — starts most Central African outbreaks. From there it spreads person to person through close physical contact, respiratory droplets, and contact with lesions or contaminated materials.</p>
+          </div>
+          <div class="fs-sec">
+            <h4>Symptoms</h4>
+            <p>Fever, headache, muscle aches, and swollen lymph nodes, followed by a distinctive rash that progresses through raised bumps to fluid-filled blisters before scabbing over.</p>
+            <div class="fs-tags">
+              <span>Fever</span><span>Swollen lymph nodes</span><span>Blistering rash</span>
+            </div>
+            <h4 style="margin-top:18px">One name, two very different diseases</h4>
+            <div class="fs-compare">The clade you're exposed to matters enormously. Clade I mpox, still circulating in Central Africa, is roughly ten times more lethal than the Clade II virus behind the 2022 outbreak that made global headlines — a distinction easily lost in casual reporting.</div>
+          </div>
+        </div>
+        <div class="fs-src">Sources · WHO Disease Outbreak News — Mpox, DRC · WHO risk evaluation, Clade Ib · peer-reviewed clade-comparison literature.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lassa fever · pathogen fact sheet modal -->
+  <div id="lassaModal" class="modal" hidden aria-hidden="true">
+    <div class="modal-back" data-close></div>
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="lassaModalTitle">
+      <div class="modal-head">
+        <div>
+          <span class="eyebrow">Pathogen fact sheet</span>
+          <h3 id="lassaModalTitle" class="disp">Lassa fever</h3>
+        </div>
+        <button class="modal-x mono" data-close aria-label="Close fact sheet">CLOSE ✕</button>
+      </div>
+      <div class="factsheet">
+        <div class="fs-stats">
+          <div class="fs-stat">
+            <span class="lab eyebrow">Reservoir host</span>
+            <div class="v ok">Confirmed</div>
+            <div class="sub">The multimammate rat (Mastomys natalensis), which readily lives inside homes.</div>
+          </div>
+          <div class="fs-stat">
+            <span class="lab eyebrow">Licensed vaccine</span>
+            <div class="v warn">None</div>
+            <div class="sub">Several candidates are in trials; none is approved yet.</div>
+          </div>
+          <div class="fs-stat">
+            <span class="lab eyebrow">Targeted treatment</span>
+            <div class="v mid">Partial</div>
+            <div class="sub">The antiviral ribavirin can help if given early; evidence is still being reassessed.</div>
+          </div>
+          <div class="fs-stat">
+            <span class="lab eyebrow">Case fatality</span>
+            <div class="v">≈1%<span class="u" style="font-size:12px;color:var(--muted);margin-left:6px">all infections</span></div>
+            <div class="sub">Rises to 15–20% among patients sick enough to be hospitalised.</div>
+          </div>
+        </div>
+        <div class="fs-body">
+          <div class="fs-sec">
+            <h4>What it is</h4>
+            <p><b>Lassa virus</b> is endemic across much of West Africa, where the rodent that carries it is extremely common around human settlements. Most infections — about 80% — are mild or entirely without symptoms, which lets the virus circulate quietly for long stretches between visible outbreaks.</p>
+            <h4 style="margin-top:18px">Transmission</h4>
+            <p>Mainly through contact with food or household items contaminated by rodent urine or droppings, or by eating the rodents themselves. Person-to-person spread can follow, through contact with an infected person's blood or bodily fluids.</p>
+          </div>
+          <div class="fs-sec">
+            <h4>Symptoms</h4>
+            <p>Gradual fever, weakness, and malaise in most cases. A minority progress to severe disease, with facial swelling, bleeding, and hearing loss — Lassa fever is a leading cause of acquired deafness in West Africa, even among survivors.</p>
+            <div class="fs-tags">
+              <span>Fever</span><span>Weakness</span><span>Hearing loss</span><span>Bleeding (severe cases)</span>
+            </div>
+            <h4 style="margin-top:18px">A quiet, constant risk</h4>
+            <div class="fs-compare">Unlike the epidemic filoviruses on this list, Lassa never fully goes away — it's endemic, with an estimated 100,000–300,000 infections every year across West Africa. Most go undiagnosed, so the true burden is almost certainly larger than official counts show.</div>
+          </div>
+        </div>
+        <div class="fs-src">Sources · WHO fact sheet — Lassa fever · CDC Lassa Fever · Nigeria Centre for Disease Control situation reports.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COVID-19 · pathogen fact sheet modal -->
+  <div id="covidModal" class="modal" hidden aria-hidden="true">
+    <div class="modal-back" data-close></div>
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="covidModalTitle">
+      <div class="modal-head">
+        <div>
+          <span class="eyebrow">Pathogen fact sheet</span>
+          <h3 id="covidModalTitle" class="disp">COVID-19</h3>
+        </div>
+        <button class="modal-x mono" data-close aria-label="Close fact sheet">CLOSE ✕</button>
+      </div>
+      <div class="factsheet">
+        <div class="fs-stats">
+          <div class="fs-stat">
+            <span class="lab eyebrow">Reservoir host</span>
+            <div class="v mid">Debated</div>
+            <div class="sub">An animal origin (likely bat coronavirus) is the leading theory; the exact spillover path is unresolved.</div>
+          </div>
+          <div class="fs-stat">
+            <span class="lab eyebrow">Licensed vaccine</span>
+            <div class="v ok">Yes</div>
+            <div class="sub">Multiple vaccines, updated periodically to track circulating variants.</div>
+          </div>
+          <div class="fs-stat">
+            <span class="lab eyebrow">Targeted treatment</span>
+            <div class="v ok">Yes</div>
+            <div class="sub">Antivirals and monoclonal antibodies exist, though effectiveness shifts with new variants.</div>
+          </div>
+          <div class="fs-stat">
+            <span class="lab eyebrow">Case fatality</span>
+            <div class="v">Low, now<span class="u" style="font-size:12px;color:var(--muted);margin-left:6px">vs. 2020</span></div>
+            <div class="sub">Vaccination and prior immunity have sharply cut fatality since the original strain.</div>
+          </div>
+        </div>
+        <div class="fs-body">
+          <div class="fs-sec">
+            <h4>What it is</h4>
+            <p><b>SARS-CoV-2</b> is a coronavirus first identified in late 2019. Mainstream virology points to a zoonotic spillover, most likely from a bat-origin coronavirus, though the precise animal intermediary and the exact circumstances of the first human infections remain scientifically debated.</p>
+            <p>It's now considered endemic in most of the world — circulating continuously at lower, more predictable levels rather than the sharp emergency waves of 2020–22.</p>
+            <h4 style="margin-top:18px">Transmission</h4>
+            <p>Primarily airborne, through respiratory droplets and smaller aerosols released when an infected person breathes, talks, coughs, or sneezes.</p>
+          </div>
+          <div class="fs-sec">
+            <h4>Symptoms</h4>
+            <p>Fever, cough, fatigue, and loss of taste or smell were hallmark early symptoms; presentation has shifted with each new variant. Most cases are now mild, especially in the vaccinated.</p>
+            <div class="fs-tags">
+              <span>Fever</span><span>Cough</span><span>Fatigue</span><span>Loss of taste/smell</span>
+            </div>
+            <h4 style="margin-top:18px">The fastest countermeasure ever built</h4>
+            <div class="fs-compare">Effective vaccines went from an unknown pathogen to global rollout in under a year — unprecedented speed compared to every other disease on this list, several of which have waited decades without one. That speed is why COVID-19's trajectory looks so different from Ebola's or Marburg's.</div>
+          </div>
+        </div>
+        <div class="fs-src">Sources · WHO COVID-19 fact sheet · CDC COVID-19 · peer-reviewed virology and origins literature.</div>
+      </div>
+    </div>
+  </div>
+
 
   <section class="blk">
     <div class="blk-head">
@@ -764,10 +1094,10 @@
         </div>
         <div class="foot"><svg class="cspark" data-spark="wave" viewBox="0 0 88 26" preserveAspectRatio="none"></svg><span class="chip sev2">Sustained</span></div>
       </article>
-      <article class="card clickable" data-modal="eth" tabindex="0" role="button" aria-label="Open Ethiopia Marburg regional detail">
+      <article class="card clickable" data-modal="marburg" tabindex="0" role="button" aria-label="Open Marburg pathogen fact sheet and Ethiopia regional detail">
         <span class="accent sev1"></span>
-        <span class="opendetail">View map ↗</span>
-        <span class="fam eyebrow">Filovirus · Marburg · <a href="#" class="pathlink" data-modal="marburg">pathogen ↗</a></span>
+        <span class="opendetail">Pathogen + map ↗</span>
+        <span class="fam eyebrow">Filovirus · Marburg</span>
         <div class="cn disp">Marburg disease</div>
         <div class="loc">Ethiopia · Jinka, Malle, Dasench &amp; Hawassa · first for country</div>
         <div class="stat"><span class="n tnum">19</span><div class="cap">Cases (14 confirmed)</div></div>
@@ -1020,44 +1350,68 @@ renderDetailMap('drcmap', DRC, { rOf:c=>4+Math.sqrt(c)*0.62, orient:'N ↑ · AL
 renderDetailMap('ethmap', ETH, { rOf:c=>4+Math.sqrt(c)*2.2, orient:'N ↑ · OMO VALLEY',
   labels:{ 'JINKA':{a:'end',dy:-1}, 'MALLE':{a:'start',dy:-6}, 'DASENECH':{a:'end',dy:6}, 'HAWASSA':{a:'start',dy:-1} } });
 
-/* ---------- MODALS (click-through fact sheets) ---------- */
+/* ---------- MODALS (click-through fact sheets) — event-delegated ---------- */
 (function(){
-  const registry={ eth:'ethModal', ebola:'ebolaModal', marburg:'marburgModal', andes:'andesModal', yellowfever:'yellowfeverModal' };
-  const openFns={};
+  const registry={
+    ebola:'ebolaModal', marburg:'marburgModal', andes:'andesModal', yellowfever:'yellowfeverModal',
+    dengue:'dengueModal', cholera:'choleraModal', measles:'measlesModal', mpox:'mpoxModal', lassa:'lassaModal', covid:'covidModal'
+  };
+  const state={};
   Object.entries(registry).forEach(([key,id])=>{
     const modal=document.getElementById(id); if(!modal) return;
-    let lastFocus=null;
-    function open(){
-      lastFocus=document.activeElement;
-      modal.hidden=false; modal.setAttribute('aria-hidden','false');
-      document.body.classList.add('modal-open');
-      const x=modal.querySelector('.modal-x'); if(x) x.focus();
-    }
-    function close(){
-      modal.hidden=true; modal.setAttribute('aria-hidden','true');
-      document.body.classList.remove('modal-open');
-      if(lastFocus&&lastFocus.focus) try{lastFocus.focus();}catch(e){}
-    }
-    modal.addEventListener('click', e=>{ if(e.target.hasAttribute('data-close')) close(); });
-    document.addEventListener('keydown', e=>{ if(e.key==='Escape' && !modal.hidden) close(); });
-    document.querySelectorAll(`[data-modal="${key}"]`).forEach(el=>{
-      el.addEventListener('click', e=>{ e.preventDefault(); e.stopPropagation(); open(); });
-      el.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); e.stopPropagation(); open(); } });
-    });
-    openFns[key]=open;
+    state[key]={modal,lastFocus:null};
+    modal.addEventListener('click', e=>{ if(e.target.hasAttribute('data-close')) close(key); });
   });
-  window.__openEthModal = openFns.eth;
-  window.__openEbolaModal = openFns.ebola;
+  function open(key){
+    const s=state[key]; if(!s) return;
+    s.lastFocus=document.activeElement;
+    s.modal.hidden=false; s.modal.setAttribute('aria-hidden','false');
+    document.body.classList.add('modal-open');
+    const x=s.modal.querySelector('.modal-x'); if(x) x.focus();
+  }
+  function close(key){
+    const s=state[key]; if(!s) return;
+    s.modal.hidden=true; s.modal.setAttribute('aria-hidden','true');
+    document.body.classList.remove('modal-open');
+    if(s.lastFocus&&s.lastFocus.focus) try{s.lastFocus.focus();}catch(e){}
+  }
+  function closeAny(){ Object.keys(state).forEach(k=>{ if(!state[k].modal.hidden) close(k); }); }
+  // delegated on document — works for triggers added at any point, including rail bars rendered later
+  document.addEventListener('click', e=>{
+    const trigger=e.target.closest && e.target.closest('[data-modal]');
+    if(trigger && registry[trigger.dataset.modal]){ e.preventDefault(); open(trigger.dataset.modal); }
+  });
+  document.addEventListener('keydown', e=>{
+    if(e.key==='Escape'){ closeAny(); return; }
+    if(e.key==='Enter'||e.key===' '){
+      const trigger=e.target.closest && e.target.closest('[data-modal]');
+      if(trigger && registry[trigger.dataset.modal]){ e.preventDefault(); open(trigger.dataset.modal); }
+    }
+  });
+  window.__openEthModal = ()=>open('marburg');
+  window.__openEbolaModal = ()=>open('ebola');
 })();
 
 /* ---------- LEFT-RAIL BARS ---------- */
 (function(){
-  const rows=[['Ebola (BDBV)',1460,'var(--severe)'],['Dengue',940,'var(--watch)'],['Cholera',610,'var(--watch)'],
-    ['Measles',430,'var(--watch)'],['Mpox',380,'var(--watch)'],['Yellow fever',111,'var(--watch)'],
-    ['Lassa fever',64,'var(--contained)'],['Marburg',19,'var(--contained)'],['COVID-19',0,'var(--contained)','endemic']];
+  const rows=[
+    ['Ebola (BDBV)',1460,'var(--severe)','ebola'],
+    ['Dengue',940,'var(--watch)','dengue'],
+    ['Cholera',610,'var(--watch)','cholera'],
+    ['Measles',430,'var(--watch)','measles'],
+    ['Mpox',380,'var(--watch)','mpox'],
+    ['Yellow fever',111,'var(--watch)','yellowfever'],
+    ['Lassa fever',64,'var(--contained)','lassa'],
+    ['Marburg',19,'var(--contained)','marburg'],
+    ['COVID-19',0,'var(--contained)','covid','endemic']
+  ];
   const max=1460, host=document.getElementById('pathbars');
-  rows.forEach(([n,v,col,tag])=>{ const w=tag?6:Math.max(4,v/max*100);
-    host.insertAdjacentHTML('beforeend',`<div class="bar"><span class="name">${n}</span><span class="val tnum">${tag?'endemic':v.toLocaleString()}</span><span class="track"></span><span class="fill" style="width:${w}%;background:${col}"></span></div>`); });
+  rows.forEach(([n,v,col,key,tag])=>{ const w=tag?6:Math.max(4,v/max*100);
+    host.insertAdjacentHTML('beforeend',
+      `<div class="bar clickbar" data-modal="${key}" tabindex="0" role="button" aria-label="What is ${n}? Open pathogen fact sheet">
+        <span class="name">${n}</span><span class="val tnum">${tag?'endemic':v.toLocaleString()}</span>
+        <span class="track"></span><span class="fill" style="width:${w}%;background:${col}"></span>
+      </div>`); });
 })();
 
 /* ---------- SPARKLINES ---------- */
