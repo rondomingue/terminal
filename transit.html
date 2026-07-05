@@ -502,20 +502,6 @@
   // Seeded random for deterministic textures
   function tx(n){ const x=Math.sin(n*9301+49297)*233280; return x-Math.floor(x); }
 
-  function ditherCanvas(ctx,w,h,amount=4){
-    const img=ctx.getImageData(0,0,w,h);
-    const d=img.data;
-    for(let i=0,p=0;i<d.length;i+=4,p++){
-      if(d[i+3]===0) continue;
-      const n=(tx(p+7000)-0.5)*amount;
-      d[i]=Math.max(0,Math.min(255,d[i]+n));
-      d[i+1]=Math.max(0,Math.min(255,d[i+1]+n));
-      d[i+2]=Math.max(0,Math.min(255,d[i+2]+n));
-      d[i+3]=Math.max(0,Math.min(255,d[i+3]+n*0.65));
-    }
-    ctx.putImageData(img,0,0);
-  }
-
   const planetTextures={
     MERCURY: makeTex(256,(ctx,s)=>{
       ctx.fillStyle='#5a5a6a'; ctx.fillRect(0,0,s,s);
@@ -644,21 +630,24 @@
 
   const SUN_TEX=makeTex(512,(ctx,s)=>{
     const g=ctx.createRadialGradient(s/2,s/2,0,s/2,s/2,s/2);
-    g.addColorStop(0,'#fff8e0'); g.addColorStop(0.25,'#ffe060'); g.addColorStop(0.6,'#ff8820'); g.addColorStop(1,'#cc3800');
+    g.addColorStop(0,'#fff0a2');
+    g.addColorStop(0.32,'#ffc941');
+    g.addColorStop(0.66,'#f26b18');
+    g.addColorStop(1,'#7f2608');
     ctx.fillStyle=g; ctx.fillRect(0,0,s,s);
     // Sunspots
-    for(let i=0;i<12;i++){
+    for(let i=0;i<18;i++){
       const x=tx(i)*s,y=tx(i+12)*s,r=4+tx(i+24)*18;
       const sg=ctx.createRadialGradient(x,y,0,x,y,r);
-      sg.addColorStop(0,'rgba(80,30,0,0.55)'); sg.addColorStop(1,'rgba(80,30,0,0)');
+      sg.addColorStop(0,'rgba(70,22,0,0.32)'); sg.addColorStop(1,'rgba(70,22,0,0)');
       ctx.fillStyle=sg; ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
     }
     // Convection grain
-    ctx.globalAlpha=0.08;
-    for(let i=0;i<80;i++){
+    ctx.globalAlpha=0.055;
+    for(let i=0;i<110;i++){
       const x=tx(i+50)*s,y=tx(i+130)*s,r=8+tx(i+210)*28;
       const cg=ctx.createRadialGradient(x,y,0,x,y,r);
-      cg.addColorStop(0,'rgba(255,255,180,1)'); cg.addColorStop(1,'rgba(255,255,180,0)');
+      cg.addColorStop(0,'rgba(255,223,120,1)'); cg.addColorStop(1,'rgba(255,170,70,0)');
       ctx.fillStyle=cg; ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
     }
     ctx.globalAlpha=1;
@@ -753,16 +742,16 @@
 
   // Helper: sprite glow
   function makeSpriteGlow(color,size,opacity=1,falloff=0.3){
-    const c=document.createElement('canvas');c.width=c.height=128;
+    const c=document.createElement('canvas');c.width=c.height=256;
     const ctx=c.getContext('2d');
-    const g=ctx.createRadialGradient(64,64,0,64,64,64);
+    const g=ctx.createRadialGradient(128,128,0,128,128,128);
     const hex=color.toString(16).padStart(6,'0');
     const r=parseInt(hex.slice(0,2),16),gv=parseInt(hex.slice(2,4),16),b=parseInt(hex.slice(4,6),16);
-    g.addColorStop(0,`rgba(${r},${gv},${b},1)`);
-    g.addColorStop(falloff,`rgba(${r},${gv},${b},0.28)`);
+    g.addColorStop(0,`rgba(${r},${gv},${b},0.72)`);
+    g.addColorStop(falloff,`rgba(${r},${gv},${b},0.20)`);
+    g.addColorStop(0.72,`rgba(${r},${gv},${b},0.045)`);
     g.addColorStop(1,`rgba(${r},${gv},${b},0)`);
-    ctx.fillStyle=g;ctx.fillRect(0,0,128,128);
-    ditherCanvas(ctx,128,128,5);
+    ctx.fillStyle=g;ctx.fillRect(0,0,256,256);
     const tex=new THREE.CanvasTexture(c);
     return new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,
       blending:THREE.AdditiveBlending,depthWrite:false,sizeAttenuation:true,opacity}));
@@ -797,7 +786,6 @@
     ctx.beginPath();
     ctx.arc(cx,cy,2.2,0,Math.PI*2);
     ctx.fill();
-    ditherCanvas(ctx,160,160,3);
     const tex=new THREE.CanvasTexture(c);
     return new THREE.SpriteMaterial({
       map:tex,transparent:true,opacity:0,
@@ -807,40 +795,68 @@
   }
 
   function makeSunCoronaSprite(){
-    const c=document.createElement('canvas');c.width=c.height=256;
+    const c=document.createElement('canvas');c.width=c.height=512;
     const ctx=c.getContext('2d');
-    const cx=128,cy=132;
-    const glow=ctx.createRadialGradient(cx,cy,18,cx,cy,116);
-    glow.addColorStop(0,'rgba(255,166,56,0.32)');
-    glow.addColorStop(0.34,'rgba(255,120,22,0.16)');
-    glow.addColorStop(0.72,'rgba(255,120,22,0.035)');
+    const cx=256,cy=266;
+    const glow=ctx.createRadialGradient(cx,cy,96,cx,cy,238);
+    glow.addColorStop(0,'rgba(255,188,72,0.18)');
+    glow.addColorStop(0.36,'rgba(255,126,24,0.11)');
+    glow.addColorStop(0.68,'rgba(255,126,24,0.035)');
     glow.addColorStop(1,'rgba(255,120,22,0)');
-    ctx.fillStyle=glow;ctx.fillRect(0,0,256,256);
+    ctx.fillStyle=glow;ctx.fillRect(0,0,512,512);
 
     ctx.save();
     ctx.globalCompositeOperation='lighter';
-    const rim=ctx.createLinearGradient(78,68,178,92);
+    const rim=ctx.createLinearGradient(138,132,360,184);
     rim.addColorStop(0,'rgba(255,255,235,0)');
-    rim.addColorStop(0.35,'rgba(255,230,168,0.75)');
-    rim.addColorStop(0.58,'rgba(255,128,30,0.95)');
+    rim.addColorStop(0.38,'rgba(255,232,162,0.62)');
+    rim.addColorStop(0.58,'rgba(255,130,32,0.78)');
     rim.addColorStop(1,'rgba(255,128,30,0)');
     ctx.strokeStyle=rim;
-    ctx.lineWidth=8;
+    ctx.lineWidth=16;
     ctx.beginPath();
-    ctx.arc(cx,cy,49,Math.PI*1.08,Math.PI*1.82);
+    ctx.arc(cx,cy,101,Math.PI*1.08,Math.PI*1.88);
     ctx.stroke();
 
-    ctx.strokeStyle='rgba(255,236,188,0.32)';
-    ctx.lineWidth=3;
+    ctx.strokeStyle='rgba(255,236,188,0.18)';
+    ctx.lineWidth=6;
     ctx.beginPath();
-    ctx.arc(cx,cy,65,Math.PI*1.0,Math.PI*1.92);
+    ctx.arc(cx,cy,126,Math.PI*1.0,Math.PI*1.94);
     ctx.stroke();
     ctx.restore();
-    ditherCanvas(ctx,256,256,5);
 
     const tex=new THREE.CanvasTexture(c);
     return new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,
-      blending:THREE.AdditiveBlending,depthWrite:false,sizeAttenuation:true,opacity:0.95}));
+      blending:THREE.AdditiveBlending,depthWrite:false,sizeAttenuation:true,opacity:0.86}));
+  }
+
+  function makeSunFlareSprite(){
+    const c=document.createElement('canvas');c.width=768;c.height=160;
+    const ctx=c.getContext('2d');
+    const cx=384,cy=76;
+    const line=ctx.createLinearGradient(40,cy,728,cy);
+    line.addColorStop(0,'rgba(255,178,76,0)');
+    line.addColorStop(0.42,'rgba(255,210,126,0.18)');
+    line.addColorStop(0.50,'rgba(255,245,205,0.36)');
+    line.addColorStop(0.58,'rgba(255,166,56,0.16)');
+    line.addColorStop(1,'rgba(255,126,24,0)');
+    ctx.strokeStyle=line;
+    ctx.lineWidth=2.2;
+    ctx.beginPath();
+    ctx.moveTo(42,cy);
+    ctx.lineTo(726,cy);
+    ctx.stroke();
+
+    const bloom=ctx.createRadialGradient(cx,cy,0,cx,cy,90);
+    bloom.addColorStop(0,'rgba(255,232,162,0.22)');
+    bloom.addColorStop(0.42,'rgba(255,156,48,0.075)');
+    bloom.addColorStop(1,'rgba(255,156,48,0)');
+    ctx.fillStyle=bloom;
+    ctx.fillRect(cx-110,cy-90,220,180);
+
+    const tex=new THREE.CanvasTexture(c);
+    return new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,
+      blending:THREE.AdditiveBlending,depthWrite:false,sizeAttenuation:true,opacity:0.52}));
   }
 
   // ===== BACKGROUND STARS — layered, temperature-colored, with Milky Way band =====
@@ -1006,11 +1022,15 @@
   );
   scene.add(sunMesh);
   const sunCorona=makeSunCoronaSprite();
-  sunCorona.scale.set(1.88,1.88,1);
-  sunCorona.position.set(0,0.07,0);
+  sunCorona.scale.set(1.62,1.62,1);
+  sunCorona.position.set(0,0.045,0);
   scene.add(sunCorona);
-  const sunAura=makeSpriteGlow(0xff8c22,0.72,0.34,0.22);
-  sunAura.scale.set(1.16,1.16,1);
+  const sunFlare=makeSunFlareSprite();
+  sunFlare.scale.set(2.15,0.42,1);
+  sunFlare.position.set(0,0.13,0);
+  scene.add(sunFlare);
+  const sunAura=makeSpriteGlow(0xff8c22,0.72,0.16,0.28);
+  sunAura.scale.set(1.02,1.02,1);
   scene.add(sunAura);
 
   // ===== PLANETS — textured, lit, with Saturn rings =====
