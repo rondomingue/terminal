@@ -310,19 +310,20 @@
   .stog.on.cat1{border-color:var(--cat1);color:var(--cat1);background:rgba(244,246,248,.1);}
 
   /* SELECTED SYSTEM — sidebar card (was a map overlay; now lives in #rail-right) */
-  #storm-focus-card{padding:22px 14px 14px;position:relative;}
-  .focus-clear-btn{position:absolute;top:9px;right:10px;z-index:2;
+  #storm-focus-card{padding:32px 20px 22px;position:relative;}
+  #storm-focus-card > .panel-label{max-width:calc(100% - 90px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .focus-clear-btn{position:absolute;top:14px;right:16px;z-index:2;
     font-family:'IBM Plex Mono',monospace;font-size:7px;letter-spacing:.1em;color:var(--ink-faint);
-    background:transparent;border:1px solid var(--mui-outline);border-radius:999px;padding:3px 8px;
+    background:transparent;border:1px solid var(--mui-outline);border-radius:999px;padding:4px 10px;
     cursor:pointer;opacity:0;pointer-events:none;transition:opacity .15s,color .15s,border-color .15s;}
   #storm-focus-card.has-selection .focus-clear-btn{opacity:1;pointer-events:all;}
   .focus-clear-btn:hover{color:var(--warning);border-color:var(--warning);}
-  .focus-title{font-family:'IBM Plex Mono',monospace;font-size:14px;letter-spacing:.06em;color:var(--ink-faint);line-height:1.3;}
+  .focus-title{font-family:'IBM Plex Mono',monospace;font-size:14px;letter-spacing:.06em;color:var(--ink-faint);line-height:1.4;margin-top:4px;padding-right:64px;}
   #storm-focus-card.has-selection .focus-title{color:var(--white);}
-  .focus-notes{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.06em;color:var(--ink-dim);margin-top:6px;line-height:1.5;}
-  .focus-metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;margin-top:14px;}
-  .focus-metrics span{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.08em;color:var(--ink-dim);border-left:1px solid rgba(150,175,220,.18);padding-left:9px;}
-  .focus-metrics b{display:block;font-size:13px;color:var(--ink-faint);font-weight:500;margin-bottom:2px;}
+  .focus-notes{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.06em;color:var(--ink-dim);margin-top:10px;line-height:1.6;}
+  .focus-metrics{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px;margin-top:20px;}
+  .focus-metrics span{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.08em;color:var(--ink-dim);border-left:1px solid rgba(150,175,220,.18);padding-left:11px;}
+  .focus-metrics b{display:block;font-size:13px;color:var(--ink-faint);font-weight:500;margin-bottom:3px;}
   #storm-focus-card.has-selection .focus-metrics b{color:var(--white);}
 
   /* HISTORICAL STORM DROPDOWN */
@@ -816,7 +817,7 @@
     document.querySelectorAll('.stog').forEach(t=>t.classList.remove('on'));
     updateStormFocus(null);
     if(mapOK&&map&&map.isStyleLoaded()){
-      try{ map.flyTo({center:[-89.7,25.4],zoom:4.9,pitch:MAP_PITCH,bearing:MAP_BEARING,duration:700}); }catch(e){}
+      try{ map.flyTo({center:MAP_DEFAULT_CENTER,zoom:MAP_DEFAULT_ZOOM,pitch:MAP_PITCH,bearing:MAP_BEARING,duration:700}); }catch(e){}
     }
   }
   function updateHeaderData(){
@@ -917,8 +918,10 @@
     renderGulfFallback();
     renderScaleBar(GULF.scaleBar100NM, 100);
   }
-  const MAP_PITCH=34;
-  const MAP_BEARING=-7;
+  const MAP_PITCH=58;
+  const MAP_BEARING=-12;
+  const MAP_DEFAULT_CENTER=[-89.5,27.3];
+  const MAP_DEFAULT_ZOOM=5.3;
   let map;
   try{
     if(typeof mapboxgl==='undefined' || typeof mapboxgl.Map!=='function') throw new Error('mapboxgl unavailable');
@@ -926,8 +929,8 @@
     map=new mapboxgl.Map({
       container:'mapbox-map',
       style:'mapbox://styles/mapbox/navigation-night-v1',
-      center:[-89.7,25.4],
-      zoom:4.9,
+      center:MAP_DEFAULT_CENTER,
+      zoom:MAP_DEFAULT_ZOOM,
       pitch:MAP_PITCH,
       bearing:MAP_BEARING,
       minZoom:4.25,
