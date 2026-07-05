@@ -817,7 +817,7 @@
     document.querySelectorAll('.stog').forEach(t=>t.classList.remove('on'));
     updateStormFocus(null);
     if(mapOK&&map&&map.isStyleLoaded()){
-      try{ map.flyTo({center:MAP_DEFAULT_CENTER,zoom:MAP_DEFAULT_ZOOM,pitch:MAP_PITCH,bearing:MAP_BEARING,duration:700}); }catch(e){}
+      try{ map.flyTo({center:MAP_DEFAULT_CENTER,zoom:MAP_DEFAULT_ZOOM,pitch:MAP_PITCH,bearing:MAP_BEARING,padding:MAP_DEFAULT_PADDING,duration:700}); }catch(e){}
     }
   }
   function updateHeaderData(){
@@ -922,6 +922,7 @@
   const MAP_BEARING=-12;
   const MAP_DEFAULT_CENTER=[-89.5,27.3];
   const MAP_DEFAULT_ZOOM=5.3;
+  const MAP_DEFAULT_PADDING={top:0,bottom:130,left:120,right:0}; // pushes framing up + right
   let map;
   try{
     if(typeof mapboxgl==='undefined' || typeof mapboxgl.Map!=='function') throw new Error('mapboxgl unavailable');
@@ -933,6 +934,7 @@
       zoom:MAP_DEFAULT_ZOOM,
       pitch:MAP_PITCH,
       bearing:MAP_BEARING,
+      padding:MAP_DEFAULT_PADDING,
       minZoom:4.25,
       maxZoom:7,
       maxBounds:[[-99.5,18],[-80,32.2]], // Gulf-only hard lock
@@ -1168,6 +1170,7 @@
   map.on('style.load',()=>{
     mapOK=true;
     const boot=$('mapboot'); if(boot) boot.classList.add('off');
+    try{ map.setPadding(MAP_DEFAULT_PADDING); }catch(e){}
     // Keep the map dark and quiet. Roads/interstates are intentionally hidden.
     const MAP_LAND='#06101f', MAP_WATER='#071a35', MAP_LABEL='rgba(205,220,255,0.32)';
     try{
@@ -1202,6 +1205,22 @@
             }
           }
         }catch(e){}
+      });
+    }catch(e){}
+
+    // Borders: the loop above mutes every non-road line layer near-invisible.
+    // Boost admin boundaries specifically back up so country/state lines read clearly.
+    try{
+      map.getStyle().layers.forEach(layer=>{
+        if(layer.type==='line' && /admin/i.test(layer.id)){
+          try{
+            const isCountry=/admin-0/i.test(layer.id);
+            map.setPaintProperty(layer.id,'line-color', isCountry ? '#dde3f5' : '#6f98b7');
+            map.setPaintProperty(layer.id,'line-width', isCountry ? 1.3 : 0.85);
+            map.setPaintProperty(layer.id,'line-opacity', isCountry ? 0.6 : 0.38);
+            map.setPaintProperty(layer.id,'line-dasharray', isCountry ? [1,0] : [3,2]);
+          }catch(e){}
+        }
       });
     }catch(e){}
 
