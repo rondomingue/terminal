@@ -237,6 +237,30 @@
   .eth-modal .side{border-left:1px solid var(--line)}
   body.modal-open{overflow:hidden}
 
+  /* pathogen fact-sheet modal */
+  .factsheet{padding-top:4px}
+  .fs-stats{display:grid; grid-template-columns:repeat(4,1fr); gap:0; border:1px solid var(--line); border-radius:2px; margin-bottom:22px; overflow:hidden}
+  .fs-stat{padding:16px 18px; border-right:1px solid var(--line)}
+  .fs-stat:last-child{border-right:0}
+  .fs-stat .lab{display:block; margin-bottom:8px}
+  .fs-stat .v{font-family:'Fraunces',serif; font-weight:500; font-size:22px; line-height:1.05; color:var(--bone)}
+  .fs-stat .v.warn{color:var(--severe)}
+  .fs-stat .v.ok{color:var(--contained)}
+  .fs-stat .sub{margin-top:6px; font-size:11.5px; color:var(--muted); line-height:1.4}
+  .fs-body{display:grid; grid-template-columns:1fr 1fr; gap:26px}
+  .fs-sec{padding-bottom:4px}
+  .fs-sec h4{font-family:'Space Mono',monospace; font-size:10.5px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); margin:0 0 10px; font-weight:400}
+  .fs-sec p{font-size:13px; color:var(--bone-dim); line-height:1.6; margin:0 0 10px}
+  .fs-sec p:last-child{margin-bottom:0}
+  .fs-sec b{color:var(--bone); font-weight:500}
+  .fs-tags{display:flex; flex-wrap:wrap; gap:7px; margin-top:2px}
+  .fs-tags span{font-family:'Space Mono',monospace; font-size:10px; letter-spacing:.06em; color:var(--bone-dim); border:1px solid var(--line); border-radius:2px; padding:4px 9px}
+  .fs-compare{margin-top:10px; padding:12px 14px; border-left:2px solid var(--watch); background:rgba(227,178,60,.06); font-size:12.5px; color:var(--bone-dim); line-height:1.55}
+  .fs-src{margin-top:20px; padding-top:14px; border-top:1px solid var(--line-2); font-family:'Space Mono',monospace; font-size:10px; letter-spacing:.04em; color:var(--faint); line-height:1.7}
+  .pathlink{color:var(--bone-dim); text-decoration:none; border-bottom:1px solid var(--line)}
+  .pathlink:hover{color:var(--bone); border-color:var(--bone-dim)}
+  @media (max-width:820px){ .fs-stats{grid-template-columns:1fr 1fr} .fs-body{grid-template-columns:1fr} }
+
   /* clickable outbreak card (opens modal) */
   .card.clickable{cursor:pointer; transition:background .15s}
   .card.clickable:hover{background:rgba(233,229,217,.03)}
@@ -364,7 +388,7 @@
 
       <div class="stage-head detail-head">
         <span class="t disp">The Ebola epidemic, in detail</span>
-        <span class="eyebrow">Bundibugyo virus · PHEIC 17 May 2026</span>
+        <span class="eyebrow">Bundibugyo virus · PHEIC 17 May 2026 · <a href="#" class="pathlink" data-modal="ebola">What is Ebola? ↗</a></span>
       </div>
       <div class="eth">
         <div class="ethmap">
@@ -455,6 +479,245 @@
     </div>
   </div>
 
+  <!-- Ebola · pathogen fact sheet modal -->
+  <div id="ebolaModal" class="modal" hidden aria-hidden="true">
+    <div class="modal-back" data-close></div>
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="ebolaModalTitle">
+      <div class="modal-head">
+        <div>
+          <span class="eyebrow">Pathogen fact sheet</span>
+          <h3 id="ebolaModalTitle" class="disp">Ebola disease · Bundibugyo virus</h3>
+        </div>
+        <button class="modal-x mono" data-close aria-label="Close fact sheet">CLOSE ✕</button>
+      </div>
+
+      <div class="factsheet">
+        <div class="fs-stats">
+          <div class="fs-stat">
+            <span class="lab eyebrow">Reservoir host</span>
+            <div class="v warn">Unconfirmed</div>
+            <div class="sub">Fruit bats are suspected but no host has been confirmed for this species.</div>
+          </div>
+          <div class="fs-stat">
+            <span class="lab eyebrow">Licensed vaccine</span>
+            <div class="v warn">None</div>
+            <div class="sub">Ervebo® protects against Zaire virus only — a different Ebola species.</div>
+          </div>
+          <div class="fs-stat">
+            <span class="lab eyebrow">Targeted treatment</span>
+            <div class="v warn">None</div>
+            <div class="sub">Monoclonal antibodies exist for Zaire virus, not for this species.</div>
+          </div>
+          <div class="fs-stat">
+            <span class="lab eyebrow">Case fatality</span>
+            <div class="v">30.9%<span class="u" style="font-size:12px;color:var(--muted);margin-left:6px">this outbreak</span></div>
+            <div class="sub">Historical Ebola species range from roughly 25% to 90% CFR.</div>
+          </div>
+        </div>
+
+        <div class="fs-body">
+          <div class="fs-sec">
+            <h4>What it is</h4>
+            <p><b>Bundibugyo ebolavirus</b> is one of six known species in the genus <i>Orthoebolavirus</i>, family <i>Filoviridae</i>. It was first identified in 2007 during an outbreak in Bundibugyo District, Uganda — the district it's named for.</p>
+            <p>It is a zoonotic disease: the virus normally circulates in wildlife and occasionally spills over into humans, after which it can spread from person to person.</p>
+            <h4 style="margin-top:18px">Transmission</h4>
+            <p>Initial infection follows contact with the blood or secretions of infected wildlife — bats or non-human primates. Human-to-human spread then occurs through direct contact with blood, secretions, organs, or other bodily fluids, and is amplified in healthcare and funeral settings.</p>
+          </div>
+          <div class="fs-sec">
+            <h4>Symptoms</h4>
+            <p>Sudden fever, fatigue, muscle pain, headache, and sore throat, typically followed by vomiting, diarrhoea, rash, and signs of impaired kidney and liver function. Some patients develop internal and external bleeding.</p>
+            <div class="fs-tags">
+              <span>Fever</span><span>Fatigue</span><span>Muscle pain</span><span>Vomiting</span><span>Diarrhoea</span><span>Bleeding (some cases)</span>
+            </div>
+            <h4 style="margin-top:18px">Why this species is different</h4>
+            <div class="fs-compare">The 2014–16 West Africa epidemic and most Ebola vaccine research targeted <b>Zaire ebolavirus</b>. Bundibugyo virus is genetically distinct enough that those countermeasures don't reliably apply — which is why WHO reports no licensed vaccine or specific treatment for this outbreak. Care is limited to supportive treatment: fluids, symptom management, and treating complications early.</div>
+          </div>
+        </div>
+
+        <div class="fs-src">Sources · WHO Regional Office for Africa, Disease Outbreak News (2026-DON603) · Bundibugyo ebolavirus, peer-reviewed virology literature.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Marburg · pathogen fact sheet modal -->
+  <div id="marburgModal" class="modal" hidden aria-hidden="true">
+    <div class="modal-back" data-close></div>
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="marburgModalTitle">
+      <div class="modal-head">
+        <div>
+          <span class="eyebrow">Pathogen fact sheet</span>
+          <h3 id="marburgModalTitle" class="disp">Marburg disease</h3>
+        </div>
+        <button class="modal-x mono" data-close aria-label="Close fact sheet">CLOSE ✕</button>
+      </div>
+
+      <div class="factsheet">
+        <div class="fs-stats">
+          <div class="fs-stat">
+            <span class="lab eyebrow">Reservoir host</span>
+            <div class="v ok">Confirmed</div>
+            <div class="sub">Rousettus aegyptiacus, the Egyptian fruit bat, is the established natural host.</div>
+          </div>
+          <div class="fs-stat">
+            <span class="lab eyebrow">Licensed vaccine</span>
+            <div class="v warn">None</div>
+            <div class="sub">Several candidates are in early clinical trials; none is approved yet.</div>
+          </div>
+          <div class="fs-stat">
+            <span class="lab eyebrow">Targeted treatment</span>
+            <div class="v warn">None</div>
+            <div class="sub">Care is supportive — fluids, symptom management, early complication care.</div>
+          </div>
+          <div class="fs-stat">
+            <span class="lab eyebrow">Case fatality</span>
+            <div class="v">64.3%<span class="u" style="font-size:12px;color:var(--muted);margin-left:6px">this outbreak</span></div>
+            <div class="sub">Historical outbreaks range from about 24% to 88% — average near 50%.</div>
+          </div>
+        </div>
+
+        <div class="fs-body">
+          <div class="fs-sec">
+            <h4>What it is</h4>
+            <p><b>Marburg virus</b> and the closely related <b>Ravn virus</b> cause Marburg virus disease. It is Ebola's closest relative — the two are the only genera in the <i>Filoviridae</i> family known to cause severe hemorrhagic fever in people.</p>
+            <p>The virus was first identified in 1967, after simultaneous outbreaks among lab workers in Marburg and Frankfurt, Germany, and in Belgrade, Serbia — all traced to African green monkeys imported from Uganda for vaccine research.</p>
+            <h4 style="margin-top:18px">Transmission</h4>
+            <p>People are usually infected after prolonged exposure to bat colonies in caves or mines. Once a person is infected, the virus spreads through direct contact with blood, secretions, organs, or other bodily fluids — including during caregiving and burial practices.</p>
+          </div>
+          <div class="fs-sec">
+            <h4>Symptoms</h4>
+            <p>Abrupt high fever with severe headache and malaise, often with severe watery diarrhoea, abdominal pain, nausea and vomiting. Many fatal cases develop bleeding, often from multiple sites, five to seven days in.</p>
+            <div class="fs-tags">
+              <span>Sudden fever</span><span>Severe headache</span><span>Diarrhoea</span><span>Abdominal pain</span><span>Bleeding (fatal cases)</span>
+            </div>
+            <h4 style="margin-top:18px">How it compares to Ebola</h4>
+            <div class="fs-compare">Marburg and Ebola share a family, a reservoir type, and a transmission pattern — but not a vaccine. The confirmed bat reservoir here is actually better understood than Bundibugyo virus's. Leading vaccine candidates reuse the same viral-vector platform as Ebola's licensed shot, but none has cleared approval for Marburg.</div>
+          </div>
+        </div>
+
+        <div class="fs-src">Sources · WHO fact sheet — Marburg virus disease · WHO Regional Office for Africa · peer-reviewed clinical trial protocols (rVSV-Marburg candidates).</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Andes virus · pathogen fact sheet modal -->
+  <div id="andesModal" class="modal" hidden aria-hidden="true">
+    <div class="modal-back" data-close></div>
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="andesModalTitle">
+      <div class="modal-head">
+        <div>
+          <span class="eyebrow">Pathogen fact sheet</span>
+          <h3 id="andesModalTitle" class="disp">Andes virus</h3>
+        </div>
+        <button class="modal-x mono" data-close aria-label="Close fact sheet">CLOSE ✕</button>
+      </div>
+
+      <div class="factsheet">
+        <div class="fs-stats">
+          <div class="fs-stat">
+            <span class="lab eyebrow">Reservoir host</span>
+            <div class="v ok">Confirmed</div>
+            <div class="sub">The long-tailed pygmy rice rat (Oligoryzomys longicaudatus) of Argentina and Chile.</div>
+          </div>
+          <div class="fs-stat">
+            <span class="lab eyebrow">Licensed vaccine</span>
+            <div class="v warn">None</div>
+            <div class="sub">No vaccine exists for any hantavirus, anywhere in the world.</div>
+          </div>
+          <div class="fs-stat">
+            <span class="lab eyebrow">Targeted treatment</span>
+            <div class="v warn">None</div>
+            <div class="sub">No antiviral exists; treatment is supportive, often intensive respiratory care.</div>
+          </div>
+          <div class="fs-stat">
+            <span class="lab eyebrow">Case fatality</span>
+            <div class="v">≈38%<span class="u" style="font-size:12px;color:var(--muted);margin-left:6px">this outbreak</span></div>
+            <div class="sub">Historical outbreaks range from about 21% to 40% among symptomatic cases.</div>
+          </div>
+        </div>
+
+        <div class="fs-body">
+          <div class="fs-sec">
+            <h4>What it is</h4>
+            <p><b>Andes virus</b> is a hantavirus native to southern South America. In humans it causes Hantavirus Pulmonary Syndrome (HPS): a severe, often fatal lung disease. Hantaviruses have co-evolved with rodent hosts for millions of years, causing no illness in the animal itself.</p>
+            <p>It was identified as the cause of a 1996 outbreak in Argentina — the first time any hantavirus had been shown to spread between people, a property no other hantavirus on Earth is confirmed to share.</p>
+            <h4 style="margin-top:18px">Transmission</h4>
+            <p>Most infections follow inhaling aerosolized particles from rodent urine, droppings, or saliva, often while disturbing dust in enclosed rural spaces. Andes virus can also spread person to person through close, prolonged contact — the mechanism behind this shipboard cluster.</p>
+          </div>
+          <div class="fs-sec">
+            <h4>Symptoms</h4>
+            <p>An early phase of fever, headache, muscle pain, and fatigue, which can progress within days to sudden, severe respiratory failure as fluid fills the lungs.</p>
+            <div class="fs-tags">
+              <span>Fever</span><span>Headache</span><span>Muscle pain</span><span>Respiratory failure</span>
+            </div>
+            <h4 style="margin-top:18px">Why this one is different</h4>
+            <div class="fs-compare">Every other hantavirus — including Sin Nombre virus, the main cause of hantavirus disease in the United States — passes only from rodents to people. Andes virus is the sole exception with documented, if uncommon, human-to-human spread, which is exactly what turned one infected traveller into a multi-person shipboard cluster.</div>
+          </div>
+        </div>
+
+        <div class="fs-src">Sources · CDC Health Alert Network (HAN00528) · WHO fact sheet — Hantavirus · New England Journal of Medicine, person-to-person ANDV transmission study.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Yellow fever · pathogen fact sheet modal -->
+  <div id="yellowfeverModal" class="modal" hidden aria-hidden="true">
+    <div class="modal-back" data-close></div>
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="yfModalTitle">
+      <div class="modal-head">
+        <div>
+          <span class="eyebrow">Pathogen fact sheet</span>
+          <h3 id="yfModalTitle" class="disp">Yellow fever</h3>
+        </div>
+        <button class="modal-x mono" data-close aria-label="Close fact sheet">CLOSE ✕</button>
+      </div>
+
+      <div class="factsheet">
+        <div class="fs-stats">
+          <div class="fs-stat">
+            <span class="lab eyebrow">Reservoir host</span>
+            <div class="v ok">Confirmed</div>
+            <div class="sub">Non-human primates in the jungle cycle; humans in the urban cycle — both via mosquitoes.</div>
+          </div>
+          <div class="fs-stat">
+            <span class="lab eyebrow">Licensed vaccine</span>
+            <div class="v ok">Yes, since 1937</div>
+            <div class="sub">A single dose gives about 95% immunity, likely for life.</div>
+          </div>
+          <div class="fs-stat">
+            <span class="lab eyebrow">Targeted treatment</span>
+            <div class="v warn">None</div>
+            <div class="sub">No antiviral exists — which is exactly why the vaccine matters so much.</div>
+          </div>
+          <div class="fs-stat">
+            <span class="lab eyebrow">Case fatality</span>
+            <div class="v">20–50%<span class="u" style="font-size:12px;color:var(--muted);margin-left:6px">severe cases</span></div>
+            <div class="sub">Only ~15% of infections progress to the severe, jaundiced phase.</div>
+          </div>
+        </div>
+
+        <div class="fs-body">
+          <div class="fs-sec">
+            <h4>What it is</h4>
+            <p><b>Yellow fever virus</b> is a flavivirus, related to dengue and Zika. It takes its name from the jaundice that colours the skin and eyes in severe cases. The virus was isolated in 1927 in Nigeria; the resulting 17D vaccine, developed in the 1930s, remains in use today and won its creator, Max Theiler, a Nobel Prize.</p>
+            <h4 style="margin-top:18px">Transmission</h4>
+            <p>Spread entirely by mosquito bite, never person to person. A <b>sylvatic (jungle) cycle</b> circulates between wild primates and forest mosquitoes; an <b>urban cycle</b> passes directly between people via <i>Aedes aegypti</i> in cities. Nearly every outbreak begins when the two cycles meet.</p>
+          </div>
+          <div class="fs-sec">
+            <h4>Symptoms</h4>
+            <p>Sudden fever, chills, headache, and back pain. Most recover after this initial phase. A minority relapse into the severe, "toxic" phase — jaundice, bleeding, and organ failure — which carries the higher fatality rate above.</p>
+            <div class="fs-tags">
+              <span>Fever</span><span>Jaundice</span><span>Bleeding</span><span>Organ failure (severe)</span>
+            </div>
+            <h4 style="margin-top:18px">The outlier on this list</h4>
+            <div class="fs-compare">Unlike Ebola, Marburg, or Andes virus, yellow fever has had a cheap, highly effective vaccine for nearly ninety years. Its outbreaks today are largely a story of lapsed vaccination coverage and mosquito control — a solved problem recurring where the tools aren't reaching people, not an unsolved one.</div>
+          </div>
+        </div>
+
+        <div class="fs-src">Sources · WHO Regional Office for Africa — Yellow Fever fact sheet · CDC Yellow Fever Vaccine (MMWR) · Rockefeller Foundation historical archive.</div>
+      </div>
+    </div>
+  </div>
+
 
   <section class="blk">
     <div class="blk-head">
@@ -462,8 +725,9 @@
       <span class="eyebrow">Sorted by current risk</span>
     </div>
     <div class="cards">
-      <article class="card">
+      <article class="card clickable" data-modal="ebola" tabindex="0" role="button" aria-label="Open Ebola pathogen fact sheet">
         <span class="accent sev3"></span>
+        <span class="opendetail">Pathogen ↗</span>
         <span class="fam eyebrow">Filovirus · Bundibugyo</span>
         <div class="cn disp">Ebola disease</div>
         <div class="loc">DR Congo &amp; Uganda · Ituri, North &amp; South Kivu, Kampala</div>
@@ -474,8 +738,9 @@
         </div>
         <div class="foot"><svg class="cspark" data-spark="rise" viewBox="0 0 88 26" preserveAspectRatio="none"></svg><span class="chip sev3">Escalating</span></div>
       </article>
-      <article class="card">
+      <article class="card clickable" data-modal="andes" tabindex="0" role="button" aria-label="Open Andes virus pathogen fact sheet">
         <span class="accent sev2"></span>
+        <span class="opendetail">Pathogen ↗</span>
         <span class="fam eyebrow">Hantavirus · Andes</span>
         <div class="cn disp">Andes virus</div>
         <div class="loc">Mid-Atlantic maritime · cruise vessel, person-to-person</div>
@@ -486,8 +751,9 @@
         </div>
         <div class="foot"><svg class="cspark" data-spark="spike" viewBox="0 0 88 26" preserveAspectRatio="none"></svg><span class="chip sev2">Investigating</span></div>
       </article>
-      <article class="card">
+      <article class="card clickable" data-modal="yellowfever" tabindex="0" role="button" aria-label="Open Yellow fever pathogen fact sheet">
         <span class="accent sev2"></span>
+        <span class="opendetail">Pathogen ↗</span>
         <span class="fam eyebrow">Flavivirus · sylvatic</span>
         <div class="cn disp">Yellow fever</div>
         <div class="loc">Americas &amp; Africa · 6 countries reporting, 13 high-risk</div>
@@ -501,7 +767,7 @@
       <article class="card clickable" data-modal="eth" tabindex="0" role="button" aria-label="Open Ethiopia Marburg regional detail">
         <span class="accent sev1"></span>
         <span class="opendetail">View map ↗</span>
-        <span class="fam eyebrow">Filovirus · Marburg</span>
+        <span class="fam eyebrow">Filovirus · Marburg · <a href="#" class="pathlink" data-modal="marburg">pathogen ↗</a></span>
         <div class="cn disp">Marburg disease</div>
         <div class="loc">Ethiopia · Jinka, Malle, Dasench &amp; Hawassa · first for country</div>
         <div class="stat"><span class="n tnum">19</span><div class="cap">Cases (14 confirmed)</div></div>
@@ -727,8 +993,9 @@ function renderDetailMap(svgId, D, cfg){
   (D.sites||[]).forEach(st=>{
     const col=st.origin?'var(--severe)':'var(--watch)', fill=st.origin?'rgba(228,87,46,.16)':'rgba(227,178,60,.16)';
     const r=cfg.rOf(st.cases), L=cfg.labels[st.name]||{a:'start',dy:-1};
+    const clickable=st.origin && cfg.onOriginClick;
     if(st.origin) s+=`<circle class="pulse" cx="${st.x}" cy="${st.y}" r="${(r+9).toFixed(1)}" fill="none" stroke="var(--severe)" stroke-width="1" opacity=".35"/>`;
-    s+=`<circle cx="${st.x}" cy="${st.y}" r="${r.toFixed(1)}" fill="${fill}" stroke="${col}" stroke-width="1.4"><title>${esc(st.name)} · ${Number(st.cases).toLocaleString()} cases</title></circle>`;
+    s+=`<circle class="${clickable?'sitept clickpt':'sitept'}" data-site="${esc(st.name)}" cx="${st.x}" cy="${st.y}" r="${r.toFixed(1)}" fill="${fill}" stroke="${col}" stroke-width="1.4"${clickable?' tabindex="0" role="button" aria-label="What is Ebola? Open pathogen fact sheet"':''}><title>${esc(st.name)} · ${Number(st.cases).toLocaleString()} cases${clickable?' — click for pathogen fact sheet':''}</title></circle>`;
     const lx=(st.x+(L.a==='end'?-(r+8):(r+8))).toFixed(1), ly=st.y+(L.dy||0);
     s+=`<text x="${lx}" y="${ly}" text-anchor="${L.a}" font-family="'Space Mono',monospace" font-size="11" letter-spacing="1" fill="var(--bone)">${esc(st.name)}</text>`;
     s+=`<text x="${lx}" y="${ly+12}" text-anchor="${L.a}" font-family="'Archivo',sans-serif" font-size="9.5" fill="var(--muted)">${esc(st.role)}</text>`;
@@ -739,34 +1006,48 @@ function renderDetailMap(svgId, D, cfg){
   s+=`<text x="${bx}" y="${by-8}" font-family="'Space Mono',monospace" font-size="9" letter-spacing="1" fill="var(--muted)">200 KM</text>`;
   s+=`<text x="${W-40}" y="${by}" text-anchor="end" font-family="'Space Mono',monospace" font-size="9" letter-spacing="1" fill="var(--faint)">${cfg.orient}</text>`;
   svg.innerHTML=s;
+  if(cfg.onOriginClick){
+    svg.querySelectorAll('.clickpt').forEach(el=>{
+      el.style.cursor='pointer';
+      el.addEventListener('click', cfg.onOriginClick);
+      el.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); cfg.onOriginClick(); } });
+    });
+  }
 }
 renderDetailMap('drcmap', DRC, { rOf:c=>4+Math.sqrt(c)*0.62, orient:'N ↑ · ALBERTINE RIFT',
-  labels:{ 'ITURI':{a:'start',dy:-1}, 'NORTH KIVU':{a:'end',dy:-1}, 'SOUTH KIVU':{a:'end',dy:6}, 'KAMPALA':{a:'start',dy:-1} } });
+  labels:{ 'ITURI':{a:'start',dy:-1}, 'NORTH KIVU':{a:'end',dy:-1}, 'SOUTH KIVU':{a:'end',dy:6}, 'KAMPALA':{a:'start',dy:-1} },
+  onOriginClick:()=>{ if(window.__openEbolaModal) window.__openEbolaModal(); } });
 renderDetailMap('ethmap', ETH, { rOf:c=>4+Math.sqrt(c)*2.2, orient:'N ↑ · OMO VALLEY',
   labels:{ 'JINKA':{a:'end',dy:-1}, 'MALLE':{a:'start',dy:-6}, 'DASENECH':{a:'end',dy:6}, 'HAWASSA':{a:'start',dy:-1} } });
 
-/* ---------- MODAL (Ethiopia click-through) ---------- */
+/* ---------- MODALS (click-through fact sheets) ---------- */
 (function(){
-  const modal=document.getElementById('ethModal'); if(!modal) return;
-  let lastFocus=null;
-  function open(){
-    lastFocus=document.activeElement;
-    modal.hidden=false; modal.setAttribute('aria-hidden','false');
-    document.body.classList.add('modal-open');
-    const x=modal.querySelector('.modal-x'); if(x) x.focus();
-  }
-  function close(){
-    modal.hidden=true; modal.setAttribute('aria-hidden','true');
-    document.body.classList.remove('modal-open');
-    if(lastFocus&&lastFocus.focus) try{lastFocus.focus();}catch(e){}
-  }
-  modal.addEventListener('click', e=>{ if(e.target.hasAttribute('data-close')) close(); });
-  document.addEventListener('keydown', e=>{ if(e.key==='Escape' && !modal.hidden) close(); });
-  document.querySelectorAll('[data-modal="eth"]').forEach(el=>{
-    el.addEventListener('click', open);
-    el.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); open(); } });
+  const registry={ eth:'ethModal', ebola:'ebolaModal', marburg:'marburgModal', andes:'andesModal', yellowfever:'yellowfeverModal' };
+  const openFns={};
+  Object.entries(registry).forEach(([key,id])=>{
+    const modal=document.getElementById(id); if(!modal) return;
+    let lastFocus=null;
+    function open(){
+      lastFocus=document.activeElement;
+      modal.hidden=false; modal.setAttribute('aria-hidden','false');
+      document.body.classList.add('modal-open');
+      const x=modal.querySelector('.modal-x'); if(x) x.focus();
+    }
+    function close(){
+      modal.hidden=true; modal.setAttribute('aria-hidden','true');
+      document.body.classList.remove('modal-open');
+      if(lastFocus&&lastFocus.focus) try{lastFocus.focus();}catch(e){}
+    }
+    modal.addEventListener('click', e=>{ if(e.target.hasAttribute('data-close')) close(); });
+    document.addEventListener('keydown', e=>{ if(e.key==='Escape' && !modal.hidden) close(); });
+    document.querySelectorAll(`[data-modal="${key}"]`).forEach(el=>{
+      el.addEventListener('click', e=>{ e.preventDefault(); e.stopPropagation(); open(); });
+      el.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); e.stopPropagation(); open(); } });
+    });
+    openFns[key]=open;
   });
-  window.__openEthModal = open;
+  window.__openEthModal = openFns.eth;
+  window.__openEbolaModal = openFns.ebola;
 })();
 
 /* ---------- LEFT-RAIL BARS ---------- */
