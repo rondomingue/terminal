@@ -455,15 +455,17 @@
     ctx.lineWidth=1;
     ctx.stroke();
 
-    ctx.font=`${opts.fontSize||8}px IBM Plex Mono, monospace`;
-    ctx.textAlign='center';
-    ctx.textBaseline='middle';
-    ctx.fillStyle=`rgba(${ink},0.86)`;
-    ctx.fillText(label,cx,cy);
-    ctx.font=`${opts.smallFontSize||7}px IBM Plex Mono, monospace`;
-    [[cx,cy-r-16,binary[0]],[cx+r+19,cy,binary[1]],[cx,cy+r+17,binary[2]],[cx-r-19,cy,binary[3]]].forEach(([x,y,text])=>{
-      ctx.fillText(text,x,y);
-    });
+    if(opts.showText!==false){
+      ctx.font=`${opts.fontSize||8}px IBM Plex Mono, monospace`;
+      ctx.textAlign='center';
+      ctx.textBaseline='middle';
+      ctx.fillStyle=`rgba(${ink},0.86)`;
+      ctx.fillText(label,cx,cy);
+      ctx.font=`${opts.smallFontSize||7}px IBM Plex Mono, monospace`;
+      [[cx,cy-r-16,binary[0]],[cx+r+19,cy,binary[1]],[cx,cy+r+17,binary[2]],[cx-r-19,cy,binary[3]]].forEach(([x,y,text])=>{
+        ctx.fillText(text,x,y);
+      });
+    }
 
     ctx.restore();
   }
@@ -898,7 +900,8 @@
       dots:96,
       dotAlpha:0.54,
       fontSize:8,
-      smallFontSize:6
+      smallFontSize:6,
+      showText:false
     });
     ctx.save();
     ctx.globalCompositeOperation='lighter';
