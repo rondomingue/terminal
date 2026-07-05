@@ -9,74 +9,84 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;700&family=Barlow:wght@300;400;500;600&display=swap');
   :root{
-    --bg:#010306; --panel:rgba(2,8,20,0.82); --line:#081628; --line-dim:#040e18;
-    --ink:#b0cce0; --ink-dim:#3a6080; --ink-faint:#102030; --white:#ddeef8;
-    --sun:#ffa040; --earth:#1a90d0; --mars:#c03820; --venus:#c8a060; --mercury:#7888a0;
-    --safe:#00c8e8; --pha:#d01c1c; --accent:#00c8e8; --accent2:#d01c1c;
+    --bg:#020202; --panel:rgba(5,5,5,0.74); --panel-solid:#070707;
+    --line:rgba(242,238,220,0.18); --line-dim:rgba(242,238,220,0.07);
+    --ink:#d8d3bf; --ink-dim:#8e8774; --ink-faint:#575145; --white:#f6f1de;
+    --sun:#ff8c22; --earth:#55b8d5; --mars:#b71916; --venus:#d9b56f; --mercury:#a8a396;
+    --safe:#f3eedb; --pha:#e21b1b; --accent:#ff7a1a; --accent2:#e21b1b; --watch:#d7a13c;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   html,body{background:var(--bg);color:var(--ink);font-family:'Barlow',sans-serif;width:100%;height:100%;overflow:hidden;}
   #stage{position:relative;width:100%;height:100vh;
     background:
-      radial-gradient(ellipse at 50% 42%,rgba(0,40,100,0.06) 0%,transparent 65%),
-      linear-gradient(rgba(0,80,160,0.01) 1px,transparent 1px),
-      linear-gradient(90deg,rgba(0,80,160,0.01) 1px,transparent 1px),
+      radial-gradient(ellipse at 54% 42%,rgba(255,126,18,0.12) 0%,rgba(255,126,18,0.03) 34%,transparent 64%),
+      linear-gradient(rgba(242,238,220,0.035) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(242,238,220,0.028) 1px,transparent 1px),
       var(--bg);
-    background-size:100% 100%,6px 6px,6px 6px;}
-  #grain{position:absolute;inset:0;pointer-events:none;z-index:50;opacity:.03;mix-blend-mode:screen;
+    background-size:100% 100%,72px 72px,72px 72px;}
+  #stage::before{content:'';position:absolute;inset:-18% -6% -12% -6%;pointer-events:none;z-index:1;opacity:.42;
+    background:
+      repeating-radial-gradient(ellipse at 54% 48%,transparent 0 92px,rgba(246,241,222,.13) 93px 94px,transparent 95px 148px),
+      radial-gradient(ellipse at 54% 48%,transparent 0 36%,rgba(226,27,27,.08) 37%,transparent 39%),
+      radial-gradient(ellipse at 54% 48%,transparent 0 51%,rgba(255,122,26,.12) 52%,transparent 54%);
+    transform:rotate(-8deg) scaleX(1.22);filter:drop-shadow(0 0 10px rgba(246,241,222,.08));}
+  #stage::after{content:'';position:absolute;left:0;right:0;bottom:118px;height:1px;z-index:2;pointer-events:none;
+    background:linear-gradient(90deg,transparent,rgba(246,241,222,.5),rgba(226,27,27,.8),rgba(246,241,222,.45),transparent);}
+  #grain{position:absolute;inset:0;pointer-events:none;z-index:50;opacity:.07;mix-blend-mode:screen;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
   .scanline{position:absolute;inset:0;pointer-events:none;z-index:49;mix-blend-mode:screen;
-    background-image:repeating-linear-gradient(to bottom,rgba(0,100,180,.012) 0px,rgba(0,100,180,.012) 1px,transparent 1px,transparent 4px);
-    background-size:100% 4px;opacity:.3;}
-  #vignette{position:absolute;inset:0;pointer-events:none;z-index:48;
-    background:radial-gradient(ellipse at 50% 50%,transparent 28%,rgba(0,0,4,.88) 100%);}
+    background-image:repeating-linear-gradient(to bottom,rgba(246,241,222,.018) 0px,rgba(246,241,222,.018) 1px,transparent 1px,transparent 5px);
+    background-size:100% 5px;opacity:.42;}
+  #vignette{position:absolute;inset:0;pointer-events:none;z-index:3;
+    background:radial-gradient(ellipse at 54% 47%,transparent 20%,rgba(0,0,0,.78) 78%,rgba(0,0,0,.96) 100%);}
   #header{position:absolute;top:0;left:0;right:0;z-index:10;display:flex;justify-content:space-between;align-items:flex-start;padding:18px 26px 0;}
-  .brand .title{font-weight:300;font-size:22px;letter-spacing:.1em;color:var(--white);}
-  .brand .title b{color:var(--safe);font-weight:400;text-shadow:0 0 12px rgba(0,200,232,.4);}
-  .brand .sub{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.14em;color:var(--ink-dim);margin-top:3px;}
+  .brand .title{font-weight:300;font-size:24px;letter-spacing:.16em;color:var(--white);text-transform:uppercase;}
+  .brand .title b{color:var(--accent);font-weight:500;text-shadow:0 0 18px rgba(255,122,26,.42);}
+  .brand .sub{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.16em;color:var(--ink-dim);margin-top:3px;text-transform:uppercase;}
   .id-strip{font-family:'IBM Plex Mono',monospace;font-size:7.5px;letter-spacing:.1em;color:var(--ink-faint);margin-top:7px;display:flex;gap:10px;}
   .id-strip b{color:var(--ink-dim);font-weight:400;}
   .id-strip a{color:var(--ink-dim);text-decoration:none;border-bottom:1px solid var(--line);}
-  .id-strip a:hover{color:var(--safe);}
+  .id-strip a:hover{color:var(--accent);}
   .id-strip .sep{color:var(--line);}
   .clockblock{text-align:right;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.06em;color:var(--ink-dim);line-height:1.7;}
   .clockblock .big{font-size:19px;letter-spacing:.1em;color:var(--white);}
   .mini-stats{display:flex;gap:10px;justify-content:flex-end;font-family:'IBM Plex Mono',monospace;font-size:7.5px;color:var(--ink-faint);margin-top:5px;}
   .mini-stats b{color:var(--ink-dim);font-weight:400;margin-left:4px;}
   #header-rule{position:absolute;top:90px;left:0;right:0;height:10px;z-index:9;padding:0 26px;}
-  .panel{background:var(--panel);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-    border:1px solid rgba(0,200,232,.1);position:relative;overflow:hidden;border-radius:10px;
-    box-shadow:inset 0 1px 0 rgba(0,200,232,.08),0 4px 8px -2px rgba(0,0,0,.5),0 16px 32px -8px rgba(0,0,0,.7);
-    transition:border-color .2s,background .2s;}
+  .panel{background:linear-gradient(180deg,rgba(10,10,10,.82),rgba(0,0,0,.58));backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+    border:1px solid var(--line);position:relative;overflow:hidden;border-radius:2px;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.7),0 18px 40px -24px rgba(0,0,0,.9);
+    transition:border-color .2s,background .2s,box-shadow .2s;}
   .panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
-    background:linear-gradient(to right,rgba(0,200,232,.35),transparent 70%);border-radius:10px 10px 0 0;}
-  .panel.danger{border-color:rgba(208,28,28,.15);}
-  .panel.danger::before{background:linear-gradient(to right,rgba(208,28,28,.5),transparent 70%);}
-  .panel.highlighted{border-color:rgba(0,200,232,.4);background:rgba(0,20,50,.7);}
-  .panel-label{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.13em;color:var(--ink-dim);
+    background:linear-gradient(to right,rgba(246,241,222,.5),rgba(255,122,26,.38),transparent 72%);}
+  .panel::after{content:'';position:absolute;inset:5px;pointer-events:none;border:1px solid rgba(246,241,222,.035);}
+  .panel.danger{border-color:rgba(226,27,27,.38);}
+  .panel.danger::before{background:linear-gradient(to right,rgba(226,27,27,.72),rgba(255,122,26,.22),transparent 70%);}
+  .panel.highlighted{border-color:rgba(255,122,26,.62);background:rgba(12,8,2,.82);box-shadow:inset 0 0 0 1px rgba(255,122,26,.12),0 0 24px rgba(255,122,26,.08);}
+  .panel-label{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.14em;color:var(--ink-dim);
     position:absolute;top:7px;left:10px;cursor:pointer;user-select:none;}
-  .panel-label .flag{color:var(--safe);}
+  .panel-label .flag{color:var(--accent);}
   .panel-meta{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:.07em;color:var(--ink-faint);
     position:absolute;top:8px;right:10px;}
   .ghost-sheet{position:absolute;inset:-9px 9px 9px -9px;pointer-events:none;z-index:-1;
-    border:1px solid rgba(0,200,232,.03);border-radius:10px;}
+    border:1px solid rgba(246,241,222,.08);border-radius:2px;}
   #grid{position:absolute;inset:0;display:grid;
-    grid-template-columns:200px 1fr 255px;grid-template-rows:90px 1fr 200px;
+    grid-template-columns:210px 1fr 268px;grid-template-rows:90px 1fr 202px;
     gap:10px;padding:90px 20px 18px;z-index:5;}
   #rail-left{grid-column:1;grid-row:1 / span 3;display:flex;flex-direction:column;gap:10px;}
   #canvas-stack{grid-column:2;grid-row:1 / span 2;position:relative;}
-  #canvas-panel{position:absolute;inset:0;padding:0;overflow:hidden;border-radius:10px;}
+  #canvas-panel{position:absolute;inset:0;padding:0;overflow:hidden;border-radius:2px;}
   #neo-table-panel{grid-column:2;grid-row:3;padding:10px 14px 6px;overflow:hidden;display:flex;flex-direction:column;}
   #neo-table-scroll{flex:1 1 auto;overflow-y:auto;overflow-x:hidden;margin-top:2px;}
   #neo-table-scroll::-webkit-scrollbar{width:3px;}
   #neo-table-scroll::-webkit-scrollbar-track{background:transparent;}
-  #neo-table-scroll::-webkit-scrollbar-thumb{background:rgba(0,200,232,0.2);border-radius:2px;}
-  #neo-table-scroll::-webkit-scrollbar-thumb:hover{background:rgba(0,200,232,0.4);}
+  #neo-table-scroll::-webkit-scrollbar-thumb{background:rgba(255,122,26,0.25);border-radius:2px;}
+  #neo-table-scroll::-webkit-scrollbar-thumb:hover{background:rgba(255,122,26,0.48);}
   #rail-right{grid-column:3;grid-row:1 / span 3;display:flex;flex-direction:column;gap:10px;}
   .stat-card{flex:0 0 auto;padding:14px 12px 8px;}
-  .value-xl{font-family:'IBM Plex Mono',monospace;font-size:32px;color:var(--white);letter-spacing:.04em;margin-top:6px;}
-  .value-xl.warn{color:var(--pha);text-shadow:0 0 10px rgba(208,28,28,.4);}
-  .value-xl.ok{color:var(--safe);text-shadow:0 0 8px rgba(0,200,232,.3);}
+  .value-xl{font-family:'IBM Plex Mono',monospace;font-size:34px;color:var(--white);letter-spacing:.02em;margin-top:7px;}
+  .value-xl.warn{color:var(--pha);text-shadow:0 0 12px rgba(226,27,27,.45);}
+  .value-xl.ok{color:var(--accent);text-shadow:0 0 12px rgba(255,122,26,.32);}
   .label-row{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--ink-faint);margin-top:5px;letter-spacing:.06em;}
   @keyframes pulse{0%,100%{opacity:.25;}50%{opacity:1;}}
   #log-card{flex:1 1 auto;padding:14px 12px 8px;overflow:hidden;}
@@ -85,12 +95,15 @@
   .log-t{color:var(--ink-faint);margin-right:6px;}
   .log-safe{color:var(--safe);} .log-pha{color:var(--pha);}
   /* THREE.JS CONTAINER */
-  #three-container{position:absolute;inset:0;border-radius:10px;overflow:hidden;cursor:grab;}
+  #three-container{position:absolute;inset:0;border-radius:2px;overflow:hidden;cursor:grab;}
   #three-container:active{cursor:grabbing;}
   #three-container canvas{display:block;width:100%!important;height:100%!important;}
 
   /* ===== PRELOADER ===== */
-  #preloader{position:fixed;inset:0;z-index:200;background:var(--bg);
+  #preloader{position:fixed;inset:0;z-index:200;background:
+    repeating-linear-gradient(90deg,rgba(246,241,222,.035) 0 1px,transparent 1px 72px),
+    repeating-linear-gradient(0deg,rgba(246,241,222,.026) 0 1px,transparent 1px 72px),
+    var(--bg);
     display:flex;flex-direction:column;align-items:center;justify-content:center;
     transition:opacity .8s ease;}
   #preloader.fade-out{opacity:0;pointer-events:none;}
@@ -98,54 +111,62 @@
   #pre-canvas{display:block;}
   #pre-title{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:300;
     letter-spacing:.22em;color:var(--white);margin-top:32px;}
-  #pre-title b{color:var(--safe);font-weight:400;}
+  #pre-title b{color:var(--accent);font-weight:400;}
   #pre-sub{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.2em;
     color:var(--ink-dim);margin-top:8px;text-transform:uppercase;}
   #pre-log{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.1em;
     color:var(--ink-faint);margin-top:28px;text-align:left;width:260px;line-height:1.9;}
-  #pre-log .pl{color:var(--safe);}
+  #pre-log .pl{color:var(--accent);}
   #pre-bar-wrap{width:260px;height:1px;background:var(--line);margin-top:16px;position:relative;}
-  #pre-bar{position:absolute;left:0;top:0;height:1px;background:var(--safe);width:0%;
-    transition:width .3s ease;box-shadow:0 0 6px var(--safe);}
+  #pre-bar{position:absolute;left:0;top:0;height:1px;background:var(--accent);width:0%;
+    transition:width .3s ease;box-shadow:0 0 6px var(--accent);}
   #pre-pct{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.12em;
     color:var(--safe);margin-top:6px;}
   #canvas-label{position:absolute;top:9px;left:12px;z-index:4;
     font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.13em;color:var(--ink-dim);}
-  #canvas-label .flag{color:var(--safe);}
+  #canvas-label .flag{color:var(--accent);}
   #canvas-meta-text{position:absolute;top:9px;right:12px;z-index:4;
     font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--ink-faint);}
   #canvas-credit{position:absolute;bottom:8px;right:10px;z-index:4;
     font-family:'IBM Plex Mono',monospace;font-size:7px;color:var(--ink-faint);opacity:.5;}
+  #canvas-panel::before{z-index:3;}
+  #canvas-panel::after{content:'';position:absolute;inset:18px;z-index:3;pointer-events:none;border:1px solid rgba(246,241,222,.09);
+    background:
+      linear-gradient(90deg,transparent calc(50% - .5px),rgba(246,241,222,.11) calc(50% - .5px),rgba(246,241,222,.11) calc(50% + .5px),transparent calc(50% + .5px)),
+      linear-gradient(0deg,transparent calc(50% - .5px),rgba(246,241,222,.08) calc(50% - .5px),rgba(246,241,222,.08) calc(50% + .5px),transparent calc(50% + .5px));
+    box-shadow:inset 18px 0 0 -17px rgba(255,122,26,.28),inset -18px 0 0 -17px rgba(226,27,27,.22);}
   #canvas-loader{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:6;
-    font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.14em;color:var(--safe);
+    font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.14em;color:var(--accent);
     display:flex;align-items:center;gap:8px;pointer-events:none;transition:opacity .6s;}
   #canvas-loader.done{opacity:0;}
-  .cl-dot{width:5px;height:5px;border-radius:50%;background:var(--safe);animation:pulse 1s ease-in-out infinite;}
+  .cl-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);animation:pulse 1s ease-in-out infinite;}
   #tooltip{position:absolute;z-index:20;pointer-events:none;
     font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.07em;
-    background:rgba(2,8,20,0.93);border:1px solid rgba(0,200,232,.3);
-    padding:7px 10px;line-height:1.8;border-radius:4px;opacity:0;transition:opacity .15s;min-width:140px;}
+    background:rgba(5,5,5,0.94);border:1px solid rgba(246,241,222,.32);
+    padding:7px 10px;line-height:1.8;border-radius:2px;opacity:0;transition:opacity .15s;min-width:140px;box-shadow:0 0 18px rgba(255,122,26,.09);}
   #tooltip .tt-name{color:var(--white);font-size:9px;margin-bottom:2px;}
   #tooltip .tt-safe{color:var(--safe);} #tooltip .tt-pha{color:var(--pha);}
-  .neo-row{display:grid;grid-template-columns:110px 56px 56px 52px 1fr;gap:5px;
+  .neo-row{display:grid;grid-template-columns:116px 56px 56px 48px 1fr;gap:5px;
     font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--ink-dim);padding:4px 0;border-bottom:1px solid var(--line-dim);cursor:pointer;}
   .neo-row.head{color:var(--ink-faint);font-size:8.5px;letter-spacing:.06em;border-color:var(--line);}
   .neo-row:not(.head):hover{color:var(--ink);}
   .neo-row .des{color:var(--white);}
   .neo-row .pha-y{color:var(--pha);} .neo-row .pha-n{color:var(--safe);}
-  .neo-row.selected{background:rgba(0,200,232,.05);}
+  .neo-row.selected{background:linear-gradient(90deg,rgba(255,122,26,.16),transparent 70%);color:var(--white);}
   #sel-card{flex:0 0 auto;padding:14px 12px 10px;min-height:0;}
-  #asteroid-wrap{width:100%;aspect-ratio:1/1;background:rgba(0,20,50,0.5);
-    border:1px solid rgba(0,200,232,0.1);border-radius:4px;overflow:hidden;
+  #asteroid-wrap{width:100%;aspect-ratio:1/1;background:
+    repeating-radial-gradient(circle at 50% 50%,transparent 0 25px,rgba(246,241,222,.055) 26px 27px,transparent 28px 48px),
+    rgba(0,0,0,0.72);
+    border:1px solid rgba(246,241,222,0.18);border-radius:2px;overflow:hidden;
     margin:10px 0 6px;position:relative;display:flex;align-items:center;justify-content:center;}
   #asteroid-canvas{display:none;width:100%;height:100%;}
   .ast-empty{font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--ink-faint);letter-spacing:.1em;}
   #ast-size-bar{position:absolute;bottom:5px;left:8px;right:8px;z-index:2;
-    font-family:'IBM Plex Mono',monospace;font-size:7px;letter-spacing:.08em;color:rgba(0,200,232,0.5);}
+    font-family:'IBM Plex Mono',monospace;font-size:7px;letter-spacing:.08em;color:rgba(255,122,26,0.72);}
   #ast-ref-line{position:absolute;bottom:14px;left:8px;right:8px;height:1px;
-    background:rgba(0,200,232,0.12);}
+    background:rgba(246,241,222,0.16);}
   #ast-scale-marker{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);
-    width:2px;height:8px;background:rgba(0,200,232,0.35);}
+    width:2px;height:8px;background:rgba(255,122,26,0.55);}
   .sel-row{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--ink-dim);padding:4px 0;border-bottom:1px solid var(--line-dim);}
   .sel-row:last-child{border-bottom:none;}
   .sel-row .v{color:var(--white);}
@@ -154,8 +175,8 @@
   #timeline-scroll{flex:1 1 auto;overflow-y:auto;overflow-x:hidden;margin-top:2px;}
   #timeline-scroll::-webkit-scrollbar{width:3px;}
   #timeline-scroll::-webkit-scrollbar-track{background:transparent;}
-  #timeline-scroll::-webkit-scrollbar-thumb{background:rgba(0,200,232,0.2);border-radius:2px;}
-  #timeline-scroll::-webkit-scrollbar-thumb:hover{background:rgba(0,200,232,0.4);}
+  #timeline-scroll::-webkit-scrollbar-thumb{background:rgba(255,122,26,0.25);border-radius:2px;}
+  #timeline-scroll::-webkit-scrollbar-thumb:hover{background:rgba(255,122,26,0.48);}
   .approach-row{display:grid;grid-template-columns:1fr 52px 42px;gap:5px;align-items:center;
     font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--ink-dim);padding:5px 0;border-bottom:1px solid var(--line-dim);}
   .approach-row:last-child{border-bottom:none;}
@@ -167,10 +188,19 @@
   ::-webkit-scrollbar{width:0;height:0;}
   @media(max-width:1000px){
     html,body{overflow-y:auto;height:auto;}#stage{height:auto;min-height:100vh;}
+    #header{position:relative;display:block;padding:18px 14px 6px;}
+    .brand .title{font-size:21px;letter-spacing:.14em;}
+    .brand .sub{font-size:8px;line-height:1.5;}
+    .id-strip{flex-wrap:wrap;gap:4px 10px;line-height:1.6;}
+    .clockblock{text-align:left;margin-top:12px;}
+    .mini-stats{justify-content:flex-start;flex-wrap:wrap;}
+    #header-rule{position:relative;top:auto;left:auto;right:auto;height:10px;padding:0 14px;margin-bottom:8px;}
     #grid{position:relative;grid-template-columns:1fr;grid-template-rows:none;padding:0 12px 20px;gap:12px;}
     #rail-left,#rail-right{grid-column:1;grid-row:auto;}
     #canvas-stack{grid-column:1;grid-row:auto;min-height:380px;}
-    #neo-table-panel{grid-column:1;grid-row:auto;}
+    #canvas-meta-text{display:none;}
+    #neo-table-panel{grid-column:1;grid-row:auto;min-height:360px;max-height:460px;}
+    #approach-card{max-height:420px;}
   }
 </style>
 <!-- Google Analytics -->
@@ -187,7 +217,7 @@
   <canvas id="pre-canvas" width="200" height="200"></canvas>
   <div id="pre-title"><b>TRAN</b>SIT</div>
   <div id="pre-sub">Near-Earth Object Tracking System</div>
-  <div id="pre-log" id="pre-log-inner"></div>
+  <div id="pre-log"></div>
   <div id="pre-bar-wrap"><div id="pre-bar"></div></div>
   <div id="pre-pct">0%</div>
 </div>
@@ -206,7 +236,7 @@
       </div>
     </div>
     <div class="clockblock">
-      <div style="font-size:10px;letter-spacing:.12em;color:var(--safe);text-shadow:0 0 8px rgba(0,200,232,0.35);">HELIOCENTRIC</div>
+      <div style="font-size:10px;letter-spacing:.12em;color:var(--accent);text-shadow:0 0 10px rgba(255,122,26,0.35);">HELIOCENTRIC</div>
       <div style="font-size:8px;letter-spacing:.1em;color:var(--ink-dim);margin-top:3px;">ECLIPTIC J2000.0</div>
       <div class="mini-stats"><span>SRC<b>NASA / JPL</b></span><span>AU<b>1.496×10⁸ KM</b></span></div>
     </div>
@@ -270,7 +300,7 @@
             <canvas id="asteroid-canvas"></canvas>
             <div id="ast-ref-line"></div>
             <div id="ast-scale-marker"></div>
-            <div id="ast-size-bar" style="display:none;" id="ast-size-bar-inner"></div>
+            <div id="ast-size-bar" style="display:none;"></div>
           </div>
           <div class="sel-row"><span>DESIGNATION</span><span class="v" id="sel-des">—</span></div>
           <div class="sel-row"><span>EST. DIAMETER</span><span class="v" id="sel-diam">—</span></div>
@@ -284,7 +314,7 @@
       </div>
       <div class="panel" id="approach-card">
         <div class="panel-label">[ TIMELINE ] — UPCOMING APPROACHES</div>
-        <div id="timeline-scroll" id="timeline-body"></div>
+        <div id="timeline-scroll"></div>
       </div>
       <div class="panel" id="legend-card">
         <div class="panel-label">LEGEND</div>
@@ -294,9 +324,9 @@
           <div class="legend-row"><div class="legend-dot" style="background:#c8a060"></div><span>VENUS</span></div>
           <div class="legend-row"><div class="legend-dot" style="background:#1a90d0;box-shadow:0 0 5px #1a90d0"></div><span>EARTH</span></div>
           <div class="legend-row"><div class="legend-dot" style="background:#c03820"></div><span>MARS</span></div>
-          <div class="legend-row"><div class="legend-dot" style="background:#00c8e8"></div><span>NEO — SAFE</span></div>
-          <div class="legend-row"><div class="legend-dot" style="background:#d01c1c;box-shadow:0 0 5px #d01c1c"></div><span>POTENTIALLY HAZARDOUS</span></div>
-          <div class="legend-row"><div class="legend-dot" style="background:rgba(100,80,160,0.8);border-radius:2px"></div><span>ASTEROID BELT</span></div>
+          <div class="legend-row"><div class="legend-dot" style="background:#f3eedb"></div><span>NEO — SAFE</span></div>
+          <div class="legend-row"><div class="legend-dot" style="background:#e21b1b;box-shadow:0 0 5px #e21b1b"></div><span>POTENTIALLY HAZARDOUS</span></div>
+          <div class="legend-row"><div class="legend-dot" style="background:rgba(216,211,191,0.8);border-radius:2px"></div><span>ASTEROID BELT</span></div>
         </div>
       </div>
     </div>
@@ -339,15 +369,15 @@
 
       // Outer ring
       ctx.beginPath(); ctx.arc(cx,cy,76,0,Math.PI*2);
-      ctx.strokeStyle='rgba(0,200,232,0.1)'; ctx.lineWidth=1; ctx.stroke();
+      ctx.strokeStyle='rgba(246,241,222,0.18)'; ctx.lineWidth=1; ctx.stroke();
 
       // Sweep glow
       ctx.beginPath(); ctx.arc(cx,cy,76,theta,theta+Math.PI*0.5);
-      ctx.strokeStyle='rgba(0,200,232,0.12)'; ctx.lineWidth=10; ctx.stroke();
+      ctx.strokeStyle='rgba(255,122,26,0.14)'; ctx.lineWidth=10; ctx.stroke();
 
       // Sweep arc
       ctx.beginPath(); ctx.arc(cx,cy,76,theta,theta+Math.PI*0.5);
-      ctx.strokeStyle='rgba(0,200,232,0.7)'; ctx.lineWidth=1.4; ctx.stroke();
+      ctx.strokeStyle='rgba(255,122,26,0.82)'; ctx.lineWidth=1.4; ctx.stroke();
 
       // Tick marks on ring
       for(let i=0;i<60;i++){
@@ -357,7 +387,7 @@
         ctx.beginPath();
         ctx.moveTo(cx+Math.cos(a)*r0,cy+Math.sin(a)*r0);
         ctx.lineTo(cx+Math.cos(a)*76,cy+Math.sin(a)*76);
-        ctx.strokeStyle=`rgba(0,200,232,${long?0.35:0.12})`;
+        ctx.strokeStyle=`rgba(246,241,222,${long?0.38:0.14})`;
         ctx.lineWidth=long?0.8:0.4; ctx.stroke();
       }
 
@@ -365,13 +395,13 @@
       const dx=cx+Math.cos(theta+Math.PI*0.5)*76;
       const dy=cy+Math.sin(theta+Math.PI*0.5)*76;
       const dg=ctx.createRadialGradient(dx,dy,0,dx,dy,6);
-      dg.addColorStop(0,'rgba(0,200,232,1)'); dg.addColorStop(1,'rgba(0,200,232,0)');
+      dg.addColorStop(0,'rgba(255,122,26,1)'); dg.addColorStop(1,'rgba(255,122,26,0)');
       ctx.fillStyle=dg; ctx.beginPath(); ctx.arc(dx,dy,6,0,Math.PI*2); ctx.fill();
       ctx.fillStyle='#ffffff'; ctx.beginPath(); ctx.arc(dx,dy,2,0,Math.PI*2); ctx.fill();
 
       // Inner ring
       ctx.beginPath(); ctx.arc(cx,cy,36,-theta*0.4,(-theta*0.4)+Math.PI*1.6);
-      ctx.strokeStyle='rgba(0,150,190,0.22)'; ctx.lineWidth=0.7; ctx.stroke();
+      ctx.strokeStyle='rgba(246,241,222,0.22)'; ctx.lineWidth=0.7; ctx.stroke();
 
       // Sun glow
       const sg=ctx.createRadialGradient(cx,cy,0,cx,cy,14);
@@ -408,8 +438,8 @@
   // Header rule
   (()=>{
     const s=$('hrsvg');s.setAttribute('viewBox','0 0 1000 10');
-    let h=`<line x1="0" y1="1" x2="1000" y2="1" stroke="rgba(0,200,232,0.22)" stroke-width="1"/>`;
-    for(let i=0;i<=50;i++){const x=i*20,tall=i%5===0;h+=`<line x1="${x}" y1="1" x2="${x}" y2="${tall?7:4}" stroke="rgba(0,200,232,0.22)" stroke-width="1"/>`;}
+    let h=`<line x1="0" y1="1" x2="1000" y2="1" stroke="rgba(246,241,222,0.28)" stroke-width="1"/>`;
+    for(let i=0;i<=50;i++){const x=i*20,tall=i%5===0;h+=`<line x1="${x}" y1="1" x2="${x}" y2="${tall?7:4}" stroke="${tall?'rgba(255,122,26,0.45)':'rgba(246,241,222,0.24)'}" stroke-width="1"/>`;}
     s.innerHTML=h;
   })();
 
@@ -427,14 +457,14 @@
 
   // Planet definitions — a in AU, L0/T for position calculation
   const PLANET_DEFS=[
-    {name:'MERCURY',a:0.387, L0:252.25,T:87.97,   col:0x888898,radius:0.048,orbitCol:0x304060},
-    {name:'VENUS',  a:0.723, L0:181.98,T:224.70,  col:0xe8c070,radius:0.092,orbitCol:0x406080},
-    {name:'EARTH',  a:1.000, L0:100.46,T:365.25,  col:0x1a90d0,radius:0.10, orbitCol:0x00c8e8,glow:true},
-    {name:'MARS',   a:1.524, L0:355.45,T:686.97,  col:0xc03820,radius:0.058,orbitCol:0x603010},
-    {name:'JUPITER',a:5.203, L0:34.40, T:4332.59, col:0xc8a868,radius:0.38, orbitCol:0x706040,outer:true},
-    {name:'SATURN', a:9.537, L0:49.94, T:10759.22,col:0xe0d090,radius:0.32, orbitCol:0x605840,outer:true,rings:true},
-    {name:'URANUS', a:19.19,L0:313.23,T:30687.15, col:0x7fd8e8,radius:0.18, orbitCol:0x205060,outer:true},
-    {name:'NEPTUNE',a:30.07,L0:304.88,T:60190.03, col:0x3858d8,radius:0.17, orbitCol:0x203068,outer:true},
+    {name:'MERCURY',a:0.387, L0:252.25,T:87.97,   col:0xa8a396,radius:0.048,orbitCol:0x767063},
+    {name:'VENUS',  a:0.723, L0:181.98,T:224.70,  col:0xd9b56f,radius:0.092,orbitCol:0x8e7a52},
+    {name:'EARTH',  a:1.000, L0:100.46,T:365.25,  col:0x55b8d5,radius:0.10, orbitCol:0xf3eedb,glow:true},
+    {name:'MARS',   a:1.524, L0:355.45,T:686.97,  col:0xb71916,radius:0.058,orbitCol:0x7a211d},
+    {name:'JUPITER',a:5.203, L0:34.40, T:4332.59, col:0xc8a868,radius:0.38, orbitCol:0x8c7651,outer:true},
+    {name:'SATURN', a:9.537, L0:49.94, T:10759.22,col:0xe0d090,radius:0.32, orbitCol:0x8b8060,outer:true,rings:true},
+    {name:'URANUS', a:19.19,L0:313.23,T:30687.15, col:0x7fd8e8,radius:0.18, orbitCol:0x4b6970,outer:true},
+    {name:'NEPTUNE',a:30.07,L0:304.88,T:60190.03, col:0x3858d8,radius:0.17, orbitCol:0x404c78,outer:true},
   ];
   const AU=2.0;
 
@@ -685,15 +715,15 @@
   }
 
   // ===== ECLIPTIC GRID =====
-  const gridHelper=new THREE.GridHelper(16,32,0x010408,0x010408);
+  const gridHelper=new THREE.GridHelper(16,32,0x1a1712,0x0c0b09);
   gridHelper.material.transparent=true;
-  gridHelper.material.opacity=0.9;
+  gridHelper.material.opacity=0.55;
   gridHelper.position.y=0;
   scene.add(gridHelper);
 
   // Faint plane fill
   const planeGeo=new THREE.PlaneGeometry(16,16);
-  const planeMat=new THREE.MeshBasicMaterial({color:0x000204,transparent:true,opacity:0.3,side:THREE.DoubleSide,depthWrite:false});
+  const planeMat=new THREE.MeshBasicMaterial({color:0x050402,transparent:true,opacity:0.28,side:THREE.DoubleSide,depthWrite:false});
   const plane=new THREE.Mesh(planeGeo,planeMat);
   plane.rotation.x=-Math.PI/2;
   scene.add(plane);
@@ -792,7 +822,7 @@
       const y=(Math.random()-0.5)*0.1;
       pos.push(r*Math.cos(angle),y,r*Math.sin(angle));
       const b=0.12+Math.random()*0.22;
-      col.push(b*0.55,b*0.45,b*0.9);
+      col.push(b*0.95,b*0.88,b*0.72);
     }
     const geo=new THREE.BufferGeometry();
     geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
@@ -807,7 +837,7 @@
       const y=(Math.random()-0.5)*0.8;
       kpos.push(r*Math.cos(angle),y,r*Math.sin(angle));
       const b=0.06+Math.random()*0.1;
-      kcol.push(b*0.6,b*0.65,b*1.0);
+      kcol.push(b*0.72,b*0.76,b*0.86);
     }
     const kgeo=new THREE.BufferGeometry();
     kgeo.setAttribute('position',new THREE.Float32BufferAttribute(kpos,3));
@@ -832,27 +862,27 @@
 
   PLANET_DEFS.forEach(def=>{
     const r=def.a*AU;
-    const c=def.orbitCol||0x304060;
+    const c=def.orbitCol||0x767063;
     const isEarth=def.glow, isOuter=def.outer;
     // Glow pass — thinned
     scene.add(makeOrbitDepthTube(r,c,
       isEarth?0.14:isOuter?0.03:0.06,
       isEarth?0.045:isOuter?0.016:0.026));
     // Core ring — thinned
-    scene.add(makeOrbitDepthTube(r,isEarth?0x00c8e8:c,
+    scene.add(makeOrbitDepthTube(r,isEarth?0xf3eedb:c,
       isEarth?0.60:isOuter?0.18:0.32,
       isEarth?0.013:isOuter?0.005:0.008));
 
     // Label — placed at 3 o'clock (positive X) slightly above ecliptic
     const hex='#'+def.col.toString(16).padStart(6,'0');
-    const label=makeOrbitLabel(def.name, isEarth?'#00c8e8':hex);
+    const label=makeOrbitLabel(def.name, isEarth?'#ff7a1a':hex);
     label.position.set(r+0.08, 0.04, 0);
     scene.add(label);
   });
 
   // NEO zone band — also thinned
-  scene.add(makeOrbitDepthTube(AU*0.82,0x00c8e8,0.04,0.032));
-  scene.add(makeOrbitDepthTube(AU*1.18,0x00c8e8,0.04,0.032));
+  scene.add(makeOrbitDepthTube(AU*0.82,0xff7a1a,0.05,0.032));
+  scene.add(makeOrbitDepthTube(AU*1.18,0xe21b1b,0.04,0.032));
 
   // ===== SUN — textured sphere + glow =====
   const sunMesh=new THREE.Mesh(
@@ -882,7 +912,7 @@
     if(def.glow){
       const atmos=new THREE.Mesh(
         new THREE.SphereGeometry(def.radius*1.08,24,24),
-        new THREE.MeshBasicMaterial({color:0x2080d0,transparent:true,opacity:0.18,side:THREE.BackSide,depthWrite:false})
+        new THREE.MeshBasicMaterial({color:0x55b8d5,transparent:true,opacity:0.16,side:THREE.BackSide,depthWrite:false})
       );
       mesh.add(atmos);
       const glowSp=makeSpriteGlow(def.col,0.5); glowSp.scale.set(0.7,0.7,1); scene.add(glowSp);
@@ -915,7 +945,7 @@
   const sunLight=new THREE.PointLight(0xffeedd,2.0,300);
   sunLight.position.set(0,0,0);
   scene.add(sunLight);
-  scene.add(new THREE.AmbientLight(0x020408,1.0));
+  scene.add(new THREE.AmbientLight(0x060504,1.0));
 
   // ===== MOON =====
   const moonTex=makeTex(256,(ctx,s)=>{
@@ -999,8 +1029,8 @@
       neo._pos=new THREE.Vector3(x,y,z);
       pos.push(x,y,z);
       const isPHA=neo.pha==='Y';
-      if(isPHA) col.push(0.82,0.11,0.11);
-      else col.push(0,0.78,0.91);
+      if(isPHA) col.push(0.88,0.08,0.07);
+      else col.push(0.95,0.92,0.82);
     });
 
     const geo=new THREE.BufferGeometry();
@@ -1014,7 +1044,7 @@
 
     // PHA glow sprites
     neoData.filter(n=>n.pha==='Y').forEach(n=>{
-      const sp=makeSpriteGlow(0xd01c1c,0.3);
+      const sp=makeSpriteGlow(0xe21b1b,0.3);
       sp.scale.set(0.5,0.5,1);
       sp.position.copy(n._pos);
       scene.add(sp);
@@ -1062,7 +1092,7 @@
 
   // Selection marker
   const selMarkerGeo=new THREE.SphereGeometry(0.12,16,16);
-  const selMarkerMat=new THREE.MeshBasicMaterial({color:0x00c8e8,transparent:true,opacity:0,wireframe:true});
+  const selMarkerMat=new THREE.MeshBasicMaterial({color:0xff7a1a,transparent:true,opacity:0,wireframe:true});
   const selMarker=new THREE.Mesh(selMarkerGeo,selMarkerMat);
   scene.add(selMarker);
 
@@ -1103,12 +1133,12 @@
     astScene.add(astKeyLight);
 
     // Rim/accent light — colored by object type, from behind-left
-    astRimLight=new THREE.PointLight(0x00c8e8,1.2,20);
+    astRimLight=new THREE.PointLight(0xff7a1a,1.2,20);
     astRimLight.position.set(-3,-1,-2);
     astScene.add(astRimLight);
 
     // Very faint fill from below to lift shadow detail
-    const fillLight=new THREE.PointLight(0x102040,0.8,20);
+    const fillLight=new THREE.PointLight(0x1c1208,0.8,20);
     fillLight.position.set(0,-4,1);
     astScene.add(fillLight);
   }
@@ -1209,7 +1239,7 @@
     const isPHA=neo.pha==='Y';
     // no lighting needed for wireframe — clear rim light update
 
-    const accentCol=isPHA?0xd01c1c:0x00c8e8;
+    const accentCol=isPHA?0xe21b1b:0xff7a1a;
 
     const g=new THREE.Group();
 
