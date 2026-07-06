@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>MISSIONLAUNCH — Upcoming Space Missions</title>
+<script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
 <link rel="stylesheet" href="https://use.typekit.net/xhf1nbc.css">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -108,7 +109,19 @@
   .badge{font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--amber);text-align:right;text-transform:uppercase;}
   .main{grid-column:2;grid-row:1;display:grid;grid-template-rows:1fr 74px;padding:0;}
   .viz-wrap{position:relative;min-height:0;}
-  #mission-canvas{position:absolute;inset:0;width:100%;height:100%;}
+  #globe-stage{position:absolute;inset:0;overflow:hidden;}
+  #globe-stage canvas{display:block;width:100%!important;height:100%!important;}
+  #mission-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
+  .earth-tabs{
+    position:absolute;left:50%;top:18px;z-index:6;transform:translateX(-50%);display:flex;gap:6px;
+    font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+  }
+  .earth-tabs span{border:1px solid var(--line2);background:rgba(12,27,36,.72);padding:7px 13px;min-width:92px;text-align:center;}
+  .earth-tabs .active{color:var(--white);border-color:rgba(85,214,232,.58);background:rgba(85,214,232,.16);box-shadow:0 0 16px rgba(85,214,232,.12);}
+  .globe-caption{
+    position:absolute;left:16px;top:44px;z-index:6;font-family:'IBM Plex Mono',monospace;font-size:8px;line-height:1.7;
+    color:rgba(217,228,223,.58);letter-spacing:.12em;text-transform:uppercase;max-width:260px;
+  }
   .viz-readout{
     position:absolute;left:16px;bottom:14px;display:grid;grid-template-columns:repeat(4,auto);gap:9px;
     font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.09em;text-transform:uppercase;
@@ -217,6 +230,9 @@
     <section class="panel main">
       <div class="panel-label">Orbital Schedule Map</div>
       <div class="viz-wrap">
+        <div class="earth-tabs"><span>Continental</span><span>Bathymetry</span><span class="active">Population Density</span></div>
+        <div class="globe-caption">Mapbox orbital texture / satellite shell / launch-window relay</div>
+        <div id="globe-stage"></div>
         <canvas id="mission-canvas"></canvas>
         <div class="viz-readout">
           <div class="readout-cell">agency focus<b id="ro-agency">ALL</b></div>
@@ -268,6 +284,8 @@
 
 <script>
 const API='https://ll.thespacedevs.com/2.2.0/launch/upcoming/?limit=80&mode=detailed';
+const MAPBOX_TOKEN=new URLSearchParams(location.search).get('mapbox')||window.MISSIONLAUNCH_MAPBOX_TOKEN||localStorage.getItem('missionlaunch-mapbox-token')||'';
+const MAPBOX_EARTH_TEXTURE=MAPBOX_TOKEN?`https://api.mapbox.com/styles/v1/mapbox/satellite-v9/static/20,18,1.05,0/1280x640@2x?access_token=${MAPBOX_TOKEN}&logo=false&attribution=false`:'';
 const IMPORTANT_AGENCIES=['NASA','JPL','SpaceX','Blue Origin','ESA','Arianespace','Rocket Lab','ULA','JAXA','ISRO','Roscosmos','CNSA'];
 const FALLBACK=[
   {name:'SpaceX Falcon 9 | Commercial Crew Rotation',provider:'SpaceX',vehicle:'Falcon 9 / Dragon',net:'2026-08-01T12:34:00Z',pad:'Kennedy Space Center LC-39A',type:'Crewed',status:'Window TBD',agency:'SpaceX',image:'https://images.unsplash.com/photo-1517976547714-720226b864c1?auto=format&fit=crop&w=1200&q=70',description:'Fallback mission record used when live launch data cannot be reached. Crew transportation and station operations are prioritized in this view.'},
@@ -321,6 +339,8 @@ function normalizeLaunch(x){
   const vehicle=x.rocket?.configuration?.full_name||x.rocket?.configuration?.name||x.vehicle||'Vehicle TBD';
   const mission=x.mission||{};
   const text=[provider,mission.agencies?.map(a=>a.name).join(' '),x.name,mission.name,mission.description].filter(Boolean).join(' ');
+  const rawMissionType=mission.type?.name||mission.type?.type||mission.type;
+  const typeLabel=typeof rawMissionType==='string'&&rawMissionType.trim()?rawMissionType:missionType({name:x.name,mission,provider});
   return {
     id:x.id||x.name,
     name:x.name||mission.name||'Unnamed mission',
@@ -330,7 +350,7 @@ function normalizeLaunch(x){
     windowStart:x.window_start||x.net||null,
     windowEnd:x.window_end||null,
     pad:x.pad?.name?`${x.pad.name}, ${x.pad.location?.name||''}`.replace(/, $/,''):x.pad||'Pad TBD',
-    type:x.type||missionType({name:x.name,mission,provider}),
+    type:String(typeLabel),
     status:x.status?.name||x.status||'Status pending',
     agency:agencyName(text),
     image:x.image||mission.image||x.image_url||'',
@@ -376,6 +396,7 @@ function applyFilters(){
   filtered=missions.filter(filterMatch);
   if(!filtered.includes(selected)) selected=filtered[0]||missions[0]||null;
   renderFilters();renderList();renderStats();renderDetail();renderTimeline();renderAgencyBars();
+  syncMissionSatellites();
 }
 function renderFilters(){
   $('filters').innerHTML=filters.map(([id,label])=>`<button class="filter ${id===activeFilter?'active':''}" data-id="${id}">${label}</button>`).join('');
@@ -396,7 +417,7 @@ function renderList(){
     </div>`;
   }).join('');
   document.querySelectorAll('.mission-row').forEach(row=>row.onclick=()=>{
-    selected=missions.find(m=>String(m.id)===String(row.dataset.id));renderList();renderDetail();renderTimeline();renderAgencyBars();
+    selected=missions.find(m=>String(m.id)===String(row.dataset.id));renderList();renderDetail();renderTimeline();renderAgencyBars();syncMissionSatellites();
   });
 }
 function renderStats(){
@@ -469,58 +490,213 @@ function radarBackground(seed){
 }
 function escapeHtml(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 
+let globeRenderer=null,globeScene=null,globeCamera=null,globeGroup=null,earthMesh=null,satelliteShell=null;
+const satelliteNodes=[];
+const cityNodes=[
+  [40.7128,-74.006,.9],[34.0522,-118.2437,.78],[37.7749,-122.4194,.62],[29.7604,-95.3698,.52],[28.3922,-80.6077,.86],
+  [51.5072,-0.1276,.92],[48.8566,2.3522,.86],[52.52,13.405,.74],[41.9028,12.4964,.64],[40.4168,-3.7038,.62],
+  [35.6762,139.6503,.96],[37.5665,126.978,.82],[31.2304,121.4737,.9],[22.3193,114.1694,.78],[1.3521,103.8198,.8],
+  [19.076,72.8777,.85],[25.2048,55.2708,.7],[30.0444,31.2357,.58],[-33.8688,151.2093,.58],[-23.5505,-46.6333,.68],
+  [-34.6037,-58.3816,.52],[19.4326,-99.1332,.72],[45.4215,-75.6972,.42],[55.7558,37.6173,.74],[59.3293,18.0686,.38]
+];
+function latLonToVector(lat,lon,r=1){
+  const phi=(90-lat)*Math.PI/180,theta=(lon+180)*Math.PI/180;
+  return new THREE.Vector3(-r*Math.sin(phi)*Math.cos(theta),r*Math.cos(phi),r*Math.sin(phi)*Math.sin(theta));
+}
+function makeFallbackEarthTexture(){
+  const c=document.createElement('canvas');c.width=2048;c.height=1024;
+  const g=c.getContext('2d');
+  const ocean=g.createLinearGradient(0,0,0,c.height);
+  ocean.addColorStop(0,'#09222f');ocean.addColorStop(.48,'#061622');ocean.addColorStop(1,'#031017');
+  g.fillStyle=ocean;g.fillRect(0,0,c.width,c.height);
+  g.globalAlpha=.52;g.fillStyle='#294348';
+  for(let i=0;i<95;i++){
+    const x=(i*347)%c.width,y=120+((i*191)%760),rx=70+((i*29)%170),ry=18+((i*17)%80);
+    g.save();g.translate(x,y);g.rotate(((i*43)%180)*Math.PI/180);g.beginPath();g.ellipse(0,0,rx,ry,0,0,Math.PI*2);g.fill();g.restore();
+  }
+  g.globalAlpha=.18;g.strokeStyle='#8beeff';g.lineWidth=1;
+  for(let x=0;x<c.width;x+=128){g.beginPath();g.moveTo(x,0);g.lineTo(x,c.height);g.stroke();}
+  for(let y=0;y<c.height;y+=96){g.beginPath();g.moveTo(0,y);g.lineTo(c.width,y);g.stroke();}
+  const tex=new THREE.CanvasTexture(c);tex.colorSpace=THREE.SRGBColorSpace||THREE.sRGBEncoding;tex.needsUpdate=true;return tex;
+}
+function makeCityLightTexture(){
+  const c=document.createElement('canvas');c.width=2048;c.height=1024;
+  const g=c.getContext('2d');
+  g.clearRect(0,0,c.width,c.height);
+  cityNodes.forEach(([lat,lon,a])=>{
+    const x=(lon+180)/360*c.width,y=(90-lat)/180*c.height;
+    const r=8+18*a,grad=g.createRadialGradient(x,y,0,x,y,r);
+    grad.addColorStop(0,`rgba(255,238,174,${.9*a})`);
+    grad.addColorStop(.22,`rgba(112,244,255,${.34*a})`);
+    grad.addColorStop(1,'rgba(112,244,255,0)');
+    g.fillStyle=grad;g.beginPath();g.arc(x,y,r,0,Math.PI*2);g.fill();
+  });
+  g.globalAlpha=.34;g.fillStyle='rgba(255,235,168,.72)';
+  for(let i=0;i<900;i++){
+    const cluster=cityNodes[i%cityNodes.length],lat=cluster[0]+(Math.random()-.5)*12,lon=cluster[1]+(Math.random()-.5)*20;
+    const x=(lon+180)/360*c.width,y=(90-lat)/180*c.height;
+    g.fillRect(x,y,1.1,1.1);
+  }
+  const tex=new THREE.CanvasTexture(c);tex.needsUpdate=true;return tex;
+}
+function makeOrbitLine(rx,ry,tilt,color,opacity=.32){
+  const pts=[];
+  for(let i=0;i<=192;i++){
+    const t=i/192*Math.PI*2;
+    pts.push(new THREE.Vector3(Math.cos(t)*rx,0,Math.sin(t)*ry));
+  }
+  const geo=new THREE.BufferGeometry().setFromPoints(pts);
+  const line=new THREE.Line(geo,new THREE.LineBasicMaterial({color,transparent:true,opacity,blending:THREE.AdditiveBlending}));
+  line.rotation.set(tilt[0],tilt[1],tilt[2]);
+  return line;
+}
+function makeLatLonGrid(){
+  const group=new THREE.Group();
+  const mat=new THREE.LineBasicMaterial({color:0x87f4ff,transparent:true,opacity:.12,blending:THREE.AdditiveBlending});
+  for(let lat=-60;lat<=60;lat+=30){
+    const pts=[];
+    for(let lon=-180;lon<=180;lon+=4) pts.push(latLonToVector(lat,lon,1.746));
+    group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),mat));
+  }
+  for(let lon=-150;lon<=180;lon+=30){
+    const pts=[];
+    for(let lat=-80;lat<=80;lat+=4) pts.push(latLonToVector(lat,lon,1.748));
+    group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),mat));
+  }
+  return group;
+}
+function initGlobe(){
+  if(globeRenderer||!window.THREE) return;
+  const stage=$('globe-stage');
+  globeRenderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+  globeRenderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));
+  globeRenderer.setClearColor(0x000000,0);
+  stage.appendChild(globeRenderer.domElement);
+  globeScene=new THREE.Scene();
+  globeCamera=new THREE.PerspectiveCamera(38,1,.1,100);
+  globeCamera.position.set(0,.18,5.85);
+  globeScene.add(new THREE.AmbientLight(0x88b8c2,.42));
+  const sun=new THREE.DirectionalLight(0xf8f3d2,1.85);sun.position.set(4,2.5,3.5);globeScene.add(sun);
+  const rim=new THREE.DirectionalLight(0x55d6e8,1.1);rim.position.set(-3,1.2,-2.5);globeScene.add(rim);
+  globeGroup=new THREE.Group();globeGroup.rotation.set(-.18,-.56,.04);globeScene.add(globeGroup);
+  const fallback=makeFallbackEarthTexture();
+  earthMesh=new THREE.Mesh(new THREE.SphereGeometry(1.72,128,128),new THREE.MeshStandardMaterial({
+    map:fallback,color:0xffffff,roughness:.92,metalness:.03,emissive:0x082b33,emissiveIntensity:.22
+  }));
+  globeGroup.add(earthMesh);
+  const loader=new THREE.TextureLoader();loader.setCrossOrigin('anonymous');
+  if(MAPBOX_EARTH_TEXTURE){
+    loader.load(MAPBOX_EARTH_TEXTURE,(tex)=>{
+      tex.colorSpace=THREE.SRGBColorSpace||THREE.sRGBEncoding;
+      tex.anisotropy=globeRenderer.capabilities.getMaxAnisotropy();
+      earthMesh.material.map=tex;earthMesh.material.needsUpdate=true;
+    },undefined,()=>{});
+  }
+  globeGroup.add(new THREE.Mesh(new THREE.SphereGeometry(1.735,128,128),new THREE.MeshBasicMaterial({
+    map:makeCityLightTexture(),transparent:true,opacity:.82,depthWrite:false,blending:THREE.AdditiveBlending
+  })));
+  globeGroup.add(makeLatLonGrid());
+  const atmosphere=new THREE.Mesh(new THREE.SphereGeometry(1.84,96,96),new THREE.MeshBasicMaterial({
+    color:0x55d6e8,transparent:true,opacity:.075,side:THREE.BackSide,depthWrite:false,blending:THREE.AdditiveBlending
+  }));
+  globeGroup.add(atmosphere);
+  satelliteShell=new THREE.Group();globeGroup.add(satelliteShell);
+  syncMissionSatellites();
+  resizeGlobe();
+}
+function resizeGlobe(){
+  if(!globeRenderer) return;
+  const r=$('globe-stage').getBoundingClientRect();
+  globeCamera.aspect=Math.max(1,r.width)/Math.max(1,r.height);
+  globeCamera.updateProjectionMatrix();
+  globeRenderer.setSize(Math.max(1,r.width),Math.max(1,r.height),false);
+}
+function syncMissionSatellites(){
+  if(!satelliteShell) return;
+  satelliteShell.clear();satelliteNodes.length=0;
+  const list=(filtered.length?filtered:missions).slice(0,14);
+  list.forEach((m,i)=>{
+    const isSelected=m.id===selected?.id;
+    const tilt=[-.36+(i%5)*.12,(i%4)*.19,(i%6)*.31];
+    const orbit=makeOrbitLine(2.08+(i%4)*.12,2.08+(i%4)*.06,tilt,isSelected?0xf7a63a:0x87f4ff,isSelected?0.42:0.22);
+    satelliteShell.add(orbit);
+    const sat=new THREE.Mesh(new THREE.SphereGeometry(isSelected?0.035:0.024,16,16),new THREE.MeshBasicMaterial({
+      color:isSelected?0xf7a63a:/crew/i.test(m.type)?0xff4a48:0x87f4ff,
+      transparent:true,opacity:.96,blending:THREE.AdditiveBlending
+    }));
+    satelliteShell.add(sat);
+    satelliteNodes.push({mesh:sat,rx:2.08+(i%4)*.12,ry:2.08+(i%4)*.06,tilt,speed:.006+i*.0007,phase:i*.77,mission:m});
+  });
+}
+function animateGlobe(){
+  if(!globeRenderer) return;
+  globeGroup.rotation.y+=.0014;
+  satelliteNodes.forEach((s,i)=>{
+    const t=frame*s.speed+s.phase;
+    s.mesh.position.set(Math.cos(t)*s.rx,0,Math.sin(t)*s.ry);
+    s.mesh.rotation.set(s.tilt[0],s.tilt[1],s.tilt[2]);
+    s.mesh.position.applyEuler(new THREE.Euler(s.tilt[0],s.tilt[1],s.tilt[2]));
+  });
+  globeRenderer.render(globeScene,globeCamera);
+}
+
 const canvas=$('mission-canvas'),ctx=canvas.getContext('2d');
 function resizeCanvas(){
   const r=canvas.getBoundingClientRect(), dpr=Math.min(2,window.devicePixelRatio||1);
   canvas.width=Math.max(1,Math.floor(r.width*dpr));canvas.height=Math.max(1,Math.floor(r.height*dpr));
   ctx.setTransform(dpr,0,0,dpr,0,0);
+  resizeGlobe();
 }
 function drawCanvas(){
   frame+=1;
-  const w=canvas.clientWidth,h=canvas.clientHeight,cx=w*.5,cy=h*.48;
+  animateGlobe();
+  const w=canvas.clientWidth,h=canvas.clientHeight,cx=w*.5,cy=h*.48,r=Math.min(w,h)*.31;
   ctx.clearRect(0,0,w,h);
   ctx.save();
-  ctx.fillStyle='rgba(255,255,255,.018)';
-  for(let i=0;i<120;i++){
+  ctx.fillStyle='rgba(255,255,255,.024)';
+  for(let i=0;i<180;i++){
     const x=(i*97+frame*.09)%w,y=(i*53)%h,a=((i*17)%100)/100;
     ctx.globalAlpha=.15+a*.42;ctx.fillRect(x,y,1,1);
   }
   ctx.globalAlpha=1;
-  ctx.strokeStyle='rgba(181,218,226,.08)';ctx.lineWidth=1;
+  ctx.strokeStyle='rgba(181,218,226,.065)';ctx.lineWidth=1;
   for(let x=0;x<w;x+=42){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}
   for(let y=0;y<h;y+=42){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
-  const r=Math.min(w,h)*.26;
-  const grad=ctx.createRadialGradient(cx,cy,r*.18,cx,cy,r);
-  grad.addColorStop(0,'rgba(85,214,232,.34)');
-  grad.addColorStop(.55,'rgba(85,214,232,.13)');
-  grad.addColorStop(1,'rgba(85,214,232,0)');
-  ctx.fillStyle=grad;ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle='rgba(135,244,255,.26)';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(cx,cy,r*.62,0,Math.PI*2);ctx.stroke();
-  ctx.strokeStyle='rgba(181,218,226,.18)';
-  for(let i=0;i<5;i++){ctx.beginPath();ctx.ellipse(cx,cy,r*(1.08+i*.23),r*(.26+i*.055),-.2+i*.12,0,Math.PI*2);ctx.stroke();}
+  ctx.strokeStyle='rgba(135,244,255,.22)';ctx.lineWidth=1;
+  for(let i=0;i<4;i++){ctx.beginPath();ctx.arc(cx,cy,r*(.82+i*.18),0,Math.PI*2);ctx.stroke();}
+  ctx.strokeStyle='rgba(255,248,232,.18)';
+  for(let i=0;i<4;i++){ctx.beginPath();ctx.ellipse(cx,cy,r*(1.18+i*.24),r*(.36+i*.06),-.18+i*.14,0,Math.PI*2);ctx.stroke();}
   ctx.save();ctx.translate(cx,cy);ctx.rotate(frame*.0022);
-  ctx.strokeStyle='rgba(247,166,58,.72)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,r*1.55,-.35,.3);ctx.stroke();
-  ctx.strokeStyle='rgba(85,214,232,.72)';ctx.beginPath();ctx.arc(0,0,r*1.33,2.6,3.48);ctx.stroke();
+  ctx.strokeStyle='rgba(247,166,58,.72)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,r*1.24,-.4,.28);ctx.stroke();
+  ctx.strokeStyle='rgba(85,214,232,.65)';ctx.beginPath();ctx.arc(0,0,r*1.05,2.55,3.55);ctx.stroke();
   ctx.restore();
-  const list=filtered.slice(0,24);
+  const list=filtered.slice(0,16);
   list.forEach((m,i)=>{
     const t=(i/list.length)*Math.PI*2+frame*.0018;
-    const rr=r*(1.05+(i%5)*.23);
-    const x=cx+Math.cos(t)*rr*1.5,y=cy+Math.sin(t)*rr*.42;
+    const rr=r*(1.12+(i%4)*.13);
+    const x=cx+Math.cos(t)*rr*1.24,y=cy+Math.sin(t)*rr*.38;
     const sel=m.id===selected?.id;
-    ctx.strokeStyle=sel?'rgba(247,166,58,.75)':'rgba(85,214,232,.22)';
+    ctx.strokeStyle=sel?'rgba(247,166,58,.76)':'rgba(85,214,232,.18)';
     ctx.fillStyle=sel?'rgba(247,166,58,.95)':m.type.toLowerCase().includes('crew')?'rgba(255,74,72,.86)':'rgba(135,244,255,.75)';
     ctx.lineWidth=sel?1.5:1;
-    ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(x,y);ctx.stroke();
+    if(sel){ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(x,y);ctx.stroke();}
     ctx.beginPath();ctx.arc(x,y,sel?4.5:2.5,0,Math.PI*2);ctx.fill();
     if(sel){
       ctx.strokeStyle='rgba(247,166,58,.62)';
       ctx.beginPath();ctx.arc(x,y,12+Math.sin(frame*.05)*2,0,Math.PI*2);ctx.stroke();
     }
   });
+  if(selected){
+    ctx.strokeStyle='rgba(247,166,58,.42)';ctx.fillStyle='rgba(5,14,18,.55)';
+    const bx=cx-r*.53,by=cy+r*.15,bw=210,bh=92;
+    ctx.strokeRect(bx,by,bw,bh);ctx.fillRect(bx,by,bw,bh);
+    ctx.fillStyle='rgba(255,248,232,.82)';ctx.font='10px IBM Plex Mono, monospace';ctx.fillText(selected.agency+' / '+selected.type,bx+12,by+22);
+    ctx.fillStyle='rgba(85,214,232,.76)';ctx.fillText(new Date(selected.net).toISOString().slice(0,16)+'Z',bx+12,by+43);
+    ctx.fillStyle='rgba(247,166,58,.86)';ctx.fillText(selected.vehicle.slice(0,27),bx+12,by+64);
+  }
   ctx.fillStyle='rgba(255,248,232,.72)';
   ctx.font='10px IBM Plex Mono, monospace';
-  ctx.fillText('EARTH RELAY / UPCOMING LAUNCH WINDOWS',18,28);
+  ctx.fillText((MAPBOX_TOKEN?'MAPBOX ':'')+'EARTH RELAY / UPCOMING LAUNCH WINDOWS',18,28);
   ctx.fillText('TRACKED OBJECTS '+String(filtered.length).padStart(2,'0'),w-210,28);
   ctx.restore();
   requestAnimationFrame(drawCanvas);
@@ -528,6 +704,7 @@ function drawCanvas(){
 $('search').addEventListener('input',e=>{query=e.target.value.trim().toLowerCase();applyFilters();});
 window.addEventListener('resize',resizeCanvas);
 renderFilters();
+initGlobe();
 resizeCanvas();
 drawCanvas();
 loadMissions();
