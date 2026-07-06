@@ -86,60 +86,70 @@
   #vignette{position:absolute;inset:0;pointer-events:none;z-index:48;
     background:radial-gradient(ellipse at 50% 50%,transparent 46%,rgba(0,0,0,.5) 100%);}
 
-  /* HEADER */
-  #header{position:absolute;top:0;left:0;right:0;z-index:10;display:grid;grid-template-columns:minmax(260px,.6fr) minmax(600px,1.4fr);align-items:start;gap:18px;padding:12px 28px 0;}
-  .brand{position:relative;min-height:62px;padding:9px 0 0 15px;border-left:3px solid var(--cat4);
-    background:linear-gradient(90deg,rgba(200,79,56,.14),rgba(6,9,16,.5) 52%,rgba(4,6,11,.34));
+  /* HEADER — 3-row flex column:
+     Row 1: brand (left) + hstat boxes (right)
+     Row 2: full-width signal ladder + category badges + meta tags
+     Row 3: full-width nautical chart rule                          */
+  #header{position:absolute;top:0;left:0;right:0;z-index:10;
+    display:flex;flex-direction:column;gap:6px;padding:12px 28px 0;}
+  .header-main{display:flex;align-items:stretch;gap:14px;}
+
+  /* Brand — flag + wordmark + live pip + 1-line subtitle only */
+  .brand{position:relative;flex:0 0 auto;padding:8px 14px 8px 16px;border-left:3px solid var(--cat4);
+    background:linear-gradient(90deg,rgba(200,79,56,.14),rgba(6,9,16,.52) 55%,rgba(4,6,11,.36));
     box-shadow:inset 0 1px 0 rgba(255,255,255,.05);}
   .brand::before{content:'';position:absolute;left:0;top:0;width:78%;height:1px;background:linear-gradient(90deg,rgba(200,79,56,.55),transparent);}
-  .brand::after{content:'';position:absolute;left:0;bottom:0;width:42%;height:1px;background:linear-gradient(90deg,rgba(180,200,235,.18),transparent);}
+  .brand-flex{display:flex;align-items:center;gap:14px;}
+  .brand-text{display:flex;flex-direction:column;justify-content:center;}
   .brand-title-row{display:flex;align-items:baseline;gap:0;}
-  .brand .title{font-family:'Anton',sans-serif;font-weight:400;font-size:40px;letter-spacing:.03em;color:var(--cat4);line-height:.88;}
-  .brand-flex{display:flex;align-items:center;gap:16px;}
-  .brand-text{display:flex;flex-direction:column;}
+  .brand .title{font-family:'Anton',sans-serif;font-weight:400;font-size:38px;letter-spacing:.03em;color:var(--cat4);line-height:.9;}
+  .brand .title b{color:var(--cat5);font-weight:400;text-shadow:0 0 16px rgba(216,32,47,.45);}
+  .live-pip{display:inline-flex;align-items:center;gap:4px;font-family:'IBM Plex Mono',monospace;font-size:7px;letter-spacing:.14em;color:var(--cat4);margin-left:8px;vertical-align:middle;}
+  .live-pip::before{content:'';display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--cat4);box-shadow:0 0 6px var(--cat4);animation:live-pulse 1.8s ease-in-out infinite;}
+  @keyframes live-pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.75);}}
+  .brand .sub{font-family:'IBM Plex Mono',monospace;font-size:7px;letter-spacing:.09em;color:var(--ink-dim);margin-top:5px;white-space:nowrap;}
   #brand-flag{flex:0 0 auto;filter:drop-shadow(0 0 5px rgba(200,79,56,.45));transform-origin:15% 10%;animation:flag-flutter 3.6s ease-in-out infinite;}
   @media(prefers-reduced-motion:reduce){#brand-flag{animation:none;}}
   @keyframes flag-flutter{0%,100%{transform:skewY(0deg) scaleX(1);}50%{transform:skewY(-2.5deg) scaleX(.985);}}
-  .brand .title b{color:var(--cat5);font-weight:400;text-shadow:0 0 16px rgba(216,32,47,.45);}
-  .brand .sub{font-family:'IBM Plex Mono',monospace;font-size:7px;letter-spacing:.1em;color:var(--ink-dim);margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
-  .id-strip{font-family:'IBM Plex Mono',monospace;font-size:6.5px;letter-spacing:.08em;color:var(--ink-faint);margin-top:5px;display:flex;gap:6px;flex-wrap:nowrap;align-items:center;overflow:hidden;}
-  .live-pip{display:inline-flex;align-items:center;gap:5px;font-family:'IBM Plex Mono',monospace;font-size:7px;letter-spacing:.14em;color:var(--cat4);margin-left:6px;}
-  .live-pip::before{content:'';display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--cat4);box-shadow:0 0 6px var(--cat4);animation:live-pulse 1.8s ease-in-out infinite;}
-  @keyframes live-pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.75);}}
-  .id-strip b{color:var(--ink-dim);font-weight:400;}
-  .id-strip a{color:var(--ink-dim);text-decoration:none;border-bottom:1px solid var(--line);transition:color .15s,border-color .15s;}
-  .id-strip a:hover{color:var(--amber);border-color:var(--amber-dim);}
-  .id-strip a:focus-visible,#history-toggle:focus-visible,.stog:focus-visible,#radar-toggle:focus-visible{
-    outline:2px solid rgba(74,144,208,.75);outline-offset:2px;
-  }
-  .id-strip .sep{color:var(--line);}
-  .meta-tag{display:flex;gap:6px;align-items:center;font-family:'IBM Plex Mono',monospace;font-size:6.8px;color:var(--ink-faint);flex-wrap:wrap;}
-  .meta-tag span{padding:2px 6px;border:1px solid rgba(180,200,235,.12);border-radius:999px;background:rgba(255,255,255,.025);}
-  .meta-tag b{color:var(--ink-dim);font-weight:400;margin-left:4px;}
-  #header-data{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;align-self:stretch;}
+
+  /* hstat boxes — fill remaining space on row 1 */
+  #header-data{flex:1 1 0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;align-self:stretch;}
   .hstat{position:relative;min-height:48px;padding:7px 7px 6px;border:1px solid var(--mui-outline);border-top:2px solid currentColor;overflow:hidden;
     background:linear-gradient(180deg,var(--mui-surface),rgba(5,9,17,.2));box-shadow:var(--mui-shadow);border-radius:var(--mui-radius);}
   .hstat::before{display:none;}
   .hstat-label{font-family:'IBM Plex Mono',monospace;font-size:6.5px;letter-spacing:.14em;color:var(--ink-faint);white-space:nowrap;}
   .hstat-value{font-family:'IBM Plex Mono',monospace;font-size:15px;letter-spacing:.04em;color:var(--white);margin-top:4px;}
   .hstat-sub{font-family:'IBM Plex Mono',monospace;font-size:7px;letter-spacing:.08em;color:var(--ink-dim);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  #category-strip{grid-column:1 / -1;align-self:end;justify-self:stretch;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0;}
-  #chart-rule{grid-column:1 / -1;margin-top:2px;overflow:hidden;}
-  #chart-rule-svg{display:block;opacity:.55;}
-  #chart-rule-meta{display:flex;align-items:center;gap:8px;padding:2px 0 0;flex-wrap:nowrap;overflow:hidden;}
-  .cr-item{font-family:'IBM Plex Mono',monospace;font-size:6px;letter-spacing:.1em;color:var(--ink-faint);white-space:nowrap;}
-  .cr-item b{color:var(--ink-dim);font-weight:400;margin-left:3px;}
-  .cr-div{color:var(--ink-faint);opacity:.4;font-size:6px;}
-  .cat-title{font-family:'IBM Plex Mono',monospace;font-size:7px;letter-spacing:.2em;color:var(--ink-dim);white-space:nowrap;}
-  .cat-badges-group{display:flex;align-items:center;gap:14px;}
-  .signal-ladder{display:flex;align-items:flex-end;gap:10px;padding-right:12px;border-right:1px solid var(--line);}
-  .signal-item{display:flex;flex-direction:column;align-items:center;gap:3px;}
+
+  /* Row 2 — signal ladder | cat badges | meta tags, all on one line */
+  #header-foot{display:flex;align-items:center;justify-content:space-between;gap:16px;
+    padding:4px 0 2px;border-top:1px solid rgba(180,200,235,.08);}
+  .signal-ladder{display:flex;align-items:flex-end;gap:10px;padding-right:14px;border-right:1px solid rgba(180,200,235,.12);}
+  .signal-item{display:flex;flex-direction:column;align-items:center;gap:2px;}
   .signal-item svg{filter:drop-shadow(0 0 3px rgba(200,79,56,.3));}
   .signal-item span{font-family:'IBM Plex Mono',monospace;font-size:6px;letter-spacing:.1em;color:var(--ink-faint);white-space:nowrap;}
-  .cat-badges{display:flex;gap:6px;align-items:center;}
+  .cat-badges-group{display:flex;align-items:center;gap:10px;}
+  .cat-title{font-family:'IBM Plex Mono',monospace;font-size:7px;letter-spacing:.18em;color:var(--ink-dim);white-space:nowrap;}
+  .cat-badges{display:flex;gap:5px;align-items:center;}
   .ss-badge{font-family:'IBM Plex Mono',monospace;font-size:7px;letter-spacing:.08em;padding:3px 8px;
     border:1px solid;border-radius:999px;opacity:.92;background:var(--mui-surface-strong);box-shadow:var(--mui-shadow);}
-  #header-rule{position:absolute;top:102px;left:0;right:0;height:10px;z-index:9;padding:0 28px;}
+  .meta-tag{display:flex;gap:5px;align-items:center;font-family:'IBM Plex Mono',monospace;font-size:6.5px;color:var(--ink-faint);}
+  .meta-tag span{padding:2px 6px;border:1px solid rgba(180,200,235,.12);border-radius:999px;background:rgba(255,255,255,.025);}
+  .meta-tag b{color:var(--ink-dim);font-weight:400;margin-left:3px;}
+
+  /* Row 3 — nautical chart rule */
+  #chart-rule{overflow:hidden;padding-bottom:2px;}
+  #chart-rule-svg{display:block;opacity:.5;}
+  #chart-rule-meta{display:flex;align-items:center;gap:7px;padding:1px 0 0;overflow:hidden;}
+  .cr-item{font-family:'IBM Plex Mono',monospace;font-size:5.5px;letter-spacing:.1em;color:var(--ink-faint);white-space:nowrap;}
+  .cr-item b{color:var(--ink-dim);font-weight:400;margin-left:3px;}
+  .cr-div{color:var(--ink-faint);opacity:.35;font-size:6px;}
+
+  /* id-strip kept for focus outlines only */
+  .id-strip a:focus-visible,#history-toggle:focus-visible,.stog:focus-visible,#radar-toggle:focus-visible{
+    outline:2px solid rgba(74,144,208,.75);outline-offset:2px;
+  }
+  #header-rule{position:absolute;top:136px;left:0;right:0;height:10px;z-index:9;padding:0 28px;}
 
   /* PANELS */
   .panel{background:linear-gradient(145deg,var(--mui-surface),rgba(6,10,18,.12));backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);
@@ -426,124 +436,120 @@
   <div id="bg-credit">BG: MIXKIT SATELLITE HURRICANE LOOP · STILL: NASA/UNSPLASH</div>
 
   <div id="header">
-    <div class="brand">
-      <div class="brand-flex">
-        <svg id="brand-flag" viewBox="0 0 40 40" width="58" height="58" aria-hidden="true" role="img">
-          <title>Hurricane Warning signal</title>
-          <circle cx="6" cy="4" r="1.1" fill="var(--ink-dim)"/>
-          <line x1="6" y1="4" x2="6" y2="36" stroke="var(--ink-dim)" stroke-width="1.4"/>
-          <rect x="6" y="6" width="11" height="11" fill="var(--cat4)"/>
-          <rect x="9.7" y="9.7" width="3.6" height="3.6" fill="#050607"/>
-          <rect x="6" y="20" width="11" height="11" fill="var(--cat4)"/>
-          <rect x="9.7" y="23.7" width="3.6" height="3.6" fill="#050607"/>
-        </svg>
-        <div class="brand-text">
-          <div class="brand-title-row">
-            <div class="title"><b>LAND</b>FALL</div>
-            <span class="live-pip" aria-label="Live data">LIVE</span>
+    <!-- Row 1: brand + hstat boxes -->
+    <div class="header-main">
+      <div class="brand">
+        <div class="brand-flex">
+          <svg id="brand-flag" viewBox="0 0 40 40" width="52" height="52" aria-hidden="true" role="img">
+            <title>Hurricane Warning signal</title>
+            <circle cx="6" cy="4" r="1.1" fill="var(--ink-dim)"/>
+            <line x1="6" y1="4" x2="6" y2="36" stroke="var(--ink-dim)" stroke-width="1.4"/>
+            <rect x="6" y="6" width="11" height="11" fill="var(--cat4)"/>
+            <rect x="9.7" y="9.7" width="3.6" height="3.6" fill="#050607"/>
+            <rect x="6" y="20" width="11" height="11" fill="var(--cat4)"/>
+            <rect x="9.7" y="23.7" width="3.6" height="3.6" fill="#050607"/>
+          </svg>
+          <div class="brand-text">
+            <div class="brand-title-row">
+              <div class="title"><b>LAND</b>FALL</div>
+              <span class="live-pip" aria-label="Live data">LIVE</span>
+            </div>
+            <div class="sub">TROPICAL CYCLONE OPERATIONS // GULF OF MEXICO — NHC WATCH</div>
           </div>
-          <div class="sub">TROPICAL CYCLONE OPERATIONS // GULF OF MEXICO — NHC WATCH</div>
-          <div class="id-strip">
-            <svg class="compass-rose" viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><title>Compass rose</title>
-              <circle cx="12" cy="12" r="10" fill="none" stroke="var(--ink-faint)" stroke-width="1"/>
-              <path d="M12 3 L14 12 L12 21 L10 12 Z" fill="var(--ink-dim)"/>
-              <path d="M3 12 L12 10 L21 12 L12 14 Z" fill="var(--ink-faint)"/>
-              <circle cx="12" cy="12" r="1.1" fill="var(--advisory)"/>
-            </svg>
-            <span>REGION <b>NAL/GOM</b></span><span class="sep">/</span>
-            <span>BUILD <b>01.6.30</b></span><span class="sep">/</span>
-            <span>NODE <b>LNDF-OP-01</b></span><span class="sep">/</span>
-        <span>BY <a href="https://rondomingue.com" target="_blank" rel="noopener">RONDOMINGUE.COM</a></span>
-          </div>
+        </div>
+      </div>
+      <div id="header-data" aria-label="Basin summary">
+        <div class="hstat" style="color:var(--cat5)">
+          <div class="hstat-label">MAJOR HURR</div>
+          <div class="hstat-value" id="hd-major">—</div>
+          <div class="hstat-sub">CAT 3+</div>
+        </div>
+        <div class="hstat" style="color:var(--cat3)">
+          <div class="hstat-label">MAX WIND</div>
+          <div class="hstat-value" id="hd-wind">—</div>
+          <div class="hstat-sub" id="hd-wind-name">PEAK KT</div>
+        </div>
+        <div class="hstat" style="color:var(--advisory)">
+          <div class="hstat-label">MIN PRESS</div>
+          <div class="hstat-value" id="hd-mb">—</div>
+          <div class="hstat-sub" id="hd-mb-name">LOWEST MB</div>
+        </div>
+        <div class="hstat" style="color:var(--warning)">
+          <div class="hstat-label">LANDFALLS</div>
+          <div class="hstat-value" id="hd-landfalls">—</div>
+          <div class="hstat-sub">HISTORICAL FIXES</div>
+        </div>
+        <div class="hstat" style="color:var(--clear)">
+          <div class="hstat-label">TRACK PTS</div>
+          <div class="hstat-value" id="hd-points">—</div>
+          <div class="hstat-sub">BEZIER SOURCE</div>
+        </div>
+        <div class="hstat" id="hd-status-card" style="color:var(--clear)">
+          <div class="hstat-label">BASIN STATUS</div>
+          <div class="hstat-value" id="hd-status">QUIET</div>
+          <div class="hstat-sub" id="hd-status-sub">NO ACTIVE SYSTEMS</div>
         </div>
       </div>
     </div>
-    <div id="header-data" aria-label="Basin summary">
-      <div class="hstat" style="color:var(--cat5)">
-        <div class="hstat-label">MAJOR HURR</div>
-        <div class="hstat-value" id="hd-major">—</div>
-        <div class="hstat-sub">CAT 3+</div>
-      </div>
-      <div class="hstat" style="color:var(--cat3)">
-        <div class="hstat-label">MAX WIND</div>
-        <div class="hstat-value" id="hd-wind">—</div>
-        <div class="hstat-sub" id="hd-wind-name">PEAK KT</div>
-      </div>
-      <div class="hstat" style="color:var(--advisory)">
-        <div class="hstat-label">MIN PRESS</div>
-        <div class="hstat-value" id="hd-mb">—</div>
-        <div class="hstat-sub" id="hd-mb-name">LOWEST MB</div>
-      </div>
-      <div class="hstat" style="color:var(--warning)">
-        <div class="hstat-label">LANDFALLS</div>
-        <div class="hstat-value" id="hd-landfalls">—</div>
-        <div class="hstat-sub">HISTORICAL FIXES</div>
-      </div>
-      <div class="hstat" style="color:var(--clear)">
-        <div class="hstat-label">TRACK PTS</div>
-        <div class="hstat-value" id="hd-points">—</div>
-        <div class="hstat-sub">BEZIER SOURCE</div>
-      </div>
-      <div class="hstat" id="hd-status-card" style="color:var(--clear)">
-        <div class="hstat-label">BASIN STATUS</div>
-        <div class="hstat-value" id="hd-status">QUIET</div>
-        <div class="hstat-sub" id="hd-status-sub">NO ACTIVE SYSTEMS</div>
-      </div>
-      <div id="category-strip" aria-label="Category hurricanes">
-        <div class="cat-badges-group">
-          <div class="signal-ladder" aria-label="NWS maritime storm signal ladder">
-            <div class="signal-item">
-              <svg viewBox="0 0 20 26" width="16" height="21" aria-hidden="true"><title>Small Craft Advisory</title>
-                <line x1="4" y1="2" x2="4" y2="24" stroke="var(--ink-dim)" stroke-width="1.2"/>
-                <path d="M4 4 L17 8 L4 12 Z" fill="var(--cat4)"/>
-              </svg>
-              <span>SM CRAFT</span>
-            </div>
-            <div class="signal-item">
-              <svg viewBox="0 0 20 26" width="16" height="21" aria-hidden="true"><title>Gale Warning</title>
-                <line x1="4" y1="2" x2="4" y2="24" stroke="var(--ink-dim)" stroke-width="1.2"/>
-                <path d="M4 4 L17 7 L4 10 Z" fill="var(--cat4)"/>
-                <path d="M4 13 L17 16 L4 19 Z" fill="var(--cat4)"/>
-              </svg>
-              <span>GALE</span>
-            </div>
-            <div class="signal-item">
-              <svg viewBox="0 0 20 26" width="16" height="21" aria-hidden="true"><title>Storm Warning</title>
-                <line x1="4" y1="2" x2="4" y2="24" stroke="var(--ink-dim)" stroke-width="1.2"/>
-                <rect x="4" y="4" width="11" height="11" fill="var(--cat4)"/>
-                <rect x="7.2" y="7.2" width="4.6" height="4.6" fill="#050607"/>
-              </svg>
-              <span>STORM</span>
-            </div>
-          </div>
-          <div class="cat-title">CATEGORY HURRICANES</div>
-          <div class="cat-badges">
-            <div class="ss-badge" style="color:var(--cat1);border-color:var(--cat1);">CAT 1</div>
-            <div class="ss-badge" style="color:var(--cat2);border-color:var(--cat2);">CAT 2</div>
-            <div class="ss-badge" style="color:var(--cat3);border-color:var(--cat3);">CAT 3</div>
-            <div class="ss-badge" style="color:var(--cat4);border-color:var(--cat4);">CAT 4</div>
-            <div class="ss-badge" style="color:var(--cat5);border-color:var(--cat5);">CAT 5</div>
-          </div>
+    <!-- Row 2: full-width signal ladder | cat badges | meta -->
+    <div id="header-foot" aria-label="Storm signal ladder and category scale">
+      <div class="signal-ladder">
+        <div class="signal-item">
+          <svg viewBox="0 0 20 26" width="13" height="18"><title>Small Craft Advisory</title>
+            <line x1="4" y1="2" x2="4" y2="24" stroke="var(--ink-dim)" stroke-width="1.2"/>
+            <path d="M4 4 L17 8 L4 12 Z" fill="var(--cat4)"/>
+          </svg><span>SM CRAFT</span>
         </div>
-        <div class="meta-tag"><span>BASIN<b>NAL</b></span><span>SEASON<b>2026</b></span><span>SRC<b>NHC/NWS</b></span></div>
-      </div>
-      <div id="chart-rule" aria-hidden="true">
-        <svg id="chart-rule-svg" width="100%" height="22" viewBox="0 0 1200 22" preserveAspectRatio="none"></svg>
-        <div id="chart-rule-meta">
-          <span class="cr-item">DATUM<b>MLLW</b></span>
-          <span class="cr-div">·</span>
-          <span class="cr-item">PROJECTION<b>MERCATOR</b></span>
-          <span class="cr-div">·</span>
-          <span class="cr-item">SOUNDINGS IN<b>FATHOMS</b></span>
-          <span class="cr-div">·</span>
-          <span class="cr-item">SCALE<b>1:1,200,000</b></span>
-          <span class="cr-div">·</span>
-          <span class="cr-item">VARIATION<b>2°E (2026)</b></span>
-          <span class="cr-div">·</span>
-          <span class="cr-item">BEAUFORT<b>BF0–BF12</b></span>
-          <span class="cr-div">·</span>
-          <span class="cr-item">18°N–32°N<b>99°W–80°W</b></span>
+        <div class="signal-item">
+          <svg viewBox="0 0 20 26" width="13" height="18"><title>Gale Warning</title>
+            <line x1="4" y1="2" x2="4" y2="24" stroke="var(--ink-dim)" stroke-width="1.2"/>
+            <path d="M4 4 L17 7 L4 10 Z" fill="var(--cat4)"/>
+            <path d="M4 13 L17 16 L4 19 Z" fill="var(--cat4)"/>
+          </svg><span>GALE</span>
         </div>
+        <div class="signal-item">
+          <svg viewBox="0 0 20 26" width="13" height="18"><title>Storm Warning</title>
+            <line x1="4" y1="2" x2="4" y2="24" stroke="var(--ink-dim)" stroke-width="1.2"/>
+            <rect x="4" y="4" width="11" height="11" fill="var(--cat4)"/>
+            <rect x="7.2" y="7.2" width="4.6" height="4.6" fill="#050607"/>
+          </svg><span>STORM</span>
+        </div>
+        <div class="signal-item">
+          <svg viewBox="0 0 20 26" width="13" height="18"><title>Hurricane Warning</title>
+            <line x1="4" y1="2" x2="4" y2="24" stroke="var(--ink-dim)" stroke-width="1.2"/>
+            <rect x="4" y="3" width="11" height="9" fill="var(--cat4)"/>
+            <rect x="7.2" y="5.8" width="4.6" height="3.4" fill="#050607"/>
+            <rect x="4" y="13" width="11" height="9" fill="var(--cat4)"/>
+            <rect x="7.2" y="15.8" width="4.6" height="3.4" fill="#050607"/>
+          </svg><span>HURRICANE</span>
+        </div>
+      </div>
+      <div class="cat-badges-group">
+        <div class="cat-title">SAFFIR-SIMPSON</div>
+        <div class="cat-badges">
+          <div class="ss-badge" style="color:var(--cat1);border-color:var(--cat1);">CAT 1</div>
+          <div class="ss-badge" style="color:var(--cat2);border-color:var(--cat2);">CAT 2</div>
+          <div class="ss-badge" style="color:var(--cat3);border-color:var(--cat3);">CAT 3</div>
+          <div class="ss-badge" style="color:var(--cat4);border-color:var(--cat4);">CAT 4</div>
+          <div class="ss-badge" style="color:var(--cat5);border-color:var(--cat5);">CAT 5</div>
+        </div>
+      </div>
+      <div class="meta-tag">
+        <span>BASIN<b>NAL</b></span><span>SEASON<b>2026</b></span><span>SRC<b>NHC/NWS</b></span>
+        <span>BY <b><a href="https://rondomingue.com" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">RONDOMINGUE.COM</a></b></span>
+      </div>
+    </div>
+    <!-- Row 3: nautical chart rule -->
+    <div id="chart-rule" aria-hidden="true">
+      <svg id="chart-rule-svg" width="100%" height="18" viewBox="0 0 1200 18" preserveAspectRatio="none"></svg>
+      <div id="chart-rule-meta">
+        <span class="cr-item">DATUM<b>MLLW</b></span><span class="cr-div">·</span>
+        <span class="cr-item">PROJECTION<b>MERCATOR</b></span><span class="cr-div">·</span>
+        <span class="cr-item">SOUNDINGS<b>FATHOMS</b></span><span class="cr-div">·</span>
+        <span class="cr-item">SCALE<b>1:1,200,000</b></span><span class="cr-div">·</span>
+        <span class="cr-item">VAR<b>2°E (2026)</b></span><span class="cr-div">·</span>
+        <span class="cr-item">BEAUFORT<b>BF0–BF12</b></span><span class="cr-div">·</span>
+        <span class="cr-item">EXTENT<b>18°N–32°N · 99°W–80°W</b></span>
       </div>
     </div>
   </div>
