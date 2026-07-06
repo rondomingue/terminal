@@ -369,9 +369,9 @@ function buildEarthTextureUrl(viewKey=activeEarthView){
   return url.toString();
 }
 const SPACE_OBJECTS=[
-  {id:'iss',name:'ISS',operator:'NASA / Roscosmos / ESA / JAXA / CSA',class:'Crewed station',orbit:'Low Earth orbit',alt:'408 km',inclination:'51.6 deg',period:'92.9 min',status:'Active',mass:'419,725 kg',velocity:'7.66 km/s',catalog:'ZARYA / 25544',color:0xfff7e7,phase:.4,speed:.0058,rx:1.94,ry:1.9,tilt:[-.22,.34,.68],description:'International Space Station. Crewed orbital laboratory and active spacecraft traffic node in low Earth orbit.'},
-  {id:'hubble',name:'Hubble',operator:'NASA / ESA',class:'Observatory',orbit:'Low Earth orbit',alt:'535 km',inclination:'28.5 deg',period:'95.4 min',status:'Active',mass:'11,110 kg',velocity:'7.59 km/s',catalog:'HST / 20580',color:0xcfd8d3,phase:1.7,speed:.0046,rx:2.04,ry:1.98,tilt:[-.1,.42,-.16],description:'Hubble Space Telescope. Optical observatory in low Earth orbit, included as a persistent science object layer independent of launch windows.'},
-  {id:'jwst',name:'JWST',operator:'NASA / ESA / CSA',class:'Space telescope',orbit:'Sun-Earth L2',alt:'1.5M km',inclination:'Halo orbit',period:'~6 months',status:'Active',mass:'6,161 kg',velocity:'~0.20 km/s',catalog:'JWST / L2',color:0xc99048,phase:2.8,speed:.0015,rx:2.42,ry:2.2,tilt:[.08,-.2,.24],description:'James Webb Space Telescope, operating near Sun-Earth L2. Rendered as a high-altitude reference object rather than true scale.'},
+  {id:'iss',name:'ISS',operator:'NASA / Roscosmos / ESA / JAXA / CSA',class:'Crewed station',orbit:'Low Earth orbit',alt:'408 km',inclination:'51.6 deg',period:'92.9 min',status:'Active',mass:'419,725 kg',velocity:'7.66 km/s',catalog:'ZARYA / 25544',color:0xfff7e7,phase:.4,speed:.0058,rx:1.94,ry:1.9,tilt:[-.22,.34,.68],image:'https://upload.wikimedia.org/wikipedia/commons/f/ff/ISS-56_International_Space_Station_fly-around_%2805%29.jpg',imagePos:'center 48%',description:'International Space Station. Crewed orbital laboratory and active spacecraft traffic node in low Earth orbit.'},
+  {id:'hubble',name:'Hubble',operator:'NASA / ESA',class:'Observatory',orbit:'Low Earth orbit',alt:'535 km',inclination:'28.5 deg',period:'95.4 min',status:'Active',mass:'11,110 kg',velocity:'7.59 km/s',catalog:'HST / 20580',color:0xcfd8d3,phase:1.7,speed:.0046,rx:2.04,ry:1.98,tilt:[-.1,.42,-.16],image:'https://upload.wikimedia.org/wikipedia/commons/3/3f/HST-SM4.jpeg',imagePos:'center 42%',description:'Hubble Space Telescope. Optical observatory in low Earth orbit, included as a persistent science object layer independent of launch windows.'},
+  {id:'jwst',name:'JWST',operator:'NASA / ESA / CSA',class:'Space telescope',orbit:'Sun-Earth L2',alt:'1.5M km',inclination:'Halo orbit',period:'~6 months',status:'Active',mass:'6,161 kg',velocity:'~0.20 km/s',catalog:'JWST / L2',color:0xc99048,phase:2.8,speed:.0015,rx:2.42,ry:2.2,tilt:[.08,-.2,.24],image:'https://upload.wikimedia.org/wikipedia/commons/6/6a/JWSTDeployment.jpg',imagePos:'center 38%',description:'James Webb Space Telescope, operating near Sun-Earth L2. Rendered as a high-altitude reference object rather than true scale.'},
   {id:'sentinel',name:'Sentinel',operator:'ESA / Copernicus',class:'Earth observation',orbit:'Sun-synchronous',alt:'786 km',inclination:'98.6 deg',period:'100.6 min',status:'Active',mass:'1,140 kg',velocity:'7.45 km/s',catalog:'Sentinel class',color:0xb8d8d2,phase:3.4,speed:.0042,rx:2.13,ry:2.02,tilt:[.46,.1,-.55],description:'Representative Sentinel-class Earth-observation spacecraft layer for MissionLaunch science traffic context.'},
   {id:'tdrs',name:'TDRS',operator:'NASA',class:'Relay satellite',orbit:'Geosynchronous',alt:'35,786 km',inclination:'Geosynchronous',period:'23.9 hr',status:'Active',mass:'3,454 kg',velocity:'3.07 km/s',catalog:'TDRS node',color:0xd34d3f,phase:4.6,speed:.0011,rx:2.7,ry:2.58,tilt:[.02,.16,.05],description:'Tracking and Data Relay Satellite reference node. Useful for showing communications infrastructure around launches and missions.'}
 ];
@@ -569,6 +569,7 @@ function renderDetail(){
   $('d-status').textContent=selected.status;
   $('d-status').className=/go|success|confirmed/i.test(selected.status)?'good':/hold|tbd|pending|to be/i.test(selected.status)?'warn':'';
   $('mission-image').style.backgroundImage=selected.image?`url("${selected.image}")`:radarBackground(selected.agency);
+  $('mission-image').style.backgroundPosition='center';
   $('mission-notes').innerHTML=`<b>${escapeHtml(selected.name)}</b><br>${escapeHtml(selected.description)}<br><br><b>Coverage note:</b> payload depth depends on the launch record. Timing, vehicle, provider and pad are tracked first; instrument-level details can be layered in from agency-specific feeds next.`;
 }
 function renderObjectDetail(obj){
@@ -592,7 +593,8 @@ function renderObjectDetail(obj){
   $('d-window').textContent=obj.alt;
   $('d-status').textContent=obj.velocity;
   $('d-status').className=obj.status==='Active'?'good':'warn';
-  $('mission-image').style.backgroundImage=objectBackground(obj);
+  $('mission-image').style.backgroundImage=obj.image?`linear-gradient(180deg,rgba(0,0,0,.04),rgba(0,0,0,.68)),url("${obj.image}")`:objectBackground(obj);
+  $('mission-image').style.backgroundPosition=obj.imagePos||'center';
   $('mission-notes').innerHTML=`<b>${escapeHtml(obj.name)}</b><br>${escapeHtml(obj.description)}<br><br><b>Satellite data:</b><br>Catalog: ${escapeHtml(obj.catalog)}<br>Mass: ${escapeHtml(obj.mass)}<br>Altitude: ${escapeHtml(obj.alt)}<br>Inclination: ${escapeHtml(obj.inclination)}<br>Period: ${escapeHtml(obj.period)}<br>Status: ${escapeHtml(obj.status)}.`;
 }
 function selectSpaceObject(id){
