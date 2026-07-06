@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540">
+  <rect width="960" height="540" fill="#030505"/>
+  <g opacity=".14" stroke="#deddd0"><path d="M0 45h960M0 90h960M0 135h960M0 180h960M0 225h960M0 270h960M0 315h960M0 360h960M0 405h960M0 450h960M0 495h960M80 0v540M160 0v540M240 0v540M320 0v540M400 0v540M480 0v540M560 0v540M640 0v540M720 0v540M800 0v540M880 0v540"/></g>
+  <circle cx="480" cy="278" r="154" fill="#244641" opacity=".74"/>
+  <circle cx="480" cy="278" r="188" fill="#b8d8d2" opacity=".08"/>
+  <path d="M230 310c154-104 318-100 504 4" fill="none" stroke="#fff7e7" opacity=".55"/>
+  <path d="M194 252c230 54 412 48 594-36" fill="none" stroke="#c99048" opacity=".65"/>
+  <path d="M330 390c120 42 254 38 402-14" fill="none" stroke="#b8d8d2" opacity=".5"/>
+  <g fill="#fff7e7"><circle cx="238" cy="310" r="5"/><circle cx="588" cy="237" r="4"/><circle cx="705" cy="374" r="5"/></g>
+  <g fill="#d34d3f"><circle cx="650" cy="206" r="4"/><circle cx="397" cy="390" r="3"/></g>
+  <g font-family="IBM Plex Mono, Space Mono, monospace" fill="#deddd0">
+    <text x="38" y="56" font-size="18" letter-spacing="7">MISSIONLAUNCH</text>
+    <text x="38" y="86" font-size="10" opacity=".58" letter-spacing="3">ORBITAL SCHEDULE / SPACECRAFT</text>
+    <text x="700" y="488" font-size="11" opacity=".58" letter-spacing="3">T- WINDOW</text>
+  </g>
+</svg>

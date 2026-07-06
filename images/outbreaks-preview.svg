@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540">
+  <rect width="960" height="540" fill="#f5efe4"/>
+  <g opacity=".22" stroke="#22252b"><path d="M0 54h960M0 108h960M0 162h960M0 216h960M0 270h960M0 324h960M0 378h960M0 432h960M0 486h960M96 0v540M192 0v540M288 0v540M384 0v540M480 0v540M576 0v540M672 0v540M768 0v540M864 0v540"/></g>
+  <path d="M260 270c48-70 126-116 216-124 116-10 216 50 262 146-74-38-148-46-228-18-84 30-160 24-250-4z" fill="#d7dfd2"/>
+  <path d="M238 294c98 32 194 38 288 8 84-27 154-20 230 28" fill="none" stroke="#486b5b" stroke-width="2"/>
+  <g fill="#9e3b34">
+    <circle cx="396" cy="238" r="13"/><circle cx="622" cy="288" r="17"/><circle cx="518" cy="194" r="9"/><circle cx="704" cy="342" r="10"/>
+  </g>
+  <g fill="#22252b" font-family="monospace">
+    <text x="38" y="56" font-size="18" letter-spacing="7">OUTBREAKS</text>
+    <text x="38" y="86" font-size="10" opacity=".58" letter-spacing="3">GLOBAL EPIDEMIC INTELLIGENCE</text>
+    <text x="656" y="488" font-size="11" opacity=".58" letter-spacing="3">WHO / CDC / RISK</text>
+  </g>
+</svg>
