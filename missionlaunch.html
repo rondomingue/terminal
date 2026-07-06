@@ -9,20 +9,20 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#05070a;
-    --panel:#0a0e13;
-    --panel2:#0d131a;
-    --line:rgba(181,218,226,.19);
-    --line2:rgba(181,218,226,.08);
-    --ink:#d9e4df;
-    --muted:#7f908d;
-    --faint:#465353;
-    --cyan:#55d6e8;
-    --cyan2:#87f4ff;
-    --amber:#f7a63a;
-    --red:#ff4a48;
-    --green:#91e8b3;
-    --white:#fff8e8;
+    --bg:#030505;
+    --panel:#090c0b;
+    --panel2:#101311;
+    --line:rgba(218,216,200,.16);
+    --line2:rgba(218,216,200,.07);
+    --ink:#deddd0;
+    --muted:#8d9188;
+    --faint:#4b504b;
+    --cyan:#b8d8d2;
+    --cyan2:#e4f6ef;
+    --amber:#c99048;
+    --red:#d34d3f;
+    --green:#a7c9a9;
+    --white:#fff7e7;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   html,body{width:100%;min-height:100%;background:var(--bg);color:var(--ink);overflow:hidden;}
@@ -30,8 +30,9 @@
     font-family:'Rajdhani','Arial Narrow',Arial,sans-serif;
     letter-spacing:.03em;
     background:
-      radial-gradient(circle at 48% 35%,rgba(35,80,88,.16),transparent 34%),
-      linear-gradient(180deg,#061019 0%,#05070a 54%,#030405 100%);
+      radial-gradient(circle at 63% 20%,rgba(214,207,181,.13),transparent 28%),
+      radial-gradient(circle at 46% 42%,rgba(58,67,62,.18),transparent 42%),
+      linear-gradient(180deg,#080b0b 0%,#030505 58%,#020303 100%);
   }
   body::before{
     content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.52;
@@ -53,12 +54,12 @@
     mix-blend-mode:screen;
   }
   .viz-wrap::after{
-    content:'';position:absolute;inset:0;z-index:4;pointer-events:none;opacity:.16;mix-blend-mode:screen;
+    content:'';position:absolute;inset:0;z-index:4;pointer-events:none;opacity:.2;mix-blend-mode:screen;
     background:
       repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,transparent 1px 3px),
       radial-gradient(circle at 18% 24%,rgba(255,255,255,.11),transparent 1px),
       radial-gradient(circle at 71% 62%,rgba(255,255,255,.08),transparent 1px),
-      radial-gradient(circle at 42% 76%,rgba(247,166,58,.07),transparent 1px);
+      radial-gradient(circle at 42% 76%,rgba(201,144,72,.08),transparent 1px);
   }
   button,input{font:inherit;color:inherit;}
   button{border:0;background:none;cursor:pointer;}
@@ -117,7 +118,7 @@
   .badge{font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--amber);text-align:right;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .main{grid-column:2;grid-row:1;display:grid;grid-template-rows:1fr 74px;padding:0;}
   .viz-wrap{position:relative;min-height:0;}
-  #globe-stage{position:absolute;inset:0;overflow:hidden;}
+  #globe-stage{position:absolute;inset:0;overflow:hidden;cursor:crosshair;}
   #globe-stage canvas{display:block;width:100%!important;height:100%!important;}
   #mission-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
   .earth-tabs{
@@ -125,11 +126,19 @@
     font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
   }
   .earth-tabs span{border:1px solid var(--line2);background:rgba(12,27,36,.72);padding:7px 13px;min-width:92px;text-align:center;}
-  .earth-tabs .active{color:var(--white);border-color:rgba(85,214,232,.58);background:rgba(85,214,232,.16);box-shadow:0 0 16px rgba(85,214,232,.12);}
+  .earth-tabs .active{color:var(--white);border-color:rgba(218,216,200,.42);background:rgba(218,216,200,.1);box-shadow:0 0 18px rgba(255,247,231,.08);}
   .globe-caption{
     position:absolute;left:16px;top:44px;z-index:6;font-family:'IBM Plex Mono',monospace;font-size:8px;line-height:1.7;
     color:rgba(217,228,223,.58);letter-spacing:.12em;text-transform:uppercase;max-width:260px;
   }
+  .object-strip{
+    position:absolute;right:15px;top:48px;z-index:6;display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end;max-width:310px;
+  }
+  .object-chip{
+    border:1px solid rgba(218,216,200,.14);background:rgba(3,5,5,.55);color:rgba(218,216,200,.58);
+    padding:5px 7px;font-family:'IBM Plex Mono',monospace;font-size:7.5px;letter-spacing:.1em;text-transform:uppercase;
+  }
+  .object-chip:hover,.object-chip.active{color:var(--white);border-color:rgba(255,247,231,.42);background:rgba(255,247,231,.08);}
   .viz-readout{
     position:absolute;left:16px;bottom:14px;display:grid;grid-template-columns:repeat(4,auto);gap:9px;
     font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.09em;text-transform:uppercase;
@@ -157,7 +166,7 @@
   .bar{display:grid;grid-template-columns:88px 1fr 24px;gap:8px;align-items:center;font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--muted);text-transform:uppercase;}
   .bar span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .track{height:5px;background:rgba(255,255,255,.06);position:relative;overflow:hidden;}
-  .track i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--amber));}
+  .track i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--white),var(--amber));}
   .notes{overflow:auto;border-top:1px solid var(--line2);padding-top:9px;font-family:'IBM Plex Mono',monospace;font-size:9px;line-height:1.55;color:var(--muted);}
   .notes b{color:var(--white);font-weight:500;}
   .timeline{grid-column:2;grid-row:2;padding:34px 12px 10px;display:flex;flex-direction:column;}
@@ -237,10 +246,11 @@
     </aside>
 
     <section class="panel main">
-      <div class="panel-label">Orbital Schedule Map</div>
+      <div class="panel-label">Orbital Object Map</div>
       <div class="viz-wrap">
         <div class="earth-tabs"><span>Continental</span><span>Bathymetry</span><span class="active">Population Density</span></div>
-        <div class="globe-caption">NASA GIBS orbital texture / satellite shell / launch-window relay</div>
+        <div class="globe-caption">NASA GIBS orbital texture / click spacecraft markers / launch-window relay</div>
+        <div class="object-strip" id="object-strip"></div>
         <div id="globe-stage"></div>
         <canvas id="mission-canvas"></canvas>
         <div class="viz-readout">
@@ -266,15 +276,15 @@
 
     <section class="right">
       <article class="panel detail">
-        <div class="panel-label">Selected Mission</div>
+        <div class="panel-label" id="detail-label">Selected Mission</div>
         <div class="mission-image" id="mission-image"></div>
         <div class="detail-grid">
-          <div class="drow"><span>Mission</span><b id="d-name">--</b></div>
-          <div class="drow"><span>Provider</span><b id="d-provider">--</b></div>
-          <div class="drow"><span>Vehicle</span><b id="d-vehicle">--</b></div>
-          <div class="drow"><span>Pad</span><b id="d-pad">--</b></div>
-          <div class="drow"><span>Window</span><b id="d-window">--</b></div>
-          <div class="drow"><span>Status</span><b id="d-status">--</b></div>
+          <div class="drow"><span id="d-label-name">Mission</span><b id="d-name">--</b></div>
+          <div class="drow"><span id="d-label-provider">Provider</span><b id="d-provider">--</b></div>
+          <div class="drow"><span id="d-label-vehicle">Vehicle</span><b id="d-vehicle">--</b></div>
+          <div class="drow"><span id="d-label-pad">Pad</span><b id="d-pad">--</b></div>
+          <div class="drow"><span id="d-label-window">Window</span><b id="d-window">--</b></div>
+          <div class="drow"><span id="d-label-status">Status</span><b id="d-status">--</b></div>
         </div>
       </article>
       <article class="panel agency">
@@ -325,8 +335,15 @@ const filters=[
   ['commercial','Commercial'],
   ['agency','NASA / JPL / ESA']
 ];
-let missions=[],filtered=[],selected=null,activeFilter='all',query='',frame=0;
+let missions=[],filtered=[],selected=null,selectedObject=null,activeFilter='all',query='',frame=0;
 const $=id=>document.getElementById(id);
+const SPACE_OBJECTS=[
+  {id:'iss',name:'ISS',operator:'NASA / Roscosmos / ESA / JAXA / CSA',class:'Crewed station',orbit:'Low Earth orbit',alt:'408 km',inclination:'51.6 deg',period:'92.9 min',status:'Active',color:0xfff7e7,phase:.4,speed:.012,rx:1.94,ry:1.9,tilt:[-.22,.34,.68],description:'International Space Station. Crewed orbital laboratory and active spacecraft traffic node in low Earth orbit.'},
+  {id:'hubble',name:'Hubble Space Telescope',operator:'NASA / ESA',class:'Observatory',orbit:'Low Earth orbit',alt:'535 km',inclination:'28.5 deg',period:'95.4 min',status:'Active',color:0xcfd8d3,phase:1.7,speed:.009,rx:2.04,ry:1.98,tilt:[-.1,.42,-.16],description:'Optical observatory in low Earth orbit. Included as a persistent science object layer independent of launch windows.'},
+  {id:'jwst',name:'JWST',operator:'NASA / ESA / CSA',class:'Space telescope',orbit:'Sun-Earth L2',alt:'1.5M km',inclination:'Halo orbit',period:'~6 months',status:'Active',color:0xc99048,phase:2.8,speed:.003,rx:2.42,ry:2.2,tilt:[.08,-.2,.24],description:'James Webb Space Telescope, operating near Sun-Earth L2. Rendered as a high-altitude reference object rather than true scale.'},
+  {id:'sentinel',name:'Sentinel Relay',operator:'ESA / Copernicus',class:'Earth observation',orbit:'Sun-synchronous',alt:'786 km',inclination:'98.6 deg',period:'100.6 min',status:'Active',color:0xb8d8d2,phase:3.4,speed:.0085,rx:2.13,ry:2.02,tilt:[.46,.1,-.55],description:'Representative Sentinel-class Earth-observation spacecraft layer for MissionLaunch science traffic context.'},
+  {id:'tdrs',name:'TDRS Node',operator:'NASA',class:'Relay satellite',orbit:'Geosynchronous',alt:'35,786 km',inclination:'Geosynchronous',period:'23.9 hr',status:'Active',color:0xd34d3f,phase:4.6,speed:.0022,rx:2.7,ry:2.58,tilt:[.02,.16,.05],description:'Tracking and Data Relay Satellite reference node. Useful for showing communications infrastructure around launches and missions.'}
+];
 
 function agencyName(text=''){
   const t=text.toLowerCase();
@@ -424,12 +441,20 @@ function filterMatch(m){
 function applyFilters(){
   filtered=missions.filter(filterMatch);
   if(!filtered.includes(selected)) selected=filtered[0]||missions[0]||null;
-  renderFilters();renderList();renderStats();renderDetail();renderTimeline();renderAgencyBars();
+  renderFilters();renderList();renderStats();renderDetail();renderTimeline();renderAgencyBars();renderObjectStrip();
   syncMissionSatellites();
 }
 function renderFilters(){
   $('filters').innerHTML=filters.map(([id,label])=>`<button class="filter ${id===activeFilter?'active':''}" data-id="${id}">${label}</button>`).join('');
   document.querySelectorAll('.filter').forEach(b=>b.onclick=()=>{activeFilter=b.dataset.id;applyFilters();});
+}
+function renderObjectStrip(){
+  const strip=$('object-strip');
+  if(!strip) return;
+  strip.innerHTML=SPACE_OBJECTS.map(o=>`<button class="object-chip ${selectedObject?.id===o.id?'active':''}" data-id="${o.id}">${escapeHtml(o.name)}</button>`).join('');
+  strip.querySelectorAll('.object-chip').forEach(btn=>btn.onclick=()=>{
+    selectSpaceObject(btn.dataset.id);
+  });
 }
 function shortDate(d){
   const date=new Date(d);
@@ -446,7 +471,9 @@ function renderList(){
     </div>`;
   }).join('');
   document.querySelectorAll('.mission-row').forEach(row=>row.onclick=()=>{
-    selected=missions.find(m=>String(m.id)===String(row.dataset.id));renderList();renderDetail();renderTimeline();renderAgencyBars();syncMissionSatellites();
+    selected=missions.find(m=>String(m.id)===String(row.dataset.id));
+    selectedObject=null;
+    renderList();renderDetail();renderTimeline();renderAgencyBars();renderObjectStrip();syncMissionSatellites();
   });
 }
 function renderStats(){
@@ -464,8 +491,16 @@ function renderStats(){
   }
 }
 function renderDetail(){
+  if(selectedObject){ renderObjectDetail(selectedObject); return; }
   if(!selected) return;
   const d=shortDate(selected.net);
+  $('detail-label').textContent='Selected Mission';
+  $('d-label-name').textContent='Mission';
+  $('d-label-provider').textContent='Provider';
+  $('d-label-vehicle').textContent='Vehicle';
+  $('d-label-pad').textContent='Pad';
+  $('d-label-window').textContent='Window';
+  $('d-label-status').textContent='Status';
   $('count-title').textContent=selected.name;
   $('count-agency').textContent=`${selected.agency} / ${selected.type}`;
   $('ro-agency').textContent=selected.agency;
@@ -482,6 +517,38 @@ function renderDetail(){
   $('mission-image').style.backgroundImage=selected.image?`url("${selected.image}")`:radarBackground(selected.agency);
   $('mission-notes').innerHTML=`<b>${escapeHtml(selected.name)}</b><br>${escapeHtml(selected.description)}<br><br><b>Coverage note:</b> payload depth depends on the launch record. Timing, vehicle, provider and pad are tracked first; instrument-level details can be layered in from agency-specific feeds next.`;
 }
+function renderObjectDetail(obj){
+  $('detail-label').textContent='Selected Spacecraft';
+  $('d-label-name').textContent='Object';
+  $('d-label-provider').textContent='Operator';
+  $('d-label-vehicle').textContent='Class';
+  $('d-label-pad').textContent='Orbit';
+  $('d-label-window').textContent='Altitude';
+  $('d-label-status').textContent='Status';
+  $('count-title').textContent=obj.name;
+  $('count-agency').textContent=`${obj.operator} / ${obj.class}`;
+  $('ro-agency').textContent=obj.operator.split('/')[0].trim();
+  $('ro-window').textContent=obj.period;
+  $('ro-type').textContent=obj.class;
+  $('ro-provider').textContent=obj.operator.split('/')[0].trim();
+  $('d-name').textContent=obj.name;
+  $('d-provider').textContent=obj.operator;
+  $('d-vehicle').textContent=obj.class;
+  $('d-pad').textContent=obj.orbit;
+  $('d-window').textContent=obj.alt;
+  $('d-status').textContent=obj.status;
+  $('d-status').className=obj.status==='Active'?'good':'warn';
+  $('mission-image').style.backgroundImage=objectBackground(obj);
+  $('mission-notes').innerHTML=`<b>${escapeHtml(obj.name)}</b><br>${escapeHtml(obj.description)}<br><br><b>Orbit:</b> ${escapeHtml(obj.orbit)} / ${escapeHtml(obj.inclination)} / ${escapeHtml(obj.period)}.`;
+}
+function selectSpaceObject(id){
+  const obj=SPACE_OBJECTS.find(o=>o.id===id);
+  if(!obj) return false;
+  selectedObject=obj;
+  renderList();renderDetail();renderTimeline();renderAgencyBars();renderObjectStrip();syncMissionSatellites();
+  return true;
+}
+window.MissionLaunchSelectObject=selectSpaceObject;
 function renderAgencyBars(){
   const counts={};
   filtered.forEach(m=>counts[m.agency]=(counts[m.agency]||0)+1);
@@ -517,9 +584,13 @@ function updateTimer(){
 function radarBackground(seed){
   return `radial-gradient(circle at 50% 50%,rgba(85,214,232,.24),transparent 2px),linear-gradient(135deg,rgba(85,214,232,.16),rgba(247,166,58,.08)),#030507`;
 }
+function objectBackground(obj){
+  const hex=obj.color.toString(16).padStart(6,'0');
+  return `radial-gradient(circle at 28% 48%,#${hex} 0 2px,transparent 3px),radial-gradient(circle at 72% 35%,rgba(255,247,231,.7) 0 1px,transparent 2px),radial-gradient(circle at 50% 58%,rgba(255,247,231,.12),transparent 36%),linear-gradient(135deg,rgba(218,216,200,.08),rgba(3,5,5,.78)),repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 1px,transparent 1px 26px),#030505`;
+}
 function escapeHtml(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 
-let globeRenderer=null,globeScene=null,globeCamera=null,globeGroup=null,earthMesh=null,satelliteShell=null;
+let globeRenderer=null,globeScene=null,globeCamera=null,globeGroup=null,earthMesh=null,satelliteShell=null,globeRaycaster=null,globePointer=null;
 const satelliteNodes=[];
 const cityNodes=[
   [40.7128,-74.006,.9],[34.0522,-118.2437,.78],[37.7749,-122.4194,.62],[29.7604,-95.3698,.52],[28.3922,-80.6077,.86],
@@ -606,6 +677,9 @@ function initGlobe(){
   globeRenderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));
   globeRenderer.setClearColor(0x000000,0);
   stage.appendChild(globeRenderer.domElement);
+  globeRaycaster=new THREE.Raycaster();
+  globePointer=new THREE.Vector2();
+  globeRenderer.domElement.addEventListener('click',handleGlobeClick);
   globeScene=new THREE.Scene();
   globeCamera=new THREE.PerspectiveCamera(38,1,.1,100);
   globeCamera.position.set(0,.18,5.85);
@@ -646,19 +720,48 @@ function resizeGlobe(){
 function syncMissionSatellites(){
   if(!satelliteShell) return;
   satelliteShell.clear();satelliteNodes.length=0;
-  const list=(filtered.length?filtered:missions).slice(0,14);
-  list.forEach((m,i)=>{
-    const isSelected=m.id===selected?.id;
-    const tilt=[-.36+(i%5)*.12,(i%4)*.19,(i%6)*.31];
-    const orbit=makeOrbitLine(2.08+(i%4)*.12,2.08+(i%4)*.06,tilt,isSelected?0xf7a63a:0x87f4ff,isSelected?0.42:0.22);
+  const objects=SPACE_OBJECTS.map(o=>({kind:'object',data:o}));
+  const launchNodes=(filtered.length?filtered:missions).slice(0,11).map(m=>({kind:'mission',data:m}));
+  [...objects,...launchNodes].forEach((entry,i)=>{
+    const m=entry.data;
+    const isObject=entry.kind==='object';
+    const isSelected=isObject?selectedObject?.id===m.id:(!selectedObject&&m.id===selected?.id);
+    const tilt=isObject?m.tilt:[-.36+(i%5)*.12,(i%4)*.19,(i%6)*.31];
+    const rx=isObject?m.rx:2.08+(i%4)*.12;
+    const ry=isObject?m.ry:2.08+(i%4)*.06;
+    const color=isObject?m.color:(/crew/i.test(m.type)?0xd34d3f:0xb8d8d2);
+    const orbit=makeOrbitLine(rx,ry,tilt,isSelected?0xfff7e7:color,isSelected?0.5:(isObject?0.24:0.14));
     satelliteShell.add(orbit);
-    const sat=new THREE.Mesh(new THREE.SphereGeometry(isSelected?0.022:0.012,12,12),new THREE.MeshBasicMaterial({
-      color:isSelected?0xf7a63a:/crew/i.test(m.type)?0xff4a48:0x87f4ff,
-      transparent:true,opacity:isSelected?0.82:0.58,blending:THREE.AdditiveBlending
+    const sat=new THREE.Mesh(new THREE.SphereGeometry(isSelected?0.03:(isObject?0.018:0.011),14,14),new THREE.MeshBasicMaterial({
+      color:isSelected?0xfff7e7:color,
+      transparent:true,opacity:isSelected?0.9:(isObject?0.68:0.48),blending:THREE.AdditiveBlending
     }));
+    sat.userData.target=entry;
+    const pick=new THREE.Mesh(new THREE.SphereGeometry(0.095,10,10),new THREE.MeshBasicMaterial({
+      color:0xffffff,transparent:true,opacity:0,depthWrite:false
+    }));
+    pick.userData.target=entry;
     satelliteShell.add(sat);
-    satelliteNodes.push({mesh:sat,rx:2.08+(i%4)*.12,ry:2.08+(i%4)*.06,tilt,speed:.006+i*.0007,phase:i*.77,mission:m});
+    satelliteShell.add(pick);
+    satelliteNodes.push({mesh:sat,pick,rx,ry,tilt,speed:isObject?m.speed:.006+i*.0007,phase:isObject?m.phase:i*.77,target:entry});
   });
+}
+function handleGlobeClick(e){
+  if(!globeRaycaster||!globeCamera||!satelliteNodes.length) return;
+  const rect=globeRenderer.domElement.getBoundingClientRect();
+  globePointer.x=((e.clientX-rect.left)/rect.width)*2-1;
+  globePointer.y=-((e.clientY-rect.top)/rect.height)*2+1;
+  globeRaycaster.setFromCamera(globePointer,globeCamera);
+  const hits=globeRaycaster.intersectObjects(satelliteNodes.map(n=>n.pick),false);
+  if(!hits.length) return;
+  const target=hits[0].object.userData.target;
+  if(target.kind==='object'){
+    selectedObject=target.data;
+  }else{
+    selected=target.data;
+    selectedObject=null;
+  }
+  renderList();renderDetail();renderTimeline();renderAgencyBars();renderObjectStrip();syncMissionSatellites();
 }
 function animateGlobe(){
   if(!globeRenderer) return;
@@ -668,6 +771,8 @@ function animateGlobe(){
     s.mesh.position.set(Math.cos(t)*s.rx,0,Math.sin(t)*s.ry);
     s.mesh.rotation.set(s.tilt[0],s.tilt[1],s.tilt[2]);
     s.mesh.position.applyEuler(new THREE.Euler(s.tilt[0],s.tilt[1],s.tilt[2]));
+    s.pick.position.copy(s.mesh.position);
+    s.pick.rotation.copy(s.mesh.rotation);
   });
   globeRenderer.render(globeScene,globeCamera);
 }
@@ -694,22 +799,22 @@ function drawCanvas(){
   ctx.strokeStyle='rgba(181,218,226,.065)';ctx.lineWidth=1;
   for(let x=0;x<w;x+=42){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}
   for(let y=0;y<h;y+=42){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
-  ctx.strokeStyle='rgba(135,244,255,.22)';ctx.lineWidth=1;
+  ctx.strokeStyle='rgba(218,216,200,.16)';ctx.lineWidth=1;
   for(let i=0;i<4;i++){ctx.beginPath();ctx.arc(cx,cy,r*(.82+i*.18),0,Math.PI*2);ctx.stroke();}
-  ctx.strokeStyle='rgba(255,248,232,.18)';
+  ctx.strokeStyle='rgba(255,248,232,.14)';
   for(let i=0;i<4;i++){ctx.beginPath();ctx.ellipse(cx,cy,r*(1.18+i*.24),r*(.36+i*.06),-.18+i*.14,0,Math.PI*2);ctx.stroke();}
   ctx.save();ctx.translate(cx,cy);ctx.rotate(frame*.0022);
-  ctx.strokeStyle='rgba(247,166,58,.72)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,r*1.24,-.4,.28);ctx.stroke();
-  ctx.strokeStyle='rgba(85,214,232,.65)';ctx.beginPath();ctx.arc(0,0,r*1.05,2.55,3.55);ctx.stroke();
+  ctx.strokeStyle='rgba(201,144,72,.62)';ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(0,0,r*1.24,-.4,.28);ctx.stroke();
+  ctx.strokeStyle='rgba(218,216,200,.44)';ctx.beginPath();ctx.arc(0,0,r*1.05,2.55,3.55);ctx.stroke();
   ctx.restore();
-  const list=filtered.slice(0,16);
+  const list=selectedObject?SPACE_OBJECTS:filtered.slice(0,16);
   list.forEach((m,i)=>{
     const t=(i/list.length)*Math.PI*2+frame*.0018;
     const rr=r*(1.12+(i%4)*.13);
     const x=cx+Math.cos(t)*rr*1.24,y=cy+Math.sin(t)*rr*.38;
-    const sel=m.id===selected?.id;
-    ctx.strokeStyle=sel?'rgba(247,166,58,.76)':'rgba(85,214,232,.18)';
-    ctx.fillStyle=sel?'rgba(247,166,58,.95)':m.type.toLowerCase().includes('crew')?'rgba(255,74,72,.86)':'rgba(135,244,255,.75)';
+    const sel=selectedObject?m.id===selectedObject.id:m.id===selected?.id;
+    ctx.strokeStyle=sel?'rgba(255,247,231,.72)':'rgba(218,216,200,.13)';
+    ctx.fillStyle=sel?'rgba(255,247,231,.95)':(m.type||m.class||'').toLowerCase().includes('crew')?'rgba(211,77,63,.72)':'rgba(218,216,200,.52)';
     ctx.lineWidth=sel?1.5:1;
     if(sel){ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(x,y);ctx.stroke();}
     ctx.beginPath();ctx.arc(x,y,sel?2.8:1.35,0,Math.PI*2);ctx.fill();
@@ -718,13 +823,17 @@ function drawCanvas(){
       ctx.beginPath();ctx.arc(x,y,12+Math.sin(frame*.05)*2,0,Math.PI*2);ctx.stroke();
     }
   });
-  if(selected){
-    ctx.strokeStyle='rgba(247,166,58,.42)';ctx.fillStyle='rgba(5,14,18,.55)';
+  const callout=selectedObject||selected;
+  if(callout){
+    ctx.strokeStyle='rgba(201,144,72,.38)';ctx.fillStyle='rgba(3,5,5,.62)';
     const bx=cx-r*.53,by=cy+r*.15,bw=210,bh=92;
     ctx.strokeRect(bx,by,bw,bh);ctx.fillRect(bx,by,bw,bh);
-    ctx.fillStyle='rgba(255,248,232,.82)';ctx.font='10px IBM Plex Mono, monospace';ctx.fillText(selected.agency+' / '+selected.type,bx+12,by+22);
-    ctx.fillStyle='rgba(85,214,232,.76)';ctx.fillText(new Date(selected.net).toISOString().slice(0,16)+'Z',bx+12,by+43);
-    ctx.fillStyle='rgba(247,166,58,.86)';ctx.fillText(selected.vehicle.slice(0,27),bx+12,by+64);
+    ctx.fillStyle='rgba(255,248,232,.82)';ctx.font='10px IBM Plex Mono, monospace';
+    ctx.fillText(selectedObject?`${callout.operator.split('/')[0].trim()} / ${callout.class}`:`${callout.agency} / ${callout.type}`,bx+12,by+22);
+    ctx.fillStyle='rgba(218,216,200,.76)';
+    ctx.fillText(selectedObject?`${callout.orbit} / ${callout.alt}`:new Date(callout.net).toISOString().slice(0,16)+'Z',bx+12,by+43);
+    ctx.fillStyle='rgba(201,144,72,.86)';
+    ctx.fillText((selectedObject?callout.name:callout.vehicle).slice(0,27),bx+12,by+64);
   }
   ctx.fillStyle='rgba(255,248,232,.72)';
   ctx.font='10px IBM Plex Mono, monospace';
@@ -736,6 +845,7 @@ function drawCanvas(){
 $('search').addEventListener('input',e=>{query=e.target.value.trim().toLowerCase();applyFilters();});
 window.addEventListener('resize',resizeCanvas);
 renderFilters();
+renderObjectStrip();
 initGlobe();
 resizeCanvas();
 drawCanvas();
