@@ -83,7 +83,7 @@
   .brand{font-family:var(--sans);font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:var(--muted);font-weight:400}
   .brand b{font-weight:600;color:var(--ink)}
   .title-mark{
-    font-family:var(--serif);font-size:clamp(34px,4vw,56px);line-height:.9;font-weight:400;letter-spacing:.015em;
+    font-family:var(--serif);font-size:clamp(34px,4vw,56px);line-height:.9;font-weight:300;letter-spacing:.015em;
     text-align:center;color:var(--ink);
   }
   .tools{display:flex;gap:8px;justify-content:flex-end;align-items:center;flex-wrap:wrap}
@@ -96,6 +96,9 @@
   .mode-btn{padding:6px 9px;font-family:var(--sans);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:500}
   .mode-btn.active{background:var(--accent);color:#fff}
   [data-theme="dark"] .mode-btn.active{color:#1b120e}
+  .quiz-controls{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+  .quiz-controls .mode-switch{width:100%}
+  .quiz-controls .mode-btn{flex:1}
   .layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,340px);gap:18px;min-height:0;width:100%}
   .quiz{
     display:grid;grid-template-columns:minmax(210px,270px) minmax(0,1fr);gap:18px;min-height:0;min-width:0;
@@ -122,7 +125,7 @@
   .question-meta{font-family:var(--sans);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:500}
   .word-panel{position:relative;z-index:1;padding:clamp(28px,4vw,42px) clamp(20px,4vw,42px) 18px;text-align:center;min-width:0}
   .word{
-    font-family:var(--serif);font-weight:400;font-size:clamp(54px,8.2vw,132px);line-height:.9;letter-spacing:-.032em;
+    font-family:var(--serif);font-weight:var(--word-weight,400);font-size:clamp(54px,8.2vw,132px);line-height:.9;letter-spacing:-.032em;
     color:var(--ink);font-feature-settings:"liga" 1,"kern" 1;overflow-wrap:anywhere;text-wrap:balance;
   }
   .pronounce{margin-top:18px;font-family:var(--sans);font-size:12px;letter-spacing:.14em;color:var(--muted);font-weight:400}
@@ -134,7 +137,7 @@
   }
   .answer:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--accent) 55%,var(--line));}
   .answer b{display:block;font-family:var(--sans);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;font-weight:600}
-  .answer span{font-size:18px;line-height:1.34;color:var(--ink)}
+  .answer span{font-size:18px;line-height:1.34;color:var(--ink);font-weight:400}
   .answer.correct{border-color:var(--good);background:color-mix(in srgb,var(--good) 14%,var(--sheet))}
   .answer.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 13%,var(--sheet))}
   .answer[disabled]{cursor:default}
@@ -148,15 +151,18 @@
   .share-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
   .share-btn{border:1px solid var(--line);background:color-mix(in srgb,var(--sheet-2) 70%,transparent);padding:11px 13px;font-family:var(--sans);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);font-weight:600}
   .share-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .icon-btn{display:inline-flex;align-items:center;gap:8px}
+  .social-icon{width:14px;height:14px;display:block;stroke:currentColor;fill:none;stroke-width:1.8}
+  .social-icon.fill{fill:currentColor;stroke:none}
   [data-theme="dark"] .next{color:#1b120e}
   .side{display:grid;grid-template-rows:auto 1fr;gap:18px;min-height:0}
   .side-card{padding:20px}
   .specimen{min-height:292px;position:relative;overflow:hidden}
   .type-sample{margin-top:18px;display:grid;gap:14px}
-  .type-sample .display-line{font-family:var(--serif);font-size:clamp(54px,6vw,86px);line-height:.9;letter-spacing:-.035em;color:var(--accent)}
+  .type-sample .display-line{font-family:var(--serif);font-size:clamp(54px,6vw,86px);line-height:.9;letter-spacing:-.035em;color:var(--accent);font-weight:500}
   .type-sample .display-line span{color:var(--ink)}
   .type-sample .sans-line{font-family:var(--sans);font-size:clamp(28px,3.2vw,43px);font-weight:300;line-height:1;letter-spacing:.12em;text-transform:uppercase;color:var(--ink)}
-  .type-sample .italic-line{font-family:var(--text);font-size:26px;line-height:1.1;font-style:italic;color:var(--ink-2)}
+  .type-sample .italic-line{font-family:var(--text);font-size:26px;line-height:1.1;font-style:italic;color:var(--ink-2);font-weight:400}
   .type-sample .rule{height:1px;background:linear-gradient(90deg,var(--accent),transparent)}
   .specimen p{font-size:17px;line-height:1.55;color:var(--ink-2);margin-top:16px}
   .library{min-height:0;overflow:auto}
@@ -192,7 +198,7 @@
   @media(max-width:820px){
     .quiz{grid-template-columns:1fr}
     .rail{display:grid;grid-template-columns:1fr 1fr;align-items:start}
-    .scoreline{grid-column:1/-1}
+    .scoreline,.quiz-controls{grid-column:1/-1}
     .tier-list{grid-template-columns:1fr 1fr}
     .title-mark{font-size:clamp(30px,7vw,48px)}
   }
@@ -207,7 +213,7 @@
   }
   @media(max-width:430px){
     .brand{font-size:9px;letter-spacing:.18em}.small-btn,.mode-btn{font-size:9px}.mode-switch{width:100%}
-    .tools{width:100%}.small-btn{flex:1}.mode-switch{order:3}.mode-btn{flex:1}
+    .tools{width:100%}.small-btn{flex:1}.mode-switch{order:3}.mode-btn{flex:1}.quiz-controls{grid-template-columns:1fr}.quiz-controls .small-btn{width:100%}
     .word{font-size:clamp(42px,17vw,68px)}.pronounce{font-size:10px;letter-spacing:.08em}.prompt{font-size:17px}
     .tier-list{grid-template-columns:1fr}.side-card{padding:16px}.type-sample .display-line{font-size:52px}.type-sample .sans-line{font-size:26px}.type-sample .italic-line{font-size:22px}
   }
@@ -219,12 +225,7 @@
     <div class="brand"><b>LEXICON</b> / Vocabulary Observatory</div>
     <div class="title-mark">How many words do you know?</div>
     <div class="tools">
-      <div class="mode-switch" aria-label="Quiz length">
-        <button class="mode-btn active" data-mode="25">25 words</button>
-        <button class="mode-btn" data-mode="100">100 words</button>
-      </div>
       <button class="small-btn" id="theme">Dark</button>
-      <button class="small-btn" id="restart">Restart</button>
     </div>
   </header>
 
@@ -235,6 +236,13 @@
           <div class="kicker">Question</div>
           <div class="progress-num"><span id="q-num">01</span><small id="q-total">/25</small></div>
           <div class="meter"><i id="meter"></i></div>
+        </div>
+        <div class="quiz-controls">
+          <div class="mode-switch" aria-label="Quiz length">
+            <button class="mode-btn active" data-mode="25">25 words</button>
+            <button class="mode-btn" data-mode="100">100 words</button>
+          </div>
+          <button class="small-btn" id="restart">Restart</button>
         </div>
         <div class="tier-list" id="tier-list"></div>
         <div class="scoreline"><b>Current estimate</b><br><span id="live-estimate">Begin the instrument.</span></div>
@@ -287,9 +295,22 @@
     <div class="estimate"><span id="estimate">0</span> <small>words</small></div>
     <p class="result-copy" id="verdict"></p>
     <div class="share-row">
-      <button class="share-btn" id="share-native">Share result</button>
-      <button class="share-btn" id="share-x">Post to X</button>
-      <button class="share-btn" id="share-copy-btn">Copy text</button>
+      <button class="share-btn icon-btn" id="share-native" aria-label="Share result">
+        <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 12h8M12 8v8M7 4h10a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3Z"/></svg>
+        <span>Share</span>
+      </button>
+      <button class="share-btn icon-btn" id="share-facebook" aria-label="Share on Facebook">
+        <svg class="social-icon fill" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.4 8.1h2.1V4.6c-.4-.1-1.7-.2-3.2-.2-3.2 0-5.3 1.9-5.3 5.5V13H4.5v3.9H8V24h4.3v-7.1h3.4l.5-3.9h-3.9V10.3c0-1.1.3-2.2 2.1-2.2Z"/></svg>
+        <span>Facebook</span>
+      </button>
+      <button class="share-btn icon-btn" id="share-instagram" aria-label="Copy for Instagram">
+        <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4"/><circle cx="12" cy="12" r="3.5"/><circle cx="17" cy="7" r="1"/></svg>
+        <span>Instagram</span>
+      </button>
+      <button class="share-btn icon-btn" id="share-copy-btn" aria-label="Copy result">
+        <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8h10v12H8z"/><path d="M6 16H4V4h12v2"/></svg>
+        <span>Copy</span>
+      </button>
     </div>
     <p class="result-copy" id="share-copy" style="font-size:15px;margin-top:12px;color:var(--muted)"></p>
     <div class="breakdown" id="breakdown"></div>
@@ -404,18 +425,56 @@ const WORDS=[
 ['refulgent','rih-FUL-jent','adjective','shining brightly','Latin refulgere, shine back','radiant, gleaming','dim',5],
 ['sprezzatura','spret-sah-TOO-rah','noun','studied nonchalance that appears effortless','Italian, from sprezzare, disdain','effortless grace, ease','awkwardness',5]
 ];
+const EXTRA_WORDS=[
+['acumen','AK-yoo-men','noun','quick, accurate judgment','Latin acumen, sharp point','discernment, insight','obtuseness',1],
+['bolster','BOHL-ster','verb','to support or strengthen','Old English bolster, long pillow','support, reinforce','undermine',1],
+['coherent','koh-HEER-unt','adjective','logical and consistent','Latin cohaerere, stick together','orderly, connected','incoherent',1],
+['defer','dih-FUR','verb','to postpone or yield respectfully','Latin differre, carry apart','postpone, yield','hasten',1],
+['scrutiny','SKROO-tih-nee','noun','careful examination','Latin scrutari, search thoroughly','inspection, review','neglect',1],
+['adumbrate','AD-um-brayt','verb','to outline or foreshadow faintly','Latin adumbrare, cast a shadow','outline, foreshadow','clarify',2],
+['cogent','KOH-jent','adjective','clear, logical, and convincing','Latin cogere, drive together','convincing, forceful','unpersuasive',2],
+['diffident','DIF-ih-dent','adjective','modest or lacking self-confidence','Latin diffidere, mistrust','shy, hesitant','confident',2],
+['enervate','EN-er-vayt','verb','to drain of energy','Latin enervare, remove the sinews','weaken, sap','invigorate',2],
+['prosaic','proh-ZAY-ik','adjective','ordinary or lacking poetic beauty','Latin prosa, straightforward speech','plain, mundane','imaginative',2],
+['apocryphal','uh-PAH-kruh-ful','adjective','of doubtful authenticity','Greek apokryphos, hidden away','spurious, doubtful','verified',3],
+['caesura','sih-ZHUR-uh','noun','a pause or break, especially in a line of verse','Latin caedere, cut','pause, break','continuity',3],
+['exigent','EK-sih-jent','adjective','requiring immediate attention','Latin exigere, demand','urgent, pressing','nonurgent',3],
+['pellucid','puh-LOO-sid','adjective','transparently clear in meaning or appearance','Latin pellucidus, shining through','clear, limpid','murky',3],
+['salubrious','suh-LOO-bree-us','adjective','health-giving or wholesome','Latin saluber, healthful','healthy, beneficial','unhealthy',3],
+['apotheosis','uh-pah-thee-OH-sis','noun','the highest point or ideal example','Greek apotheoun, make divine','culmination, ideal','nadir',4],
+['contumely','KON-too-meh-lee','noun','insulting language or treatment','Latin contumelia, insult','abuse, scorn','respect',4],
+['eidetic','eye-DET-ik','adjective','marked by vivid mental imagery','Greek eidos, form','vivid, image-rich','hazy',4],
+['inchoate','in-KOH-it','adjective','just begun and not fully formed','Latin inchoare, begin','nascent, undeveloped','mature',4],
+['perspicacious','pur-spih-KAY-shus','adjective','having sharp insight','Latin perspicere, see through','perceptive, astute','obtuse',4],
+['aporia','uh-POR-ee-uh','noun','an expression of doubt or logical impasse','Greek aporos, without passage','uncertainty, impasse','certainty',5],
+['deipnosophist','dype-NAH-suh-fist','noun','a learned dinner-table conversationalist','Greek deipnon + sophistes, dinner sage','conversationalist, raconteur','boor',5],
+['eucatastrophe','yoo-kuh-TAS-truh-fee','noun','a sudden happy turn in a story','Greek eu + catastrophe, good overturning','fortunate reversal, rescue','disaster',5],
+['mumpsimus','MUMP-sih-mus','noun','a stubbornly held mistaken belief','Postclassical Latin mumpsimus, erroneous mass phrase','error, obstinacy','correction',5],
+['opsimath','AHP-sih-math','noun','a person who begins learning late in life','Greek opsi + manthanein, late learning','late learner, autodidact','prodigy',5]
+];
 const LEVELS=['Core','Intermediate','Advanced','Scholarly','Rare'];
+const WORD_BANK=[...WORDS,...EXTRA_WORDS];
 const state={index:0,correct:0,answered:false,answers:[],seen:[],mode:25,quiz:[]};
 const $=id=>document.getElementById(id);
 function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
 function buildQuiz(length=state.mode){
-  if(length===100) return [...WORDS];
-  return [1,2,3,4,5].flatMap(level=>shuffle(WORDS.filter(w=>w[7]===level)).slice(0,5));
+  const perLevel=length===100?20:5;
+  return [1,2,3,4,5].flatMap(level=>shuffle(WORD_BANK.filter(w=>w[7]===level)).slice(0,perLevel));
 }
 function optionSet(word){
-  const defs=shuffle(WORDS.filter(w=>w[7]===word[7]&&w[0]!==word[0]).map(w=>w[3])).slice(0,3);
-  while(defs.length<3) defs.push(shuffle(WORDS.filter(w=>w[0]!==word[0]).map(w=>w[3]))[0]);
+  const defs=shuffle(WORD_BANK.filter(w=>w[7]===word[7]&&w[0]!==word[0]).map(w=>w[3])).slice(0,4);
+  while(defs.length<4) defs.push(shuffle(WORD_BANK.filter(w=>w[0]!==word[0]).map(w=>w[3]))[0]);
   return shuffle([word[3],...defs]).map((text,i)=>({letter:String.fromCharCode(65+i),text,correct:text===word[3]}));
+}
+function escapeHtml(text){
+  return String(text).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+function usageSentence(word){
+  if(word[8]) return word[8];
+  const term=word[0];
+  if(word[2]==='verb') return `The editor asked whether the final paragraph could ${term} the argument without weakening it.`;
+  if(word[2]==='noun') return `The essay treated ${term} as the clue that made the whole passage intelligible.`;
+  return `Her ${term} phrasing made the sentence feel exact rather than merely decorative.`;
 }
 function estimate(){
   const answered=Math.max(1,state.answers.length);
@@ -442,6 +501,7 @@ function renderQuestion(){
   $('meter').style.width=`${(state.index/state.quiz.length)*100}%`;
   $('level-label').textContent=`${LEVELS[word[7]-1]} vocabulary`;
   $('score-label').textContent=`${state.correct} correct`;
+  document.documentElement.style.setProperty('--word-weight',[300,400,450,500,600][word[7]-1]);
   $('word').textContent=word[0];
   $('pronounce').textContent=`${word[1]} / ${word[2]}`;
   $('answers').innerHTML=optionSet(word).map(o=>`<button class="answer" data-correct="${o.correct}"><b>${o.letter}</b><span>${o.text}</span></button>`).join('');
@@ -464,7 +524,7 @@ function answer(btn,word){
     else if(b===btn) b.classList.add('wrong');
   });
   $('score-label').textContent=`${state.correct} correct`;
-  $('note').innerHTML=`<div class="note-copy"><b>${correct?'Correct':'Study note'}</b><span><strong>${word[0]}</strong>: ${word[3]}</span><span>Etymology: ${word[4]}. Neighbors: ${word[5]}. Antonym: ${word[6]}.</span></div><button class="next" id="next">${state.index===state.quiz.length-1?'View results':'Next word'}</button>`;
+  $('note').innerHTML=`<div class="note-copy"><b>${correct?'Correct':'Study note'}</b><span><strong>${escapeHtml(word[0])}</strong>: ${escapeHtml(word[3])}</span><span>Usage: “${escapeHtml(usageSentence(word))}”</span><span>Etymology: ${escapeHtml(word[4])}. Neighbors: ${escapeHtml(word[5])}. Antonym: ${escapeHtml(word[6])}.</span></div><button class="next" id="next">${state.index===state.quiz.length-1?'View results':'Next word'}</button>`;
   $('next').onclick=next;
   renderTiers();renderLibrary();
   $('live-estimate').textContent=`${estimate().toLocaleString()} words, provisional.`;
@@ -512,12 +572,19 @@ async function shareResult(){
   await navigator.clipboard?.writeText(`${text} ${url}`);
   $('share-copy').textContent='Result copied to clipboard.';
 }
-$('share-native').onclick=shareResult;
-$('share-x').onclick=()=>{
+function shareFacebook(){
   const url=encodeURIComponent(location.href.split('#')[0]);
-  const text=encodeURIComponent(shareText());
-  window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`,'_blank','noopener,noreferrer');
-};
+  const quote=encodeURIComponent(shareText());
+  window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${quote}`,'_blank','noopener,noreferrer');
+}
+async function shareInstagram(){
+  const url=location.href.split('#')[0];
+  await navigator.clipboard?.writeText(`${shareText()}\n\n${url}`);
+  $('share-copy').textContent='Caption copied for Instagram.';
+}
+$('share-native').onclick=shareResult;
+$('share-facebook').onclick=shareFacebook;
+$('share-instagram').onclick=shareInstagram;
 $('share-copy-btn').onclick=shareResult;
 document.querySelectorAll('.mode-btn').forEach(btn=>btn.onclick=()=>setMode(Number(btn.dataset.mode)));
 $('theme').onclick=()=>{
