@@ -175,13 +175,27 @@
     border:1px solid var(--line);box-shadow:var(--shadow);padding:42px;overflow:auto;
   }
   .results.show{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:34px}
-  .result-title{font-family:var(--serif);font-weight:400;font-size:clamp(56px,8vw,124px);line-height:.9;letter-spacing:-.035em;color:var(--ink)}
-  .estimate{font-family:var(--serif);font-size:72px;line-height:.95;color:var(--accent);margin:24px 0 8px}
+  .results .kicker{margin-bottom:18px;position:relative;z-index:1}
+  .result-title{font-family:var(--serif);font-weight:400;font-size:clamp(44px,6.2vw,96px);line-height:.96;letter-spacing:-.03em;color:var(--ink);max-width:980px}
+  .estimate{font-family:var(--serif);font-size:72px;line-height:.95;color:var(--accent);margin:28px 0 12px}
   .estimate small{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
   .result-copy{font-size:22px;line-height:1.45;color:var(--ink-2);max-width:800px}
-  .breakdown{display:grid;gap:12px;margin-top:30px}
-  .break-row{display:grid;grid-template-columns:120px 1fr 48px;gap:12px;align-items:center;font-family:var(--sans);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-  .break-bar{height:5px;background:var(--line-2)} .break-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2))}
+  .result-method{font-size:15px;line-height:1.55;color:var(--muted);max-width:780px;margin-top:14px}
+  .source-note{font-family:var(--sans);font-size:10px;letter-spacing:.11em;line-height:1.6;text-transform:uppercase;color:var(--muted);max-width:780px;margin-top:14px}
+  .breakdown{display:grid;grid-template-columns:190px minmax(0,1fr);gap:22px;margin-top:30px;align-items:center}
+  .score-chart{
+    width:168px;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;position:relative;
+    background:conic-gradient(var(--accent) 0 var(--score),var(--line-2) var(--score) 360deg);
+    box-shadow:inset 0 0 0 1px var(--line);
+  }
+  .score-chart::before{content:'';position:absolute;inset:15px;border-radius:50%;background:var(--sheet);box-shadow:inset 0 0 0 1px var(--line)}
+  .score-chart span{position:relative;font-family:var(--serif);font-size:46px;line-height:1;color:var(--ink)}
+  .score-chart small{position:relative;font-family:var(--sans);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .chart-label{display:grid;text-align:center;gap:4px}
+  .break-list{display:grid;gap:10px}
+  .break-row{display:grid;grid-template-columns:128px 1fr 48px;gap:12px;align-items:center;font-family:var(--sans);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .break-dot{height:5px;background:var(--line-2);position:relative;overflow:hidden}
+  .break-dot i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2))}
   .missed{display:grid;gap:12px}
   .missed h3{font-family:var(--sans);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);font-weight:600}
   .missed-word{border-top:1px solid var(--line);padding-top:10px}
@@ -208,8 +222,8 @@
     .word{font-size:clamp(48px,18vw,78px);letter-spacing:-.025em}.prompt{font-size:18px}.card{min-height:0}.card::before{inset:10px}.note{grid-template-columns:1fr;padding:16px}.side{grid-template-columns:1fr}
     .rail{grid-template-columns:1fr;gap:12px}.tier-list{grid-template-columns:1fr 1fr}.progress-num{font-size:52px}
     .answer{min-height:0;padding:15px}.answer span{font-size:17px}
-    .results{inset:8px;padding:20px}.result-title{font-size:44px}.estimate{font-size:46px}.result-copy{font-size:18px}
-    .break-row{grid-template-columns:92px 1fr 40px}
+    .results{inset:8px;padding:20px}.result-title{font-size:42px}.estimate{font-size:46px}.result-copy{font-size:18px}
+    .breakdown{grid-template-columns:1fr}.score-chart{width:150px}.break-row{grid-template-columns:92px 1fr 40px}
   }
   @media(max-width:430px){
     .brand{font-size:9px;letter-spacing:.18em}.small-btn,.mode-btn{font-size:9px}.mode-switch{width:100%}
@@ -294,6 +308,8 @@
     <h2 class="result-title">Your active English lexicon</h2>
     <div class="estimate"><span id="estimate">0</span> <small>words</small></div>
     <p class="result-copy" id="verdict"></p>
+    <p class="result-method" id="methodology">Estimate model: your score is weighted by difficulty tier, corrected for quiz length, then rounded to a broad active-vocabulary range. Treat it as a typographic diagnostic, not a clinical measurement.</p>
+    <p class="source-note">Definitions are concise editorial definitions aligned to standard dictionary senses. For verbatim sourced entries, connect a licensed dictionary API or a public lexical dataset such as WordNet/Open English WordNet.</p>
     <div class="share-row">
       <button class="share-btn icon-btn" id="share-native" aria-label="Share result">
         <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 12h8M12 8v8M7 4h10a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3Z"/></svg>
@@ -450,7 +466,57 @@ const EXTRA_WORDS=[
 ['deipnosophist','dype-NAH-suh-fist','noun','a learned dinner-table conversationalist','Greek deipnon + sophistes, dinner sage','conversationalist, raconteur','boor',5],
 ['eucatastrophe','yoo-kuh-TAS-truh-fee','noun','a sudden happy turn in a story','Greek eu + catastrophe, good overturning','fortunate reversal, rescue','disaster',5],
 ['mumpsimus','MUMP-sih-mus','noun','a stubbornly held mistaken belief','Postclassical Latin mumpsimus, erroneous mass phrase','error, obstinacy','correction',5],
-['opsimath','AHP-sih-math','noun','a person who begins learning late in life','Greek opsi + manthanein, late learning','late learner, autodidact','prodigy',5]
+['opsimath','AHP-sih-math','noun','a person who begins learning late in life','Greek opsi + manthanein, late learning','late learner, autodidact','prodigy',5],
+['adapt','uh-DAPT','verb','to change for a new use or situation','Latin adaptare, fit to','adjust, modify','resist',1],
+['assert','uh-SURT','verb','to state firmly or confidently','Latin asserere, claim','declare, affirm','deny',1],
+['concise','kun-SYSE','adjective','brief but complete in expression','Latin concidere, cut up','brief, succinct','wordy',1],
+['derive','dih-RYVE','verb','to obtain from a source','Latin derivare, draw off','obtain, trace','originate',1],
+['imply','im-PLY','verb','to suggest without saying directly','Latin implicare, entwine','suggest, indicate','state',1],
+['keen','KEEN','adjective','sharp, eager, or highly developed','Old English cene, bold','sharp, acute','dull',1],
+['notable','NOH-tuh-bul','adjective','worthy of attention','Latin notabilis, noteworthy','remarkable, significant','ordinary',1],
+['persist','per-SIST','verb','to continue firmly despite difficulty','Latin persistere, stand firm','continue, endure','quit',1],
+['reliable','rih-LY-uh-bul','adjective','able to be trusted consistently','Old French relier, bind fast','dependable, steady','unreliable',1],
+['subtle','SUT-ul','adjective','delicate or not immediately obvious','Latin subtilis, finely woven','nuanced, delicate','obvious',1],
+['assiduous','uh-SIJ-oo-us','adjective','showing constant attention and effort','Latin assidere, sit near','attentive, diligent','careless',2],
+['censure','SEN-shur','verb','to express strong disapproval','Latin censura, judgment','condemn, rebuke','praise',2],
+['demur','dih-MUR','verb','to raise doubts or objections','Old French demorer, linger','object, hesitate','accept',2],
+['elicit','ih-LIS-it','verb','to draw out a response or fact','Latin elicere, draw out','evoke, extract','suppress',2],
+['fortuitous','for-TOO-ih-tus','adjective','happening by chance','Latin fortuitus, accidental','accidental, chance','planned',2],
+['incisive','in-SY-siv','adjective','clear, sharp, and direct','Latin incidere, cut into','penetrating, sharp','vague',2],
+['munificent','myoo-NIF-ih-sent','adjective','very generous','Latin munificus, bountiful','lavish, generous','stingy',2],
+['perfunctory','per-FUNK-tuh-ree','adjective','done with little care or interest','Latin perfungi, get through','cursory, mechanical','thorough',2],
+['redolent','RED-uh-lent','adjective','strongly suggestive or fragrant','Latin redolere, emit scent','evocative, aromatic','odorless',2],
+['transient','TRAN-zee-unt','adjective','lasting only a short time','Latin transire, go across','temporary, fleeting','permanent',2],
+['abjure','ab-JOOR','verb','to formally reject or give up','Latin abjurare, deny on oath','renounce, repudiate','embrace',3],
+['cadence','KAY-dens','noun','rhythmic flow or sequence','Latin cadere, fall','rhythm, beat','discord',3],
+['didactic','dy-DAK-tik','adjective','intended to teach, sometimes excessively','Greek didaktikos, apt at teaching','instructive, moralizing','uninstructive',3],
+['evanescent','ev-uh-NES-unt','adjective','quickly fading from sight or memory','Latin evanescere, vanish','fleeting, vanishing','lasting',3],
+['feckless','FEK-lis','adjective','weak, careless, or ineffective','Scots feck, effect or value','inept, irresponsible','capable',3],
+['invidious','in-VID-ee-us','adjective','likely to cause resentment or offense','Latin invidia, envy','resentful, unfair','benign',3],
+['obfuscate','AHB-fuh-skayt','verb','to make unclear or confusing','Latin obfuscare, darken','blur, obscure','clarify',3],
+['probity','PROH-bih-tee','noun','strong moral honesty','Latin probitas, uprightness','integrity, rectitude','corruption',3],
+['rarefied','RAIR-uh-fyde','adjective','elevated, refined, or thin in density','Latin rarus, thin or sparse','elevated, refined','common',3],
+['soporific','sah-puh-RIF-ik','adjective','tending to induce sleep','Latin sopor, sleep','sleepy, drowsy','stimulating',3],
+['abstemious','ab-STEE-mee-us','adjective','moderate in eating, drinking, or pleasure','Latin abstemius, abstaining','temperate, restrained','self-indulgent',4],
+['crepuscular','krih-PUS-kyuh-lur','adjective','relating to twilight','Latin crepusculum, twilight','twilit, dusky','nocturnal',4],
+['defenestrate','dee-FEN-uh-strayt','verb','to throw out of a window','Latin de + fenestra, from a window','eject, expel','install',4],
+['exculpate','EK-skul-payt','verb','to clear from blame','Latin exculpare, free from fault','absolve, vindicate','incriminate',4],
+['farrago','fuh-RAH-goh','noun','a confused mixture','Latin farrago, mixed fodder','jumble, medley','order',4],
+['noetic','noh-ET-ik','adjective','relating to intellect or thought','Greek noesis, thinking','intellectual, mental','sensory',4],
+['peripatetic','pair-ih-puh-TET-ik','adjective','traveling from place to place','Greek peripatein, walk about','itinerant, wandering','settled',4],
+['prolix','proh-LIKS','adjective','using too many words','Latin prolixus, extended','wordy, verbose','concise',4],
+['sempiternal','sem-pih-TUR-nul','adjective','everlasting or eternal','Latin sempiternus, perpetual','eternal, endless','temporary',4],
+['vatic','VAT-ik','adjective','prophetic or oracular','Latin vates, prophet','prophetic, oracular','retrospective',4],
+['absquatulate','ab-SKWAH-chuh-layt','verb','to leave abruptly or flee','American mock-Latin coinage','depart, flee','remain',5],
+['borborygmus','bor-buh-RIG-mus','noun','rumbling sounds made by gas in the intestines','Greek borborygmos, rumbling','rumble, gurgle','silence',5],
+['callipygian','kal-ih-PIJ-ee-un','adjective','having shapely buttocks','Greek kallipygos, beautiful buttocks','well-proportioned, shapely','ungainly',5],
+['deliquesce','del-ih-KWES','verb','to melt away or dissolve gradually','Latin deliquescere, become liquid','dissolve, liquefy','solidify',5],
+['eldritch','EL-dritch','adjective','strange, eerie, or otherworldly','Scots eldritch, uncanny','uncanny, weird','ordinary',5],
+['floccinaucinihilipilification','flok-sih-naw-sih-nih-hil-ih-pil-ih-fih-KAY-shun','noun','the act of judging something worthless','Latin words for trifling things','dismissal, depreciation','valuation',5],
+['gobemouche','gohb-MOOSH','noun','a gullible person','French gober + mouche, swallow flies','dupe, simpleton','skeptic',5],
+['horripilation','haw-rip-ih-LAY-shun','noun','the bristling of body hair from cold or fear','Latin horrere + pilus, bristle hair','gooseflesh, shiver','calm',5],
+['jentacular','jen-TAK-yuh-lur','adjective','relating to breakfast','Latin jentaculum, breakfast','breakfast-related, morning','vespertine',5],
+['ultracrepidarian','ul-truh-krep-ih-DAIR-ee-un','noun','someone who gives opinions beyond their knowledge','Latin ultra crepidam, beyond the sandal','pretender, opinionator','expert',5]
 ];
 const LEVELS=['Core','Intermediate','Advanced','Scholarly','Rare'];
 const WORD_BANK=[...WORDS,...EXTRA_WORDS];
@@ -540,10 +606,11 @@ function showResults(){
   $('estimate').textContent=est.toLocaleString();
   const pct=Math.round((state.correct/state.quiz.length)*100);
   $('verdict').textContent=pct>=85?'An unusually broad working vocabulary. Your misses are likely specialized, historical, or stylistic rather than basic comprehension gaps.':pct>=65?'A strong literate vocabulary with room to deepen rare, scholarly, and etymological registers.':pct>=42?'A functional vocabulary with a clear opportunity: study word families, roots, and antonym pairs rather than isolated definitions.':'A developing vocabulary. The fastest gains will come from high-frequency academic words and recurring Latin and Greek roots.';
-  $('breakdown').innerHTML=LEVELS.map((name,i)=>{
-    const rows=state.answers.filter(a=>a.level===i+1), ok=rows.filter(a=>a.correct).length, p=rows.length?ok/rows.length*100:0;
-    return `<div class="break-row"><span>${name}</span><div class="break-bar"><i style="width:${p}%"></i></div><b>${ok}/${rows.length}</b></div>`;
+  const tierRows=LEVELS.map((name,i)=>{
+    const levelAnswers=state.answers.filter(a=>a.level===i+1), ok=levelAnswers.filter(a=>a.correct).length, p=levelAnswers.length?ok/levelAnswers.length*100:0;
+    return `<div class="break-row"><span>${name}</span><div class="break-dot"><i style="width:${p}%"></i></div><b>${ok}/${levelAnswers.length}</b></div>`;
   }).join('');
+  $('breakdown').innerHTML=`<div class="score-chart" style="--score:${pct*3.6}deg" aria-label="${pct}% correct"><div class="chart-label"><span>${pct}</span><small>percent</small></div></div><div class="break-list">${tierRows}</div>`;
   const missed=state.answers.filter(a=>!a.correct).slice(0,10);
   $('missed').innerHTML=missed.length?missed.map(a=>`<div class="missed-word"><b>${a.word}</b><span>${a.definition}</span></div>`).join(''):'<div class="missed-word"><b>No misses</b><span>You answered every sampled word correctly.</span></div>';
   $('share-copy').textContent=`I scored ${state.correct}/${state.quiz.length} on Lexicon with an estimated active vocabulary of ${est.toLocaleString()} words.`;
