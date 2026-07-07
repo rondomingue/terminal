@@ -266,13 +266,33 @@
   #scope-panel{ position:absolute; inset:0; padding:30px 16px 16px 16px; }
   #scope-wrap{ position:relative; width:100%; height:100%; }
   #scope-svg{ width:100%; height:100%; display:block; position:relative; z-index:2; }
+  #scope-wrap::before{
+    content:''; position:absolute; inset:6% 4% 4% 3%; z-index:1; pointer-events:none;
+    background:
+      radial-gradient(ellipse at 62% 54%, rgba(230,244,246,0.06), transparent 42%),
+      linear-gradient(112deg, transparent 0 28%, rgba(230,244,246,0.035) 45%, transparent 62%),
+      repeating-linear-gradient(90deg, transparent 0 92px, rgba(255,255,255,0.024) 93px, transparent 94px);
+    filter:blur(0.2px);
+    opacity:0.85;
+  }
+  #scope-wrap::after{
+    content:''; position:absolute; inset:0; z-index:4; pointer-events:none;
+    background:
+      radial-gradient(circle at 42% 48%, rgba(255,255,255,0.09), transparent 1px),
+      radial-gradient(circle at 70% 64%, rgba(255,255,255,0.08), transparent 1px),
+      radial-gradient(circle at 16% 72%, rgba(255,255,255,0.07), transparent 1px),
+      repeating-linear-gradient(0deg, transparent 0 5px, rgba(255,255,255,0.018) 6px, transparent 7px);
+    mix-blend-mode:screen;
+    opacity:0.42;
+  }
   .target{ cursor:pointer; }
   .target .hit-area{ pointer-events:all; }
-  .target .hover-ring{ transition:opacity 0.18s ease, stroke-width 0.18s ease; }
-  .target:hover .hover-ring{ opacity:0.8; stroke-width:1.3; filter:url(#glow); }
+  .target .hover-ring,.target .reticle-detail{ transition:opacity 0.18s ease, stroke-width 0.18s ease; }
+  .target:hover .hover-ring{ opacity:0.85; stroke-width:1.1; filter:url(#glow); }
+  .target:hover .reticle-detail{ opacity:0.9; }
   .target:hover .blip-dot{ filter:url(#glow); }
   .target .halo{ transition:opacity 0.2s ease; }
-  .target:hover .halo{ opacity:1.4; }
+  .target:hover .halo{ opacity:1.2; }
 
   .scope-readout-top{
     position:absolute; top:0; left:0; right:0;
@@ -283,6 +303,11 @@
     position:absolute; bottom:6px; left:10px; right:200px;
     font-size:7.5px; color:var(--ink-faint); opacity:0.4;
     white-space:nowrap; overflow:hidden; letter-spacing:0.12em;
+  }
+  #map-source-note{
+    position:absolute; bottom:18px; right:10px;
+    font-family:'Space Mono',monospace; font-size:7px; letter-spacing:0.13em;
+    color:var(--ink-faint); opacity:0.55; z-index:5;
   }
 
   #map-loader{
@@ -544,6 +569,7 @@
       <div class="panel-label"><span class="flag">[</span> T.DATA <span class="flag">]</span></div>
       <div class="panel-meta" id="scope-bbox">29.70/-90.40 — 30.20/-89.70</div>
       <div class="panel-meta" style="top:auto; bottom:6px; right:10px; font-size:8px;">MAP DATA © OPENSTREETMAP CONTRIBUTORS</div>
+      <div id="map-source-note">FREE VECTOR GEOMETRY / OSM OVERPASS — MAPBOX TOKEN READY</div>
       <div id="hex-ticker" class="mono"></div>
       <div id="map-loader" class="mono">
         <span class="map-loader-dot"></span> SYNCING VECTOR GEOMETRY…
@@ -899,6 +925,15 @@
         <feGaussianBlur stdDeviation="2.2" result="blur"/>
         <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
       </filter>
+      <filter id="mapGlow" x="-80%" y="-80%" width="260%" height="260%">
+        <feGaussianBlur stdDeviation="1.4" result="blur"/>
+        <feColorMatrix in="blur" type="matrix" values="1 0 0 0 0.78  0 1 0 0 0.86  0 0 1 0 0.88  0 0 0 0.85 0" result="soft"/>
+        <feMerge><feMergeNode in="soft"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <filter id="softBloom" x="-120%" y="-120%" width="340%" height="340%">
+        <feGaussianBlur stdDeviation="3.4" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
       <radialGradient id="haloGrad" cx="50%" cy="50%" r="50%">
         <stop offset="0%" stop-color="#f2f3f3" stop-opacity="0.16"/>
         <stop offset="55%" stop-color="#f2f3f3" stop-opacity="0.05"/>
@@ -910,8 +945,11 @@
         <stop offset="100%" stop-color="#f2f3f3" stop-opacity="0"/>
       </radialGradient>
     </defs>`;
-    html += `<g id="topology" opacity="0.9">${buildTopology()}</g>`;
-    html += `<g id="vector-map" opacity="0.5"></g>`;
+    html += `<rect x="0" y="0" width="${SVG_W}" height="${SVG_H}" fill="rgba(255,255,255,0.006)"/>`;
+    html += `<g id="topology" opacity="0.72">${buildTopology()}</g>`;
+    html += `<g id="vector-underlay" opacity="0.22"></g>`;
+    html += `<g id="vector-map" opacity="0.58"></g>`;
+    html += `<g id="vector-spark" opacity="0.55"></g>`;
     // grid lines
     for(let i=1;i<8;i++){
       const x = (SVG_W/8)*i;
@@ -1051,25 +1089,25 @@
     if(!el.geometry || el.geometry.length<2) return '';
     const pts = el.geometry.map(p=>project(p.lat, p.lon));
     const d = 'M ' + pts.map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' L ');
-    let stroke='var(--ink-faint)', width='0.8', opacity='0.6', dash='', filter='', fill='none';
+    let stroke='var(--ink-faint)', width='0.65', opacity='0.48', dash='', filter='', fill='none';
     const t = el.tags || {};
-    if(t.natural==='coastline'){ stroke='var(--white)'; width='1.4'; opacity='0.9'; filter='url(#glow)'; }
-    else if(t.natural==='wetland'){ stroke='var(--ink-faint)'; width='0.6'; opacity='0.3'; dash='1,2'; }
-    else if(t.landuse==='forest'){ stroke='var(--ink-faint)'; width='0.5'; opacity='0.25'; }
-    else if(t.landuse==='cemetery'){ stroke='var(--ink-faint)'; width='0.5'; opacity='0.3'; dash='2,2'; }
-    else if(t.leisure==='park'){ stroke='var(--ink-faint)'; width='0.5'; opacity='0.28'; dash='1,2'; }
-    else if(t.leisure==='golf_course'){ stroke='var(--ink-faint)'; width='0.5'; opacity='0.25'; dash='1,4'; }
-    else if(t.waterway==='canal'){ stroke='var(--ink)'; width='0.9'; opacity='0.5'; }
-    else if(t.natural==='water' || t.waterway==='river'){ stroke='var(--ink)'; width='1'; opacity='0.55'; }
-    else if(t.man_made==='levee' || t.natural==='levee'){ stroke='var(--ink-dim)'; width='0.7'; opacity='0.45'; dash='4,2'; }
-    else if(t.railway==='rail'){ stroke='var(--ink-faint)'; width='0.6'; opacity='0.4'; dash='3,2'; }
-    else if(t.aeroway==='runway'){ stroke='var(--white)'; width='2.2'; opacity='0.85'; filter='url(#glow)'; }
-    else if(t.aeroway==='taxiway'){ stroke='var(--ink)'; width='1'; opacity='0.6'; }
-    else if(t.aeroway==='apron'){ stroke='var(--ink-faint)'; width='0.6'; opacity='0.35'; fill='rgba(255,255,255,0.025)'; }
-    else if(t.aeroway==='terminal' || t.building==='terminal' || t.building==='aerodrome'){ stroke='var(--white)'; width='1'; opacity='0.65'; fill='rgba(255,255,255,0.04)'; }
-    else if(t.building){ stroke='var(--ink-faint)'; width='0.4'; opacity='0.3'; fill='rgba(255,255,255,0.015)'; }
-    else if(t.highway==='residential' || t.highway==='tertiary'){ stroke='var(--ink-faint)'; width='0.5'; opacity='0.25'; dash='1,3'; }
-    else if(t.highway){ stroke='var(--ink-dim)'; width='0.7'; opacity='0.45'; dash='1,3'; }
+    if(t.natural==='coastline'){ stroke='var(--white)'; width='1.45'; opacity='0.82'; filter='url(#mapGlow)'; }
+    else if(t.natural==='wetland'){ stroke='var(--ink-faint)'; width='0.45'; opacity='0.24'; dash='1,3'; }
+    else if(t.landuse==='forest'){ stroke='var(--ink-faint)'; width='0.42'; opacity='0.18'; }
+    else if(t.landuse==='cemetery'){ stroke='var(--ink-faint)'; width='0.42'; opacity='0.22'; dash='2,3'; }
+    else if(t.leisure==='park'){ stroke='var(--ink-faint)'; width='0.42'; opacity='0.2'; dash='1,3'; }
+    else if(t.leisure==='golf_course'){ stroke='var(--ink-faint)'; width='0.42'; opacity='0.18'; dash='1,5'; }
+    else if(t.waterway==='canal'){ stroke='var(--ink)'; width='0.85'; opacity='0.42'; filter='url(#mapGlow)'; }
+    else if(t.natural==='water' || t.waterway==='river'){ stroke='var(--ink)'; width='0.95'; opacity='0.46'; filter='url(#mapGlow)'; }
+    else if(t.man_made==='levee' || t.natural==='levee'){ stroke='var(--ink-dim)'; width='0.58'; opacity='0.34'; dash='4,3'; }
+    else if(t.railway==='rail'){ stroke='var(--ink-faint)'; width='0.5'; opacity='0.3'; dash='3,3'; }
+    else if(t.aeroway==='runway'){ stroke='var(--white)'; width='2.6'; opacity='0.82'; filter='url(#softBloom)'; }
+    else if(t.aeroway==='taxiway'){ stroke='var(--ink)'; width='0.9'; opacity='0.5'; filter='url(#mapGlow)'; }
+    else if(t.aeroway==='apron'){ stroke='var(--ink-faint)'; width='0.5'; opacity='0.28'; fill='rgba(255,255,255,0.018)'; }
+    else if(t.aeroway==='terminal' || t.building==='terminal' || t.building==='aerodrome'){ stroke='var(--white)'; width='0.9'; opacity='0.58'; fill='rgba(255,255,255,0.028)'; filter='url(#mapGlow)'; }
+    else if(t.building){ stroke='var(--ink-faint)'; width='0.32'; opacity='0.22'; fill='rgba(255,255,255,0.012)'; }
+    else if(t.highway==='residential' || t.highway==='tertiary'){ stroke='var(--ink-faint)'; width='0.42'; opacity='0.18'; dash='1,4'; }
+    else if(t.highway){ stroke='var(--ink-dim)'; width='0.62'; opacity='0.34'; dash='1,4'; }
     return `<path d="${d}" fill="${fill}" stroke="${stroke}" stroke-width="${width}" opacity="${opacity}" stroke-dasharray="${dash}" ${filter?`filter="${filter}"`:''}/>`;
   }
 
@@ -1077,19 +1115,29 @@
     const g = svg.querySelector('#vector-map');
     if(g) g.insertAdjacentHTML('beforeend', svgFragment);
   }
+  function appendToUnderlay(svgFragment){
+    const g = svg.querySelector('#vector-underlay');
+    if(g) g.insertAdjacentHTML('beforeend', svgFragment);
+  }
+  function appendToSpark(svgFragment){
+    const g = svg.querySelector('#vector-spark');
+    if(g) g.insertAdjacentHTML('beforeend', svgFragment);
+  }
 
-  const MAP_CACHE_TTL = 1000*60*60*24*7; // 7 days — real-world geometry doesn't change between visits
-  function getMapCache(key){
+  const MAP_CACHE_TTL = 1000*60*60*24*30; // map geometry changes slowly; prefer fast repeat loads
+  function getMapCache(key, allowStale=false){
     try{
       const raw = localStorage.getItem(key);
       if(!raw) return null;
       const obj = JSON.parse(raw);
-      if(Date.now() - obj.t > MAP_CACHE_TTL) return null;
+      const age = Date.now() - obj.t;
+      if(age > MAP_CACHE_TTL && !allowStale) return null;
+      obj.stale = age > MAP_CACHE_TTL;
       return obj;
     }catch(e){ return null; }
   }
-  function setMapCache(key, html, wayCount, nodeCount){
-    try{ localStorage.setItem(key, JSON.stringify({t:Date.now(), html, wayCount, nodeCount})); }
+  function setMapCache(key, html, underlay, sparks, wayCount, nodeCount){
+    try{ localStorage.setItem(key, JSON.stringify({t:Date.now(), html, underlay, sparks, wayCount, nodeCount})); }
     catch(e){ /* storage unavailable or full, fail silent */ }
   }
 
@@ -1105,7 +1153,7 @@
   ];
 
   function parseOverpassElements(data){
-    let html = '', wayCount=0, nodeCount=0;
+    let html = '', underlay = '', sparks = '', wayCount=0, nodeCount=0;
     (data.elements||[]).forEach(el=>{
       if(el.type==='node' && el.tags){
         const [x,y] = project(el.lat, el.lon);
@@ -1120,9 +1168,26 @@
         return;
       }
       const w = renderWay(el);
-      if(w){ wayCount++; html += w; }
+      if(w){
+        wayCount++;
+        html += w;
+        const t = el.tags || {};
+        if(t.natural==='coastline' || t.aeroway || t.waterway || t.highway){
+          underlay += w.replace(/stroke-width="([^"]+)"/, 'stroke-width="3.2"').replace(/opacity="([^"]+)"/, 'opacity="0.12"').replace(/filter="[^"]+"/, '');
+        }
+        if(t.building && el.geometry && el.geometry.length){
+          const p = el.geometry[Math.floor(el.geometry.length/2)];
+          const [sx,sy] = project(p.lat,p.lon);
+          if(sx>=0&&sx<=SVG_W&&sy>=0&&sy<=SVG_H){
+            const gate = Math.abs(Math.sin(sx*12.9898 + sy*78.233)) % 1;
+            if(gate > 0.48) return;
+            const r = (Math.abs(Math.sin((sx+sy)*0.07))*0.8+0.35).toFixed(2);
+            sparks += `<circle cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="${r}" fill="var(--ink)" opacity="0.2"/>`;
+          }
+        }
+      }
     });
-    return {html, wayCount, nodeCount};
+    return {html, underlay, sparks, wayCount, nodeCount};
   }
 
   async function tryFetchOverpass(url, query, timeoutMs){
@@ -1144,12 +1209,14 @@
   }
 
   async function fetchOverpass(query, label, timeoutMs, cacheKey){
-    // instant path: render from cache immediately if we have a fresh copy
+    // instant path: map geometry is reference data, so stale cache is preferable to a blank wait state
     if(cacheKey){
-      const cached = getMapCache(cacheKey);
+      const cached = getMapCache(cacheKey, true);
       if(cached){
+        appendToUnderlay(cached.underlay || '');
         appendToMap(cached.html);
-        logLine(`VECTOR MAP — ${label}: ${cached.wayCount} WAYS / ${cached.nodeCount} NODES (CACHED)`);
+        appendToSpark(cached.sparks || '');
+        logLine(`VECTOR MAP — ${label}: ${cached.wayCount} WAYS / ${cached.nodeCount} NODES (${cached.stale?'STALE ':''}CACHED)`);
         return;
       }
     }
@@ -1157,10 +1224,12 @@
     for(const mirror of OVERPASS_MIRRORS){
       try{
         const data = await tryFetchOverpass(mirror, query, timeoutMs || 20000);
-        const {html, wayCount, nodeCount} = parseOverpassElements(data);
+        const {html, underlay, sparks, wayCount, nodeCount} = parseOverpassElements(data);
+        appendToUnderlay(underlay);
         appendToMap(html);
+        appendToSpark(sparks);
         // only cache real data — never let an empty/transient response poison the cache for 7 days
-        if(cacheKey && (wayCount>0 || nodeCount>0)) setMapCache(cacheKey, html, wayCount, nodeCount);
+        if(cacheKey && (wayCount>0 || nodeCount>0)) setMapCache(cacheKey, html, underlay, sparks, wayCount, nodeCount);
         const mirrorTag = mirror.includes('overpass-api.de') ? '' : ` VIA ${new URL(mirror).hostname}`;
         logLine(`VECTOR MAP — ${label}: ${wayCount} WAYS / ${nodeCount} NODES${mirrorTag}`);
         return;
@@ -1174,7 +1243,7 @@
   function buildVectorMap(){
     const bbox = `${BBOX.lamin},${BBOX.lomin},${BBOX.lamax},${BBOX.lomax}`;
     // pass 1: core geography, kept lean so it resolves fast
-    const wideQuery = `[out:json][timeout:20][bbox:${bbox}];
+    const wideQuery = `[out:json][timeout:12][bbox:${bbox}];
       (
         way["natural"="coastline"];
         way["natural"="water"];
@@ -1187,7 +1256,7 @@
       );
       out geom;`;
     // pass 2: secondary texture, slightly heavier, loads independently
-    const textureQuery = `[out:json][timeout:20][bbox:${bbox}];
+    const textureQuery = `[out:json][timeout:12][bbox:${bbox}];
       (
         way["natural"="wetland"];
         way["man_made"="levee"];
@@ -1200,17 +1269,17 @@
       out geom;`;
     // pass 3: focused close-range structures near KMSY itself
     const around = `${FIELD.lat},${FIELD.lon}`;
-    const localQuery = `[out:json][timeout:20];
+    const localQuery = `[out:json][timeout:12];
       (
         way["aeroway"~"apron|taxiway|terminal"](around:3500,${around});
-        way["building"](around:2200,${around});
+        way["building"](around:1800,${around});
       );
       out geom;`;
 
-    // run all three concurrently — first to resolve renders first, none block the others
+    // core + local make the map usable; heavier texture resolves quietly after first paint
     const loaderEl = $('map-loader');
     let settled = 0;
-    const total = 3;
+    const total = 2;
     function tickLoader(){
       settled++;
       if(loaderEl){
@@ -1221,9 +1290,9 @@
         }
       }
     }
-    fetchOverpass(wideQuery, 'CORE', 12000, 'msy-map-core-v3').finally(tickLoader);
-    setTimeout(()=> fetchOverpass(textureQuery, 'TEXTURE', 12000, 'msy-map-texture-v3').finally(tickLoader), 400);
-    setTimeout(()=> fetchOverpass(localQuery, 'KMSY LOCAL', 12000, 'msy-map-local-v3').finally(tickLoader), 800);
+    fetchOverpass(wideQuery, 'CORE', 8000, 'msy-map-core-v5').finally(tickLoader);
+    setTimeout(()=> fetchOverpass(localQuery, 'KMSY LOCAL', 8000, 'msy-map-local-v5').finally(tickLoader), 250);
+    setTimeout(()=> fetchOverpass(textureQuery, 'TEXTURE', 9000, 'msy-map-texture-v5'), 1200);
   }
   buildScopeStatic();
   buildVectorMap();
@@ -1313,17 +1382,34 @@
       const stroke = isSel ? 'var(--white)' : 'var(--ink-dim)';
       const trackAngle = (f.true_track || 0);
       const glyph = (!f.on_ground) ? buildAircraftGlyph(f.actype, fill, stroke, isSel?1:0.85) : null;
+      const ringR = isSel ? 17 : 12;
+      const detailOpacity = isSel ? 0.85 : 0.34;
+      const leaderLen = isSel ? 34 : 24;
+      const lx = x + Math.sin(trackAngle*Math.PI/180)*leaderLen;
+      const ly = y - Math.cos(trackAngle*Math.PI/180)*leaderLen;
+      const callsign = (f.callsign||'').trim() || f.icao24.toUpperCase();
+      const shortId = f.icao24.slice(-4).toUpperCase();
       html += `<g class="target" data-icao="${f.icao24}">
-        <circle cx="${x}" cy="${y}" r="${isSel?16:11}" fill="url(${isSel?'#haloGradSel':'#haloGrad'})" class="halo"/>
-        <circle cx="${x}" cy="${y}" r="11" fill="transparent" class="hit-area"/>
-        <circle cx="${x}" cy="${y}" r="9" fill="none" stroke="var(--ink)" stroke-width="1" class="hover-ring" opacity="0"/>
-        ${!f.on_ground ? `<circle cx="${x}" cy="${y}" r="3" fill="none" stroke="${isSel?'var(--white)':'var(--ink-dim)'}" stroke-width="1"><animate attributeName="r" values="3;15" dur="2.4s" begin="${(x*7+y*3)%2400}ms" repeatCount="indefinite"/><animate attributeName="opacity" values="0.7;0" dur="2.4s" begin="${(x*7+y*3)%2400}ms" repeatCount="indefinite"/></circle>` : ''}
+        <circle cx="${x}" cy="${y}" r="${isSel?24:16}" fill="url(${isSel?'#haloGradSel':'#haloGrad'})" class="halo"/>
+        <circle cx="${x}" cy="${y}" r="${isSel?20:14}" fill="transparent" class="hit-area"/>
+        <circle cx="${x}" cy="${y}" r="${ringR}" fill="none" stroke="${stroke}" stroke-width="${isSel?0.9:0.55}" stroke-dasharray="${isSel?'9 4':'6 5'}" opacity="${detailOpacity}" class="hover-ring"/>
+        <circle cx="${x}" cy="${y}" r="${Math.max(5,ringR-5)}" fill="none" stroke="${stroke}" stroke-width="0.45" stroke-dasharray="1 5" opacity="${detailOpacity*0.72}" class="reticle-detail"/>
+        <g class="reticle-detail" opacity="${detailOpacity}">
+          <line x1="${x-ringR-5}" y1="${y}" x2="${x-ringR+1}" y2="${y}" stroke="${stroke}" stroke-width="0.65"/>
+          <line x1="${x+ringR-1}" y1="${y}" x2="${x+ringR+5}" y2="${y}" stroke="${stroke}" stroke-width="0.65"/>
+          <line x1="${x}" y1="${y-ringR-5}" x2="${x}" y2="${y-ringR+1}" stroke="${stroke}" stroke-width="0.65"/>
+          <line x1="${x}" y1="${y+ringR-1}" x2="${x}" y2="${y+ringR+5}" stroke="${stroke}" stroke-width="0.65"/>
+          ${!f.on_ground ? `<line x1="${x}" y1="${y}" x2="${lx.toFixed(1)}" y2="${ly.toFixed(1)}" stroke="${stroke}" stroke-width="0.55" stroke-dasharray="2 3" opacity="0.65"/>` : ''}
+          ${isSel ? `<path d="M ${x-ringR-8} ${y-ringR-8} h8 M ${x-ringR-8} ${y-ringR-8} v8 M ${x+ringR+8} ${y-ringR-8} h-8 M ${x+ringR+8} ${y-ringR-8} v8 M ${x-ringR-8} ${y+ringR+8} h8 M ${x-ringR-8} ${y+ringR+8} v-8 M ${x+ringR+8} ${y+ringR+8} h-8 M ${x+ringR+8} ${y+ringR+8} v-8" fill="none" stroke="${stroke}" stroke-width="0.8" filter="url(#glow)"/>` : ''}
+        </g>
+        ${!f.on_ground ? `<circle cx="${x}" cy="${y}" r="3" fill="none" stroke="${stroke}" stroke-width="0.7" opacity="${isSel?0.9:0.45}"><animate attributeName="r" values="3;${isSel?21:16}" dur="2.8s" begin="${(x*7+y*3)%2800}ms" repeatCount="indefinite"/><animate attributeName="opacity" values="${isSel?0.8:0.45};0" dur="2.8s" begin="${(x*7+y*3)%2800}ms" repeatCount="indefinite"/></circle>` : ''}
         ${glyph
           ? `<g transform="translate(${x},${y}) rotate(${trackAngle})" class="blip-dot" filter="${isSel?'url(#glow)':''}">${glyph}</g>`
           : `<circle cx="${x}" cy="${y}" r="${isSel?6:r}" fill="${fill}" stroke="${stroke}" stroke-width="1" opacity="${isSel?1:0.85}" class="blip-dot" filter="${isSel?'url(#glow)':''}"/>
              ${!f.on_ground ? `<line x1="${x}" y1="${y}" x2="${x + Math.sin(trackAngle*Math.PI/180)*10}" y2="${y - Math.cos(trackAngle*Math.PI/180)*10}" stroke="${stroke}" stroke-width="1" opacity="0.6"/>` : ''}`
         }
-        <text x="${x+6}" y="${y-5}" fill="${isSel?'var(--white)':'var(--ink-faint)'}" font-size="8" font-family="Space Mono, monospace">${(f.callsign||'').trim() || f.icao24}</text>
+        <text x="${x+ringR+5}" y="${y-7}" fill="${isSel?'var(--white)':'var(--ink-faint)'}" font-size="${isSel?8:7}" font-family="Space Mono, monospace" letter-spacing="0.5">${callsign}</text>
+        <text x="${x+ringR+5}" y="${y+4}" fill="var(--ink-faint)" font-size="6" font-family="Space Mono, monospace" letter-spacing="0.4" opacity="${isSel?0.85:0.44}">${shortId}${f.on_ground?' / GND':''}</text>
       </g>`;
     });
     g.innerHTML = html;
