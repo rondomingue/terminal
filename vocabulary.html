@@ -159,12 +159,12 @@
   .social-icon{width:14px;height:14px;display:block;stroke:currentColor;fill:none;stroke-width:1.8}
   .social-icon.fill{fill:currentColor;stroke:none}
   [data-theme="dark"] .next{color:#1b120e}
-  .side{display:grid;grid-template-rows:1fr;gap:18px;min-height:0}
+  .side{display:grid;grid-template-rows:auto minmax(0,1fr);gap:18px;min-height:0;align-content:start}
   .side-card{padding:20px}
-  .daily-card{display:grid;gap:12px}
-  .daily-word{font-family:var(--serif);font-size:clamp(38px,3.8vw,56px);line-height:.95;color:var(--accent);font-weight:400;letter-spacing:-.025em}
+  .daily-card{display:grid;gap:12px;align-content:start;align-self:start}
+  .daily-word{font-family:var(--serif);font-size:clamp(34px,3.4vw,50px);line-height:.96;color:var(--accent);font-weight:400;letter-spacing:-.025em;overflow-wrap:anywhere}
   .daily-meta{font-family:var(--sans);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:500}
-  .daily-card p{font-size:16px;line-height:1.48;color:var(--ink-2)}
+  .daily-card p{font-size:15px;line-height:1.45;color:var(--ink-2)}
   .daily-card .trivia{border-top:1px solid var(--line);padding-top:12px;font-size:14px;color:var(--muted)}
   .specimen{min-height:0;position:relative;overflow:hidden;margin-top:auto;padding-top:18px;border-top:1px solid var(--line)}
   .type-sample{margin-top:18px;display:grid;gap:14px}
@@ -570,6 +570,7 @@ const LEVELS=['Core','Intermediate','Advanced','Scholarly','Rare'];
 const WORD_BANK=[...WORDS,...EXTRA_WORDS];
 const state={index:0,correct:0,answered:false,answers:[],seen:[],mode:25,quiz:[]};
 const WORDNIK_API_KEY=window.LEXICON_WORDNIK_API_KEY||'';
+const DAILY_TOPICS=['language','literature','science','history','rhetoric','philosophy','art','architecture','astronomy','music'];
 const $=id=>document.getElementById(id);
 function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
 function buildQuiz(length=state.mode){
@@ -620,6 +621,26 @@ function dailyFallback(){
     trivia:`From ${item[4]}. Useful neighbors: ${item[5]}. Clean opposite: ${item[6]}.`
   };
 }
+function cleanDatamuseDefinition(entry){
+  const raw=entry.defs?.find(def=>def.includes('\t'))||entry.defs?.[0]||'Definition unavailable.';
+  return raw.replace(/^[a-z]+\t/i,'');
+}
+async function fetchDatamuseDaily(){
+  const topic=DAILY_TOPICS[dayStamp()%DAILY_TOPICS.length];
+  const endpoint=`https://api.datamuse.com/words?topics=${encodeURIComponent(topic)}&md=dp&max=80`;
+  const response=await fetch(endpoint);
+  if(!response.ok) throw new Error('Datamuse request failed');
+  const data=(await response.json()).filter(item=>item.word&&item.defs?.length&&/^[a-z][a-z -]+$/i.test(item.word));
+  if(!data.length) throw new Error('No Datamuse definitions');
+  const entry=data[dayStamp()%data.length];
+  const tags=(entry.tags||[]).filter(tag=>/^[nvadj]/.test(tag)).slice(0,2).join(', ');
+  return {
+    word:entry.word,
+    meta:`${tags||'lexical'} / Datamuse topic: ${topic}`,
+    definition:cleanDatamuseDefinition(entry),
+    trivia:`This daily word is pulled from Datamuse rather than the quiz bank. Association score: ${entry.score||'n/a'}.`
+  };
+}
 async function fetchWordnikDaily(){
   if(!WORDNIK_API_KEY) return null;
   const endpoint=`https://api.wordnik.com/v4/words.json/wordOfTheDay?date=${wordnikDate()}&api_key=${encodeURIComponent(WORDNIK_API_KEY)}`;
@@ -637,7 +658,9 @@ async function fetchWordnikDaily(){
 }
 async function renderDailyWord(){
   let entry=dailyFallback();
-  try{ entry=await fetchWordnikDaily()||entry; }catch(e){}
+  try{ entry=await fetchWordnikDaily()||await fetchDatamuseDaily()||entry; }catch(e){
+    try{ entry=await fetchDatamuseDaily()||entry; }catch(error){}
+  }
   $('daily-word').textContent=entry.word;
   $('daily-meta').textContent=entry.meta;
   $('daily-definition').textContent=entry.definition;
