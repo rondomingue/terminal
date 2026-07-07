@@ -982,6 +982,28 @@
       ${ticks}
     </g>`;
 
+    function arcPath(cx, cy, r, a0, a1){
+      const s = (a0-90)*Math.PI/180, e = (a1-90)*Math.PI/180;
+      const x0 = cx + Math.cos(s)*r, y0 = cy + Math.sin(s)*r;
+      const x1 = cx + Math.cos(e)*r, y1 = cy + Math.sin(e)*r;
+      const large = Math.abs(a1-a0) > 180 ? 1 : 0;
+      return `M ${x0.toFixed(1)} ${y0.toFixed(1)} A ${r} ${r} 0 ${large} 1 ${x1.toFixed(1)} ${y1.toFixed(1)}`;
+    }
+    let instrumentArcs = '';
+    [
+      [ringR-18, 18, 72, 0.38], [ringR-18, 132, 184, 0.3], [ringR-18, 224, 302, 0.28],
+      [ringR-34, 42, 118, 0.22], [ringR-34, 198, 268, 0.2],
+      [ringR-58, 310, 352, 0.18], [ringR-58, 154, 206, 0.16]
+    ].forEach(([r,a0,a1,op],i)=>{
+      instrumentArcs += `<path d="${arcPath(fx,fy,r,a0,a1)}" fill="none" stroke="var(--ink-faint)" stroke-width="${i<3?1.6:0.8}" opacity="${op}" stroke-linecap="round"/>`;
+    });
+    [38,142,218,316].forEach(deg=>{
+      const rad = (deg-90)*Math.PI/180;
+      const px = fx + Math.cos(rad)*(ringR-26), py = fy + Math.sin(rad)*(ringR-26);
+      instrumentArcs += `<path d="M ${px.toFixed(1)} ${(py-3).toFixed(1)} l6 3 l-6 3 z" fill="var(--ink-faint)" opacity="0.25" transform="rotate(${deg} ${px.toFixed(1)} ${py.toFixed(1)})"/>`;
+    });
+    html += `<g id="instrument-arcs" style="transform-origin:${fx}px ${fy}px;">${instrumentArcs}</g>`;
+
     // static cardinal bearing labels (non-rotating, always legible)
     const bearings = [[0,'000'],[90,'090'],[180,'180'],[270,'270']];
     bearings.forEach(([d,label])=>{
@@ -1079,10 +1101,12 @@
 
     // slow counter-rotating tick ring for parallax depth
     const ring = svg.querySelector('#tick-ring');
+    const arcs = svg.querySelector('#instrument-arcs');
     let rAng = 0;
     setInterval(()=>{
       rAng = (rAng - 0.15 + 360) % 360;
       ring.setAttribute('transform', `rotate(${rAng} ${fx} ${fy})`);
+      if(arcs) arcs.setAttribute('transform', `rotate(${-rAng*0.55} ${fx} ${fy})`);
     }, 60);
   }
   function renderWay(el){
