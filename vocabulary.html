@@ -161,6 +161,11 @@
   [data-theme="dark"] .next{color:#1b120e}
   .side{display:grid;grid-template-rows:1fr;gap:18px;min-height:0}
   .side-card{padding:20px}
+  .daily-card{display:grid;gap:12px}
+  .daily-word{font-family:var(--serif);font-size:clamp(38px,3.8vw,56px);line-height:.95;color:var(--accent);font-weight:400;letter-spacing:-.025em}
+  .daily-meta{font-family:var(--sans);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:500}
+  .daily-card p{font-size:16px;line-height:1.48;color:var(--ink-2)}
+  .daily-card .trivia{border-top:1px solid var(--line);padding-top:12px;font-size:14px;color:var(--muted)}
   .specimen{min-height:0;position:relative;overflow:hidden;margin-top:auto;padding-top:18px;border-top:1px solid var(--line)}
   .type-sample{margin-top:18px;display:grid;gap:14px}
   .type-sample .display-line{font-family:var(--serif);font-size:clamp(42px,4.3vw,58px);line-height:.9;letter-spacing:-.035em;color:var(--accent);font-weight:500}
@@ -317,6 +322,13 @@
     </section>
 
     <aside class="side">
+      <article class="side-card daily-card">
+        <div class="kicker">Word of the day</div>
+        <div class="daily-word" id="daily-word">loading</div>
+        <div class="daily-meta" id="daily-meta">Daily lexical note</div>
+        <p id="daily-definition">A small vocabulary note changes each day.</p>
+        <p class="trivia" id="daily-trivia">Trivia loads from the local word bank by default, with Wordnik API support available when an API key is configured.</p>
+      </article>
       <article class="side-card library">
         <div class="kicker">Recently studied</div>
         <div class="library-list" id="library-list"></div>
@@ -557,6 +569,7 @@ const EXTRA_WORDS=[
 const LEVELS=['Core','Intermediate','Advanced','Scholarly','Rare'];
 const WORD_BANK=[...WORDS,...EXTRA_WORDS];
 const state={index:0,correct:0,answered:false,answers:[],seen:[],mode:25,quiz:[]};
+const WORDNIK_API_KEY=window.LEXICON_WORDNIK_API_KEY||'';
 const $=id=>document.getElementById(id);
 function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
 function buildQuiz(length=state.mode){
@@ -591,6 +604,44 @@ function displayWord(term){
     return `<span class="word-line">${escapeHtml(term.slice(0,split))}</span><span class="word-line">${escapeHtml(term.slice(split))}</span>`;
   }
   return escapeHtml(term);
+}
+function dayStamp(date=new Date()){
+  return Date.UTC(date.getFullYear(),date.getMonth(),date.getDate())/86400000;
+}
+function wordnikDate(date=new Date()){
+  return date.toISOString().slice(0,10);
+}
+function dailyFallback(){
+  const item=WORD_BANK[dayStamp()%WORD_BANK.length];
+  return {
+    word:item[0],
+    meta:`${item[1]} / ${item[2]} / local daily selection`,
+    definition:item[3],
+    trivia:`From ${item[4]}. Useful neighbors: ${item[5]}. Clean opposite: ${item[6]}.`
+  };
+}
+async function fetchWordnikDaily(){
+  if(!WORDNIK_API_KEY) return null;
+  const endpoint=`https://api.wordnik.com/v4/words.json/wordOfTheDay?date=${wordnikDate()}&api_key=${encodeURIComponent(WORDNIK_API_KEY)}`;
+  const response=await fetch(endpoint);
+  if(!response.ok) throw new Error('Wordnik request failed');
+  const data=await response.json();
+  const definition=data.definitions?.[0]?.text||data.note||'Definition unavailable.';
+  const example=data.examples?.[0]?.text;
+  return {
+    word:data.word,
+    meta:'Wordnik word of the day',
+    definition,
+    trivia:example?`Usage: ${example}`:(data.note||'Daily entry supplied by Wordnik.')
+  };
+}
+async function renderDailyWord(){
+  let entry=dailyFallback();
+  try{ entry=await fetchWordnikDaily()||entry; }catch(e){}
+  $('daily-word').textContent=entry.word;
+  $('daily-meta').textContent=entry.meta;
+  $('daily-definition').textContent=entry.definition;
+  $('daily-trivia').textContent=entry.trivia;
 }
 function estimate(){
   const answered=Math.max(1,state.answers.length);
@@ -754,6 +805,7 @@ $('restart').onclick=restart;
 $('again').onclick=restart;
 state.quiz=buildQuiz();
 renderQuestion();
+renderDailyWord();
 </script>
 </body>
 </html>
