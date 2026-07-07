@@ -190,6 +190,11 @@
   .estimate-card span{display:block;margin-top:8px;font-size:14px;line-height:1.45;color:var(--ink-2)}
   .result-copy{font-size:22px;line-height:1.45;color:var(--ink-2);max-width:800px}
   .result-method{font-size:15px;line-height:1.55;color:var(--muted);max-width:780px;margin-top:14px}
+  .range-guide{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;max-width:860px;margin:18px 0 4px}
+  .range-item{border-top:1px solid var(--line);padding-top:10px;font-family:var(--sans);font-size:10px;letter-spacing:.12em;line-height:1.45;text-transform:uppercase;color:var(--muted)}
+  .range-item b{display:block;color:var(--ink);font-weight:600;margin-bottom:4px}
+  .range-item.active{border-color:var(--accent);color:var(--accent)}
+  .range-item.active b{color:var(--accent)}
   .source-note{font-family:var(--sans);font-size:10px;letter-spacing:.11em;line-height:1.6;text-transform:uppercase;color:var(--muted);max-width:780px;margin-top:14px}
   .breakdown{display:grid;grid-template-columns:190px minmax(0,1fr);gap:22px;margin-top:30px;align-items:center}
   .score-chart{
@@ -231,7 +236,7 @@
     .word{font-size:clamp(48px,18vw,78px);letter-spacing:-.025em}.word.word-single{white-space:normal}.word.word-long,.word.word-xlong{font-size:clamp(40px,13vw,66px)}.prompt{font-size:18px}.card{min-height:0}.card::before{inset:10px}.note{grid-template-columns:1fr;padding:16px}.side{grid-template-columns:1fr}
     .rail{grid-template-columns:1fr;gap:12px}.tier-list{grid-template-columns:1fr 1fr}.progress-num{font-size:52px}
     .answer{min-height:0;padding:15px}.answer span{font-size:17px}
-    .results{inset:8px;padding:20px}.result-title{font-size:42px}.estimate{font-size:46px}.estimate-grid{grid-template-columns:1fr}.result-copy{font-size:18px}
+    .results{inset:8px;padding:20px}.result-title{font-size:42px}.estimate{font-size:46px}.estimate-grid{grid-template-columns:1fr}.range-guide{grid-template-columns:1fr 1fr}.result-copy{font-size:18px}
     .breakdown{grid-template-columns:1fr}.score-chart{width:150px}.break-row{grid-template-columns:92px 1fr 40px}
   }
   @media(max-width:430px){
@@ -329,7 +334,8 @@
       </div>
     </div>
     <p class="result-copy" id="verdict"></p>
-    <p class="result-method" id="methodology">Estimate model: active vocabulary is weighted by difficulty tier, corrected for quiz length, then rounded to a broad range. Passive vocabulary is projected above active vocabulary because recognition usually exceeds confident recall and use. Treat both as typographic diagnostics, not clinical measurements.</p>
+    <div class="range-guide" id="range-guide" aria-label="Vocabulary comparison ranges"></div>
+    <p class="result-method" id="methodology">Estimate model: active vocabulary is weighted by difficulty tier, corrected for quiz length, then rounded to a broad range. Passive vocabulary is projected above active vocabulary because recognition usually exceeds confident recall and use. The 100-word quiz is the more accurate gauge because it samples more words from each difficulty tier and reduces the effect of lucky guesses.</p>
     <p class="source-note">Definitions are concise editorial definitions aligned to standard dictionary senses. For verbatim sourced entries, connect a licensed dictionary API or a public lexical dataset such as WordNet/Open English WordNet.</p>
     <div class="share-row">
       <button class="share-btn icon-btn" id="share-native" aria-label="Share result">
@@ -592,6 +598,23 @@ function passiveEstimate(active){
   const multiplier=1.45+(accuracy*.32)+(hardRatio*.28);
   return Math.round(Math.min(120000,active*multiplier)/250)*250;
 }
+function vocabularyBand(active){
+  if(active>=18000) return {label:'Elite',detail:'18,000+ active words',index:3};
+  if(active>=9000) return {label:'Exemplary',detail:'9,000-17,999 active words',index:2};
+  if(active>=4500) return {label:'Developing',detail:'4,500-8,999 active words',index:1};
+  return {label:'Below average',detail:'Under 4,500 active words',index:0};
+}
+function renderRangeGuide(active){
+  const band=vocabularyBand(active);
+  const ranges=[
+    ['Below average','Under 4,500','core recognition needs reinforcement'],
+    ['Developing','4,500-8,999','functional, still building range'],
+    ['Exemplary','9,000-17,999','above average literate range'],
+    ['Elite','18,000+','exceptionally broad command']
+  ];
+  $('range-guide').innerHTML=ranges.map((range,i)=>`<div class="range-item ${i===band.index?'active':''}"><b>${range[0]}</b><span>${range[1]}</span><br><span>${range[2]}</span></div>`).join('');
+  return band;
+}
 function renderTiers(){
   $('tier-list').innerHTML=LEVELS.map((name,i)=>{
     const rows=state.answers.filter(a=>a.level===i+1);
@@ -652,8 +675,9 @@ function showResults(){
   $('estimate').textContent=est.toLocaleString();
   $('active-estimate').textContent=est.toLocaleString();
   $('passive-estimate').textContent=passive.toLocaleString();
+  const band=renderRangeGuide(est);
   const pct=Math.round((state.correct/state.quiz.length)*100);
-  $('verdict').textContent=pct>=85?'An unusually broad working vocabulary. Your misses are likely specialized, historical, or stylistic rather than basic comprehension gaps.':pct>=65?'A strong literate vocabulary with room to deepen rare, scholarly, and etymological registers.':pct>=42?'A functional vocabulary with a clear opportunity: study word families, roots, and antonym pairs rather than isolated definitions.':'A developing vocabulary. The fastest gains will come from high-frequency academic words and recurring Latin and Greek roots.';
+  $('verdict').textContent=pct>=85?`An unusually broad working vocabulary. Current band: ${band.label}. Your misses are likely specialized, historical, or stylistic rather than basic comprehension gaps.`:pct>=65?`A strong literate vocabulary. Current band: ${band.label}. There is room to deepen rare, scholarly, and etymological registers.`:pct>=42?`A functional vocabulary. Current band: ${band.label}. Study word families, roots, and antonym pairs rather than isolated definitions.`:`A developing vocabulary. Current band: ${band.label}. The fastest gains will come from high-frequency academic words and recurring Latin and Greek roots.`;
   const tierRows=LEVELS.map((name,i)=>{
     const levelAnswers=state.answers.filter(a=>a.level===i+1), ok=levelAnswers.filter(a=>a.correct).length, p=levelAnswers.length?ok/levelAnswers.length*100:0;
     return `<div class="break-row"><span>${name}</span><div class="break-dot"><i style="width:${p}%"></i></div><b>${ok}/${levelAnswers.length}</b></div>`;
@@ -661,7 +685,7 @@ function showResults(){
   $('breakdown').innerHTML=`<div class="score-chart" style="--score:${pct*3.6}deg" aria-label="${pct}% correct"><div class="chart-label"><span>${pct}</span><small>percent</small></div></div><div class="break-list">${tierRows}</div>`;
   const missed=state.answers.filter(a=>!a.correct).slice(0,10);
   $('missed').innerHTML=missed.length?missed.map(a=>`<div class="missed-word"><b>${a.word}</b><span>${a.definition}</span></div>`).join(''):'<div class="missed-word"><b>No misses</b><span>You answered every sampled word correctly.</span></div>';
-  $('share-copy').textContent=`I scored ${state.correct}/${state.quiz.length} on Lexicon with an estimated active vocabulary of ${est.toLocaleString()} words and passive vocabulary of ${passive.toLocaleString()} words.`;
+  $('share-copy').textContent=`I scored ${state.correct}/${state.quiz.length} on Lexicon: ${est.toLocaleString()} active words (${band.label}) and about ${passive.toLocaleString()} passive words.`;
   $('results').classList.add('show');
 }
 function restart(){
@@ -677,25 +701,33 @@ function setMode(length){
 function shareText(){
   const est=estimate();
   const passive=passiveEstimate(est);
-  return `I scored ${state.correct}/${state.quiz.length} on Lexicon and estimated my active vocabulary at ${est.toLocaleString()} words, with passive vocabulary near ${passive.toLocaleString()} words.`;
+  const band=vocabularyBand(est);
+  return `I scored ${state.correct}/${state.quiz.length} on Lexicon: ${est.toLocaleString()} active words (${band.label}) and about ${passive.toLocaleString()} passive words.`;
+}
+function shareUrl(){
+  if(location.protocol==='file:') return 'https://interfaces.rondomingue.com/vocabulary.html';
+  return location.href.split('#')[0];
 }
 async function shareResult(){
   const text=shareText();
-  const url=location.href.split('#')[0];
+  const url=shareUrl();
   if(navigator.share){
     try{ await navigator.share({title:'Lexicon Vocabulary Estimate',text,url}); return; }catch(e){}
   }
-  await navigator.clipboard?.writeText(`${text} ${url}`);
+  try{ await navigator.clipboard?.writeText(`${text} ${url}`); }catch(e){}
   $('share-copy').textContent='Result copied to clipboard.';
 }
-function shareFacebook(){
-  const url=encodeURIComponent(location.href.split('#')[0]);
-  const quote=encodeURIComponent(shareText());
+async function shareFacebook(){
+  const url=encodeURIComponent(shareUrl());
+  const result=shareText();
+  try{ await navigator.clipboard?.writeText(`${result} ${decodeURIComponent(url)}`); }catch(e){}
+  const quote=encodeURIComponent(result);
   window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${quote}`,'_blank','noopener,noreferrer');
+  $('share-copy').textContent='Result copied. Facebook may only show the page link; paste the copied result into your post if needed.';
 }
 async function shareInstagram(){
-  const url=location.href.split('#')[0];
-  await navigator.clipboard?.writeText(`${shareText()}\n\n${url}`);
+  const url=shareUrl();
+  try{ await navigator.clipboard?.writeText(`${shareText()}\n\n${url}`); }catch(e){}
   $('share-copy').textContent='Caption copied for Instagram.';
 }
 $('share-native').onclick=shareResult;
