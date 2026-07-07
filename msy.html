@@ -1304,11 +1304,22 @@
     const loaderEl = $('map-loader');
     let settled = 0;
     const total = 2;
+    let loaderReleased = false;
+    function releaseLoader(){
+      if(loaderReleased) return;
+      loaderReleased = true;
+      if(loaderEl) loaderEl.classList.add('done');
+    }
+    const fastRelease = setTimeout(()=>{
+      releaseLoader();
+      logLine('VECTOR MAP — BACKGROUND SYNC CONTINUES');
+    }, 1800);
     function tickLoader(){
       settled++;
       if(loaderEl){
         if(settled >= total){
-          loaderEl.classList.add('done');
+          clearTimeout(fastRelease);
+          releaseLoader();
         } else {
           loaderEl.lastChild.textContent = ` SYNCING VECTOR GEOMETRY… ${settled}/${total}`;
         }
