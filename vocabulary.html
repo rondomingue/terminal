@@ -84,7 +84,7 @@
   .brand b{font-weight:600;color:var(--ink)}
   .title-mark{
     font-family:var(--serif);font-size:clamp(34px,4vw,56px);line-height:.9;font-weight:300;letter-spacing:.015em;
-    text-align:center;color:var(--ink);
+    text-align:center;color:var(--ink);font-style:italic;
   }
   .tools{display:flex;gap:8px;justify-content:flex-end;align-items:center;flex-wrap:wrap}
   .small-btn{
@@ -117,7 +117,7 @@
   .tier-row b{color:var(--ink);font-weight:500}
   .scoreline{border-top:1px solid var(--line);padding-top:14px;color:var(--ink-2);font-size:15px;line-height:1.5}
   .scoreline b{font-family:var(--sans);font-size:11px;color:var(--accent);letter-spacing:.14em;text-transform:uppercase;font-weight:600}
-  .card{position:relative;overflow:hidden;min-height:620px;display:grid;grid-template-rows:auto auto 1fr auto;min-width:0}
+  .card{position:relative;overflow:hidden;min-height:620px;display:grid;grid-template-rows:auto auto auto auto;align-content:start;min-width:0}
   .card::before{
     content:'';position:absolute;inset:18px;border:1px solid var(--line-2);pointer-events:none;
   }
@@ -134,7 +134,7 @@
   .word .word-line{display:block}
   .pronounce{margin-top:18px;font-family:var(--sans);font-size:12px;letter-spacing:.14em;color:var(--muted);font-weight:400}
   .prompt{margin:20px auto 0;max-width:640px;font-size:20px;line-height:1.45;color:var(--ink-2)}
-  .answers{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px clamp(20px,4vw,42px) 30px;align-content:start;min-width:0}
+  .answers{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px clamp(20px,4vw,42px) 18px;align-content:start;min-width:0}
   .answer{
     text-align:left;border:1px solid var(--line);background:color-mix(in srgb,var(--sheet-2) 72%,transparent);
     padding:18px 18px 17px;min-height:96px;transition:transform .16s ease,border-color .16s ease,background .16s ease;
@@ -147,7 +147,7 @@
   .answer[disabled]{cursor:default}
   .note{
     position:relative;z-index:1;border-top:1px solid var(--line);background:color-mix(in srgb,var(--sheet-2) 64%,transparent);
-    padding:20px 42px 24px;display:grid;grid-template-columns:1fr auto;gap:20px;align-items:end;
+    padding:18px 42px 20px;display:grid;grid-template-columns:auto minmax(0,1fr);gap:22px;align-items:start;
   }
   .note-copy{display:grid;gap:7px;color:var(--ink-2);font-size:16px;line-height:1.5}
   .note-copy b{font-family:var(--sans);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);font-weight:600}
@@ -159,16 +159,20 @@
   .social-icon{width:14px;height:14px;display:block;stroke:currentColor;fill:none;stroke-width:1.8}
   .social-icon.fill{fill:currentColor;stroke:none}
   [data-theme="dark"] .next{color:#1b120e}
-  .side{display:grid;grid-template-rows:auto 1fr;gap:18px;min-height:0}
+  .side{display:grid;grid-template-rows:1fr;gap:18px;min-height:0}
   .side-card{padding:20px}
-  .specimen{min-height:292px;position:relative;overflow:hidden}
+  .specimen{min-height:0;position:relative;overflow:hidden;margin-top:auto;padding-top:18px;border-top:1px solid var(--line)}
   .type-sample{margin-top:18px;display:grid;gap:14px}
-  .type-sample .display-line{font-family:var(--serif);font-size:clamp(54px,6vw,86px);line-height:.9;letter-spacing:-.035em;color:var(--accent);font-weight:500}
+  .type-sample .display-line{font-family:var(--serif);font-size:clamp(42px,4.3vw,58px);line-height:.9;letter-spacing:-.035em;color:var(--accent);font-weight:500}
   .type-sample .display-line span{color:var(--ink)}
-  .type-sample .sans-line{font-family:var(--sans);font-size:clamp(28px,3.2vw,43px);font-weight:300;line-height:1;letter-spacing:.12em;text-transform:uppercase;color:var(--ink)}
-  .type-sample .italic-line{font-family:var(--text);font-size:26px;line-height:1.1;font-style:italic;color:var(--ink-2);font-weight:400}
+  .type-sample .sans-line{font-family:var(--sans);font-size:clamp(20px,2.1vw,28px);font-weight:300;line-height:1;letter-spacing:.12em;text-transform:uppercase;color:var(--ink)}
+  .type-sample .italic-line{font-family:var(--text);font-size:20px;line-height:1.1;font-style:italic;color:var(--ink-2);font-weight:400}
   .type-sample .rule{height:1px;background:linear-gradient(90deg,var(--accent),transparent)}
-  .specimen p{font-size:17px;line-height:1.55;color:var(--ink-2);margin-top:16px}
+  .specimen p{font-size:14px;line-height:1.48;color:var(--ink-2);margin-top:14px}
+  .type-meta{display:grid;gap:8px;margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+  .type-meta div{display:grid;gap:2px}
+  .type-meta b{font-family:var(--sans);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .type-meta span{font-size:13px;line-height:1.35;color:var(--muted)}
   .library{min-height:0;overflow:auto}
   .library-list{display:grid;gap:12px;margin-top:14px}
   .library-item{border-top:1px solid var(--line);padding-top:10px}
@@ -219,7 +223,7 @@
     .layout{grid-template-columns:1fr}
     .quiz{grid-template-columns:220px minmax(0,1fr)}
     .results.show{grid-template-columns:1fr}
-    .side{grid-template-columns:1fr 1fr}
+    .side{grid-template-columns:1fr}
     .card{min-height:560px}
     .word{font-size:clamp(50px,10vw,112px)}
   }
@@ -243,7 +247,7 @@
     .brand{font-size:9px;letter-spacing:.18em}.small-btn,.mode-btn{font-size:9px}.mode-switch{width:100%}
     .tools{width:100%}.small-btn{flex:1}.mode-switch{order:3}.mode-btn{flex:1}.quiz-controls{grid-template-columns:1fr}.quiz-controls .small-btn{width:100%}
     .word{font-size:clamp(42px,17vw,68px)}.pronounce{font-size:10px;letter-spacing:.08em}.prompt{font-size:17px}
-    .tier-list{grid-template-columns:1fr}.side-card{padding:16px}.type-sample .display-line{font-size:52px}.type-sample .sans-line{font-size:26px}.type-sample .italic-line{font-size:22px}
+    .tier-list{grid-template-columns:1fr}.side-card{padding:16px}.type-sample .display-line{font-size:44px}.type-sample .sans-line{font-size:24px}.type-sample .italic-line{font-size:20px}
   }
 </style>
 </head>
@@ -274,6 +278,21 @@
         </div>
         <div class="tier-list" id="tier-list"></div>
         <div class="scoreline"><b>Current estimate</b><br><span id="live-estimate">Begin the instrument.</span></div>
+        <article class="specimen">
+          <div class="kicker">Typographic specimen</div>
+          <div class="type-sample" aria-label="Typography specimen">
+            <div class="display-line">Cyprus <span>Earth</span></div>
+            <div class="sans-line">Isomorphism</div>
+            <div class="italic-line">Six Hundred East Houston Street</div>
+            <div class="rule"></div>
+          </div>
+          <p>The display words use a Surveyor-style serif for literary contrast, while the interface labels use a Gotham-like geometric sans for structure and pace.</p>
+          <div class="type-meta">
+            <div><b>Display</b><span>Surveyor / Surveyor-like serif, used for specimen words, quiz terms, and result headlines.</span></div>
+            <div><b>Interface</b><span>Gotham-style sans, used for controls, metadata, range labels, and quiz instruments.</span></div>
+            <div><b>Reading text</b><span>Freight/Newsreader-style serif, used for definitions, etymology, usage notes, and longer explanations.</span></div>
+          </div>
+        </article>
       </aside>
 
       <article class="card">
@@ -288,26 +307,16 @@
         </div>
         <div class="answers" id="answers"></div>
         <div class="note" id="note">
+          <button class="next" id="next">Next word</button>
           <div class="note-copy">
             <b>After you answer</b>
             <span>Each word reveals its origin, useful neighbors, and a clean antonym.</span>
           </div>
-          <button class="next" id="next">Next word</button>
         </div>
       </article>
     </section>
 
     <aside class="side">
-      <article class="side-card specimen">
-        <div class="kicker">Typographic specimen</div>
-        <div class="type-sample" aria-label="Typography specimen">
-          <div class="display-line">Cyprus <span>Earth</span></div>
-          <div class="sans-line">Isomorphism</div>
-          <div class="italic-line">Six Hundred East Houston Street</div>
-          <div class="rule"></div>
-        </div>
-        <p>Surveyor-style display serifs carry the word forms; a Gotham-like sans handles the quiet instruments around them.</p>
-      </article>
       <article class="side-card library">
         <div class="kicker">Recently studied</div>
         <div class="library-list" id="library-list"></div>
@@ -639,7 +648,7 @@ function renderQuestion(){
   $('word').innerHTML=displayWord(word[0]);
   $('pronounce').textContent=`${word[1]} / ${word[2]}`;
   $('answers').innerHTML=optionSet(word).map(o=>`<button class="answer" data-correct="${o.correct}"><b>${o.letter}</b><span>${o.text}</span></button>`).join('');
-  $('note').innerHTML=`<div class="note-copy"><b>After you answer</b><span>Each word reveals its origin, useful neighbors, and a clean antonym.</span></div><button class="next" id="next">Next word</button>`;
+  $('note').innerHTML=`<button class="next" id="next">Next word</button><div class="note-copy"><b>After you answer</b><span>Each word reveals its origin, useful neighbors, and a clean antonym.</span></div>`;
   document.querySelectorAll('.answer').forEach(btn=>btn.onclick=()=>answer(btn,word));
   $('next').onclick=next;
   renderTiers();renderLibrary();
@@ -658,7 +667,7 @@ function answer(btn,word){
     else if(b===btn) b.classList.add('wrong');
   });
   $('score-label').textContent=`${state.correct} correct`;
-  $('note').innerHTML=`<div class="note-copy"><b>${correct?'Correct':'Study note'}</b><span><strong>${escapeHtml(word[0])}</strong>: ${escapeHtml(word[3])}</span><span>Usage: “${escapeHtml(usageSentence(word))}”</span><span>Etymology: ${escapeHtml(word[4])}. Neighbors: ${escapeHtml(word[5])}. Antonym: ${escapeHtml(word[6])}.</span></div><button class="next" id="next">${state.index===state.quiz.length-1?'View results':'Next word'}</button>`;
+  $('note').innerHTML=`<button class="next" id="next">${state.index===state.quiz.length-1?'View results':'Next word'}</button><div class="note-copy"><b>${correct?'Correct':'Study note'}</b><span><strong>${escapeHtml(word[0])}</strong>: ${escapeHtml(word[3])}</span><span>Usage: “${escapeHtml(usageSentence(word))}”</span><span>Etymology: ${escapeHtml(word[4])}. Neighbors: ${escapeHtml(word[5])}. Antonym: ${escapeHtml(word[6])}.</span></div>`;
   $('next').onclick=next;
   renderTiers();renderLibrary();
   $('live-estimate').textContent=`${estimate().toLocaleString()} words, provisional.`;
