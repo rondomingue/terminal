@@ -183,6 +183,11 @@
   .result-title{font-family:var(--serif);font-weight:400;font-size:clamp(44px,6.2vw,96px);line-height:.96;letter-spacing:-.03em;color:var(--ink);max-width:980px}
   .estimate{font-family:var(--serif);font-size:72px;line-height:.95;color:var(--accent);margin:28px 0 12px}
   .estimate small{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
+  .estimate-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;max-width:760px;margin:18px 0 6px}
+  .estimate-card{border:1px solid var(--line);background:color-mix(in srgb,var(--sheet-2) 62%,transparent);padding:16px 18px}
+  .estimate-card b{display:block;font-family:var(--sans);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  .estimate-card strong{display:block;font-family:var(--serif);font-size:clamp(34px,4.4vw,58px);line-height:1;color:var(--accent);font-weight:400;margin-top:8px}
+  .estimate-card span{display:block;margin-top:8px;font-size:14px;line-height:1.45;color:var(--ink-2)}
   .result-copy{font-size:22px;line-height:1.45;color:var(--ink-2);max-width:800px}
   .result-method{font-size:15px;line-height:1.55;color:var(--muted);max-width:780px;margin-top:14px}
   .source-note{font-family:var(--sans);font-size:10px;letter-spacing:.11em;line-height:1.6;text-transform:uppercase;color:var(--muted);max-width:780px;margin-top:14px}
@@ -226,7 +231,7 @@
     .word{font-size:clamp(48px,18vw,78px);letter-spacing:-.025em}.word.word-single{white-space:normal}.word.word-long,.word.word-xlong{font-size:clamp(40px,13vw,66px)}.prompt{font-size:18px}.card{min-height:0}.card::before{inset:10px}.note{grid-template-columns:1fr;padding:16px}.side{grid-template-columns:1fr}
     .rail{grid-template-columns:1fr;gap:12px}.tier-list{grid-template-columns:1fr 1fr}.progress-num{font-size:52px}
     .answer{min-height:0;padding:15px}.answer span{font-size:17px}
-    .results{inset:8px;padding:20px}.result-title{font-size:42px}.estimate{font-size:46px}.result-copy{font-size:18px}
+    .results{inset:8px;padding:20px}.result-title{font-size:42px}.estimate{font-size:46px}.estimate-grid{grid-template-columns:1fr}.result-copy{font-size:18px}
     .breakdown{grid-template-columns:1fr}.score-chart{width:150px}.break-row{grid-template-columns:92px 1fr 40px}
   }
   @media(max-width:430px){
@@ -310,9 +315,21 @@
   <div>
     <div class="kicker">Vocabulary estimate</div>
     <h2 class="result-title">Your active English lexicon</h2>
-    <div class="estimate"><span id="estimate">0</span> <small>words</small></div>
+    <div class="estimate"><span id="estimate">0</span> <small>active words</small></div>
+    <div class="estimate-grid" aria-label="Active and passive vocabulary estimates">
+      <div class="estimate-card">
+        <b>Active vocabulary</b>
+        <strong><span id="active-estimate">0</span></strong>
+        <span>Words you can likely recall and use deliberately in speech or writing.</span>
+      </div>
+      <div class="estimate-card">
+        <b>Passive vocabulary</b>
+        <strong><span id="passive-estimate">0</span></strong>
+        <span>Words you may recognize in context, even if you would not naturally use them.</span>
+      </div>
+    </div>
     <p class="result-copy" id="verdict"></p>
-    <p class="result-method" id="methodology">Estimate model: your score is weighted by difficulty tier, corrected for quiz length, then rounded to a broad active-vocabulary range. Treat it as a typographic diagnostic, not a clinical measurement.</p>
+    <p class="result-method" id="methodology">Estimate model: active vocabulary is weighted by difficulty tier, corrected for quiz length, then rounded to a broad range. Passive vocabulary is projected above active vocabulary because recognition usually exceeds confident recall and use. Treat both as typographic diagnostics, not clinical measurements.</p>
     <p class="source-note">Definitions are concise editorial definitions aligned to standard dictionary senses. For verbatim sourced entries, connect a licensed dictionary API or a public lexical dataset such as WordNet/Open English WordNet.</p>
     <div class="share-row">
       <button class="share-btn icon-btn" id="share-native" aria-label="Share result">
@@ -566,6 +583,15 @@ function estimate(){
   const base=Math.round((weighted+state.correct*310)/250)*250;
   return Math.max(2500,Math.min(82000,base));
 }
+function passiveEstimate(active){
+  const answered=Math.max(1,state.answers.length);
+  const accuracy=state.correct/answered;
+  const hardCorrect=state.answers.filter(a=>a.correct&&a.level>=4).length;
+  const hardSeen=Math.max(1,state.answers.filter(a=>a.level>=4).length);
+  const hardRatio=hardCorrect/hardSeen;
+  const multiplier=1.45+(accuracy*.32)+(hardRatio*.28);
+  return Math.round(Math.min(120000,active*multiplier)/250)*250;
+}
 function renderTiers(){
   $('tier-list').innerHTML=LEVELS.map((name,i)=>{
     const rows=state.answers.filter(a=>a.level===i+1);
@@ -622,7 +648,10 @@ function next(){
 }
 function showResults(){
   const est=estimate();
+  const passive=passiveEstimate(est);
   $('estimate').textContent=est.toLocaleString();
+  $('active-estimate').textContent=est.toLocaleString();
+  $('passive-estimate').textContent=passive.toLocaleString();
   const pct=Math.round((state.correct/state.quiz.length)*100);
   $('verdict').textContent=pct>=85?'An unusually broad working vocabulary. Your misses are likely specialized, historical, or stylistic rather than basic comprehension gaps.':pct>=65?'A strong literate vocabulary with room to deepen rare, scholarly, and etymological registers.':pct>=42?'A functional vocabulary with a clear opportunity: study word families, roots, and antonym pairs rather than isolated definitions.':'A developing vocabulary. The fastest gains will come from high-frequency academic words and recurring Latin and Greek roots.';
   const tierRows=LEVELS.map((name,i)=>{
@@ -632,7 +661,7 @@ function showResults(){
   $('breakdown').innerHTML=`<div class="score-chart" style="--score:${pct*3.6}deg" aria-label="${pct}% correct"><div class="chart-label"><span>${pct}</span><small>percent</small></div></div><div class="break-list">${tierRows}</div>`;
   const missed=state.answers.filter(a=>!a.correct).slice(0,10);
   $('missed').innerHTML=missed.length?missed.map(a=>`<div class="missed-word"><b>${a.word}</b><span>${a.definition}</span></div>`).join(''):'<div class="missed-word"><b>No misses</b><span>You answered every sampled word correctly.</span></div>';
-  $('share-copy').textContent=`I scored ${state.correct}/${state.quiz.length} on Lexicon with an estimated active vocabulary of ${est.toLocaleString()} words.`;
+  $('share-copy').textContent=`I scored ${state.correct}/${state.quiz.length} on Lexicon with an estimated active vocabulary of ${est.toLocaleString()} words and passive vocabulary of ${passive.toLocaleString()} words.`;
   $('results').classList.add('show');
 }
 function restart(){
@@ -646,8 +675,9 @@ function setMode(length){
   restart();
 }
 function shareText(){
-  const est=estimate().toLocaleString();
-  return `I scored ${state.correct}/${state.quiz.length} on Lexicon and estimated my active vocabulary at ${est} words.`;
+  const est=estimate();
+  const passive=passiveEstimate(est);
+  return `I scored ${state.correct}/${state.quiz.length} on Lexicon and estimated my active vocabulary at ${est.toLocaleString()} words, with passive vocabulary near ${passive.toLocaleString()} words.`;
 }
 async function shareResult(){
   const text=shareText();
