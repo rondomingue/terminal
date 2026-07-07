@@ -568,8 +568,8 @@
       <div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
       <div class="panel-label"><span class="flag">[</span> T.DATA <span class="flag">]</span></div>
       <div class="panel-meta" id="scope-bbox">29.70/-90.40 — 30.20/-89.70</div>
-      <div class="panel-meta" style="top:auto; bottom:6px; right:10px; font-size:8px;">MAP DATA © OPENSTREETMAP CONTRIBUTORS</div>
-      <div id="map-source-note">FREE VECTOR GEOMETRY / OSM OVERPASS — MAPBOX TOKEN READY</div>
+      <div class="panel-meta" style="top:auto; bottom:6px; right:10px; font-size:8px;">LOCAL SECTOR VECTOR / LIVE DATA OPTIONAL</div>
+      <div id="map-source-note">LOCAL MSY GEOMETRY — REMOTE OSM SYNC OFF</div>
       <div id="hex-ticker" class="mono"></div>
       <div id="map-loader" class="mono">
         <span class="map-loader-dot"></span> SYNCING VECTOR GEOMETRY…
@@ -947,6 +947,7 @@
     </defs>`;
     html += `<rect x="0" y="0" width="${SVG_W}" height="${SVG_H}" fill="rgba(255,255,255,0.006)"/>`;
     html += `<g id="topology" opacity="0.72">${buildTopology()}</g>`;
+    html += `<g id="local-map" opacity="0.78"></g>`;
     html += `<g id="vector-underlay" opacity="0.22"></g>`;
     html += `<g id="vector-map" opacity="0.58"></g>`;
     html += `<g id="vector-spark" opacity="0.55"></g>`;
@@ -1147,6 +1148,52 @@
     const g = svg.querySelector('#vector-spark');
     if(g) g.insertAdjacentHTML('beforeend', svgFragment);
   }
+  function buildLocalSectorMap(){
+    const g = svg.querySelector('#local-map');
+    if(!g) return;
+    const p = (lat, lon) => project(lat, lon).map(v=>Number(v.toFixed(1)));
+    const path = pts => {
+      const xy = pts.map(([lat,lon])=>p(lat,lon));
+      return 'M ' + xy.map(([x,y])=>`${x} ${y}`).join(' L ');
+    };
+    const lines = [
+      {kind:'shore', pts:[[30.19,-90.38],[30.15,-90.30],[30.14,-90.20],[30.12,-90.10],[30.16,-89.98],[30.17,-89.82],[30.12,-89.72]]},
+      {kind:'river', pts:[[29.80,-90.40],[29.83,-90.31],[29.86,-90.21],[29.83,-90.10],[29.88,-90.02],[29.92,-89.96],[29.93,-89.86],[29.98,-89.78],[30.02,-89.70]]},
+      {kind:'river', pts:[[29.76,-90.36],[29.78,-90.24],[29.82,-90.16],[29.79,-90.05],[29.84,-89.96],[29.87,-89.88],[29.91,-89.76]]},
+      {kind:'road', pts:[[29.92,-90.38],[29.94,-90.28],[29.96,-90.18],[29.97,-90.06],[29.99,-89.94],[30.01,-89.82]]},
+      {kind:'road', pts:[[30.04,-90.36],[30.03,-90.25],[30.02,-90.14],[30.03,-90.02],[30.06,-89.90]]},
+      {kind:'road', pts:[[29.88,-90.34],[29.90,-90.22],[29.90,-90.10],[29.92,-90.00],[29.91,-89.88]]},
+      {kind:'canal', pts:[[30.09,-90.35],[30.02,-90.26],[29.98,-90.17],[29.94,-90.08],[29.90,-89.98]]},
+      {kind:'canal', pts:[[29.76,-90.18],[29.82,-90.14],[29.88,-90.12],[29.94,-90.10],[30.02,-90.05],[30.10,-90.00]]}
+    ];
+    let html = '';
+    lines.forEach(({kind, pts})=>{
+      const cls = kind === 'shore' ? 'stroke="var(--white)" stroke-width="1.25" opacity="0.5" filter="url(#mapGlow)"'
+        : kind === 'river' ? 'stroke="var(--ink)" stroke-width="1" opacity="0.36" filter="url(#mapGlow)"'
+        : kind === 'road' ? 'stroke="var(--ink-faint)" stroke-width="0.55" opacity="0.22" stroke-dasharray="2 3"'
+        : 'stroke="var(--ink-dim)" stroke-width="0.65" opacity="0.28" stroke-dasharray="5 5"';
+      html += `<path d="${path(pts)}" fill="none" ${cls}/>`;
+    });
+    const [fx, fy] = p(FIELD.lat, FIELD.lon);
+    html += `<g opacity="0.72" filter="url(#softBloom)">
+      <path d="M ${fx-39} ${fy+12} L ${fx+35} ${fy-9}" stroke="var(--white)" stroke-width="3.2" opacity="0.62"/>
+      <path d="M ${fx-34} ${fy+22} L ${fx+41} ${fy+1}" stroke="var(--ink)" stroke-width="1.4" opacity="0.44"/>
+      <path d="M ${fx-18} ${fy-12} L ${fx+27} ${fy+27}" stroke="var(--ink-dim)" stroke-width="1" opacity="0.4"/>
+      <rect x="${fx-23}" y="${fy-6}" width="44" height="17" fill="rgba(255,255,255,0.035)" stroke="var(--ink-faint)" stroke-width="0.5" opacity="0.7"/>
+    </g>`;
+    let texture = '';
+    for(let i=0;i<120;i++){
+      const seed = Math.sin(i*91.17)*10000;
+      const lon = -90.35 + (Math.abs(seed)%1)*0.58;
+      const lat = 29.76 + (Math.abs(Math.sin(seed*1.7))%1)*0.36;
+      const [x,y] = p(lat,lon);
+      if(Math.hypot(x-fx,y-fy)<30) continue;
+      texture += `<circle cx="${x}" cy="${y}" r="${0.35 + (i%5)*0.08}" fill="var(--ink-faint)" opacity="${0.12 + (i%4)*0.025}"/>`;
+    }
+    html += `<g>${texture}</g>`;
+    html += `<text x="${fx+36}" y="${fy+6}" fill="var(--ink-dim)" font-size="8" font-family="Space Mono, monospace" letter-spacing="1.4">KMSY</text>`;
+    g.innerHTML = html;
+  }
 
   const MAP_CACHE_TTL = 1000*60*60*24*30; // map geometry changes slowly; prefer fast repeat loads
   function getMapCache(key, allowStale=false){
@@ -1265,6 +1312,15 @@
   }
 
   function buildVectorMap(){
+    buildLocalSectorMap();
+    const loaderEl = $('map-loader');
+    if(loaderEl) loaderEl.classList.add('done');
+    logLine('VECTOR MAP — LOCAL SECTOR GEOMETRY READY');
+    const useRemoteMap = new URLSearchParams(location.search).get('liveMap') === '1';
+    if(!useRemoteMap){
+      logLine('VECTOR MAP — REMOTE SYNC OFF');
+      return;
+    }
     const bbox = `${BBOX.lamin},${BBOX.lomin},${BBOX.lamax},${BBOX.lomax}`;
     // pass 1: core geography, kept lean so it resolves fast
     const wideQuery = `[out:json][timeout:12][bbox:${bbox}];
@@ -1301,7 +1357,6 @@
       out geom;`;
 
     // core + local make the map usable; heavier texture resolves quietly after first paint
-    const loaderEl = $('map-loader');
     let settled = 0;
     const total = 2;
     let loaderReleased = false;
