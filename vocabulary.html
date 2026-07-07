@@ -126,8 +126,12 @@
   .word-panel{position:relative;z-index:1;padding:clamp(28px,4vw,42px) clamp(20px,4vw,42px) 18px;text-align:center;min-width:0}
   .word{
     font-family:var(--serif);font-weight:var(--word-weight,400);font-size:clamp(54px,8.2vw,132px);line-height:.9;letter-spacing:-.032em;
-    color:var(--ink);font-feature-settings:"liga" 1,"kern" 1;overflow-wrap:anywhere;text-wrap:balance;
+    color:var(--ink);font-feature-settings:"liga" 1,"kern" 1;overflow-wrap:normal;word-break:normal;hyphens:none;text-wrap:balance;
   }
+  .word.word-single{white-space:nowrap}
+  .word.word-long{font-size:clamp(50px,6.7vw,108px);letter-spacing:-.038em}
+  .word.word-xlong{font-size:clamp(40px,5.6vw,82px);line-height:.96;letter-spacing:-.03em}
+  .word .word-line{display:block}
   .pronounce{margin-top:18px;font-family:var(--sans);font-size:12px;letter-spacing:.14em;color:var(--muted);font-weight:400}
   .prompt{margin:20px auto 0;max-width:640px;font-size:20px;line-height:1.45;color:var(--ink-2)}
   .answers{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px clamp(20px,4vw,42px) 30px;align-content:start;min-width:0}
@@ -219,7 +223,7 @@
   @media(max-width:740px){
     .app{padding:12px;gap:14px}.topbar{grid-template-columns:1fr;align-items:start;gap:12px}.title-mark{text-align:left}.tools{justify-content:flex-start}
     .answers{grid-template-columns:1fr;padding:8px 16px 20px}.word-panel{padding:26px 16px 14px}.question-head{padding:18px 16px 0;flex-wrap:wrap}
-    .word{font-size:clamp(48px,18vw,78px);letter-spacing:-.025em}.prompt{font-size:18px}.card{min-height:0}.card::before{inset:10px}.note{grid-template-columns:1fr;padding:16px}.side{grid-template-columns:1fr}
+    .word{font-size:clamp(48px,18vw,78px);letter-spacing:-.025em}.word.word-single{white-space:normal}.word.word-long,.word.word-xlong{font-size:clamp(40px,13vw,66px)}.prompt{font-size:18px}.card{min-height:0}.card::before{inset:10px}.note{grid-template-columns:1fr;padding:16px}.side{grid-template-columns:1fr}
     .rail{grid-template-columns:1fr;gap:12px}.tier-list{grid-template-columns:1fr 1fr}.progress-num{font-size:52px}
     .answer{min-height:0;padding:15px}.answer span{font-size:17px}
     .results{inset:8px;padding:20px}.result-title{font-size:42px}.estimate{font-size:46px}.result-copy{font-size:18px}
@@ -542,6 +546,20 @@ function usageSentence(word){
   if(word[2]==='noun') return `The essay treated ${term} as the clue that made the whole passage intelligible.`;
   return `Her ${term} phrasing made the sentence feel exact rather than merely decorative.`;
 }
+function displayWord(term){
+  const knownBreaks={
+    floccinaucinihilipilification:['floccinaucini','hilipilification'],
+    enantiodromia:['enantio','dromia']
+  };
+  if(knownBreaks[term]) return knownBreaks[term].map(part=>`<span class="word-line">${escapeHtml(part)}</span>`).join('');
+  if(term.length>20){
+    const midpoint=Math.ceil(term.length/2);
+    const vowels=[...term.matchAll(/[aeiouy]/gi)].map(match=>match.index).filter(i=>i>7&&i<term.length-7);
+    const split=vowels.sort((a,b)=>Math.abs(a-midpoint)-Math.abs(b-midpoint))[0]||midpoint;
+    return `<span class="word-line">${escapeHtml(term.slice(0,split))}</span><span class="word-line">${escapeHtml(term.slice(split))}</span>`;
+  }
+  return escapeHtml(term);
+}
 function estimate(){
   const answered=Math.max(1,state.answers.length);
   const weighted=state.answers.reduce((sum,a)=>sum+(a.correct?(a.level*900+1800):0),0)/answered;
@@ -568,7 +586,8 @@ function renderQuestion(){
   $('level-label').textContent=`${LEVELS[word[7]-1]} vocabulary`;
   $('score-label').textContent=`${state.correct} correct`;
   document.documentElement.style.setProperty('--word-weight',[300,400,450,500,600][word[7]-1]);
-  $('word').textContent=word[0];
+  $('word').className=`word ${word[0].length>20?'word-xlong':word[0].length>13?'word-long word-single':'word-single'}`;
+  $('word').innerHTML=displayWord(word[0]);
   $('pronounce').textContent=`${word[1]} / ${word[2]}`;
   $('answers').innerHTML=optionSet(word).map(o=>`<button class="answer" data-correct="${o.correct}"><b>${o.letter}</b><span>${o.text}</span></button>`).join('');
   $('note').innerHTML=`<div class="note-copy"><b>After you answer</b><span>Each word reveals its origin, useful neighbors, and a clean antonym.</span></div><button class="next" id="next">Next word</button>`;
