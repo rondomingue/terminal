@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Outbreaks — Global Epidemic Intelligence</title>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9CMETG9RBQ"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-9CMETG9RBQ');</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@100;200;300;400;500;600;700&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -118,6 +120,13 @@
   .tl .ev .t{font-size:12px; color:var(--muted); margin-top:1px}
   .eth .note{font-size:12px; color:var(--muted); line-height:1.5}
   .eth .note b{color:var(--bone-dim); font-weight:500}
+
+  /* ── Navigation ───────────────────────────────────────── */
+  .nav-links{display:flex; gap:22px; font-family:'Space Mono',monospace; font-size:10px; letter-spacing:.14em; text-transform:uppercase; align-items:center}
+  .nav-links a{color:var(--muted); text-decoration:none; transition:color .15s, border-color .15s; padding-bottom:2px; border-bottom:1px solid transparent}
+  .nav-links a:hover{color:var(--bone-dim)}
+  .nav-links a.active{color:var(--bone-dim); border-bottom-color:var(--severe)}
+
   @media (max-width:1080px){ .eth{grid-template-columns:1fr} .eth .side{border-left:0; border-top:1px solid var(--line)} }
   svg.map{width:100%; height:auto; display:block; overflow:visible}
   .land{fill:#151d1a; stroke:rgba(233,229,217,.09); stroke-width:.5}
@@ -307,6 +316,12 @@
         <span class="mark disp">Outbreaks<span class="dotmark">.</span></span>
         <span class="tag">Global Epidemic Intelligence</span>
       </div>
+      <nav class="nav-links" aria-label="Site navigation">
+        <a href="outbreaks.html" class="active">Dashboard</a>
+        <a href="pathogen-history.html">Chronicle</a>
+        <a href="plague-history.html">Great Plagues</a>
+        <a href="index.html">Portfolio</a>
+      </nav>
       <div class="status">
         <span class="live"><span class="dot" aria-hidden="true"></span> 1 active emergency (PHEIC)</span>
         <span>Updated 04 Jul 2026</span>
