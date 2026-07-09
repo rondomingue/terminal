@@ -771,7 +771,9 @@
     }
   }
   function hydrateRoutes(flights){
-    const callsigns = [...new Set(flights.map(f=>cleanCallsign(f.callsign)).filter(Boolean))].slice(0,24);
+    const callsigns = [...new Set(flights.map(f=>cleanCallsign(f.callsign)).filter(Boolean))]
+      .filter(cs=>!ROUTE_CACHE.has(cs) && !ROUTE_PENDING.has(cs))
+      .slice(0,24);
     callsigns.forEach(cs=>{
       fetchRouteForCallsign(cs).then(()=>{
         renderTable();
@@ -1694,6 +1696,15 @@
       return;
     }
     const cs = (f.callsign||'').trim() || '—';
+    const routeKey = cleanCallsign(cs);
+    if(routeKey && !ROUTE_CACHE.has(routeKey) && !ROUTE_PENDING.has(routeKey)){
+      fetchRouteForCallsign(routeKey).then(()=>{
+        if(stateData.find(d=>d.icao24===selectedIcao) === f){
+          renderTable();
+          renderSelection();
+        }
+      });
+    }
     $('sel-callsign').textContent = cs;
     const route = flightRouteFor(f);
     $('sel-airline').textContent = route?.airline?.name || resolveAirline(cs) || 'UNKNOWN / GA';
