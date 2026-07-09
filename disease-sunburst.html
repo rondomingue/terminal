@@ -97,8 +97,8 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #030507; c
   border-radius: 50%;
   border: 1px solid rgba(208,216,238,.18);
   background: rgba(3,5,7,.78);
-  display: grid; place-items: center;
-  position: relative;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  position: relative; gap: 0;
 }
 #center-overlay .hub::before,
 #center-overlay .hub::after {
@@ -107,10 +107,32 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #030507; c
 }
 #center-overlay .hub::before { width: 78%; height: 1px; }
 #center-overlay .hub::after { width: 1px; height: 78%; }
-#center-overlay .hub span {
-  width: 6px; height: 6px; border-radius: 50%;
+#center-overlay .hub > span {
+  width: 5px; height: 5px; border-radius: 50%;
   background: rgba(208,216,238,.65);
   box-shadow: 0 0 18px rgba(208,216,238,.28);
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  z-index: 2;
+}
+.hub-data {
+  text-align: center; position: relative; z-index: 3;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+}
+.hub-num {
+  font-family: 'Fraunces', serif; font-weight: 300;
+  font-size: clamp(9px, 1.4vw, 16px); letter-spacing: -.02em; line-height: 1;
+  color: rgba(208,216,238,.82);
+  text-shadow: 0 0 16px rgba(200,64,56,.35);
+}
+.hub-label {
+  font-family: 'Space Mono', monospace; font-size: clamp(4px, 0.55vw, 7px);
+  letter-spacing: .12em; text-transform: uppercase;
+  color: rgba(160,172,200,.5); line-height: 1;
+}
+.hub-sub {
+  font-family: 'Space Mono', monospace; font-size: clamp(3.5px, 0.45vw, 5.5px);
+  letter-spacing: .1em; text-transform: uppercase;
+  color: rgba(100,112,140,.4); margin-top: 1px; line-height: 1;
 }
 
 /* ═══ PAGE TITLE (floating top-left of chart) ════════════════════════════ */
@@ -300,7 +322,14 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #030507; c
   <div id="chart-area">
     <div id="chart"></div>
     <div id="center-overlay">
-      <div class="hub"><span></span></div>
+      <div class="hub">
+        <span></span>
+        <div class="hub-data">
+          <div class="hub-num">~1.5B</div>
+          <div class="hub-label">est. deaths</div>
+          <div class="hub-sub">26 diseases · 1000 yrs</div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -450,7 +479,7 @@ const DATA = [
         note:'The single largest killer of humans in recorded history. Estimated 1–3 million annual deaths as recently as the 1990s. The RTS,S vaccine, approved by WHO in 2021 after 30 years of development, showed 75% efficacy in children.',
         cfr:'0.1–20% (P. falciparum)', vax:'Yes — RTS,S 2021 (first)', first:'~70,000 BCE', status:'~600K deaths/yr · ongoing',
         children:[{name:'Medieval\n1000–1600',value:20},{name:'Colonial\n1600–1850',value:22},{name:'Industrial\n1850–1950',value:26},{name:'Contemporary\n1950–present',value:18}]},
-      { name:'Sleeping\nSickness', deaths:'~1 million', period:'19th–20th century',
+      { name:'Sleeping Sickness', deaths:'~1 million', period:'19th–20th century',
         note:'Trypanosoma brucei, tsetse fly. A colonial epidemic in Uganda (1900–1906) killed ~60% of the population along lake shores. Treatment remained arsenic-based until the 21st century.',
         cfr:'Near 100% (untreated)', vax:'None', first:'1902 (first confirmed)', status:'Near-elimination in progress',
         children:[{name:'Colonial\n1900–1920',value:7},{name:'Later waves',value:6}]},
@@ -499,6 +528,14 @@ const LEAF_SHADES = {
   OTHER:     ['#5848a8','#4838a8','#604898','#5040b0','#6850a0'],
 };
 
+// Convert hex color to "r,g,b" string for rgba() use
+function hexRgb(hex) {
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return `${r},${g},${b}`;
+}
+
 function colorizeData(data) {
   const counters = {VIRAL:0, BACTERIAL:0, PARASITIC:0, OTHER:0};
   return data.map(classNode => {
@@ -509,9 +546,28 @@ function colorizeData(data) {
       counters[cls]++;
       const newEras = (disease.children||[]).map((era, i) => {
         const shade = shades[(counters[cls] + i) % shades.length];
-        return shade ? {...era, itemStyle:{color:shade}} : era;
+        if (!shade) return era;
+        const rgb = hexRgb(shade);
+        // Older eras = more transparent, newer = slightly more visible
+        // Creates a temporal gradient reading oldest→newest within each disease
+        const timeAlpha = [0.04, 0.08, 0.13, 0.19];
+        const alpha = timeAlpha[Math.min(i, timeAlpha.length - 1)];
+        return {
+          ...era,
+          itemStyle: {
+            color: `rgba(${rgb},${alpha})`,
+          },
+          emphasis: {
+            itemStyle: {
+              opacity: 1,
+              color: `rgba(${rgb},0.52)`,
+            }
+          }
+        };
       });
-      return diseaseColor ? {...disease, itemStyle:{color:diseaseColor}, children: newEras} : {...disease, children: newEras};
+      return diseaseColor
+        ? {...disease, itemStyle:{color:diseaseColor}, children: newEras}
+        : {...disease, children: newEras};
     });
     return {...classNode, children: newDiseases};
   });
@@ -540,7 +596,7 @@ function buildOption(data) {
       data,
       z: 3,
       radius:['24%','76%'],
-      center:['50%','50%'],
+      center:['50%','53%'],
       sort:null,
       nodeClick: 'rootToNode',
       emphasis:{
@@ -582,11 +638,11 @@ function buildOption(data) {
           label:{
             show:true,
             rotate:'radial',
-            fontSize:8.7,
+            fontSize:10,
             fontFamily:DATA_FONT_LIGHT,
             fontWeight:300,
             letterSpacing:0.2,
-            color:'rgba(248,250,255,.88)',
+            color:'rgba(248,250,255,.96)',
             align:'right',
             overflow:'truncate',
             width:136,
@@ -594,53 +650,51 @@ function buildOption(data) {
             textBorderWidth:0,
           },
           emphasis:{
-            label:{show:false}
+            label:{
+              show:true,
+              color:'rgba(255,255,255,1)',
+              fontWeight:500,
+              textBorderWidth:0,
+            }
           },
           itemStyle:{opacity:.9, borderWidth:0}
         },
-        { // Era ring
+        { // Era ring — transparent fill, year labels pushed inside the ring
           r0:'61%', r:'76%',
           label:{
             show:true,
-            position:'outside',
+            position:'inside',
             rotate:'radial',
-            fontSize:6.6,
+            fontSize:8,
             fontFamily:DATA_FONT_LIGHT,
             fontWeight:300,
             letterSpacing:0.2,
-            color:'rgba(152,166,198,.58)',
-            minAngle:6,
+            color:'rgba(210,220,248,.78)',
+            minAngle:3,
             overflow:'truncate',
-            width:88,
+            width:100,
             textBorderWidth:0,
             textShadowBlur:0,
           },
           emphasis:{
             label:{
-              show:false,
-              position:'outside',
+              show:true,
+              position:'inside',
               rotate:'radial',
-              fontSize:6.8,
+              fontSize:8.5,
               fontFamily:DATA_FONT_LIGHT,
-              fontWeight:300,
-              color:'rgba(214,222,242,.82)',
+              fontWeight:400,
+              color:'rgba(235,240,255,.92)',
               overflow:'truncate',
-              width:96,
+              width:110,
               textBorderWidth:0,
               textShadowBlur:0,
             }
           },
           labelLine:{
-            show:true,
-            length:28,
-            length2:12,
-            smooth:0,
-            lineStyle:{
-              color:'rgba(150,170,220,.12)',
-              width:0.6,
-            }
+            show:false,
           },
-          itemStyle:{opacity:.5, borderWidth:0}
+          itemStyle:{color:'rgba(3,5,7,0)', opacity:1, borderWidth:0}
         }
       ]
     }]
@@ -838,8 +892,8 @@ function buildDecorGraphics() {
     els.push({type:'text',silent:true,z:3,
       style:{
         text:collector.className,
-        fill:'rgba(210,220,244,.82)',
-        font:`300 8.5px ${DATA_FONT_LIGHT}`,
+        fill:'rgba(240,245,255,1)',
+        font:`700 14px 'Space Mono', monospace`,
         x:labelX,
         y:labelY,
         textAlign:'center',
@@ -872,7 +926,7 @@ function buildDecorGraphics() {
       for (let b = a + 1; b < layouts.length; b++) {
         const start = layouts[a], end = layouts[b];
         els.push({type:'bezierCurve',silent:true,z:0,
-          shape:threadCurve(start.hx, start.hy, end.hx, end.hy, base * (a % 2 ? -0.018 : 0.018)),
+          shape:threadCurve(start.hx, start.hy, end.hx, end.hy, base * (a % 2 ? -0.07 : 0.07)),
           style:{stroke:collector.color, fill:null, opacity:.16, lineWidth:.86}
         });
       }
@@ -891,7 +945,7 @@ function buildDecorGraphics() {
       const sy = cy + sourceR * Math.sin(eraRad);
 
       els.push({type:'bezierCurve',silent:true,z:2,
-        shape:threadCurve(sx, sy, hx, hy, base * (eraIndex % 2 ? -0.012 : 0.012)),
+        shape:threadCurve(sx, sy, hx, hy, base * (eraIndex % 2 ? -0.072 : 0.072)),
         style:{
           stroke:cluster.color,
           fill:null,
@@ -901,13 +955,13 @@ function buildDecorGraphics() {
       });
       siblingHubs.forEach((sibling, siblingIndex) => {
         els.push({type:'bezierCurve',silent:true,z:1,
-          shape:threadCurve(sx, sy, sibling.hx, sibling.hy, base * (siblingIndex ? -0.018 : 0.018)),
+          shape:threadCurve(sx, sy, sibling.hx, sibling.hy, base * (siblingIndex ? -0.065 : 0.065)),
           style:{stroke:cluster.color, fill:null, opacity:siblingIndex === 0 ? .22 : .14, lineWidth:.82}
         });
       });
       if (collector) {
         els.push({type:'bezierCurve',silent:true,z:1,
-          shape:threadCurve(sx, sy, collector.x, collector.y, base * (eraIndex % 2 ? -0.02 : 0.02)),
+          shape:threadCurve(sx, sy, collector.x, collector.y, base * (eraIndex % 2 ? -0.07 : 0.07)),
           style:{stroke:cluster.color, fill:null, opacity:.2, lineWidth:.78}
         });
       }
@@ -919,7 +973,7 @@ function buildDecorGraphics() {
 
     if (collector) {
       els.push({type:'bezierCurve',silent:true,z:1,
-        shape:threadCurve(hx, hy, collector.x, collector.y, base * (i % 2 ? -0.016 : 0.016)),
+        shape:threadCurve(hx, hy, collector.x, collector.y, base * (i % 2 ? -0.068 : 0.068)),
         style:{stroke:cluster.color, fill:null, opacity:.5, lineWidth:1.24}
       });
     }
@@ -978,26 +1032,6 @@ function buildDecorGraphics() {
         font:'7px Space Mono, monospace',
         x:cx+r*Math.cos(rad), y:cy+r*Math.sin(rad),
         textAlign:'center', textVerticalAlign:'middle'}
-    });
-  });
-
-  // Outer boundary arc label ("1,000 YEARS OF PANDEMIC HISTORY")
-  // We approximate this with a few text elements along the top of the ring
-  const arcR = base * 0.91;
-  const arcText = '1,000 YEARS OF PANDEMIC HISTORY · OUTBREAKS.';
-  const chars = arcText.split('');
-  const totalArc = chars.length * 4.5; // approximate degrees per char
-  const startDeg = -90 - totalArc/2;
-  chars.forEach((ch, i)=>{
-    const deg = startDeg + i * (totalArc/chars.length);
-    const rad = deg * Math.PI/180;
-    els.push({type:'text',silent:true,z:1,
-      style:{text:ch, fill:'rgba(74,84,104,.45)',
-        font:'7px Space Mono, monospace',
-        x:cx+arcR*Math.cos(rad), y:cy+arcR*Math.sin(rad),
-        textAlign:'center', textVerticalAlign:'middle',
-        rotation: rad + Math.PI/2
-      }
     });
   });
 
