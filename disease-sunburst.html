@@ -835,24 +835,35 @@ function classCollectors(clusters) {
 function buildDecorGraphics() {
   const w = chart.getWidth(), h = chart.getHeight();
   const cx = w * 0.50, cy = h * 0.53;  // must match ECharts center:['50%','53%']
+  const base = Math.min(w,h)/2;
 
   // Pin the HTML overlay to the exact same pixel point
   const overlay = document.getElementById('center-overlay');
   overlay.style.left = cx + 'px';
   overlay.style.top  = cy + 'px';
-  const base = Math.min(w,h)/2;
-  const els = [];
 
-  // Concentric reference rings at chart and annotation boundaries
+  // Concentric rings — rendered as HTML divs (same coordinate space as overlay,
+  // no ECharts canvas coordinate ambiguity)
+  document.querySelectorAll('.deco-ring').forEach(el => el.remove());
+  const chartArea = document.getElementById('chart-area');
   [{r:0.24, col:'rgba(180,200,255,.16)', sw:1.1},
    {r:0.37, col:'rgba(180,200,255,.07)', sw:0.7},
    {r:0.61, col:'rgba(180,200,255,.06)', sw:0.7},
    {r:0.82, col:'rgba(180,200,255,.10)', sw:0.8},
    {r:0.90, col:'rgba(180,200,255,.055)',sw:1},
-   {r:0.94, col:'rgba(180,200,255,.035)',sw:0.8},
-  ].forEach(({r,col,sw})=>{
-    els.push({type:'circle',silent:true,z:0,shape:{cx,cy,r:base*r},style:{fill:'none',stroke:col,lineWidth:sw}});
+   {r:0.94, col:'rgba(180,200,255,.03)', sw:0.8},
+  ].forEach(({r,col,sw}) => {
+    const d = base * r * 2;
+    const ring = document.createElement('div');
+    ring.className = 'deco-ring';
+    ring.style.cssText = `position:absolute;width:${d}px;height:${d}px;`
+      + `left:${cx}px;top:${cy}px;transform:translate(-50%,-50%);`
+      + `border-radius:50%;border:${sw}px solid ${col};`
+      + `pointer-events:none;z-index:1;`;
+    chartArea.appendChild(ring);
   });
+
+  const els = [];
 
   // Data-driven spokes. Top-level class borders are bright; disease borders are fine wire.
   segmentBoundaries(activeData, 2).forEach(({deg, depth, color}) => {
