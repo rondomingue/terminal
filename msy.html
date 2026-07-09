@@ -363,8 +363,9 @@
   #table-scroll{ height:100%; overflow:hidden; font-family:'Space Mono',monospace; font-size:10px; }
   .trow{
     display:grid;
-    grid-template-columns: 62px 1fr 48px 52px 52px 40px 52px 52px;
+    grid-template-columns: 60px minmax(58px,1fr) 72px 72px 42px 42px 48px 44px 44px;
     gap:6px;
+    min-width:760px;
     padding:3px 0;
     color:var(--ink-dim);
     border-bottom:1px solid var(--line-dim);
@@ -387,6 +388,7 @@
   .trow.head{ color:var(--ink-faint); letter-spacing:0.1em; border-bottom:1px solid var(--line); cursor:default; }
   .trow .c-id{ color:var(--white); }
   .trow.head .c-id{ color:var(--ink-faint); }
+  .trow span{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
   /* RIGHT RAIL */
   #rail-right{ grid-column:3; grid-row:1 / span 4; display:flex; flex-direction:column; gap:14px; }
@@ -423,6 +425,7 @@
     padding:4px 0; border-bottom:1px solid var(--line-dim);
   }
   .sel-card .row .v{ color:var(--white); }
+  .sel-card .row .v{ text-align:right; max-width:58%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .sel-card .row:last-child{ border-bottom:none; }
 
   #legend-card{ flex:1 1 auto; padding:22px 12px 12px 12px; }
@@ -508,7 +511,7 @@
     .clockblock .big{ font-size:16px; }
     .mini-stats{ flex-wrap:wrap; row-gap:4px; }
     #scope-stack{ min-height:340px; }
-    .trow{ grid-template-columns: 48px 1fr 42px 42px 42px 34px; font-size:8.5px; gap:5px; }
+    .trow{ font-size:8.5px; gap:5px; min-width:700px; }
     .sel-card, #legend-card, .stat-card, #log-card{ padding:16px 10px 10px 10px; }
     #rail-left, #rail-right{ gap:10px; }
     #hex-ticker{ display:none; } /* decorative ticker, not worth the space on small screens */
@@ -625,7 +628,7 @@
       <div class="panel-label">[ COMMS ] — ACTIVE SQUAWK</div>
       <div id="table-scroll">
         <div class="trow head">
-          <span>CALLSIGN</span><span>AIRLINE</span><span>TYPE</span><span>REG</span><span>ICAO24</span><span>HDG</span><span>ALT FT</span><span>SPD KT</span>
+          <span>CALLSIGN</span><span>AIRLINE</span><span>FROM</span><span>TO</span><span>TYPE</span><span>HDG</span><span>ALT FT</span><span>SPD</span><span>REG</span>
         </div>
         <div id="table-body"></div>
       </div>
@@ -663,6 +666,8 @@
         <div style="margin-top:10px;">
           <div class="row"><span>CALLSIGN</span><span class="v" id="sel-callsign">—</span></div>
           <div class="row"><span>AIRLINE</span><span class="v" id="sel-airline">—</span></div>
+          <div class="row"><span>FROM</span><span class="v" id="sel-from">—</span></div>
+          <div class="row"><span>TO</span><span class="v" id="sel-to">—</span></div>
           <div class="row"><span>TYPE</span><span class="v" id="sel-type">—</span></div>
           <div class="row"><span>REG</span><span class="v" id="sel-reg">—</span></div>
           <div class="row"><span>ICAO24</span><span class="v" id="sel-icao">—</span></div>
@@ -716,6 +721,63 @@
     const cs = callsign.trim().toUpperCase();
     const prefix = cs.slice(0,3);
     return AIRLINES[prefix] || null;
+  }
+  const ROUTE_CACHE = new Map(); // callsign -> route object or null
+  const ROUTE_PENDING = new Set();
+  function cleanCallsign(callsign){
+    return (callsign||'').trim().toUpperCase().replace(/\s+/g,'');
+  }
+  function escHtml(value){
+    return String(value ?? '').replace(/[&<>"']/g, ch => ({
+      '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+    }[ch]));
+  }
+  function compactAirportCity(airport){
+    if(!airport) return null;
+    const city = airport.municipality || airport.city || airport.locality || airport.name;
+    const code = airport.iata_code || airport.iata || airport.icao_code || airport.icao;
+    if(city && code) return `${city} / ${code}`;
+    return city || code || null;
+  }
+  function flightRouteFor(f){
+    const cs = cleanCallsign(f?.callsign);
+    return cs ? ROUTE_CACHE.get(cs) || null : null;
+  }
+  function routeCity(f, side){
+    const route = flightRouteFor(f);
+    return compactAirportCity(route?.[side]) || '—';
+  }
+  function normalizeRouteResponse(data){
+    const route = data?.response?.flightroute || data?.response?.flight_route || data?.response;
+    if(!route || (!route.origin && !route.destination)) return null;
+    return {
+      origin: route.origin || null,
+      destination: route.destination || null,
+      airline: route.airline || null
+    };
+  }
+  async function fetchRouteForCallsign(callsign){
+    const cs = cleanCallsign(callsign);
+    if(!cs || ROUTE_CACHE.has(cs) || ROUTE_PENDING.has(cs)) return;
+    ROUTE_PENDING.add(cs);
+    try{
+      const res = await fetch(`https://api.adsbdb.com/v0/callsign/${encodeURIComponent(cs)}`);
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      ROUTE_CACHE.set(cs, normalizeRouteResponse(await res.json()));
+    }catch(e){
+      ROUTE_CACHE.set(cs, null);
+    }finally{
+      ROUTE_PENDING.delete(cs);
+    }
+  }
+  function hydrateRoutes(flights){
+    const callsigns = [...new Set(flights.map(f=>cleanCallsign(f.callsign)).filter(Boolean))].slice(0,24);
+    callsigns.forEach(cs=>{
+      fetchRouteForCallsign(cs).then(()=>{
+        renderTable();
+        renderSelection();
+      });
+    });
   }
   const svg = $('scope-svg');
   let SVG_W = 800, SVG_H = 460;
@@ -1626,13 +1688,17 @@
       $('sel-alt').textContent='—'; $('sel-vel').textContent='—';
       $('sel-vrate').textContent='—'; $('sel-airline').textContent='—';
       $('sel-type').textContent='—'; $('sel-reg').textContent='—';
+      $('sel-from').textContent='—'; $('sel-to').textContent='—';
       lastPhotoIcao = null;
       clearTrackPhoto();
       return;
     }
     const cs = (f.callsign||'').trim() || '—';
     $('sel-callsign').textContent = cs;
-    $('sel-airline').textContent = resolveAirline(cs) || 'UNKNOWN / GA';
+    const route = flightRouteFor(f);
+    $('sel-airline').textContent = route?.airline?.name || resolveAirline(cs) || 'UNKNOWN / GA';
+    $('sel-from').textContent = routeCity(f,'origin');
+    $('sel-to').textContent = routeCity(f,'destination');
     $('sel-type').textContent = f.actype && f.actype!=='—' ? f.actype : '—';
     $('sel-reg').textContent = f.registration && f.registration!=='—' ? f.registration : '—';
     $('sel-icao').textContent = f.icao24.toUpperCase();
@@ -1648,16 +1714,18 @@
     const sorted = [...stateData].sort((a,b)=> (b.baro_altitude||0) - (a.baro_altitude||0));
     sorted.slice(0,40).forEach(f=>{
       const cs = (f.callsign||'').trim() || '----';
-      const airline = resolveAirline(cs) || '—';
+      const route = flightRouteFor(f);
+      const airline = route?.airline?.name || resolveAirline(cs) || '—';
+      const from = routeCity(f,'origin');
+      const to = routeCity(f,'destination');
       const actype = (f.actype && f.actype!=='—') ? f.actype : '—';
       const reg = (f.registration && f.registration!=='—') ? f.registration : '—';
-      const icao = f.icao24 ? f.icao24.toUpperCase() : '—';
       const alt = f.baro_altitude!=null ? Math.round(f.baro_altitude*3.281) : '--';
       const spd = f.velocity!=null ? Math.round(f.velocity*1.944) : '--';
       const hdg = f.true_track!=null ? Math.round(f.true_track) : '--';
       const isSel = f.icao24 === selectedIcao;
       html += `<div class="trow${isSel?' selected':''}" data-icao="${f.icao24}">
-        <span class="c-id">${cs}</span><span>${airline}</span><span>${actype}</span><span style="color:var(--ink-faint)">${reg}</span><span style="color:var(--ink-faint)">${icao}</span><span>${hdg}°</span><span>${alt}</span><span>${spd}</span>
+        <span class="c-id">${escHtml(cs)}</span><span>${escHtml(airline)}</span><span>${escHtml(from)}</span><span>${escHtml(to)}</span><span>${escHtml(actype)}</span><span>${hdg}°</span><span>${alt}</span><span>${spd}</span><span style="color:var(--ink-faint)">${escHtml(reg)}</span>
       </div>`;
     });
     body.innerHTML = html;
@@ -1732,6 +1800,7 @@
       const next = new Date(now.getTime()+POLL_MS);
       $('next-sync').textContent = next.toTimeString().slice(0,8);
       renderTargets(); renderTable(); renderSelection(); updateCounts(); renderCarrierIndex();
+      hydrateRoutes(stateData);
     }catch(e){
       $('link-status').textContent = 'ERR';
       logLine(`SYNC FAIL — ${e.message}`);
