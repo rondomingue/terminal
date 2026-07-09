@@ -957,7 +957,7 @@
     </defs>`;
     html += `<rect x="0" y="0" width="${SVG_W}" height="${SVG_H}" fill="rgba(255,255,255,0.006)"/>`;
     html += `<g id="topology" opacity="0.72">${buildTopology()}</g>`;
-    html += `<g id="local-map" opacity="0.78"></g>`;
+    html += `<g id="local-map" opacity="1"></g>`;
     html += `<g id="vector-underlay" opacity="0.22"></g>`;
     html += `<g id="vector-map" opacity="0.58"></g>`;
     html += `<g id="vector-spark" opacity="0.55"></g>`;
@@ -1186,16 +1186,32 @@
     let html = '';
     lines.forEach(({kind, pts})=>{
       const d = path(pts);
-      const cls = kind === 'shore' ? 'stroke="var(--white)" stroke-width="1.1" opacity="0.34" filter="url(#mapGlow)"'
-        : kind === 'river' ? 'stroke="var(--ink)" stroke-width="0.8" opacity="0.24" filter="url(#mapGlow)"'
-        : kind === 'road' ? 'stroke="var(--ink-faint)" stroke-width="0.55" opacity="0.16" stroke-dasharray="1.5 5"'
-        : 'stroke="var(--ink-dim)" stroke-width="0.6" opacity="0.2" stroke-dasharray="5 8"';
+      const cls = kind === 'shore' ? 'stroke="var(--white)" stroke-width="1.25" opacity="0.68" filter="url(#mapGlow)"'
+        : kind === 'river' ? 'stroke="var(--ink)" stroke-width="1.05" opacity="0.55" filter="url(#mapGlow)"'
+        : kind === 'road' ? 'stroke="var(--ink-faint)" stroke-width="0.65" opacity="0.36" stroke-dasharray="1.5 5"'
+        : 'stroke="var(--ink-dim)" stroke-width="0.7" opacity="0.42" stroke-dasharray="5 8"';
       html += `<path d="${d}" fill="none" ${cls}/>`;
       if(kind === 'road' || kind === 'canal'){
-        html += `<path d="${d}" fill="none" stroke="var(--white)" stroke-width="0.45" opacity="0.18" class="flow-line ${kind==='road'?'fast':'slow'}" style="animation-delay:-${(pts.length*0.37).toFixed(2)}s"/>`;
+        html += `<path d="${d}" fill="none" stroke="var(--white)" stroke-width="0.45" opacity="0.24" class="flow-line ${kind==='road'?'fast':'slow'}" style="animation-delay:-${(pts.length*0.37).toFixed(2)}s"/>`;
       }
     });
     const [fx, fy] = p(FIELD.lat, FIELD.lon);
+    let streetMesh = '';
+    for(let i=0;i<13;i++){
+      const lat = 29.82 + i*0.018;
+      const [x1,y1] = p(lat, -90.34 + (i%3)*0.012);
+      const [x2,y2] = p(lat + Math.sin(i)*0.006, -89.82 - (i%4)*0.008);
+      streetMesh += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--ink-faint)" stroke-width="0.45" opacity="0.24"/>`;
+    }
+    for(let i=0;i<16;i++){
+      const lon = -90.34 + i*0.035;
+      const [x1,y1] = p(29.79 + (i%4)*0.008, lon);
+      const [x2,y2] = p(30.09 - (i%5)*0.006, lon + Math.sin(i)*0.012);
+      streetMesh += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--ink-faint)" stroke-width="0.38" opacity="0.18" stroke-dasharray="4 7"/>`;
+    }
+    html += `<g id="local-street-mesh" opacity="0.95">${streetMesh}</g>`;
+    html += `<text x="${p(30.15,-90.08)[0]}" y="${p(30.15,-90.08)[1]}" fill="var(--ink-faint)" font-size="7" font-family="Space Mono, monospace" letter-spacing="1.1" opacity="0.62">LAKE PONTCHARTRAIN</text>`;
+    html += `<text x="${p(29.88,-90.02)[0]}" y="${p(29.88,-90.02)[1]}" fill="var(--ink-faint)" font-size="7" font-family="Space Mono, monospace" letter-spacing="1.1" opacity="0.58" transform="rotate(-14 ${p(29.88,-90.02)[0]} ${p(29.88,-90.02)[1]})">MISSISSIPPI RIVER</text>`;
     const routes = [
       [[29.9934,-90.2581],[30.16,-90.34],0.12,'N2461P'],
       [[29.9934,-90.2581],[30.12,-90.22],0.2,'N181CC'],
@@ -1205,14 +1221,14 @@
       [[29.9934,-90.2581],[29.82,-90.34],-0.05,'AAL2276'],
       [[29.9934,-90.2581],[30.14,-90.10],0.24,'JTZ521']
     ];
-    html += `<g opacity="0.64">`;
+    html += `<g opacity="0.42">`;
     routes.forEach(([from,to,lift,label],i)=>{
       const d = curvePath(from,to,lift);
       const [tx,ty] = p(to[0],to[1]);
       const delay = (i*0.45).toFixed(2);
       const speed = i%3===0 ? 'fast' : i%3===1 ? '' : 'slow';
-      html += `<path id="route-${i}" d="${d}" fill="none" stroke="var(--ink-faint)" stroke-width="0.65" opacity="0.28"/>`;
-      html += `<path d="${d}" fill="none" stroke="var(--white)" stroke-width="0.7" opacity="0.42" class="flow-line ${speed}" style="animation-delay:-${delay}s" filter="url(#mapGlow)"/>`;
+      html += `<path id="route-${i}" d="${d}" fill="none" stroke="var(--ink-faint)" stroke-width="0.5" opacity="0.22"/>`;
+      html += `<path d="${d}" fill="none" stroke="var(--white)" stroke-width="0.55" opacity="0.32" class="flow-line ${speed}" style="animation-delay:-${delay}s" filter="url(#mapGlow)"/>`;
       html += `<circle cx="${tx}" cy="${ty}" r="2.1" fill="var(--white)" opacity="0.45" filter="url(#glow)"/>`;
       html += `<text x="${tx+6}" y="${ty-3}" fill="var(--ink-faint)" font-size="7" font-family="Space Mono, monospace" letter-spacing="0.6" opacity="0.58">${label}</text>`;
     });
