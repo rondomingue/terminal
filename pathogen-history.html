@@ -85,7 +85,8 @@
   .leg-dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
   .leg-ring{width:14px;height:14px;border-radius:50%;border:1.5px solid;flex:0 0 auto}
   .mapwrap{position:relative;border:1px solid var(--line);border-radius:2px;overflow:hidden;background:#0c0f0e}
-  .mapwrap svg{display:block;width:100%;height:auto}
+  .mapwrap.map-crop{height:clamp(430px,54vw,660px)}
+  .mapwrap svg{display:block;width:100%;height:100%}
 
   /* ── OUTBREAK CARDS GRID ───────────────────────── */
   .section{padding:32px 0;border-top:1px solid var(--line)}
@@ -220,8 +221,8 @@
           <div class="leg-item"><div class="leg-ring" style="border-color:rgba(233,229,217,.2)"></div>Spread vector</div>
         </div>
       </div>
-      <div class="mapwrap" style="max-height:600px">
-        <svg id="ebola-map" viewBox="0 0 800 740" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Map of Africa showing Ebola outbreak locations and spread vectors 1976-2026"></svg>
+      <div class="mapwrap map-crop">
+        <svg id="ebola-map" viewBox="96 72 610 608" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Map of Africa showing Ebola outbreak locations and spread vectors 1976-2026"></svg>
       </div>
     </div>
   </section>
@@ -327,8 +328,8 @@
           <div class="leg-item"><div class="leg-ring" style="border-color:rgba(194,129,58,.3)"></div>Spread / import</div>
         </div>
       </div>
-      <div class="mapwrap" style="max-height:600px">
-        <svg id="marburg-map" viewBox="0 0 800 740" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Map of Africa showing Marburg outbreak locations and spread vectors 1967-2026"></svg>
+      <div class="mapwrap map-crop">
+        <svg id="marburg-map" viewBox="96 72 610 608" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Map of Africa showing Marburg outbreak locations and spread vectors 1967-2026"></svg>
       </div>
     </div>
   </section>
@@ -428,6 +429,32 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
 /* ── MAP RENDERER ───────────────────────────────────────────────────────── */
 const {W,H,landPath,gratPath,ebola,marburg}=GEO;
 const ESC=t=>String(t).replace(/&/g,'&amp;');
+const projectPoint=(lon,lat)=>({
+  x:(lon+37.08)*7.315,
+  y:396.4-(lat*7.35)
+});
+const lineFromCoords=coords=>coords.map(([lon,lat],i)=>{
+  const p=projectPoint(lon,lat);
+  return `${i?'L':'M'}${p.x.toFixed(1)},${p.y.toFixed(1)}`;
+}).join('');
+const MAP_DETAIL_LINES=[
+  [[31.1,30.2],[31.0,26.0],[32.2,21.8],[33.3,17.2],[32.7,13.6],[31.5,9.8],[30.5,4.6],[31.8,0.4]],
+  [[-11.8,11.0],[-8.5,12.0],[-5.3,13.3],[-3.0,14.5],[0.8,15.0],[3.2,13.8],[5.3,12.4],[7.0,10.8]],
+  [[14.2,-5.9],[17.7,-3.7],[20.8,-1.8],[23.8,-0.8],[26.6,-1.7],[29.1,-3.4],[31.5,-5.4]],
+  [[29.5,9.8],[31.2,5.8],[32.0,1.6],[31.0,-2.0],[30.1,-5.2],[32.7,-8.8],[35.6,-13.0],[36.8,-17.4]],
+  [[39.8,11.8],[40.9,5.7],[40.1,-1.2],[39.0,-6.5],[40.2,-12.6],[39.6,-17.9],[36.8,-22.0]],
+  [[-17.3,14.7],[-15.2,12.0],[-13.5,9.2],[-10.5,6.2],[-7.8,4.4],[-4.9,5.0],[-2.0,4.7],[1.3,5.6],[4.6,4.6],[8.3,3.8],[11.7,1.4],[13.6,-3.4],[14.4,-8.8],[13.2,-12.7]],
+  [[30.9,-29.8],[27.5,-28.8],[24.8,-28.2],[20.9,-30.0],[17.8,-31.7]],
+  [[47.5,-16.0],[48.0,-19.8],[47.3,-23.0],[45.6,-25.3],[43.7,-23.8],[44.0,-20.4],[45.7,-17.2]]
+];
+const MAP_LABELS=[
+  {t:'Sahara',lon:13,lat:23,cls:'region'},
+  {t:'West Africa',lon:-9.5,lat:8.5,cls:'region'},
+  {t:'Congo Basin',lon:20,lat:-2,cls:'region'},
+  {t:'Great Rift',lon:35,lat:-2.5,cls:'region'},
+  {t:'Nile',lon:31.7,lat:18,cls:'water'},
+  {t:'Gulf of Guinea',lon:2,lat:1.4,cls:'water'}
+];
 
 function bezierVec(ax,ay,bx,by,col){
   const mx=(ax+bx)/2, my=(ay+by)/2;
@@ -441,8 +468,19 @@ function markerRadius(cases){ return Math.max(4, Math.min(28, Math.sqrt(cases)*0
 function renderMap(svgId, outbreaks, vectors, colFn, batCaves){
   const svg=document.getElementById(svgId); if(!svg) return;
   let s=`<rect width="${W}" height="${H}" fill="#0c0f0e"/>`;
-  s+=`<path d="${gratPath}" fill="none" stroke="rgba(233,229,217,.05)" stroke-width="0.5"/>`;
-  s+=`<path d="${landPath}" fill="#111815" stroke="rgba(233,229,217,.15)" stroke-width="0.7"/>`;
+  s+=`<path d="${gratPath}" fill="none" stroke="rgba(233,229,217,.045)" stroke-width="0.5"/>`;
+  s+=`<path d="${landPath}" fill="#111815" stroke="rgba(233,229,217,.17)" stroke-width="0.78"/>`;
+  s+=`<g fill="none" stroke-linecap="round" stroke-linejoin="round">`;
+  MAP_DETAIL_LINES.forEach((coords,i)=>{
+    const isCoast=i>4;
+    s+=`<path d="${lineFromCoords(coords)}" stroke="${isCoast?'rgba(233,229,217,.13)':'rgba(51,165,138,.13)'}" stroke-width="${isCoast?'1.05':'.72'}" stroke-dasharray="${isCoast?'':'3 5'}"/>`;
+  });
+  s+=`</g>`;
+  MAP_LABELS.forEach(({t,lon,lat,cls})=>{
+    const p=projectPoint(lon,lat);
+    const fill=cls==='water'?'rgba(51,165,138,.22)':'rgba(233,229,217,.19)';
+    s+=`<text x="${p.x.toFixed(1)}" y="${p.y.toFixed(1)}" font-family="'Space Mono',monospace" font-size="8" letter-spacing="1.4" text-anchor="middle" fill="${fill}">${ESC(t.toUpperCase())}</text>`;
+  });
 
   // draw bat cave icons (marburg only)
   if(batCaves) batCaves.forEach(c=>{
