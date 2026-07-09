@@ -299,6 +299,40 @@
       linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.12));
     mix-blend-mode:multiply;
   }
+  #weather-map{
+    position:absolute; inset:0; z-index:1; overflow:hidden; pointer-events:none;
+    opacity:0; transition:opacity 0.22s ease;
+    mix-blend-mode:screen;
+    filter:contrast(1.18) saturate(0.82) brightness(0.72) grayscale(0.18);
+  }
+  #weather-map.active{ opacity:0.46; }
+  #weather-map img{
+    position:absolute; display:block; border:0; user-select:none; pointer-events:none;
+    image-rendering:auto; opacity:0.88;
+  }
+  #weather-map::after{
+    content:''; position:absolute; inset:0; pointer-events:none;
+    background:radial-gradient(ellipse at 50% 48%, transparent 0 54%, rgba(0,0,0,0.36) 100%);
+    mix-blend-mode:multiply;
+  }
+  #weather-toggle{
+    position:absolute; top:7px; left:86px; z-index:8;
+    height:18px; padding:0 9px;
+    border:1px solid rgba(255,255,255,0.13);
+    background:rgba(8,9,9,0.54);
+    color:var(--ink-faint);
+    font-family:'Space Mono',monospace;
+    font-size:8px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    cursor:pointer;
+  }
+  #weather-toggle:hover{ color:var(--ink-dim); border-color:rgba(255,255,255,0.22); }
+  #weather-toggle.active{
+    color:var(--white);
+    border-color:rgba(230,244,246,0.34);
+    box-shadow:0 0 18px rgba(230,244,246,0.08), inset 0 0 18px rgba(230,244,246,0.04);
+  }
   #scope-svg{ width:100%; height:100%; display:block; position:absolute; inset:0; z-index:2; }
   #scope-wrap::before{
     content:''; position:absolute; inset:6% 4% 4% 3%; z-index:1; pointer-events:none;
@@ -611,6 +645,7 @@
       <div class="panel" id="scope-panel">
       <div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
       <div class="panel-label"><span class="flag">[</span> T.DATA <span class="flag">]</span></div>
+      <button id="weather-toggle" type="button" aria-pressed="false">WX RADAR</button>
       <div class="panel-meta" id="scope-bbox">29.70/-90.40 — 30.20/-89.70</div>
       <div class="panel-meta" style="top:auto; bottom:6px; right:10px; font-size:8px;">CARTO DARK MATTER / OSM BASEMAP</div>
       <div id="map-source-note">MAP DATA © OPENSTREETMAP CONTRIBUTORS / CARTO</div>
@@ -621,6 +656,7 @@
       <div id="scope-wrap">
         <div id="scope-aspect">
           <div id="tile-map" aria-hidden="true"></div>
+          <div id="weather-map" aria-hidden="true"></div>
           <svg id="scope-svg" viewBox="0 0 800 460" preserveAspectRatio="none"></svg>
         </div>
       </div>
@@ -1087,6 +1123,18 @@
     return 180 / Math.PI * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
   }
 
+  function getTileLayout(z){
+    const xMin = lonToTileX(activeBounds.lomin, z);
+    const xMax = lonToTileX(activeBounds.lomax, z);
+    const yMin = latToTileY(activeBounds.lamax, z);
+    const yMax = latToTileY(activeBounds.lamin, z);
+    return {
+      xMin, xMax, yMin, yMax,
+      scaleX: SVG_W / (xMax - xMin),
+      scaleY: SVG_H / (yMax - yMin)
+    };
+  }
+
   function buildTileBasemap(){
     const container = $('tile-map');
     if(!container) return;
@@ -1096,12 +1144,7 @@
       return;
     }
     const z = Number(params.get('z')) || 11;
-    const xMin = lonToTileX(activeBounds.lomin, z);
-    const xMax = lonToTileX(activeBounds.lomax, z);
-    const yMin = latToTileY(activeBounds.lamax, z);
-    const yMax = latToTileY(activeBounds.lamin, z);
-    const scaleX = SVG_W / (xMax - xMin);
-    const scaleY = SVG_H / (yMax - yMin);
+    const {xMin, xMax, yMin, yMax, scaleX, scaleY} = getTileLayout(z);
     const subdomains = ['a','b','c','d'];
     let html = '';
     let tileCount = 0;
@@ -1128,6 +1171,83 @@
         img.style.display = 'none';
       }, {once:true});
     });
+  }
+
+  let weatherLayerEnabled = false;
+  let weatherRadarFrame = null;
+  let weatherBuildToken = 0;
+
+  async function fetchWeatherRadarFrame(){
+    if(weatherRadarFrame) return weatherRadarFrame;
+    const res = await fetch('https://api.rainviewer.com/public/weather-maps.json', {cache:'no-store'});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const data = await res.json();
+    const frames = (data.radar && data.radar.past) || [];
+    const latest = frames[frames.length - 1];
+    if(!data.host || !latest || !latest.path) throw new Error('NO RADAR FRAME');
+    weatherRadarFrame = {host:data.host, path:latest.path, time:latest.time};
+    return weatherRadarFrame;
+  }
+
+  async function buildWeatherOverlay(force=false){
+    const container = $('weather-map');
+    if(!container || !weatherLayerEnabled) return;
+    const token = ++weatherBuildToken;
+    const params = new URLSearchParams(location.search);
+    if(params.get('noTiles') === '1'){
+      container.innerHTML = '';
+      return;
+    }
+    try{
+      const frame = await fetchWeatherRadarFrame();
+      if(token !== weatherBuildToken || !weatherLayerEnabled) return;
+      const z = Number(params.get('z')) || 11;
+      const {xMin, xMax, yMin, yMax, scaleX, scaleY} = getTileLayout(z);
+      let html = '';
+      let tileCount = 0;
+      for(let x = Math.floor(xMin) - 1; x <= Math.ceil(xMax) + 1; x++){
+        for(let y = Math.floor(yMin) - 1; y <= Math.ceil(yMax) + 1; y++){
+          const left = ((x - xMin) * scaleX / SVG_W) * 100;
+          const top = ((y - yMin) * scaleY / SVG_H) * 100;
+          const width = (scaleX / SVG_W) * 100;
+          const height = (scaleY / SVG_H) * 100;
+          const src = `${frame.host}${frame.path}/256/${z}/${x}/${y}/2/1_1.png`;
+          html += `<img src="${src}" alt="" loading="eager" decoding="async" style="left:${left.toFixed(3)}%;top:${top.toFixed(3)}%;width:${width.toFixed(3)}%;height:${height.toFixed(3)}%;">`;
+          tileCount++;
+        }
+      }
+      container.innerHTML = html;
+      let loaded = 0;
+      container.querySelectorAll('img').forEach(img=>{
+        img.addEventListener('load', ()=>{
+          loaded++;
+          if(loaded === 1) logLine(`WX RADAR — STORM LAYER ONLINE (${tileCount} TILES)`);
+        }, {once:true});
+        img.addEventListener('error', ()=>{
+          img.style.display = 'none';
+        }, {once:true});
+      });
+    }catch(e){
+      if(force) logLine(`WX RADAR FAIL — ${e.message}`);
+      container.innerHTML = '';
+    }
+  }
+
+  function setWeatherLayer(enabled){
+    weatherLayerEnabled = enabled;
+    const layer = $('weather-map');
+    const btn = $('weather-toggle');
+    if(layer) layer.classList.toggle('active', enabled);
+    if(btn){
+      btn.classList.toggle('active', enabled);
+      btn.setAttribute('aria-pressed', enabled ? 'true' : 'false');
+    }
+    if(enabled){
+      buildWeatherOverlay(true);
+    } else if(layer){
+      layer.innerHTML = '';
+      logLine('WX RADAR — STORM LAYER OFF');
+    }
   }
 
   function buildScopeStatic(){
