@@ -270,15 +270,12 @@
   #scope-panel{ position:absolute; inset:0; padding:30px 16px 16px 16px; }
   #scope-wrap{
     position:relative; width:100%; height:100%;
-    display:flex; align-items:center; justify-content:center;
     overflow:hidden;
   }
   #scope-aspect{
-    position:relative;
+    position:absolute; inset:0;
     width:100%;
     height:100%;
-    flex:0 0 auto;
-    aspect-ratio:800 / 460;
   }
   #tile-map{
     position:absolute; inset:0; z-index:0; overflow:hidden;
@@ -721,24 +718,50 @@
     return AIRLINES[prefix] || null;
   }
   const svg = $('scope-svg');
-  const SVG_W = 800, SVG_H = 460;
+  let SVG_W = 800, SVG_H = 460;
   const SVG_NS = 'http://www.w3.org/2000/svg';
+  let activeBounds = {...BBOX};
 
-  function syncScopeAspect(){
+  function syncScopeViewport(){
     const wrap = $('scope-wrap');
-    const frame = $('scope-aspect');
-    if(!wrap || !frame) return;
+    if(!wrap || !svg) return false;
     const w = wrap.clientWidth;
     const h = wrap.clientHeight;
-    if(!w || !h) return;
+    if(!w || !h) return false;
+    const nextH = Math.max(360, Math.round(800 * h / w));
+    const changed = nextH !== SVG_H;
+    SVG_W = 800;
+    SVG_H = nextH;
+    svg.setAttribute('viewBox', `0 0 ${SVG_W} ${SVG_H}`);
+    fitMapBoundsToViewport();
+    return changed;
+  }
+
+  function fitMapBoundsToViewport(){
+    const z = 12;
+    const x0 = lonToTileX(BBOX.lomin, z);
+    const x1 = lonToTileX(BBOX.lomax, z);
+    const y0 = latToTileY(BBOX.lamax, z);
+    const y1 = latToTileY(BBOX.lamin, z);
+    const centerX = (x0 + x1) / 2;
+    const centerY = (y0 + y1) / 2;
+    const baseW = x1 - x0;
+    const baseH = y1 - y0;
     const target = SVG_W / SVG_H;
-    if(w / h > target){
-      frame.style.height = h + 'px';
-      frame.style.width = (h * target) + 'px';
-    } else {
-      frame.style.width = w + 'px';
-      frame.style.height = (w / target) + 'px';
+    let mapW = baseW;
+    let mapH = mapW / target;
+    if(mapH < baseH){
+      mapH = baseH;
+      mapW = mapH * target;
     }
+    activeBounds = {
+      lomin: tileXToLon(centerX - mapW/2, z),
+      lomax: tileXToLon(centerX + mapW/2, z),
+      lamax: tileYToLat(centerY - mapH/2, z),
+      lamin: tileYToLat(centerY + mapH/2, z)
+    };
+    const bbox = $('scope-bbox');
+    if(bbox) bbox.textContent = `${activeBounds.lamin.toFixed(2)}/${activeBounds.lomin.toFixed(2)} — ${activeBounds.lamax.toFixed(2)}/${activeBounds.lomax.toFixed(2)}`;
   }
 
   function buildHeaderRule(){
@@ -970,8 +993,8 @@
   }
 
   function project(lat, lon){
-    const x = ((lon - BBOX.lomin) / (BBOX.lomax - BBOX.lomin)) * SVG_W;
-    const y = SVG_H - ((lat - BBOX.lamin) / (BBOX.lamax - BBOX.lamin)) * SVG_H;
+    const x = ((lon - activeBounds.lomin) / (activeBounds.lomax - activeBounds.lomin)) * SVG_W;
+    const y = SVG_H - ((lat - activeBounds.lamin) / (activeBounds.lamax - activeBounds.lamin)) * SVG_H;
     return [x, y];
   }
 
@@ -984,6 +1007,15 @@
     return (1 - Math.log(Math.tan(rad) + 1 / Math.cos(rad)) / Math.PI) / 2 * Math.pow(2, z);
   }
 
+  function tileXToLon(x, z){
+    return x / Math.pow(2, z) * 360 - 180;
+  }
+
+  function tileYToLat(y, z){
+    const n = Math.PI - 2 * Math.PI * y / Math.pow(2, z);
+    return 180 / Math.PI * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
+  }
+
   function buildTileBasemap(){
     const container = $('tile-map');
     if(!container) return;
@@ -993,10 +1025,10 @@
       return;
     }
     const z = Number(params.get('z')) || 11;
-    const xMin = lonToTileX(BBOX.lomin, z);
-    const xMax = lonToTileX(BBOX.lomax, z);
-    const yMin = latToTileY(BBOX.lamax, z);
-    const yMax = latToTileY(BBOX.lamin, z);
+    const xMin = lonToTileX(activeBounds.lomin, z);
+    const xMax = lonToTileX(activeBounds.lomax, z);
+    const yMin = latToTileY(activeBounds.lamax, z);
+    const yMax = latToTileY(activeBounds.lamin, z);
     const scaleX = SVG_W / (xMax - xMin);
     const scaleY = SVG_H / (yMax - yMin);
     const subdomains = ['a','b','c','d'];
@@ -1406,13 +1438,26 @@
     setTimeout(()=> fetchOverpass(localQuery, 'KMSY LOCAL', 8000, 'msy-map-local-v5').finally(tickLoader), 250);
     setTimeout(()=> fetchOverpass(textureQuery, 'TEXTURE', 9000, 'msy-map-texture-v5'), 1200);
   }
+  function redrawScopeForViewport(){
+    syncScopeViewport();
+    buildScopeStatic();
+    buildTileBasemap();
+    renderTargets();
+  }
+
+  let resizeTimer = null;
+  function queueScopeResize(){
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(redrawScopeForViewport, 80);
+  }
+
+  syncScopeViewport();
   buildScopeStatic();
-  syncScopeAspect();
   if('ResizeObserver' in window){
-    window.scopeResizeObserver = new ResizeObserver(syncScopeAspect);
+    window.scopeResizeObserver = new ResizeObserver(queueScopeResize);
     window.scopeResizeObserver.observe($('scope-wrap'));
   } else {
-    window.addEventListener('resize', syncScopeAspect);
+    window.addEventListener('resize', queueScopeResize);
   }
   buildTileBasemap();
   buildVectorMap();

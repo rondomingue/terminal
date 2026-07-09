@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Virulent Diseases · 1000 Years — Outbreak Intelligence</title>
+<title>Virulent Diseases · 2000 Years — Outbreak Intelligence</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@100;200;300;400;500;600&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -59,80 +59,13 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #030507; c
 
 /* ═══ CENTER OVERLAY ════════════════════════════════════════════════════════ */
 #center-overlay {
-  position: absolute; left: 50%; top: 50%;
+  position: absolute; left: 50%; top: 53%;
   transform: translate(-50%, -50%);
   pointer-events: none;
-  width: min(17vw, 160px); aspect-ratio: 1;
-  border-radius: 50%;
-  display: grid; place-items: center;
-  background:
-    radial-gradient(circle, rgba(3,5,7,.94) 0 42%, rgba(3,5,7,.68) 43% 58%, transparent 59%),
-    conic-gradient(from -90deg, rgba(200,64,56,.20), rgba(184,120,24,.16), rgba(30,120,96,.17), rgba(80,72,152,.18), rgba(200,64,56,.20));
-  box-shadow:
-    inset 0 0 0 1px rgba(180,200,255,.08),
-    inset 0 0 0 24px rgba(3,5,7,.58),
-    0 0 42px rgba(0,0,0,.62);
+  width: min(19vw, 172px); aspect-ratio: 1;
 }
-#center-overlay::before,
-#center-overlay::after {
-  content: ''; position: absolute; border-radius: 50%;
-}
-#center-overlay::before {
-  inset: 18%;
-  border: 1px dashed rgba(180,200,255,.13);
-}
-#center-overlay::after {
-  width: 7px; height: 7px;
-  background: #d0d8ee;
-  box-shadow:
-    0 -64px 0 rgba(200,64,56,.78),
-    55px -31px 0 rgba(184,120,24,.72),
-    55px 31px 0 rgba(30,120,96,.76),
-    0 64px 0 rgba(80,72,152,.72),
-    -55px 31px 0 rgba(180,200,255,.34),
-    -55px -31px 0 rgba(180,200,255,.34);
-}
-#center-overlay .hub {
-  width: 42%; aspect-ratio: 1;
-  border-radius: 50%;
-  border: 1px solid rgba(208,216,238,.18);
-  background: rgba(3,5,7,.78);
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  position: relative; gap: 0;
-}
-#center-overlay .hub::before,
-#center-overlay .hub::after {
-  content: ''; position: absolute; background: rgba(180,200,255,.10);
-  left: 50%; top: 50%; transform: translate(-50%, -50%);
-}
-#center-overlay .hub::before { width: 78%; height: 1px; }
-#center-overlay .hub::after { width: 1px; height: 78%; }
-#center-overlay .hub > span {
-  width: 5px; height: 5px; border-radius: 50%;
-  background: rgba(208,216,238,.65);
-  box-shadow: 0 0 18px rgba(208,216,238,.28);
-  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-  z-index: 2;
-}
-.hub-data {
-  text-align: center; position: relative; z-index: 3;
-  display: flex; flex-direction: column; align-items: center; gap: 2px;
-}
-.hub-num {
-  font-family: 'Fraunces', serif; font-weight: 300;
-  font-size: clamp(9px, 1.4vw, 16px); letter-spacing: -.02em; line-height: 1;
-  color: rgba(208,216,238,.82);
-  text-shadow: 0 0 16px rgba(200,64,56,.35);
-}
-.hub-label {
-  font-family: 'Space Mono', monospace; font-size: clamp(4px, 0.55vw, 7px);
-  letter-spacing: .12em; text-transform: uppercase;
-  color: rgba(160,172,200,.5); line-height: 1;
-}
-.hub-sub {
-  font-family: 'Space Mono', monospace; font-size: clamp(3.5px, 0.45vw, 5.5px);
-  letter-spacing: .1em; text-transform: uppercase;
-  color: rgba(100,112,140,.4); margin-top: 1px; line-height: 1;
+#center-overlay svg {
+  width: 100%; height: 100%; overflow: visible;
 }
 
 /* ═══ PAGE TITLE (floating top-left of chart) ════════════════════════════ */
@@ -186,16 +119,23 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #030507; c
 #info-panel {
   position: fixed; top: 48px; right: 0; bottom: 0;
   width: 340px;
-  background: rgba(4,6,10,.94);
-  border-left: 1px solid rgba(180,200,255,.08);
-  backdrop-filter: blur(12px);
+  background: rgba(4,6,10,.30);
+  border-left: 1px solid rgba(180,200,255,.10);
+  backdrop-filter: blur(22px) saturate(1.4);
+  -webkit-backdrop-filter: blur(22px) saturate(1.4);
   transform: translateX(100%);
-  transition: transform .36s cubic-bezier(.22,.68,0,1.2);
+  /* Opening easing — CSS reads transition from the STARTING state,
+     so this curve fires when transitioning FROM base TO .open */
+  transition: transform .38s cubic-bezier(.22,.68,0,1.2);
   z-index: 50;
   display: flex; flex-direction: column;
   overflow: hidden;
 }
-#info-panel.open { transform: translateX(0); }
+#info-panel.open {
+  transform: translateX(0);
+  /* Closing easing — fires when transitioning FROM .open back to base */
+  transition: transform .44s cubic-bezier(.4,0,.2,1);
+}
 
 /* Pull tab */
 #info-panel::before {
@@ -230,6 +170,23 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #030507; c
 
 /* Filled state */
 #info-filled { display: none; flex-direction: column; gap: 0; height: 100%; }
+#info-img-wrap {
+  display: none; margin: 0 0 14px; border-radius: 2px; overflow: hidden;
+  position: relative;
+}
+#info-img {
+  width: 100%; height: 160px; object-fit: cover; display: block;
+  opacity: 0; transition: opacity .5s ease;
+}
+#info-img.loaded { opacity: 1; }
+#info-img-credit {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 4px 8px;
+  font-family: 'Space Mono', monospace; font-size: 7px;
+  letter-spacing: .08em; color: rgba(180,200,255,.5);
+  background: linear-gradient(transparent, rgba(3,5,7,.75));
+  text-align: right;
+}
 #info-class-badge {
   font-family: 'Space Mono', monospace; font-size: 7.5px; letter-spacing: .22em;
   text-transform: uppercase; padding: 3px 10px; border-radius: 999px; border: 1px solid;
@@ -322,20 +279,54 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #030507; c
   <div id="chart-area">
     <div id="chart"></div>
     <div id="center-overlay">
-      <div class="hub">
-        <span></span>
-        <div class="hub-data">
-          <div class="hub-num">~1.5B</div>
-          <div class="hub-label">est. deaths</div>
-          <div class="hub-sub">26 diseases · 1000 yrs</div>
-        </div>
-      </div>
+      <svg viewBox="-80 -80 160 160" xmlns="http://www.w3.org/2000/svg">
+
+        <!-- Background fill rings -->
+        <circle r="79" fill="rgba(3,5,7,.88)"/>
+        <circle r="72" fill="none" stroke="rgba(180,200,255,.05)" stroke-width="1"/>
+
+        <!-- Conic-gradient-style quadrant tints matching class colors -->
+        <!-- VIRAL top-right -->
+        <path d="M 0,0 L 60,-60 A 80,80 0 0,1 60,60 Z" fill="rgba(200,64,56,.04)"/>
+        <!-- BACTERIAL lower area -->
+        <path d="M 0,0 L 60,60 A 80,80 0 0,1 -60,60 Z" fill="rgba(184,120,24,.03)"/>
+        <!-- PARASITIC left area -->
+        <path d="M 0,0 L -60,60 A 80,80 0 0,1 -60,-60 Z" fill="rgba(30,120,96,.03)"/>
+        <!-- OTHER top-left -->
+        <path d="M 0,0 L -60,-60 A 80,80 0 0,1 60,-60 Z" fill="rgba(80,72,152,.03)"/>
+
+        <!-- Dashed orbital ring -->
+        <circle r="60" fill="none" stroke="rgba(180,200,255,.08)" stroke-width="0.6" stroke-dasharray="2,3"/>
+
+        <!-- Inner dark disc -->
+        <circle r="38" fill="rgba(3,5,7,.82)" stroke="rgba(180,200,255,.06)" stroke-width="0.8"/>
+
+        <!-- ── DATE SPAN: the range the chart covers ── -->
+        <!-- Upper year -->
+        <text x="0" y="-8" text-anchor="middle"
+              font-size="7.5" font-family="'Space Mono', monospace" font-weight="400"
+              letter-spacing="2" fill="rgba(140,155,190,.48)">EPIDEMIC</text>
+
+        <!-- Brand word -->
+        <text x="0" y="7" text-anchor="middle"
+              font-size="16" font-family="'Fraunces', serif" font-weight="300"
+              font-style="italic" letter-spacing="-0.2" fill="rgba(208,216,238,.82)">record</text>
+
+        <!-- Thin rule -->
+        <line x1="-14" y1="12" x2="14" y2="12" stroke="rgba(200,64,56,.35)" stroke-width="0.6"/>
+
+        <!-- Temporal span -->
+        <text x="0" y="22" text-anchor="middle"
+              font-size="6.5" font-family="'Space Mono', monospace" font-weight="400"
+              letter-spacing="1.2" fill="rgba(100,115,150,.52)">430 BCE — 2026</text>
+
+      </svg>
     </div>
   </div>
 
   <div id="page-title">
-    <h1>Virulent diseases of the<br>last <em>1,000 years</em></h1>
-    <div class="sub">Click any segment · 26 pathogens · cube-root scaled</div>
+    <h1>Virulent diseases of the<br>last <em>2,000 years</em></h1>
+    <div class="sub">Click any segment · 29 pathogens · cube-root scaled</div>
   </div>
 
   <div id="legend-bar">
@@ -367,6 +358,10 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #030507; c
         <span id="info-class-name"></span>
       </div>
       <div id="info-name"></div>
+      <div id="info-img-wrap">
+        <img id="info-img" alt="" />
+        <div id="info-img-credit"></div>
+      </div>
       <div id="info-deaths-row">
         <div id="info-deaths-label">Estimated deaths</div>
         <div id="info-deaths-val"></div>
@@ -446,10 +441,10 @@ const DATA = [
         note:'"The White Plague." M. tuberculosis infects ~25% of the global population latently. Peaked in the 19th-century Industrial Revolution. Streptomycin (1943) was the first effective treatment. Drug-resistant TB (MDR/XDR) is a growing crisis.',
         cfr:'50–80% (untreated)', vax:'BCG (partial, variable)', first:'Ancient — 9,000-year-old DNA', status:'~1.6M deaths/yr · ongoing',
         children:[{name:'Medieval\n1000–1600',value:12},{name:'Industrial\n1700–1900',value:22},{name:'Pre-antibiotic\n1900–1950',value:18},{name:'Drug-resistant\n1950–present',value:10}]},
-      { name:'Plague\n(Y. pestis)', deaths:'100–200 million', period:'1346–1950s',
-        note:'Three plague pandemics. The Black Death (1347–53) killed 30–60% of Europe\'s population. Confirmed by ancient DNA from burial sites. Treatable today with doxycycline, but ~2,000 cases still occur annually from wild rodent reservoirs.',
-        cfr:'30–100% (form)', vax:'None for general use', first:'1338 (Kyrgyzstan, 2022 aDNA)', status:'Endemic rodents · ~2K cases/yr',
-        children:[{name:'Black Death\n1347–1353',value:22},{name:'Recurring\n1353–1800',value:14},{name:'Third Pandemic\n1855–1959',value:10}]},
+      { name:'Plague\n(Y. pestis)', deaths:'150–250 million', period:'541 CE–1950s',
+        note:'Three great plague pandemics, all caused by Yersinia pestis, confirmed by ancient DNA. The First Pandemic (Justinian\'s, 541 CE) killed 25–50M and weakened the Byzantine Empire. The Black Death (1347–53) killed 30–60% of Europe. The Third Pandemic (1855–1959) was the source of modern plague science. Treatable today with doxycycline.',
+        cfr:'30–100% (form)', vax:'None for general use', first:'541 CE (Byzantine Empire, Justinian)', status:'Endemic rodents · ~2K cases/yr',
+        children:[{name:'Justinian\'s Plague\n541–750 CE',value:19},{name:'Black Death\n1347–1353',value:22},{name:'Recurring\n1353–1800',value:14},{name:'Third Pandemic\n1855–1959',value:10}]},
       { name:'Cholera', deaths:'~40 million', period:'1817–present',
         note:'Seven pandemics since 1817. John Snow\'s 1854 investigation founded epidemiology. Oral rehydration salts cut case fatality from 50% to under 1% — one of the most cost-effective interventions in medicine.',
         cfr:'50% untreated\n<1% (ORS)', vax:'Yes (oral, moderate)', first:'1817 (India)', status:'7th pandemic ongoing',
@@ -496,7 +491,15 @@ const DATA = [
   {
     name:'OTHER', itemStyle:{color:'#504898'},
     children:[
-      { name:'Sweating\nSickness', deaths:'~100,000', period:'1485–1551',
+      { name:'Antonine Plague', deaths:'5–10 million', period:'165–180 CE',
+        note:'Struck the Roman Empire under Marcus Aurelius, arriving with troops returning from Parthia. Likely smallpox or measles meeting a fully susceptible population. Killed co-emperor Lucius Verus. Marcus Aurelius wrote the Meditations during this plague.',
+        cfr:'Est. 25–30%', vax:'N/A', first:'165 CE (Seleucia, Mesopotamia)', status:'Historical · likely smallpox or measles',
+        children:[{name:'Roman Empire\n165–180 CE',value:14}]},
+      { name:'Plague of Cyprian', deaths:'~15 million', period:'249–262 CE',
+        note:'Up to 5,000 deaths per day in Rome at its peak. Possibly the deadliest per-capita epidemic in Roman history. Etiology unknown — proposed candidates include viral hemorrhagic fever. Hastened the Crisis of the Third Century.',
+        cfr:'Unknown · catastrophic', vax:'N/A', first:'249 CE (Alexandria, Egypt)', status:'Historical · etiology unresolved',
+        children:[{name:'Roman Empire\n249–262 CE',value:17}]},
+      { name:'Sweating Sickness', deaths:'~100,000', period:'1485–1551',
         note:'"Merry at dinner, dead at supper." Five epidemic waves; vanished after 1551 without explanation. Unknown etiology. Primarily affected England. Killed thousands of aristocrats and clergy.',
         cfr:'Est. 30–50%', vax:'N/A', first:'1485 (England)', status:'Extinct — cause unknown',
         children:[{name:'Five epidemics\n1485–1551',value:7}]},
@@ -509,7 +512,7 @@ const DATA = [
         cfr:'Est. 25%', vax:'N/A', first:'430 BCE', status:'Historical · etiology debated',
         children:[{name:'Athens\n430–426 BCE',value:6}]},
       { name:'Prion Diseases', deaths:'~50,000', period:'20th century–present',
-        note:'Kuru spread through funerary cannibalism; studied by Gajdusek (Nobel 1976). The vCJD/BSE crisis (1990s UK) killed 178 people but triggered global panic about prion-contaminated meat.',
+        note:'Kuru spread through funerary cannibalism; studied by Gajdusek (Nobel 1976). The vCJD/BSE crisis (1990s UK) killed 178 people but triggered global panic.',
         cfr:'100%', vax:'None', first:'Kuru described 1957', status:'Rare · CJD ~1/million/yr',
         children:[{name:'Kuru\n1950s–2000s',value:5},{name:'vCJD/BSE\n1990s–2000s',value:5}]},
     ]
@@ -598,7 +601,11 @@ function buildOption(data) {
       radius:['24%','76%'],
       center:['50%','53%'],
       sort:null,
-      nodeClick: 'rootToNode',
+      nodeClick: false,
+      animationDuration: 600,
+      animationEasing: 'cubicOut',
+      animationDurationUpdate: 480,
+      animationEasingUpdate: 'cubicInOut',
       emphasis:{
         focus:'relative',
         scale:false,
@@ -628,8 +635,9 @@ function buildOption(data) {
         {},
         { // Class ring
           r0:'24%', r:'37%',
-          label:{
-            show:false,
+          label:{ show:false },
+          emphasis:{
+            itemStyle:{color:'rgba(3,5,7,0)', opacity:0}
           },
           itemStyle:{color:'rgba(3,5,7,0)', opacity:0, borderWidth:0}
         },
@@ -644,8 +652,7 @@ function buildOption(data) {
             letterSpacing:0.2,
             color:'rgba(248,250,255,.96)',
             align:'right',
-            overflow:'truncate',
-            width:136,
+            overflow:'none',
             textShadowBlur:0,
             textBorderWidth:0,
           },
@@ -660,7 +667,7 @@ function buildOption(data) {
           itemStyle:{opacity:.9, borderWidth:0}
         },
         { // Era ring — transparent fill, year labels pushed inside the ring
-          r0:'61%', r:'76%',
+          r0:'61%', r:'82%',
           label:{
             show:true,
             position:'inside',
@@ -675,6 +682,7 @@ function buildOption(data) {
             width:100,
             textBorderWidth:0,
             textShadowBlur:0,
+            formatter: params => ((params.data && params.data.name) || params.name || '').replace(/\n/g,' '),
           },
           emphasis:{
             label:{
@@ -826,7 +834,7 @@ function classCollectors(clusters) {
 
 function buildDecorGraphics() {
   const w = chart.getWidth(), h = chart.getHeight();
-  const cx = w/2, cy = h/2;
+  const cx = w * 0.50, cy = h * 0.53;  // must match ECharts center:['50%','53%']
   const base = Math.min(w,h)/2;
   const els = [];
 
@@ -834,8 +842,8 @@ function buildDecorGraphics() {
   [{r:0.24, col:'rgba(180,200,255,.16)', sw:1.1},
    {r:0.37, col:'rgba(180,200,255,.07)', sw:0.7},
    {r:0.61, col:'rgba(180,200,255,.06)', sw:0.7},
-   {r:0.76, col:'rgba(180,200,255,.10)', sw:0.8},
-   {r:0.84, col:'rgba(180,200,255,.055)',sw:1},
+   {r:0.82, col:'rgba(180,200,255,.10)', sw:0.8},
+   {r:0.90, col:'rgba(180,200,255,.055)',sw:1},
    {r:0.94, col:'rgba(180,200,255,.035)',sw:0.8},
   ].forEach(({r,col,sw})=>{
     els.push({type:'circle',silent:true,z:0,shape:{cx,cy,r:base*r},style:{fill:'none',stroke:col,lineWidth:sw}});
@@ -1009,7 +1017,7 @@ function buildDecorGraphics() {
   });
 
   // Tick marks around the outer ring (5° intervals)
-  const outerR = base * 0.84;
+  const outerR = base * 0.90;
   for(let deg=0; deg<360; deg+=5){
     const rad = (deg - 90) * Math.PI/180;
     const major = deg % 90===0, med = deg % 30===0 && !major;
@@ -1022,18 +1030,6 @@ function buildDecorGraphics() {
       style:{stroke:`rgba(180,200,255,${op})`,lineWidth:lw}
     });
   }
-
-  // Cardinal direction dots on outer ring
-  [[0,'12'], [90,'3'], [180,'6'], [270,'9']].forEach(([deg, label])=>{
-    const rad = (deg-90)*Math.PI/180;
-    const r = outerR + base*0.072;
-    els.push({type:'text',silent:true,z:1,
-      style:{text:label,fill:'rgba(100,120,160,.5)',
-        font:'7px Space Mono, monospace',
-        x:cx+r*Math.cos(rad), y:cy+r*Math.sin(rad),
-        textAlign:'center', textVerticalAlign:'middle'}
-    });
-  });
 
   chart.setOption({graphic: els});
 }
@@ -1051,6 +1047,38 @@ const panel = document.getElementById('info-panel');
 const empty = document.getElementById('info-empty');
 const filled = document.getElementById('info-filled');
 const hoverHint = document.getElementById('hover-hint');
+
+/* ════ WIKIPEDIA THUMBNAIL FETCH ════════════════════════════════════════════ */
+// Maps our internal disease names → Wikipedia article titles where they differ
+const WIKI_NAMES = {
+  'Plague\n(Y. pestis)': 'Bubonic plague',
+  'Sleeping Sickness':   'African trypanosomiasis',
+  'Sweating Sickness':   'Sweating sickness',
+  'Prion Diseases':      'Prion disease',
+  'Plague of Athens':    'Plague of Athens',
+  'Plague of Cyprian':   'Plague of Cyprian',
+  'Antonine Plague':     'Antonine Plague',
+  'Ergotism':            'Ergotism',
+  'Yellow Fever':        'Yellow fever',
+  'HIV/AIDS':            'HIV/AIDS',
+  'COVID-19':            'COVID-19 pandemic',
+  'Leprosy':             'Leprosy',
+  'Schistosomiasis':     'Schistosomiasis',
+  'Leishmaniasis':       'Leishmaniasis',
+};
+
+async function fetchWikiThumb(rawName) {
+  const title = WIKI_NAMES[rawName] || rawName.replace(/\n/g,' ').trim();
+  const url = `https://en.wikipedia.org/w/api.php?action=query`
+    + `&titles=${encodeURIComponent(title)}`
+    + `&prop=pageimages|pageterms&format=json&pithumbsize=600&origin=*`;
+  try {
+    const r = await fetch(url);
+    const d = await r.json();
+    const page = Object.values(d.query.pages)[0];
+    return page?.thumbnail?.source || null;
+  } catch(e) { return null; }
+}
 
 function openPanel(data, pathInfo){
   if(!data || !data.name) return;
@@ -1081,17 +1109,149 @@ function openPanel(data, pathInfo){
     el.style.fontSize = el.textContent.length>12?'11px':el.textContent.length>8?'12px':'14px';
   });
 
+  // Reset image, then fetch from Wikipedia
+  const imgWrap = document.getElementById('info-img-wrap');
+  const imgEl   = document.getElementById('info-img');
+  const credit  = document.getElementById('info-img-credit');
+  imgEl.classList.remove('loaded');
+  imgWrap.style.display = 'none';
+
+  if(data.deaths || data.note) {
+    fetchWikiThumb(data.name).then(src => {
+      if(src) {
+        imgEl.onload = () => {
+          imgWrap.style.display = 'block';
+          imgEl.classList.add('loaded');
+        };
+        imgEl.onerror = () => { imgWrap.style.display = 'none'; };
+        imgEl.src = src;
+        credit.textContent = 'Image: Wikimedia Commons';
+      }
+    });
+  }
+
   panel.classList.add('open');
   hoverHint.style.opacity='0';
 }
 
+/* ════ AUDIO ENGINE ═══════════════════════════════════════════════════════════
+   All sounds synthesised with Web Audio API — no external files.
+   AudioContext is created lazily on first interaction to satisfy browser policy.
+══════════════════════════════════════════════════════════════════════════════ */
+let _actx = null;
+let _noiseBuffer = null;
+
+function getAudioCtx() {
+  if (!_actx) _actx = new (window.AudioContext || window.webkitAudioContext)();
+  return _actx;
+}
+
+function getNoiseBuf(ctx) {
+  if (_noiseBuffer) return _noiseBuffer;
+  const len = Math.floor(ctx.sampleRate * 0.4);
+  const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+  return (_noiseBuffer = buf);
+}
+
+function playShutter() {
+  try {
+    const ctx = getAudioCtx();
+    const t = ctx.currentTime;
+    const noise = getNoiseBuf(ctx);
+
+    // — Phase 1: shutter opening — sharp, mid-range crack
+    const s1 = ctx.createBufferSource(); s1.buffer = noise;
+    const bp1 = ctx.createBiquadFilter();
+    bp1.type = 'bandpass'; bp1.frequency.value = 2000; bp1.Q.value = 0.8;
+    const hp1 = ctx.createBiquadFilter();
+    hp1.type = 'highpass'; hp1.frequency.value = 900;
+    const g1 = ctx.createGain();
+    g1.gain.setValueAtTime(0, t);
+    g1.gain.linearRampToValueAtTime(0.26, t + 0.006);
+    g1.gain.exponentialRampToValueAtTime(0.001, t + 0.055);
+    s1.connect(bp1); bp1.connect(hp1); hp1.connect(g1); g1.connect(ctx.destination);
+    s1.start(t); s1.stop(t + 0.07);
+
+    // — Phase 2: shutter closing — softer, fractionally higher pitch, 55ms later
+    const s2 = ctx.createBufferSource(); s2.buffer = noise;
+    const bp2 = ctx.createBiquadFilter();
+    bp2.type = 'bandpass'; bp2.frequency.value = 2400; bp2.Q.value = 1.0;
+    const g2 = ctx.createGain();
+    g2.gain.setValueAtTime(0, t + 0.055);
+    g2.gain.linearRampToValueAtTime(0.13, t + 0.060);
+    g2.gain.exponentialRampToValueAtTime(0.001, t + 0.092);
+    s2.connect(bp2); bp2.connect(g2); g2.connect(ctx.destination);
+    s2.start(t + 0.055); s2.stop(t + 0.1);
+  } catch(e) {}
+}
+
+// Rollover: high-freq whisper tick, throttled to 60ms minimum between sounds
+let _lastHoverName = null, _lastRolloverT = 0;
+function playRollover() {
+  const now = Date.now();
+  if (now - _lastRolloverT < 60) return;
+  _lastRolloverT = now;
+  try {
+    const ctx = getAudioCtx();
+    const t = ctx.currentTime;
+    const noise = getNoiseBuf(ctx);
+    const src = ctx.createBufferSource(); src.buffer = noise;
+    const hp = ctx.createBiquadFilter();
+    hp.type = 'highpass'; hp.frequency.value = 5200;
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass'; lp.frequency.value = 9500;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.038, t + 0.0008);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.013);
+    src.connect(hp); hp.connect(lp); lp.connect(g); g.connect(ctx.destination);
+    src.start(t); src.stop(t + 0.018);
+  } catch(e) {}
+}
+
 chart.on('click', params=>{
   if(params.data && (params.data.deaths||params.data.note)){
+    playShutter();
     openPanel(params.data, params.treePathInfo);
   }
 });
 
+chart.on('mouseover', params=>{
+  if(params.data && params.name !== _lastHoverName){
+    _lastHoverName = params.name;
+    playRollover();
+  }
+});
+
+chart.on('mouseout', ()=>{ _lastHoverName = null; });
+
+// Slide: bandpass sweeps downward as the panel retreats, very soft
+function playSlide() {
+  try {
+    const ctx = getAudioCtx();
+    const t = ctx.currentTime;
+    const noise = getNoiseBuf(ctx);
+    const src = ctx.createBufferSource(); src.buffer = noise;
+    const bp = ctx.createBiquadFilter();
+    bp.type = 'bandpass'; bp.Q.value = 0.55;
+    bp.frequency.setValueAtTime(1800, t);
+    bp.frequency.exponentialRampToValueAtTime(480, t + 0.19);
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass'; lp.frequency.value = 2800;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.10, t + 0.018);
+    g.gain.linearRampToValueAtTime(0.065, t + 0.13);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+    src.connect(bp); bp.connect(lp); lp.connect(g); g.connect(ctx.destination);
+    src.start(t); src.stop(t + 0.24);
+  } catch(e) {}
+}
+
 document.getElementById('info-close').addEventListener('click',()=>{
+  playSlide();
   panel.classList.remove('open');
   hoverHint.style.opacity='1';
   empty.style.display='flex';
