@@ -1048,36 +1048,74 @@ const empty = document.getElementById('info-empty');
 const filled = document.getElementById('info-filled');
 const hoverHint = document.getElementById('hover-hint');
 
-/* ════ WIKIPEDIA THUMBNAIL FETCH ════════════════════════════════════════════ */
-// Maps our internal disease names → Wikipedia article titles where they differ
-const WIKI_NAMES = {
-  'Plague\n(Y. pestis)': 'Bubonic plague',
-  'Sleeping Sickness':   'African trypanosomiasis',
-  'Sweating Sickness':   'Sweating sickness',
-  'Prion Diseases':      'Prion disease',
-  'Plague of Athens':    'Plague of Athens',
-  'Plague of Cyprian':   'Plague of Cyprian',
-  'Antonine Plague':     'Antonine Plague',
-  'Ergotism':            'Ergotism',
-  'Yellow Fever':        'Yellow fever',
-  'HIV/AIDS':            'HIV/AIDS',
-  'COVID-19':            'COVID-19 pandemic',
-  'Leprosy':             'Leprosy',
-  'Schistosomiasis':     'Schistosomiasis',
-  'Leishmaniasis':       'Leishmaniasis',
+/* ════ PATHOGEN IMAGE MAP ════════════════════════════════════════════════════
+   Curated Wikimedia Commons EM / microscopy images for each pathogen.
+   Uses Special:FilePath which is a stable redirect even if storage paths change.
+   Only pathogens with a genuine electron-micrograph / microscopy image are listed.
+   Ancient/unknown-etiology diseases are intentionally omitted.
+══════════════════════════════════════════════════════════════════════════════ */
+const IMG_BASE = 'https://commons.wikimedia.org/wiki/Special:FilePath/';
+
+const PATHOGEN_IMGS = {
+  // ── VIRAL ──────────────────────────────────────────────────────────────────
+  'Smallpox':
+    'Smallpox_virus_virions_EM_PHIL_1849_lores.jpg',
+  'Measles':
+    'Measles_virus.jpg',
+  'Influenza':
+    'Influenza_virus_particle_color.jpg',
+  'HIV/AIDS':
+    'HIV-budding-Color.jpg',
+  'COVID-19':
+    'Novel_Coronavirus_SARS-CoV-2.jpg',
+  'Yellow Fever':
+    'Colorized_transmission_electron_micrograph_of_yellow_fever_virus_particles_(green)_found_within_enlarged_cytoplasmic_vesicles_of_a_C6-36_cell_(red).jpg',
+  'Polio':
+    'Polio_EM_PHIL_1875_lores.jpg',
+  'Ebola':
+    'Ebola_virus_virion.jpg',
+  'Marburg':
+    'Marburg_virus_EM_PHIL_1858.jpg',
+  'Dengue':
+    'Dengue_virus_TEM_lores.jpg',
+  'Rabies':
+    'Rabies_lyssavirus_EM_PHIL_6096.jpg',
+  // ── BACTERIAL ──────────────────────────────────────────────────────────────
+  'Tuberculosis':
+    'Mycobacterium_tuberculosis_8438_lores.jpg',
+  'Plague\n(Y. pestis)':
+    'Yersinia_pestis_fluorescent.jpeg',
+  'Cholera':
+    'SEM_Vibrio_cholerae.jpg',
+  'Typhus':
+    'Rickettsia_rickettsii.jpg',
+  'Typhoid':
+    'Salmonella_typhi_typhoid.jpg',
+  'Syphilis':
+    'Treponema_pallidum.jpg',
+  'Leprosy':
+    'Mycobacterium_leprae.jpeg',
+  // ── PARASITIC ──────────────────────────────────────────────────────────────
+  'Malaria':
+    'Plasmodium_falciparum_in_blood.jpg',
+  'Sleeping Sickness':
+    'Trypanosoma_brucei_brucei_bloodstream.png',
+  'Leishmaniasis':
+    'Leishmania_donovani_LD_bodies.jpg',
+  'Schistosomiasis':
+    'Schistosoma_mansoni_couple.jpg',
+  // ── OTHER (only where a scientific image exists) ───────────────────────────
+  'Ergotism':
+    'Claviceps_purpurea_fungus.jpg',
+  'Prion Diseases':
+    'CJD_prion.jpg',
 };
 
-async function fetchWikiThumb(rawName) {
-  const title = WIKI_NAMES[rawName] || rawName.replace(/\n/g,' ').trim();
-  const url = `https://en.wikipedia.org/w/api.php?action=query`
-    + `&titles=${encodeURIComponent(title)}`
-    + `&prop=pageimages|pageterms&format=json&pithumbsize=600&origin=*`;
-  try {
-    const r = await fetch(url);
-    const d = await r.json();
-    const page = Object.values(d.query.pages)[0];
-    return page?.thumbnail?.source || null;
-  } catch(e) { return null; }
+function getPathogenImg(name) {
+  const key = name?.replace(/\n/g,' ').trim();
+  // Try exact match first, then normalised name
+  const file = PATHOGEN_IMGS[name] || PATHOGEN_IMGS[key];
+  return file ? IMG_BASE + encodeURIComponent(file) + '?width=600' : null;
 }
 
 function openPanel(data, pathInfo){
@@ -1109,25 +1147,19 @@ function openPanel(data, pathInfo){
     el.style.fontSize = el.textContent.length>12?'11px':el.textContent.length>8?'12px':'14px';
   });
 
-  // Reset image, then fetch from Wikipedia
+  // Load curated pathogen image (EM / microscopy only)
   const imgWrap = document.getElementById('info-img-wrap');
   const imgEl   = document.getElementById('info-img');
   const credit  = document.getElementById('info-img-credit');
   imgEl.classList.remove('loaded');
   imgWrap.style.display = 'none';
 
-  if(data.deaths || data.note) {
-    fetchWikiThumb(data.name).then(src => {
-      if(src) {
-        imgEl.onload = () => {
-          imgWrap.style.display = 'block';
-          imgEl.classList.add('loaded');
-        };
-        imgEl.onerror = () => { imgWrap.style.display = 'none'; };
-        imgEl.src = src;
-        credit.textContent = 'Image: Wikimedia Commons';
-      }
-    });
+  const src = getPathogenImg(data.name);
+  if(src) {
+    imgEl.onload  = () => { imgWrap.style.display='block'; imgEl.classList.add('loaded'); };
+    imgEl.onerror = () => { imgWrap.style.display='none'; };
+    imgEl.src = src;
+    credit.textContent = 'Wikimedia Commons';
   }
 
   panel.classList.add('open');
