@@ -59,7 +59,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #030507; c
 
 /* ═══ CENTER OVERLAY ════════════════════════════════════════════════════════ */
 #center-overlay {
-  position: absolute; left: 50%; top: 53%;
+  position: absolute; left: 0; top: 0;
   transform: translate(-50%, -50%);
   pointer-events: none;
   width: min(19vw, 172px); aspect-ratio: 1;
@@ -835,6 +835,11 @@ function classCollectors(clusters) {
 function buildDecorGraphics() {
   const w = chart.getWidth(), h = chart.getHeight();
   const cx = w * 0.50, cy = h * 0.53;  // must match ECharts center:['50%','53%']
+
+  // Pin the HTML overlay to the exact same pixel point
+  const overlay = document.getElementById('center-overlay');
+  overlay.style.left = cx + 'px';
+  overlay.style.top  = cy + 'px';
   const base = Math.min(w,h)/2;
   const els = [];
 
