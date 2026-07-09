@@ -1647,6 +1647,7 @@
     syncScopeViewport();
     buildScopeStatic();
     buildTileBasemap();
+    buildWeatherOverlay();
     renderTargets();
   }
 
@@ -1666,6 +1667,9 @@
   }
   buildTileBasemap();
   buildVectorMap();
+  $('weather-toggle')?.addEventListener('click', ()=>{
+    setWeatherLayer(!weatherLayerEnabled);
+  });
 
   let stateData = [];
   let selectedIcao = null;
