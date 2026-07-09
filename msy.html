@@ -268,14 +268,41 @@
   /* CENTER — scope */
   #scope-stack{ grid-column:2; grid-row:1 / span 2; position:relative; }
   #scope-panel{ position:absolute; inset:0; padding:30px 16px 16px 16px; }
-  #scope-wrap{ position:relative; width:100%; height:100%; }
-  #scope-svg{ width:100%; height:100%; display:block; position:relative; z-index:2; }
+  #scope-wrap{
+    position:relative; width:100%; height:100%;
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
+  }
+  #scope-aspect{
+    position:relative;
+    width:100%;
+    height:100%;
+    flex:0 0 auto;
+    aspect-ratio:800 / 460;
+  }
+  #tile-map{
+    position:absolute; inset:0; z-index:0; overflow:hidden;
+    background:#080909;
+    filter:grayscale(1) contrast(1.22) brightness(0.68);
+    opacity:0.62;
+  }
+  #tile-map img{
+    position:absolute; display:block; border:0; user-select:none; pointer-events:none;
+    image-rendering:auto; opacity:0.9;
+  }
+  #tile-map::after{
+    content:''; position:absolute; inset:0; pointer-events:none;
+    background:
+      radial-gradient(ellipse at 50% 48%, transparent 0 48%, rgba(0,0,0,0.28) 82%, rgba(0,0,0,0.48) 100%),
+      linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.12));
+    mix-blend-mode:multiply;
+  }
+  #scope-svg{ width:100%; height:100%; display:block; position:absolute; inset:0; z-index:2; }
   #scope-wrap::before{
     content:''; position:absolute; inset:6% 4% 4% 3%; z-index:1; pointer-events:none;
     background:
       radial-gradient(ellipse at 62% 54%, rgba(230,244,246,0.06), transparent 42%),
-      linear-gradient(112deg, transparent 0 28%, rgba(230,244,246,0.035) 45%, transparent 62%),
-      repeating-linear-gradient(90deg, transparent 0 92px, rgba(255,255,255,0.024) 93px, transparent 94px);
+      linear-gradient(112deg, transparent 0 28%, rgba(230,244,246,0.035) 45%, transparent 62%);
     filter:blur(0.2px);
     opacity:0.85;
   }
@@ -292,11 +319,11 @@
   .target{ cursor:pointer; }
   .target .hit-area{ pointer-events:all; }
   .target .hover-ring,.target .reticle-detail{ transition:opacity 0.18s ease, stroke-width 0.18s ease; }
-  .target:hover .hover-ring{ opacity:0.85; stroke-width:1.1; filter:url(#glow); }
+  .target:hover .hover-ring{ opacity:0.28; stroke-width:0.55; filter:url(#glow); }
   .target:hover .reticle-detail{ opacity:0.9; }
   .target:hover .blip-dot{ filter:url(#glow); }
   .target .halo{ transition:opacity 0.2s ease; }
-  .target:hover .halo{ opacity:1.2; }
+  .target:hover .halo{ opacity:0.78; }
   .flow-line{
     stroke-dasharray:1 13;
     animation:routeflow 4.8s linear infinite;
@@ -578,14 +605,17 @@
       <div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
       <div class="panel-label"><span class="flag">[</span> T.DATA <span class="flag">]</span></div>
       <div class="panel-meta" id="scope-bbox">29.70/-90.40 — 30.20/-89.70</div>
-      <div class="panel-meta" style="top:auto; bottom:6px; right:10px; font-size:8px;">LOCAL SECTOR VECTOR / LIVE DATA OPTIONAL</div>
-      <div id="map-source-note">LOCAL MSY GEOMETRY — REMOTE OSM SYNC OFF</div>
+      <div class="panel-meta" style="top:auto; bottom:6px; right:10px; font-size:8px;">CARTO DARK MATTER / OSM BASEMAP</div>
+      <div id="map-source-note">MAP DATA © OPENSTREETMAP CONTRIBUTORS / CARTO</div>
       <div id="hex-ticker" class="mono"></div>
       <div id="map-loader" class="mono">
-        <span class="map-loader-dot"></span> SYNCING VECTOR GEOMETRY…
+        <span class="map-loader-dot"></span> LOADING BASEMAP…
       </div>
       <div id="scope-wrap">
-        <svg id="scope-svg" viewBox="0 0 800 460" preserveAspectRatio="xMidYMid meet"></svg>
+        <div id="scope-aspect">
+          <div id="tile-map" aria-hidden="true"></div>
+          <svg id="scope-svg" viewBox="0 0 800 460" preserveAspectRatio="none"></svg>
+        </div>
       </div>
       </div>
     </div>
@@ -693,6 +723,23 @@
   const svg = $('scope-svg');
   const SVG_W = 800, SVG_H = 460;
   const SVG_NS = 'http://www.w3.org/2000/svg';
+
+  function syncScopeAspect(){
+    const wrap = $('scope-wrap');
+    const frame = $('scope-aspect');
+    if(!wrap || !frame) return;
+    const w = wrap.clientWidth;
+    const h = wrap.clientHeight;
+    if(!w || !h) return;
+    const target = SVG_W / SVG_H;
+    if(w / h > target){
+      frame.style.height = h + 'px';
+      frame.style.width = (h * target) + 'px';
+    } else {
+      frame.style.width = w + 'px';
+      frame.style.height = (w / target) + 'px';
+    }
+  }
 
   function buildHeaderRule(){
     const svgEl = document.querySelector('#header-rule svg');
@@ -928,6 +975,58 @@
     return [x, y];
   }
 
+  function lonToTileX(lon, z){
+    return ((lon + 180) / 360) * Math.pow(2, z);
+  }
+
+  function latToTileY(lat, z){
+    const rad = lat * Math.PI / 180;
+    return (1 - Math.log(Math.tan(rad) + 1 / Math.cos(rad)) / Math.PI) / 2 * Math.pow(2, z);
+  }
+
+  function buildTileBasemap(){
+    const container = $('tile-map');
+    if(!container) return;
+    const params = new URLSearchParams(location.search);
+    if(params.get('noTiles') === '1'){
+      container.style.display = 'none';
+      return;
+    }
+    const z = Number(params.get('z')) || 11;
+    const xMin = lonToTileX(BBOX.lomin, z);
+    const xMax = lonToTileX(BBOX.lomax, z);
+    const yMin = latToTileY(BBOX.lamax, z);
+    const yMax = latToTileY(BBOX.lamin, z);
+    const scaleX = SVG_W / (xMax - xMin);
+    const scaleY = SVG_H / (yMax - yMin);
+    const subdomains = ['a','b','c','d'];
+    let html = '';
+    let tileCount = 0;
+    for(let x = Math.floor(xMin) - 1; x <= Math.ceil(xMax) + 1; x++){
+      for(let y = Math.floor(yMin) - 1; y <= Math.ceil(yMax) + 1; y++){
+        const left = ((x - xMin) * scaleX / SVG_W) * 100;
+        const top = ((y - yMin) * scaleY / SVG_H) * 100;
+        const width = (scaleX / SVG_W) * 100;
+        const height = (scaleY / SVG_H) * 100;
+        const sd = subdomains[Math.abs(x + y) % subdomains.length];
+        const src = `https://${sd}.basemaps.cartocdn.com/dark_nolabels/${z}/${x}/${y}.png`;
+        html += `<img src="${src}" alt="" loading="eager" decoding="async" style="left:${left.toFixed(3)}%;top:${top.toFixed(3)}%;width:${width.toFixed(3)}%;height:${height.toFixed(3)}%;">`;
+        tileCount++;
+      }
+    }
+    container.innerHTML = html;
+    let loaded = 0;
+    container.querySelectorAll('img').forEach(img=>{
+      img.addEventListener('load', ()=>{
+        loaded++;
+        if(loaded === 1) logLine(`TILE MAP — BASEMAP ONLINE (${tileCount} TILES)`);
+      }, {once:true});
+      img.addEventListener('error', ()=>{
+        img.style.display = 'none';
+      }, {once:true});
+    });
+  }
+
   function buildScopeStatic(){
     let html = '';
     html += `<defs>
@@ -945,13 +1044,13 @@
         <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
       </filter>
       <radialGradient id="haloGrad" cx="50%" cy="50%" r="50%">
-        <stop offset="0%" stop-color="#f2f3f3" stop-opacity="0.16"/>
-        <stop offset="55%" stop-color="#f2f3f3" stop-opacity="0.05"/>
+        <stop offset="0%" stop-color="#f2f3f3" stop-opacity="0.08"/>
+        <stop offset="55%" stop-color="#f2f3f3" stop-opacity="0.025"/>
         <stop offset="100%" stop-color="#f2f3f3" stop-opacity="0"/>
       </radialGradient>
       <radialGradient id="haloGradSel" cx="50%" cy="50%" r="50%">
-        <stop offset="0%" stop-color="#f2f3f3" stop-opacity="0.3"/>
-        <stop offset="55%" stop-color="#f2f3f3" stop-opacity="0.1"/>
+        <stop offset="0%" stop-color="#f2f3f3" stop-opacity="0.16"/>
+        <stop offset="55%" stop-color="#f2f3f3" stop-opacity="0.05"/>
         <stop offset="100%" stop-color="#f2f3f3" stop-opacity="0"/>
       </radialGradient>
     </defs>`;
@@ -961,67 +1060,27 @@
     html += `<g id="vector-underlay" opacity="0.22"></g>`;
     html += `<g id="vector-map" opacity="0.58"></g>`;
     html += `<g id="vector-spark" opacity="0.55"></g>`;
-    // grid lines
-    for(let i=1;i<8;i++){
-      const x = (SVG_W/8)*i;
-      html += `<line x1="${x}" y1="0" x2="${x}" y2="${SVG_H}" stroke="var(--line-dim)" stroke-width="1"/>`;
-    }
-    for(let j=1;j<5;j++){
-      const y = (SVG_H/5)*j;
-      html += `<line x1="0" y1="${y}" x2="${SVG_W}" y2="${y}" stroke="var(--line-dim)" stroke-width="1"/>`;
-    }
-    // field marker + rings
     const [fx, fy] = project(FIELD.lat, FIELD.lon);
-    const nmiToPx = SVG_W / ( (BBOX.lomax-BBOX.lomin) * 54.6 ); // rough deg->nmi at this lat
-    [25,50].forEach(r=>{
-      html += `<circle cx="${fx}" cy="${fy}" r="${r*nmiToPx}" fill="none" stroke="var(--line)" stroke-width="1" stroke-dasharray="2,5" opacity="0.6"/>`;
-    });
 
-    // rotating tick ring (outer)
-    const ringR = Math.min(SVG_W, SVG_H) * 0.46;
-    let ticks = '';
-    for(let d=0; d<360; d+=15){
-      const rad = d*Math.PI/180;
-      const long = d % 90 === 0;
-      const r1 = ringR - (long?14:8);
-      const x1 = fx + Math.sin(rad)*r1, y1 = fy - Math.cos(rad)*r1;
-      const x2 = fx + Math.sin(rad)*ringR, y2 = fy - Math.cos(rad)*ringR;
-      ticks += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--ink-faint)" stroke-width="${long?1.2:0.7}"/>`;
+    function mapLabel(lat, lon, text, size=12, opacity=0.38, weight=500, anchor='middle'){
+      const [x,y] = project(lat, lon);
+      return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" fill="var(--ink-dim)" font-size="${size}" font-family="Barlow, Arial, sans-serif" font-weight="${weight}" letter-spacing="0.08em" text-anchor="${anchor}" opacity="${opacity}">${text}</text>`;
     }
-    html += `<g id="tick-ring" style="transform-origin:${fx}px ${fy}px;">
-      <circle cx="${fx}" cy="${fy}" r="${ringR}" fill="none" stroke="var(--line)" stroke-width="1"/>
-      ${ticks}
+    html += `<g id="map-labels" style="mix-blend-mode:screen;">
+      ${mapLabel(30.055, -90.075, 'NEW ORLEANS', 16, 0.22, 500)}
+      ${mapLabel(30.020, -90.242, 'Kenner', 11, 0.28, 400, 'start')}
+      ${mapLabel(29.985, -90.160, 'Metairie', 10, 0.2, 400)}
+      ${mapLabel(30.150, -90.050, 'LAKE PONTCHARTRAIN', 9, 0.18, 500)}
+      ${mapLabel(29.875, -90.030, 'MISSISSIPPI RIVER', 8, 0.18, 500)}
     </g>`;
 
-    function arcPath(cx, cy, r, a0, a1){
-      const s = (a0-90)*Math.PI/180, e = (a1-90)*Math.PI/180;
-      const x0 = cx + Math.cos(s)*r, y0 = cy + Math.sin(s)*r;
-      const x1 = cx + Math.cos(e)*r, y1 = cy + Math.sin(e)*r;
-      const large = Math.abs(a1-a0) > 180 ? 1 : 0;
-      return `M ${x0.toFixed(1)} ${y0.toFixed(1)} A ${r} ${r} 0 ${large} 1 ${x1.toFixed(1)} ${y1.toFixed(1)}`;
-    }
-    let instrumentArcs = '';
-    [
-      [ringR-18, 18, 72, 0.38], [ringR-18, 132, 184, 0.3], [ringR-18, 224, 302, 0.28],
-      [ringR-34, 42, 118, 0.22], [ringR-34, 198, 268, 0.2],
-      [ringR-58, 310, 352, 0.18], [ringR-58, 154, 206, 0.16]
-    ].forEach(([r,a0,a1,op],i)=>{
-      instrumentArcs += `<path d="${arcPath(fx,fy,r,a0,a1)}" fill="none" stroke="var(--ink-faint)" stroke-width="${i<3?1.6:0.8}" opacity="${op}" stroke-linecap="round"/>`;
-    });
-    [38,142,218,316].forEach(deg=>{
-      const rad = (deg-90)*Math.PI/180;
-      const px = fx + Math.cos(rad)*(ringR-26), py = fy + Math.sin(rad)*(ringR-26);
-      instrumentArcs += `<path d="M ${px.toFixed(1)} ${(py-3).toFixed(1)} l6 3 l-6 3 z" fill="var(--ink-faint)" opacity="0.25" transform="rotate(${deg} ${px.toFixed(1)} ${py.toFixed(1)})"/>`;
-    });
-    html += `<g id="instrument-arcs" style="transform-origin:${fx}px ${fy}px;">${instrumentArcs}</g>`;
-
-    // static cardinal bearing labels (non-rotating, always legible)
-    const bearings = [[0,'000'],[90,'090'],[180,'180'],[270,'270']];
-    bearings.forEach(([d,label])=>{
-      const rad = d*Math.PI/180;
-      const bx = fx + Math.sin(rad)*(ringR+12), by = fy - Math.cos(rad)*(ringR+12);
-      html += `<text x="${bx}" y="${by}" fill="var(--ink-faint)" font-size="7.5" font-family="Space Mono, monospace" text-anchor="middle" dominant-baseline="middle">${label}</text>`;
-    });
+    // airport marker: quiet transparent halo only, not a target reticle
+    html += `<g id="field-halo" opacity="0.82">
+      <circle cx="${fx}" cy="${fy}" r="28" fill="url(#haloGradSel)" opacity="0.5"/>
+      <circle cx="${fx}" cy="${fy}" r="2" fill="var(--white)" opacity="0.62" filter="url(#glow)"/>
+      <text x="${fx+16}" y="${fy+4}" fill="var(--ink-dim)" font-size="8.5" font-family="Space Mono, monospace" letter-spacing="1.2" opacity="0.72">KMSY</text>
+      <text x="${fx+16}" y="${fy+14}" fill="var(--ink-faint)" font-size="6.5" font-family="Space Mono, monospace" letter-spacing="0.4" opacity="0.42">29.99°N 90.26°W</text>
+    </g>`;
 
     // scattered floating coordinate / hex micro-readouts (decorative data density)
     const microLabels = [
@@ -1034,91 +1093,8 @@
       html += `<text x="${mx}" y="${my}" fill="var(--ink-faint)" font-size="7" font-family="Space Mono, monospace" opacity="0.55">${txt}</text>`;
     });
 
-    // ---- HUD gun-sight reticle (field marker) ----
-    const RA = 14;   // inner gap radius — lines start outside this
-    const RB = 28;   // main arm length end
-    const RC = 6;    // center circle radius
-    // four main arms with gap
-    [0,90,180,270].forEach(deg=>{
-      const rad = deg*Math.PI/180;
-      const sx = fx + Math.sin(rad)*RA, sy = fy - Math.cos(rad)*RA;
-      const ex = fx + Math.sin(rad)*RB, ey = fy - Math.cos(rad)*RB;
-      html += `<line x1="${sx.toFixed(1)}" y1="${sy.toFixed(1)}" x2="${ex.toFixed(1)}" y2="${ey.toFixed(1)}" stroke="var(--ink)" stroke-width="1.2" filter="url(#glow)"/>`;
-      // tick marks at 60% and 80% along each arm
-      [0.55, 0.75, 1.0].forEach((t,ti)=>{
-        const mx = fx + Math.sin(rad)*(RA + (RB-RA)*t);
-        const my = fy - Math.cos(rad)*(RA + (RB-RA)*t);
-        const perp = (deg+90)*Math.PI/180;
-        const tl = ti===2 ? 4.5 : ti===1 ? 3 : 2;
-        const tx1 = mx + Math.sin(perp)*tl, ty1 = my - Math.cos(perp)*tl;
-        const tx2 = mx - Math.sin(perp)*tl, ty2 = my + Math.cos(perp)*tl;
-        html += `<line x1="${tx1.toFixed(1)}" y1="${ty1.toFixed(1)}" x2="${tx2.toFixed(1)}" y2="${ty2.toFixed(1)}" stroke="var(--ink)" stroke-width="${ti===2?1:0.6}" opacity="${ti===2?0.9:0.55}"/>`;
-      });
-    });
-    // 45° corner brackets
-    [45,135,225,315].forEach(deg=>{
-      const rad = deg*Math.PI/180;
-      const r1 = 18, r2 = 24;
-      const mx1 = fx+Math.sin(rad)*r1, my1 = fy-Math.cos(rad)*r1;
-      const mx2 = fx+Math.sin(rad)*r2, my2 = fy-Math.cos(rad)*r2;
-      html += `<line x1="${mx1.toFixed(1)}" y1="${my1.toFixed(1)}" x2="${mx2.toFixed(1)}" y2="${my2.toFixed(1)}" stroke="var(--ink-dim)" stroke-width="0.6" opacity="0.4"/>`;
-    });
-    // central rings
-    html += `<circle cx="${fx}" cy="${fy}" r="${RC}" fill="none" stroke="var(--ink)" stroke-width="1" filter="url(#glow)"/>`;
-    html += `<circle cx="${fx}" cy="${fy}" r="${RC-3}" fill="none" stroke="var(--ink)" stroke-width="0.5" opacity="0.5"/>`;
-    html += `<circle cx="${fx}" cy="${fy}" r="1.5" fill="var(--white)" opacity="0.9" filter="url(#glow)"/>`;
-    // outer dashed aiming ring
-    html += `<circle cx="${fx}" cy="${fy}" r="38" fill="none" stroke="var(--ink-faint)" stroke-width="0.6" stroke-dasharray="2,4" opacity="0.45"/>`;
-    // KMSY label — positioned below right arm, clean mono
-    html += `<text x="${fx+32}" y="${fy+4}" fill="var(--ink-dim)" font-size="8.5" font-family="Space Mono, monospace" letter-spacing="1.5">KMSY</text>`;
-    html += `<text x="${fx+32}" y="${fy+14}" fill="var(--ink-faint)" font-size="7" font-family="Space Mono, monospace" letter-spacing="0.5">29.99°N 90.26°W</text>`;
-    // coordinate readouts above and left
-    html += `<text x="${fx}" y="${fy-42}" fill="var(--ink-faint)" font-size="7" font-family="Space Mono, monospace" text-anchor="middle" opacity="0.6">000</text>`;
-    html += `<text x="${fx-42}" y="${fy+3}" fill="var(--ink-faint)" font-size="7" font-family="Space Mono, monospace" text-anchor="end" opacity="0.6">270</text>`;
-
-
-    // sweep — thin leading line with a long, genuinely transparent fading wedge behind it
-    function pieSector(a0, a1){
-      const r0 = (-a0)*Math.PI/180, r1 = (-a1)*Math.PI/180;
-      const x0 = fx+Math.sin(r0)*ringR, y0 = fy-Math.cos(r0)*ringR;
-      const x1 = fx+Math.sin(r1)*ringR, y1 = fy-Math.cos(r1)*ringR;
-      return `M ${fx} ${fy} L ${x0.toFixed(1)} ${y0.toFixed(1)} A ${ringR} ${ringR} 0 0 0 ${x1.toFixed(1)} ${y1.toFixed(1)} Z`;
-    }
-    let trail = '';
-    const trailLength = 50; // degrees of arc the trail spans
-    const bands = 8;
-    for(let b=0; b<bands; b++){
-      const a0 = (trailLength/bands)*b;
-      const a1 = (trailLength/bands)*(b+1);
-      const op = (0.05 * (1 - b/bands)).toFixed(3); // fades out with distance from the leading edge
-      trail += `<path d="${pieSector(a0,a1)}" fill="var(--ink-faint)" opacity="${op}"/>`;
-    }
-    html += `<g id="sweep-group" style="transform-origin:${fx}px ${fy}px;">
-      ${trail}
-      <line x1="${fx}" y1="${fy}" x2="${fx}" y2="${fy-ringR}" stroke="var(--ink)" stroke-width="1" opacity="0.5"/>
-      <circle cx="${fx}" cy="${fy-ringR}" r="1.2" fill="var(--ink)" opacity="0.45"/>
-    </g>`;
-
     html += `<g id="targets-group"></g>`;
     svg.innerHTML = html;
-
-    // sweep animation
-    const sweep = svg.querySelector('#sweep-group');
-    let ang = 0;
-    setInterval(()=>{
-      ang = (ang + 2) % 360;
-      sweep.setAttribute('transform', `rotate(${ang} ${fx} ${fy})`);
-    }, 40);
-
-    // slow counter-rotating tick ring for parallax depth
-    const ring = svg.querySelector('#tick-ring');
-    const arcs = svg.querySelector('#instrument-arcs');
-    let rAng = 0;
-    setInterval(()=>{
-      rAng = (rAng - 0.15 + 360) % 360;
-      ring.setAttribute('transform', `rotate(${rAng} ${fx} ${fy})`);
-      if(arcs) arcs.setAttribute('transform', `rotate(${-rAng*0.55} ${fx} ${fy})`);
-    }, 60);
   }
   function renderWay(el){
     if(!el.geometry || el.geometry.length<2) return '';
@@ -1166,92 +1142,72 @@
       const xy = pts.map(([lat,lon])=>p(lat,lon));
       return 'M ' + xy.map(([x,y])=>`${x} ${y}`).join(' L ');
     };
-    const curvePath = (from, to, lift=0.18) => {
-      const [x0,y0] = p(from[0], from[1]);
-      const [x1,y1] = p(to[0], to[1]);
-      const mx = (x0+x1)/2;
-      const my = (y0+y1)/2 - Math.hypot(x1-x0,y1-y0)*lift;
-      return `M ${x0} ${y0} Q ${mx.toFixed(1)} ${my.toFixed(1)} ${x1} ${y1}`;
-    };
-    const lines = [
-      {kind:'shore', pts:[[30.19,-90.38],[30.15,-90.30],[30.14,-90.20],[30.12,-90.10],[30.16,-89.98],[30.17,-89.82],[30.12,-89.72]]},
-      {kind:'river', pts:[[29.80,-90.40],[29.83,-90.31],[29.86,-90.21],[29.83,-90.10],[29.88,-90.02],[29.92,-89.96],[29.93,-89.86],[29.98,-89.78],[30.02,-89.70]]},
-      {kind:'river', pts:[[29.76,-90.36],[29.78,-90.24],[29.82,-90.16],[29.79,-90.05],[29.84,-89.96],[29.87,-89.88],[29.91,-89.76]]},
-      {kind:'road', pts:[[29.92,-90.38],[29.94,-90.28],[29.96,-90.18],[29.97,-90.06],[29.99,-89.94],[30.01,-89.82]]},
+    let html = '';
+
+    const primary = [
+      {kind:'shore', pts:[[30.19,-90.38],[30.16,-90.31],[30.14,-90.20],[30.13,-90.09],[30.16,-89.98],[30.17,-89.84],[30.12,-89.72]]},
+      {kind:'shore', pts:[[30.12,-90.40],[30.10,-90.27],[30.09,-90.15],[30.10,-90.02],[30.08,-89.88],[30.03,-89.72]]},
+      {kind:'river', pts:[[29.80,-90.40],[29.83,-90.31],[29.86,-90.22],[29.84,-90.11],[29.89,-90.02],[29.93,-89.95],[29.94,-89.86],[29.99,-89.78],[30.02,-89.70]]},
+      {kind:'river', pts:[[29.76,-90.35],[29.79,-90.25],[29.82,-90.17],[29.80,-90.08],[29.84,-89.98],[29.88,-89.88],[29.92,-89.76]]},
+      {kind:'road', pts:[[29.93,-90.38],[29.94,-90.28],[29.96,-90.18],[29.97,-90.07],[29.99,-89.96],[30.01,-89.84]]},
       {kind:'road', pts:[[30.04,-90.36],[30.03,-90.25],[30.02,-90.14],[30.03,-90.02],[30.06,-89.90]]},
       {kind:'road', pts:[[29.88,-90.34],[29.90,-90.22],[29.90,-90.10],[29.92,-90.00],[29.91,-89.88]]},
       {kind:'canal', pts:[[30.09,-90.35],[30.02,-90.26],[29.98,-90.17],[29.94,-90.08],[29.90,-89.98]]},
-      {kind:'canal', pts:[[29.76,-90.18],[29.82,-90.14],[29.88,-90.12],[29.94,-90.10],[30.02,-90.05],[30.10,-90.00]]}
+      {kind:'canal', pts:[[29.76,-90.18],[29.82,-90.14],[29.88,-90.12],[29.94,-90.10],[30.02,-90.05],[30.10,-90.00]]},
+      {kind:'canal', pts:[[29.83,-90.39],[29.86,-90.28],[29.90,-90.21],[29.94,-90.16],[30.00,-90.13]]}
     ];
-    let html = '';
-    lines.forEach(({kind, pts})=>{
+    primary.forEach(({kind, pts})=>{
       const d = path(pts);
-      const cls = kind === 'shore' ? 'stroke="var(--white)" stroke-width="1.25" opacity="0.68" filter="url(#mapGlow)"'
-        : kind === 'river' ? 'stroke="var(--ink)" stroke-width="1.05" opacity="0.55" filter="url(#mapGlow)"'
-        : kind === 'road' ? 'stroke="var(--ink-faint)" stroke-width="0.65" opacity="0.36" stroke-dasharray="1.5 5"'
-        : 'stroke="var(--ink-dim)" stroke-width="0.7" opacity="0.42" stroke-dasharray="5 8"';
-      html += `<path d="${d}" fill="none" ${cls}/>`;
-      if(kind === 'road' || kind === 'canal'){
-        html += `<path d="${d}" fill="none" stroke="var(--white)" stroke-width="0.45" opacity="0.24" class="flow-line ${kind==='road'?'fast':'slow'}" style="animation-delay:-${(pts.length*0.37).toFixed(2)}s"/>`;
-      }
+      const style = kind === 'shore' ? 'stroke="var(--white)" stroke-width="1.15" opacity="0.5" filter="url(#mapGlow)"'
+        : kind === 'river' ? 'stroke="var(--ink)" stroke-width="0.95" opacity="0.42" filter="url(#mapGlow)"'
+        : kind === 'road' ? 'stroke="var(--ink-faint)" stroke-width="0.58" opacity="0.3" stroke-dasharray="2 5"'
+        : 'stroke="var(--ink-dim)" stroke-width="0.58" opacity="0.34" stroke-dasharray="5 6"';
+      html += `<path d="${d}" fill="none" ${style}/>`;
     });
     const [fx, fy] = p(FIELD.lat, FIELD.lon);
-    let streetMesh = '';
-    for(let i=0;i<13;i++){
-      const lat = 29.82 + i*0.018;
-      const [x1,y1] = p(lat, -90.34 + (i%3)*0.012);
-      const [x2,y2] = p(lat + Math.sin(i)*0.006, -89.82 - (i%4)*0.008);
-      streetMesh += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--ink-faint)" stroke-width="0.45" opacity="0.24"/>`;
-    }
-    for(let i=0;i<16;i++){
-      const lon = -90.34 + i*0.035;
-      const [x1,y1] = p(29.79 + (i%4)*0.008, lon);
-      const [x2,y2] = p(30.09 - (i%5)*0.006, lon + Math.sin(i)*0.012);
-      streetMesh += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--ink-faint)" stroke-width="0.38" opacity="0.18" stroke-dasharray="4 7"/>`;
-    }
-    html += `<g id="local-street-mesh" opacity="0.95">${streetMesh}</g>`;
-    html += `<text x="${p(30.15,-90.08)[0]}" y="${p(30.15,-90.08)[1]}" fill="var(--ink-faint)" font-size="7" font-family="Space Mono, monospace" letter-spacing="1.1" opacity="0.62">LAKE PONTCHARTRAIN</text>`;
-    html += `<text x="${p(29.88,-90.02)[0]}" y="${p(29.88,-90.02)[1]}" fill="var(--ink-faint)" font-size="7" font-family="Space Mono, monospace" letter-spacing="1.1" opacity="0.58" transform="rotate(-14 ${p(29.88,-90.02)[0]} ${p(29.88,-90.02)[1]})">MISSISSIPPI RIVER</text>`;
-    const routes = [
-      [[29.9934,-90.2581],[30.16,-90.34],0.12,'N2461P'],
-      [[29.9934,-90.2581],[30.12,-90.22],0.2,'N181CC'],
-      [[29.9934,-90.2581],[30.08,-89.96],0.16,'N540MA'],
-      [[29.9934,-90.2581],[29.91,-89.78],0.08,'N860ZS'],
-      [[29.9934,-90.2581],[29.80,-89.88],-0.08,'DAL1881'],
-      [[29.9934,-90.2581],[29.82,-90.34],-0.05,'AAL2276'],
-      [[29.9934,-90.2581],[30.14,-90.10],0.24,'JTZ521']
+
+    let detail = '';
+    const clusters = [
+      {lat0:29.93, lat1:30.04, lon0:-90.34, lon1:-90.13, rows:12, cols:16, angle:-8, op:0.16},
+      {lat0:29.88, lat1:30.02, lon0:-90.10, lon1:-89.86, rows:13, cols:18, angle:7, op:0.14},
+      {lat0:29.81, lat1:29.92, lon0:-90.24, lon1:-89.97, rows:10, cols:13, angle:-13, op:0.11},
+      {lat0:30.10, lat1:30.18, lon0:-90.14, lon1:-89.78, rows:8, cols:16, angle:4, op:0.1}
     ];
-    html += `<g opacity="0.42">`;
-    routes.forEach(([from,to,lift,label],i)=>{
-      const d = curvePath(from,to,lift);
-      const [tx,ty] = p(to[0],to[1]);
-      const delay = (i*0.45).toFixed(2);
-      const speed = i%3===0 ? 'fast' : i%3===1 ? '' : 'slow';
-      html += `<path id="route-${i}" d="${d}" fill="none" stroke="var(--ink-faint)" stroke-width="0.5" opacity="0.22"/>`;
-      html += `<path d="${d}" fill="none" stroke="var(--white)" stroke-width="0.55" opacity="0.32" class="flow-line ${speed}" style="animation-delay:-${delay}s" filter="url(#mapGlow)"/>`;
-      html += `<circle cx="${tx}" cy="${ty}" r="2.1" fill="var(--white)" opacity="0.45" filter="url(#glow)"/>`;
-      html += `<text x="${tx+6}" y="${ty-3}" fill="var(--ink-faint)" font-size="7" font-family="Space Mono, monospace" letter-spacing="0.6" opacity="0.58">${label}</text>`;
+    clusters.forEach(c=>{
+      const [cx,cy] = p((c.lat0+c.lat1)/2, (c.lon0+c.lon1)/2);
+      const rot = (x,y) => {
+        const a = c.angle*Math.PI/180, dx = x-cx, dy = y-cy;
+        return [cx + dx*Math.cos(a) - dy*Math.sin(a), cy + dx*Math.sin(a) + dy*Math.cos(a)];
+      };
+      for(let i=0;i<c.rows;i++){
+        const lat = c.lat0 + (c.lat1-c.lat0)*(i/(c.rows-1));
+        const [x1,y1] = rot(...p(lat, c.lon0));
+        const [x2,y2] = rot(...p(lat + Math.sin(i)*0.002, c.lon1));
+        detail += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="var(--ink-faint)" stroke-width="0.32" opacity="${c.op}"/>`;
+      }
+      for(let i=0;i<c.cols;i++){
+        const lon = c.lon0 + (c.lon1-c.lon0)*(i/(c.cols-1));
+        const [x1,y1] = rot(...p(c.lat0, lon));
+        const [x2,y2] = rot(...p(c.lat1, lon + Math.cos(i)*0.002));
+        detail += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="var(--ink-faint)" stroke-width="0.28" opacity="${c.op*0.72}" stroke-dasharray="4 8"/>`;
+      }
     });
-    html += `</g>`;
-    html += `<g opacity="0.72" filter="url(#softBloom)">
-      <path d="M ${fx-39} ${fy+12} L ${fx+35} ${fy-9}" stroke="var(--white)" stroke-width="3.2" opacity="0.62"/>
-      <path d="M ${fx-34} ${fy+22} L ${fx+41} ${fy+1}" stroke="var(--ink)" stroke-width="1.4" opacity="0.44"/>
-      <path d="M ${fx-18} ${fy-12} L ${fx+27} ${fy+27}" stroke="var(--ink-dim)" stroke-width="1" opacity="0.4"/>
-      <rect x="${fx-23}" y="${fy-6}" width="44" height="17" fill="rgba(255,255,255,0.035)" stroke="var(--ink-faint)" stroke-width="0.5" opacity="0.7"/>
-    </g>`;
-    let texture = '';
-    for(let i=0;i<70;i++){
-      const seed = Math.sin(i*91.17)*10000;
-      const lon = -90.35 + (Math.abs(seed)%1)*0.58;
-      const lat = 29.76 + (Math.abs(Math.sin(seed*1.7))%1)*0.36;
-      const [x,y] = p(lat,lon);
-      if(Math.hypot(x-fx,y-fy)<30) continue;
-      const x2 = Number((x + Math.sin(seed)*8).toFixed(1));
-      const y2 = Number((y + Math.cos(seed)*5).toFixed(1));
-      texture += `<line x1="${x}" y1="${y}" x2="${x2}" y2="${y2}" stroke="var(--ink-faint)" stroke-width="0.45" opacity="${0.1 + (i%4)*0.018}"/>`;
+    for(let i=0;i<90;i++){
+      const seed = Math.sin(i*42.19)*10000;
+      const lat = 29.78 + (Math.abs(seed)%1)*0.40;
+      const lon = -90.37 + (Math.abs(Math.sin(seed*1.41))%1)*0.66;
+      const [x1,y1] = p(lat,lon);
+      const [x2,y2] = p(lat + Math.sin(seed)*0.018, lon + Math.cos(seed)*0.035);
+      detail += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--ink-faint)" stroke-width="0.36" opacity="${0.08 + (i%5)*0.012}"/>`;
     }
-    html += `<g>${texture}</g>`;
-    html += `<text x="${fx+36}" y="${fy+6}" fill="var(--ink-dim)" font-size="8" font-family="Space Mono, monospace" letter-spacing="1.4">KMSY</text>`;
+    html += `<g id="local-detail" opacity="1">${detail}</g>`;
+    html += `<g id="kmsy-runways" opacity="0.78" filter="url(#mapGlow)">
+      <line x1="${fx-38}" y1="${fy+12}" x2="${fx+34}" y2="${fy-9}" stroke="var(--white)" stroke-width="1.65" opacity="0.7"/>
+      <line x1="${fx-32}" y1="${fy+21}" x2="${fx+40}" y2="${fy}" stroke="var(--ink)" stroke-width="1" opacity="0.5"/>
+      <line x1="${fx-17}" y1="${fy-12}" x2="${fx+27}" y2="${fy+26}" stroke="var(--ink-dim)" stroke-width="0.7" opacity="0.5"/>
+      <rect x="${fx-23}" y="${fy-6}" width="44" height="17" fill="rgba(255,255,255,0.025)" stroke="var(--ink-faint)" stroke-width="0.45" opacity="0.72"/>
+    </g>`;
+    html += `<text x="${fx+34}" y="${fy+5}" fill="var(--ink-dim)" font-size="8" font-family="Space Mono, monospace" letter-spacing="1.4">KMSY</text>`;
     g.innerHTML = html;
   }
 
@@ -1372,11 +1328,17 @@
   }
 
   function buildVectorMap(){
-    buildLocalSectorMap();
     const loaderEl = $('map-loader');
     if(loaderEl) loaderEl.classList.add('done');
-    logLine('VECTOR MAP — LOCAL SECTOR GEOMETRY READY');
-    const useRemoteMap = new URLSearchParams(location.search).get('liveMap') === '1';
+    const params = new URLSearchParams(location.search);
+    const useLocalMap = params.get('localMap') === '1';
+    if(useLocalMap){
+      buildLocalSectorMap();
+      logLine('VECTOR MAP — LOCAL FALLBACK GEOMETRY ENABLED');
+    } else {
+      logLine('VECTOR MAP — SYNTHETIC STREET STROKES OFF');
+    }
+    const useRemoteMap = params.get('liveMap') === '1';
     if(!useRemoteMap){
       logLine('VECTOR MAP — REMOTE SYNC OFF');
       return;
@@ -1445,6 +1407,14 @@
     setTimeout(()=> fetchOverpass(textureQuery, 'TEXTURE', 9000, 'msy-map-texture-v5'), 1200);
   }
   buildScopeStatic();
+  syncScopeAspect();
+  if('ResizeObserver' in window){
+    window.scopeResizeObserver = new ResizeObserver(syncScopeAspect);
+    window.scopeResizeObserver.observe($('scope-wrap'));
+  } else {
+    window.addEventListener('resize', syncScopeAspect);
+  }
+  buildTileBasemap();
   buildVectorMap();
 
   let stateData = [];
@@ -1519,6 +1489,13 @@
     return `<path d="${AIRCRAFT_GLYPH.fixedWing}" transform="scale(${scale})" fill="${fillColor}" stroke="${strokeColor}" stroke-width="${0.5/scale}" opacity="${opacity}"/>`;
   }
 
+  function altitudeBrightness(f){
+    if(f.on_ground) return 0.28;
+    const alt = Number(f.baro_altitude ?? f.geo_altitude ?? 0);
+    const normalized = Math.max(0, Math.min(1, alt / 10973)); // 36,000 ft in meters
+    return 0.34 + normalized * 0.66;
+  }
+
   function renderTargets(){
     const g = svg.querySelector('#targets-group');
     let html = '';
@@ -1531,35 +1508,24 @@
       const fill = f.on_ground ? 'none' : (isSel ? 'var(--white)' : 'var(--ink)');
       const stroke = isSel ? 'var(--white)' : 'var(--ink-dim)';
       const trackAngle = (f.true_track || 0);
-      const glyph = (!f.on_ground) ? buildAircraftGlyph(f.actype, fill, stroke, isSel?1:0.85) : null;
-      const ringR = isSel ? 17 : 12;
-      const detailOpacity = isSel ? 0.85 : 0.34;
-      const leaderLen = isSel ? 34 : 24;
-      const lx = x + Math.sin(trackAngle*Math.PI/180)*leaderLen;
-      const ly = y - Math.cos(trackAngle*Math.PI/180)*leaderLen;
+      const brightness = isSel ? 1 : altitudeBrightness(f);
+      const glowFilter = brightness > 0.72 || isSel ? 'url(#glow)' : '';
+      const glyphOpacity = isSel ? 1 : Math.max(0.32, brightness * 0.92);
+      const haloOpacity = isSel ? 0.9 : Math.max(0.12, brightness * 0.42);
+      const labelOpacity = isSel ? 0.9 : Math.max(0.26, brightness * 0.62);
+      const glyph = (!f.on_ground) ? buildAircraftGlyph(f.actype, fill, stroke, glyphOpacity) : null;
+      const haloR = isSel ? 16 : 10;
       const callsign = (f.callsign||'').trim() || f.icao24.toUpperCase();
-      const shortId = f.icao24.slice(-4).toUpperCase();
       html += `<g class="target" data-icao="${f.icao24}">
-        <circle cx="${x}" cy="${y}" r="${isSel?24:16}" fill="url(${isSel?'#haloGradSel':'#haloGrad'})" class="halo"/>
-        <circle cx="${x}" cy="${y}" r="${isSel?20:14}" fill="transparent" class="hit-area"/>
-        <circle cx="${x}" cy="${y}" r="${ringR}" fill="none" stroke="${stroke}" stroke-width="${isSel?0.9:0.55}" stroke-dasharray="${isSel?'9 4':'6 5'}" opacity="${detailOpacity}" class="hover-ring"/>
-        <circle cx="${x}" cy="${y}" r="${Math.max(5,ringR-5)}" fill="none" stroke="${stroke}" stroke-width="0.45" stroke-dasharray="1 5" opacity="${detailOpacity*0.72}" class="reticle-detail"/>
-        <g class="reticle-detail" opacity="${detailOpacity}">
-          <line x1="${x-ringR-5}" y1="${y}" x2="${x-ringR+1}" y2="${y}" stroke="${stroke}" stroke-width="0.65"/>
-          <line x1="${x+ringR-1}" y1="${y}" x2="${x+ringR+5}" y2="${y}" stroke="${stroke}" stroke-width="0.65"/>
-          <line x1="${x}" y1="${y-ringR-5}" x2="${x}" y2="${y-ringR+1}" stroke="${stroke}" stroke-width="0.65"/>
-          <line x1="${x}" y1="${y+ringR-1}" x2="${x}" y2="${y+ringR+5}" stroke="${stroke}" stroke-width="0.65"/>
-          ${!f.on_ground ? `<line x1="${x}" y1="${y}" x2="${lx.toFixed(1)}" y2="${ly.toFixed(1)}" stroke="${stroke}" stroke-width="0.55" stroke-dasharray="2 3" opacity="0.65"/>` : ''}
-          ${isSel ? `<path d="M ${x-ringR-8} ${y-ringR-8} h8 M ${x-ringR-8} ${y-ringR-8} v8 M ${x+ringR+8} ${y-ringR-8} h-8 M ${x+ringR+8} ${y-ringR-8} v8 M ${x-ringR-8} ${y+ringR+8} h8 M ${x-ringR-8} ${y+ringR+8} v-8 M ${x+ringR+8} ${y+ringR+8} h-8 M ${x+ringR+8} ${y+ringR+8} v-8" fill="none" stroke="${stroke}" stroke-width="0.8" filter="url(#glow)"/>` : ''}
-        </g>
-        ${!f.on_ground ? `<circle cx="${x}" cy="${y}" r="3" fill="none" stroke="${stroke}" stroke-width="0.7" opacity="${isSel?0.9:0.45}"><animate attributeName="r" values="3;${isSel?21:16}" dur="2.8s" begin="${(x*7+y*3)%2800}ms" repeatCount="indefinite"/><animate attributeName="opacity" values="${isSel?0.8:0.45};0" dur="2.8s" begin="${(x*7+y*3)%2800}ms" repeatCount="indefinite"/></circle>` : ''}
+        <circle cx="${x}" cy="${y}" r="${haloR}" fill="url(${isSel?'#haloGradSel':'#haloGrad'})" class="halo" opacity="${haloOpacity.toFixed(2)}"/>
+        <circle cx="${x}" cy="${y}" r="${haloR + 6}" fill="transparent" class="hit-area"/>
+        ${isSel ? `<circle cx="${x}" cy="${y}" r="${haloR}" fill="none" stroke="${stroke}" stroke-width="0.55" opacity="0.22" class="hover-ring"/>` : ''}
         ${glyph
-          ? `<g transform="translate(${x},${y}) rotate(${trackAngle})" class="blip-dot" filter="${isSel?'url(#glow)':''}">${glyph}</g>`
-          : `<circle cx="${x}" cy="${y}" r="${isSel?6:r}" fill="${fill}" stroke="${stroke}" stroke-width="1" opacity="${isSel?1:0.85}" class="blip-dot" filter="${isSel?'url(#glow)':''}"/>
-             ${!f.on_ground ? `<line x1="${x}" y1="${y}" x2="${x + Math.sin(trackAngle*Math.PI/180)*10}" y2="${y - Math.cos(trackAngle*Math.PI/180)*10}" stroke="${stroke}" stroke-width="1" opacity="0.6"/>` : ''}`
+          ? `<g transform="translate(${x},${y}) rotate(${trackAngle})" class="blip-dot" filter="${glowFilter}">${glyph}</g>`
+          : `<circle cx="${x}" cy="${y}" r="${isSel?6:r}" fill="${fill}" stroke="${stroke}" stroke-width="1" opacity="${isSel?1:glyphOpacity.toFixed(2)}" class="blip-dot" filter="${glowFilter}"/>
+             ${!f.on_ground ? `<line x1="${x}" y1="${y}" x2="${x + Math.sin(trackAngle*Math.PI/180)*7}" y2="${y - Math.cos(trackAngle*Math.PI/180)*7}" stroke="${stroke}" stroke-width="0.7" opacity="${(brightness*0.32).toFixed(2)}"/>` : ''}`
         }
-        <text x="${x+ringR+5}" y="${y-7}" fill="${isSel?'var(--white)':'var(--ink-faint)'}" font-size="${isSel?8:7}" font-family="Space Mono, monospace" letter-spacing="0.5">${callsign}</text>
-        <text x="${x+ringR+5}" y="${y+4}" fill="var(--ink-faint)" font-size="6" font-family="Space Mono, monospace" letter-spacing="0.4" opacity="${isSel?0.85:0.44}">${shortId}${f.on_ground?' / GND':''}</text>
+        <text x="${x+haloR+4}" y="${y-4}" fill="${isSel?'var(--white)':'var(--ink-faint)'}" font-size="${isSel?8:7}" font-family="Space Mono, monospace" letter-spacing="0.5" opacity="${labelOpacity.toFixed(2)}">${callsign}</text>
       </g>`;
     });
     g.innerHTML = html;
