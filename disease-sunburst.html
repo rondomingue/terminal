@@ -1222,11 +1222,30 @@ function openPanel(data, pathInfo){
 ══════════════════════════════════════════════════════════════════════════════ */
 let _actx = null;
 let _noiseBuffer = null;
+let _audioUnlocked = false;
 
 function getAudioCtx() {
   if (!_actx) _actx = new (window.AudioContext || window.webkitAudioContext)();
+  if (_actx.state === 'running') _audioUnlocked = true;
   return _actx;
 }
+
+function unlockAudio() {
+  try {
+    const ctx = getAudioCtx();
+    if (ctx.state === 'suspended') {
+      ctx.resume().then(() => {
+        _audioUnlocked = ctx.state === 'running';
+      }).catch(() => {});
+    } else {
+      _audioUnlocked = true;
+    }
+  } catch(e) {}
+}
+
+['pointerdown', 'touchstart', 'keydown'].forEach(type => {
+  window.addEventListener(type, unlockAudio, { once: true, passive: true });
+});
 
 function getNoiseBuf(ctx) {
   if (_noiseBuffer) return _noiseBuffer;
@@ -1239,6 +1258,7 @@ function getNoiseBuf(ctx) {
 
 function playShutter() {
   try {
+    unlockAudio();
     const ctx = getAudioCtx();
     const t = ctx.currentTime;
     const noise = getNoiseBuf(ctx);
@@ -1273,6 +1293,7 @@ function playShutter() {
 let _lastHoverName = null, _lastRolloverT = 0;
 function playRollover() {
   const now = Date.now();
+  if (!_audioUnlocked) return;
   if (now - _lastRolloverT < 60) return;
   _lastRolloverT = now;
   try {
@@ -1312,6 +1333,7 @@ chart.on('mouseout', ()=>{ _lastHoverName = null; });
 // Slide: bandpass sweeps downward as the panel retreats, very soft
 function playSlide() {
   try {
+    unlockAudio();
     const ctx = getAudioCtx();
     const t = ctx.currentTime;
     const noise = getNoiseBuf(ctx);
