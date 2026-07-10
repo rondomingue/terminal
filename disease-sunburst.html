@@ -63,6 +63,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #030507; c
   transform: translate(-50%, -50%);
   pointer-events: none;
   width: min(19vw, 172px); aspect-ratio: 1;
+  display: none;
 }
 #center-overlay svg {
   width: 100%; height: 100%; overflow: visible;
@@ -836,16 +837,11 @@ function buildDecorGraphics() {
   const w = chart.getWidth(), h = chart.getHeight();
   const cx = w * 0.50, cy = h * 0.50;  // must match ECharts center:['50%','50%']
   const base = Math.min(w,h)/2;
+  const els = [];
 
-  // Pin the HTML overlay to the exact same pixel point
-  const overlay = document.getElementById('center-overlay');
-  overlay.style.left = cx + 'px';
-  overlay.style.top  = cy + 'px';
-
-  // Concentric rings — rendered as HTML divs (same coordinate space as overlay,
-  // no ECharts canvas coordinate ambiguity)
-  document.querySelectorAll('.deco-ring').forEach(el => el.remove());
-  const chartArea = document.getElementById('chart-area');
+  // Concentric rings and the center medallion live inside ECharts' graphic layer.
+  // Keeping these in the same coordinate system as the sunburst avoids live/local
+  // drift caused by DOM overlay sizing, browser chrome, or late font/layout passes.
   [{r:0.24, col:'rgba(180,200,255,.16)', sw:1.1},
    {r:0.37, col:'rgba(180,200,255,.07)', sw:0.7},
    {r:0.61, col:'rgba(180,200,255,.06)', sw:0.7},
@@ -853,17 +849,53 @@ function buildDecorGraphics() {
    {r:0.90, col:'rgba(180,200,255,.055)',sw:1},
    {r:0.94, col:'rgba(180,200,255,.03)', sw:0.8},
   ].forEach(({r,col,sw}) => {
-    const d = base * r * 2;
-    const ring = document.createElement('div');
-    ring.className = 'deco-ring';
-    ring.style.cssText = `position:absolute;width:${d}px;height:${d}px;`
-      + `left:${cx}px;top:${cy}px;transform:translate(-50%,-50%);`
-      + `border-radius:50%;border:${sw}px solid ${col};`
-      + `pointer-events:none;z-index:1;`;
-    chartArea.appendChild(ring);
+    els.push({type:'circle',silent:true,z:0,
+      shape:{cx, cy, r:base*r},
+      style:{fill:'rgba(0,0,0,0)', stroke:col, lineWidth:sw}
+    });
   });
 
-  const els = [];
+  const medR = Math.max(54, Math.min(86, base * 0.092));
+  [
+    {r:medR, fill:'rgba(3,5,7,.88)', stroke:'rgba(180,200,255,.08)', lw:.8},
+    {r:medR*.76, fill:'rgba(3,5,7,.42)', stroke:'rgba(180,200,255,.08)', lw:.8},
+    {r:medR*.55, fill:'rgba(3,5,7,.72)', stroke:'rgba(180,200,255,.07)', lw:.8},
+  ].forEach(ring => {
+    els.push({type:'circle',silent:true,z:4,
+      shape:{cx, cy, r:ring.r},
+      style:{fill:ring.fill, stroke:ring.stroke, lineWidth:ring.lw}
+    });
+  });
+  [
+    {deg:-44, color:'rgba(200,64,56,.06)'},
+    {deg:38, color:'rgba(200,64,56,.045)'},
+    {deg:124, color:'rgba(184,120,24,.045)'},
+    {deg:210, color:'rgba(30,120,96,.045)'},
+    {deg:292, color:'rgba(80,72,152,.05)'}
+  ].forEach(({deg,color}) => {
+    const rad = deg * Math.PI/180;
+    els.push({type:'sector',silent:true,z:4,
+      shape:{cx, cy, r0:0, r:medR*.98, startAngle:rad, endAngle:rad + Math.PI*.38, clockwise:true},
+      style:{fill:color}
+    });
+  });
+  els.push({type:'circle',silent:true,z:5,
+    shape:{cx, cy, r:medR*.64},
+    style:{fill:'rgba(3,5,7,.34)', stroke:'rgba(180,200,255,.1)', lineWidth:.6, lineDash:[2,3]}
+  });
+  els.push({type:'text',silent:true,z:6,
+    style:{text:'EPIDEMIC', x:cx, y:cy-medR*.18, fill:'rgba(140,155,190,.52)', font:"400 7.5px 'Space Mono', monospace", textAlign:'center', textVerticalAlign:'middle', letterSpacing:2}
+  });
+  els.push({type:'text',silent:true,z:6,
+    style:{text:'record', x:cx, y:cy+medR*.02, fill:'rgba(208,216,238,.86)', font:"italic 300 16px 'Fraunces', serif", textAlign:'center', textVerticalAlign:'middle'}
+  });
+  els.push({type:'line',silent:true,z:6,
+    shape:{x1:cx-medR*.18, y1:cy+medR*.2, x2:cx+medR*.18, y2:cy+medR*.2},
+    style:{stroke:'rgba(200,64,56,.38)', lineWidth:.65}
+  });
+  els.push({type:'text',silent:true,z:6,
+    style:{text:'430 BCE - 2026', x:cx, y:cy+medR*.34, fill:'rgba(100,115,150,.58)', font:"400 6.5px 'Space Mono', monospace", textAlign:'center', textVerticalAlign:'middle', letterSpacing:1.2}
+  });
 
   // Data-driven spokes. Top-level class borders are bright; disease borders are fine wire.
   segmentBoundaries(activeData, 2).forEach(({deg, depth, color}) => {
@@ -1050,12 +1082,14 @@ function buildDecorGraphics() {
   chart.setOption({graphic: els});
 }
 
-chart.on('finished', ()=>{
-  setTimeout(buildDecorGraphics, 0);
+requestAnimationFrame(() => {
+  buildDecorGraphics();
 });
 window.addEventListener('resize',()=>{
   chart.resize();
-  setTimeout(buildDecorGraphics, 0);
+  requestAnimationFrame(() => {
+    buildDecorGraphics();
+  });
 });
 
 /* ════ INFO PANEL ════════════════════════════════════════════════════════════ */
@@ -1312,14 +1346,18 @@ document.getElementById('btn-proportional').addEventListener('click',function(){
   document.getElementById('btn-equal').classList.remove('active');
   activeData = DATA_COLORED;
   chart.setOption(buildOption(activeData),true);
-  setTimeout(buildDecorGraphics,0);
+  requestAnimationFrame(() => {
+    buildDecorGraphics();
+  });
 });
 document.getElementById('btn-equal').addEventListener('click',function(){
   this.classList.add('active');
   document.getElementById('btn-proportional').classList.remove('active');
   activeData = DATA_EQUAL_C;
   chart.setOption(buildOption(activeData),true);
-  setTimeout(buildDecorGraphics,0);
+  requestAnimationFrame(() => {
+    buildDecorGraphics();
+  });
 });
 </script>
 </body>
