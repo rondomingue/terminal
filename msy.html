@@ -515,6 +515,8 @@
   /* ===== RESPONSIVE: tablet/mobile — stack everything, allow page scroll ===== */
   @media (max-width: 1000px){
     html,body{ overflow-y:auto; overflow-x:hidden; height:auto; }
+    #vignette{ opacity:0.72; }
+    .scanline{ opacity:0.24; }
     #stage{
       height:auto; min-height:100vh;
       display:flex; flex-direction:column;
@@ -538,6 +540,25 @@
     #log-card{ min-height:150px; }
     #legend-card{ min-height:120px; }
     #scope-stack{ grid-column:1; grid-row:auto; min-height:440px; }
+    #tile-map{
+      filter:grayscale(1) contrast(1.08) brightness(0.9);
+      opacity:0.78;
+    }
+    #tile-map img{ opacity:1; }
+    #tile-map::after{
+      background:
+        radial-gradient(ellipse at 50% 48%, transparent 0 58%, rgba(0,0,0,0.18) 84%, rgba(0,0,0,0.30) 100%),
+        linear-gradient(180deg, rgba(255,255,255,0.035), rgba(0,0,0,0.06));
+    }
+    #scope-svg{
+      filter:brightness(1.2) contrast(1.06);
+    }
+    #scope-wrap::before{ opacity:0.55; }
+    #scope-wrap::after{ opacity:0.30; }
+    #local-map{ opacity:1; }
+    #vector-underlay{ opacity:0.28; }
+    #vector-map{ opacity:0.72; }
+    #vector-spark{ opacity:0.68; }
     #table-stack{ grid-column:1; grid-row:auto; min-height:260px; }
     #table-scroll{ overflow-x:auto; }
     #arrdep-panel{
@@ -550,12 +571,28 @@
   }
 
   @media (max-width: 640px){
+    #vignette{ opacity:0.58; }
+    #grain{ opacity:0.04; }
     .brand .title{ font-size:19px; }
     .brand .sub{ font-size:8.5px; letter-spacing:0.04em; }
     .id-strip{ flex-wrap:wrap; row-gap:4px; }
     .clockblock .big{ font-size:16px; }
     .mini-stats{ flex-wrap:wrap; row-gap:4px; }
     #scope-stack{ min-height:340px; }
+    #tile-map{
+      filter:grayscale(1) contrast(1.02) brightness(1.02);
+      opacity:0.86;
+    }
+    #tile-map::after{
+      background:
+        radial-gradient(ellipse at 50% 48%, transparent 0 64%, rgba(0,0,0,0.12) 88%, rgba(0,0,0,0.22) 100%),
+        linear-gradient(180deg, rgba(255,255,255,0.045), rgba(0,0,0,0.035));
+    }
+    #scope-svg{ filter:brightness(1.34) contrast(1.04); }
+    #scope-wrap::before{ opacity:0.42; }
+    #scope-wrap::after{ opacity:0.22; }
+    #vector-map{ opacity:0.82; }
+    #vector-spark{ opacity:0.76; }
     .trow{ font-size:8.5px; gap:5px; min-width:700px; }
     .sel-card, #legend-card, .stat-card, #log-card{ padding:16px 10px 10px 10px; }
     #rail-left, #rail-right{ gap:10px; }
