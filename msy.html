@@ -1176,6 +1176,7 @@
   let weatherLayerEnabled = false;
   let weatherRadarFrame = null;
   let weatherBuildToken = 0;
+  const WEATHER_TILE_MAX_Z = 6; // RainViewer returns placeholder tiles above this in the Gulf region.
 
   async function fetchWeatherRadarFrame(){
     if(weatherRadarFrame) return weatherRadarFrame;
@@ -1201,7 +1202,9 @@
     try{
       const frame = await fetchWeatherRadarFrame();
       if(token !== weatherBuildToken || !weatherLayerEnabled) return;
-      const z = Number(params.get('z')) || 11;
+      const mapZ = Number(params.get('z')) || 11;
+      const requestedWxZ = Number(params.get('wxZ')) || WEATHER_TILE_MAX_Z;
+      const z = Math.min(mapZ, requestedWxZ, WEATHER_TILE_MAX_Z);
       const {xMin, xMax, yMin, yMax, scaleX, scaleY} = getTileLayout(z);
       let html = '';
       let tileCount = 0;
@@ -1221,7 +1224,7 @@
       container.querySelectorAll('img').forEach(img=>{
         img.addEventListener('load', ()=>{
           loaded++;
-          if(loaded === 1) logLine(`WX RADAR — STORM LAYER ONLINE (${tileCount} TILES)`);
+          if(loaded === 1) logLine(`WX RADAR — STORM LAYER ONLINE (${tileCount} TILES / Z${z})`);
         }, {once:true});
         img.addEventListener('error', ()=>{
           img.style.display = 'none';
