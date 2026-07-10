@@ -34,10 +34,10 @@
     to   { opacity: 1; transform: translateY(0); }
   }
   @keyframes slow-drift {
-    0%   { transform: translate(0,0) rotate(0deg); }
-    33%  { transform: translate(8px,-6px) rotate(0.3deg); }
-    66%  { transform: translate(-4px,8px) rotate(-0.2deg); }
-    100% { transform: translate(0,0) rotate(0deg); }
+    0%   { transform: scale(1.035) translate(0,0) rotate(0deg); }
+    33%  { transform: scale(1.035) translate(8px,-6px) rotate(0.3deg); }
+    66%  { transform: scale(1.035) translate(-4px,8px) rotate(-0.2deg); }
+    100% { transform: scale(1.035) translate(0,0) rotate(0deg); }
   }
   @keyframes scan-line {
     0%   { transform: translateY(-100%); }
@@ -235,7 +235,7 @@
     background: #08090d;
     overflow: hidden;
   }
-  .preview-drift { will-change: transform; }
+  .preview-drift { will-change: transform; transform: scale(1.035); transform-origin: center; }
   .card-preview-overlay {
     position: absolute; inset: 0; z-index: 2;
     opacity: 0; transition: opacity 0.4s ease;
@@ -414,7 +414,7 @@
        onmouseenter="playHover()">
       <div style="position:absolute;top:0;left:0;right:0;height:1px;z-index:3;background:linear-gradient(to right,rgba(216,218,219,0.5),transparent 70%);"></div>
       <div class="card-preview">
-        <img src="images/index/MSY_001.png" alt="MSY Terminal Interface" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;filter:brightness(0.92);"/>
+        <img src="images/index/MSY_001.png" alt="MSY Terminal Interface" class="preview-drift" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;filter:brightness(0.92);"/>
         <div class="card-preview-overlay"></div>
         <div class="card-launch">
           <span>LAUNCH</span><span class="launch-arrow">↗</span>
@@ -444,7 +444,7 @@
        onmouseenter="playHover()">
       <div style="position:absolute;top:0;left:0;right:0;height:1px;z-index:3;background:linear-gradient(to right,rgba(200,48,48,0.55),transparent 70%);"></div>
       <div class="card-preview" style="background:#04050d;">
-        <img src="images/index/Landfall_001.png" alt="Landfall Hurricane Tracker" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;filter:brightness(0.9);"/>
+        <img src="images/index/Landfall_001.png" alt="Landfall Hurricane Tracker" class="preview-drift" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;filter:brightness(0.9);"/>
         <div class="card-preview-overlay" style="background:linear-gradient(135deg,rgba(200,48,48,0.06) 0%,transparent 60%);"></div>
         <div class="card-launch">
           <span>LAUNCH</span><span class="launch-arrow">↗</span>
@@ -474,7 +474,7 @@
        onmouseenter="playHover()">
       <div style="position:absolute;top:0;left:0;right:0;height:1px;z-index:3;background:linear-gradient(to right,rgba(0,200,232,0.45),transparent 70%);"></div>
       <div class="card-preview" style="background:#030d1c;">
-        <img src="images/index/Transit_001.png" alt="Transit NEO Tracker" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;filter:brightness(0.92);"/>
+        <img src="images/index/Transit_001.png" alt="Transit NEO Tracker" class="preview-drift" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;filter:brightness(0.92);"/>
         <div class="card-preview-overlay" style="background:linear-gradient(135deg,rgba(0,200,232,0.05) 0%,transparent 60%);"></div>
         <div class="card-launch">
           <span>LAUNCH</span><span class="launch-arrow">↗</span>
