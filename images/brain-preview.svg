@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-label="Living Brain interface preview">
+  <defs>
+    <radialGradient id="bg" cx="48%" cy="46%" r="78%">
+      <stop offset="0" stop-color="#102625"/>
+      <stop offset=".5" stop-color="#071010"/>
+      <stop offset="1" stop-color="#020303"/>
+    </radialGradient>
+    <radialGradient id="brainGlow" cx="52%" cy="48%" r="54%">
+      <stop offset="0" stop-color="#f4fff9" stop-opacity=".42"/>
+      <stop offset=".28" stop-color="#78ebe1" stop-opacity=".28"/>
+      <stop offset=".58" stop-color="#5f7dff" stop-opacity=".13"/>
+      <stop offset="1" stop-color="#78ebe1" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="soft"><feGaussianBlur stdDeviation="8"/></filter>
+    <filter id="lineGlow"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <pattern id="microGrid" width="8" height="8" patternUnits="userSpaceOnUse">
+      <path d="M8 0H0V8" fill="none" stroke="#d5e8e5" stroke-opacity=".035" stroke-width="1"/>
+    </pattern>
+    <pattern id="macroGrid" width="64" height="64" patternUnits="userSpaceOnUse">
+      <path d="M64 0H0V64" fill="none" stroke="#78ebe1" stroke-opacity=".045" stroke-width="1"/>
+    </pattern>
+    <clipPath id="brainClip">
+      <path d="M326 351C305 314 310 264 348 230C375 205 415 197 453 205C485 172 546 167 591 191C631 166 692 171 731 205C781 203 820 227 840 267C872 275 897 306 895 347C892 394 854 423 808 426C783 464 731 480 684 462C641 492 579 493 536 464C489 479 430 465 405 428C366 423 340 397 326 351Z"/>
+    </clipPath>
+  </defs>
+
+  <rect width="1200" height="675" fill="url(#bg)"/>
+  <rect width="1200" height="675" fill="url(#microGrid)"/>
+  <rect width="1200" height="675" fill="url(#macroGrid)"/>
+
+  <g opacity=".52">
+    <rect x="42" y="44" width="266" height="586" fill="#071011" fill-opacity=".5" stroke="#d5e8e5" stroke-opacity=".12"/>
+    <rect x="905" y="44" width="253" height="586" fill="#071011" fill-opacity=".45" stroke="#d5e8e5" stroke-opacity=".12"/>
+    <rect x="335" y="44" width="540" height="586" fill="#000" fill-opacity=".16" stroke="#d5e8e5" stroke-opacity=".16"/>
+  </g>
+
+  <g font-family="Space Mono, monospace" font-size="12" letter-spacing="4" fill="#91a19d">
+    <text x="70" y="78">[ OPEN DATA ]</text>
+    <text x="364" y="78">[ LIVING BRAIN / CORTICAL FIELD ]</text>
+    <text x="936" y="78">[ SIGNAL INDEX ]</text>
+  </g>
+
+  <g transform="translate(0 0)">
+    <ellipse cx="610" cy="340" rx="325" ry="230" fill="url(#brainGlow)" filter="url(#soft)"/>
+    <g clip-path="url(#brainClip)">
+      <rect x="300" y="164" width="620" height="338" fill="#0b1416" fill-opacity=".16"/>
+      <g stroke="#78ebe1" stroke-opacity=".36" fill="none" filter="url(#lineGlow)">
+        <path d="M330 342C390 294 452 281 514 317C589 360 655 286 728 309C793 330 823 365 877 346"/>
+        <path d="M351 265C421 232 482 244 535 270C598 301 679 238 760 263C813 280 847 312 880 313"/>
+        <path d="M390 407C464 446 531 424 589 389C667 342 733 403 811 386C843 379 866 369 890 357"/>
+        <path d="M403 225C463 291 430 376 487 438"/>
+        <path d="M517 196C548 272 527 330 571 456"/>
+        <path d="M640 190C604 279 624 374 684 463"/>
+        <path d="M745 222C702 298 729 367 800 423"/>
+      </g>
+      <g stroke="#8aa8ff" stroke-opacity=".25" fill="none">
+        <path d="M337 371C448 295 541 354 625 389C720 428 779 373 889 345"/>
+        <path d="M351 299C472 367 598 237 711 286C779 315 825 371 879 396"/>
+        <path d="M390 432C470 350 520 263 646 252C741 244 783 291 850 327"/>
+        <path d="M458 214C515 314 603 358 704 438"/>
+        <path d="M344 332C458 337 559 206 699 222C788 232 835 287 888 349"/>
+      </g>
+      <g stroke="#e3b36a" stroke-opacity=".48" fill="none">
+        <path d="M395 333C473 319 517 279 596 298C697 323 750 260 836 280"/>
+        <path d="M443 402C530 367 588 421 667 385C734 355 781 379 852 366"/>
+        <path d="M483 238C536 300 551 359 609 430"/>
+      </g>
+      <g fill="#e7f1ee" opacity=".82">
+        <circle cx="443" cy="296" r="2.6"/><circle cx="485" cy="342" r="2.2"/><circle cx="524" cy="250" r="2.4"/>
+        <circle cx="601" cy="306" r="3"/><circle cx="663" cy="245" r="2.6"/><circle cx="720" cy="330" r="2.4"/>
+        <circle cx="781" cy="290" r="2.8"/><circle cx="818" cy="362" r="2.3"/><circle cx="568" cy="415" r="2.2"/>
+      </g>
+      <g fill="#e3b36a" opacity=".9">
+        <circle cx="655" cy="319" r="5"/><circle cx="688" cy="333" r="3.4"/><circle cx="626" cy="349" r="3.8"/>
+      </g>
+      <g opacity=".35" fill="#78ebe1">
+        <circle cx="364" cy="330" r="1.4"/><circle cx="388" cy="265" r="1"/><circle cx="420" cy="383" r="1.2"/>
+        <circle cx="455" cy="229" r="1"/><circle cx="487" cy="419" r="1.3"/><circle cx="548" cy="214" r="1"/>
+        <circle cx="586" cy="456" r="1.2"/><circle cx="714" cy="220" r="1"/><circle cx="762" cy="423" r="1.1"/>
+        <circle cx="841" cy="322" r="1.3"/><circle cx="870" cy="370" r="1"/>
+      </g>
+    </g>
+    <path d="M326 351C305 314 310 264 348 230C375 205 415 197 453 205C485 172 546 167 591 191C631 166 692 171 731 205C781 203 820 227 840 267C872 275 897 306 895 347C892 394 854 423 808 426C783 464 731 480 684 462C641 492 579 493 536 464C489 479 430 465 405 428C366 423 340 397 326 351Z" fill="none" stroke="#e7f1ee" stroke-opacity=".62" stroke-width="2" filter="url(#lineGlow)"/>
+    <path d="M466 424C440 454 441 492 478 506C516 520 562 501 578 470C542 459 508 443 466 424Z" fill="none" stroke="#78ebe1" stroke-opacity=".42" stroke-width="1.6"/>
+    <path d="M566 469C567 498 563 525 546 548" fill="none" stroke="#78ebe1" stroke-opacity=".42" stroke-width="2"/>
+    <g stroke="#d5e8e5" stroke-opacity=".34" fill="none">
+      <path d="M330 230L240 168H170"/>
+      <path d="M838 270L975 212H1080"/>
+      <path d="M798 427L982 504H1104"/>
+      <path d="M401 428L257 499H155"/>
+    </g>
+  </g>
+
+  <g font-family="Space Mono, monospace" font-size="12" fill="#91a19d" letter-spacing="2">
+    <text x="70" y="142">CORTICAL SURFACE</text><rect x="70" y="160" width="190" height="4" fill="#78ebe1" opacity=".52"/>
+    <text x="70" y="205">FIBER TRACTS</text><rect x="70" y="223" width="156" height="4" fill="#8aa8ff" opacity=".46"/>
+    <text x="70" y="268">BLOOD VESSELS</text><rect x="70" y="286" width="122" height="4" fill="#e3b36a" opacity=".52"/>
+    <text x="70" y="360">NEURAL ACTIVITY</text><text x="70" y="402" font-size="40" fill="#e7f1ee" letter-spacing="7">72%</text>
+    <text x="70" y="476">ACTIVE PATHS</text><text x="70" y="515" font-size="34" fill="#e7f1ee" letter-spacing="5">1,437</text>
+  </g>
+
+  <g transform="translate(940 135)" font-family="Space Mono, monospace" font-size="10" fill="#91a19d" letter-spacing="2">
+    <text x="0" y="0">CONNECTOME MATRIX</text>
+    <g opacity=".92">
+      <rect x="0" y="34" width="24" height="24" fill="#78ebe1" fill-opacity=".58"/><rect x="28" y="34" width="24" height="24" fill="#78ebe1" fill-opacity=".24"/><rect x="56" y="34" width="24" height="24" fill="#8aa8ff" fill-opacity=".28"/><rect x="84" y="34" width="24" height="24" fill="#e3b36a" fill-opacity=".2"/>
+      <rect x="0" y="62" width="24" height="24" fill="#78ebe1" fill-opacity=".24"/><rect x="28" y="62" width="24" height="24" fill="#78ebe1" fill-opacity=".62"/><rect x="56" y="62" width="24" height="24" fill="#78ebe1" fill-opacity=".32"/><rect x="84" y="62" width="24" height="24" fill="#8aa8ff" fill-opacity=".22"/>
+      <rect x="0" y="90" width="24" height="24" fill="#8aa8ff" fill-opacity=".28"/><rect x="28" y="90" width="24" height="24" fill="#78ebe1" fill-opacity=".32"/><rect x="56" y="90" width="24" height="24" fill="#78ebe1" fill-opacity=".58"/><rect x="84" y="90" width="24" height="24" fill="#e3b36a" fill-opacity=".32"/>
+      <rect x="0" y="118" width="24" height="24" fill="#e3b36a" fill-opacity=".2"/><rect x="28" y="118" width="24" height="24" fill="#8aa8ff" fill-opacity=".22"/><rect x="56" y="118" width="24" height="24" fill="#e3b36a" fill-opacity=".32"/><rect x="84" y="118" width="24" height="24" fill="#78ebe1" fill-opacity=".56"/>
+    </g>
+    <text x="0" y="214">HCP SUBJECTS</text><text x="0" y="250" font-size="30" fill="#e7f1ee" letter-spacing="6">1,071</text>
+    <text x="0" y="310">NEUROSYNTH STUDIES</text><text x="0" y="346" font-size="30" fill="#e7f1ee" letter-spacing="4">14,371</text>
+  </g>
+
+  <g font-family="din-2014, Arial, sans-serif" fill="#e7f1ee">
+    <text x="360" y="600" font-size="38" letter-spacing="9">LIVING <tspan fill="#78ebe1">BRAIN</tspan></text>
+  </g>
+</svg>

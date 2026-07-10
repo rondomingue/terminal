@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LIVING BRAIN // Open Neuroscience Instrument</title>
+<link rel="stylesheet" href="https://use.typekit.net/xhf1nbc.css">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9CMETG9RBQ"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-9CMETG9RBQ');</script>
+<style>
+  :root{
+    --bg:#030712;
+    --panel:rgba(5,13,24,0.58);
+    --panel-2:rgba(8,18,31,0.78);
+    --line:rgba(187,221,242,0.11);
+    --line-strong:rgba(218,240,255,0.28);
+    --ink:#edf8ff;
+    --dim:#8aa3b7;
+    --faint:#3b4d5d;
+    --cyan:#52f1ff;
+    --green:#94e6cf;
+    --amber:#f8bd52;
+    --red:#ff745f;
+    --blue:#4c84ff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Barlow',Arial,sans-serif;overflow:hidden}
+  body{
+    background:
+      radial-gradient(circle at 52% 38%,rgba(82,241,255,0.12),transparent 26%),
+      radial-gradient(circle at 74% 64%,rgba(76,132,255,0.08),transparent 34%),
+      linear-gradient(180deg,#07101f 0%,#030712 62%,#020408 100%);
+  }
+  body::before{
+    content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      linear-gradient(rgba(237,248,255,0.02) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(237,248,255,0.018) 1px,transparent 1px),
+      linear-gradient(rgba(82,241,255,0.032) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(82,241,255,0.028) 1px,transparent 1px);
+    background-size:6px 6px,6px 6px,54px 54px,54px 54px;
+    mask-image:radial-gradient(ellipse at 52% 48%,black 0 62%,transparent 96%);
+  }
+  body::after{
+    content:'';position:fixed;inset:0;pointer-events:none;z-index:20;
+    background:
+      linear-gradient(rgba(255,255,255,0.025) 50%,rgba(0,0,0,0.05) 50%),
+      radial-gradient(ellipse at center,transparent 0 58%,rgba(0,0,0,0.58) 100%);
+    background-size:100% 3px,100% 100%;
+    mix-blend-mode:soft-light;
+  }
+  a{color:inherit}
+  .app{position:relative;z-index:2;height:100%;padding:18px;display:grid;grid-template-columns:286px minmax(720px,1fr) 360px;grid-template-rows:58px 1fr 132px;gap:10px}
+  .topbar{grid-column:1/4;display:flex;align-items:flex-start;justify-content:space-between;border:0;background:linear-gradient(180deg,rgba(82,241,255,0.045),rgba(255,255,255,0.004));padding:11px 14px;position:relative;overflow:hidden}
+  .topbar::before,.panel::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;background:linear-gradient(90deg,transparent,var(--line-strong),transparent)}
+  .brand h1{font-family:'din-2014','Barlow',sans-serif;font-size:22px;font-weight:300;letter-spacing:.34em;line-height:1;color:var(--ink)}
+  .brand h1 span{color:var(--cyan)}
+  .brand p{margin-top:10px;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase}
+  .clock{text-align:right;font-family:'Space Mono',monospace;color:var(--faint);font-size:9px;letter-spacing:.12em;line-height:1.8}
+  .clock b{display:block;color:var(--ink);font-weight:400;font-size:23px;letter-spacing:.14em}
+  .panel{position:relative;border:1px solid rgba(187,221,242,0.09);background:rgba(4,9,17,0.52);overflow:hidden;box-shadow:inset 0 0 42px rgba(82,241,255,0.02),0 18px 42px rgba(0,0,0,0.38)}
+  .panel-label{position:absolute;top:12px;left:14px;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.22em;color:var(--dim);text-transform:uppercase;z-index:5}
+  .flag{color:var(--cyan)}
+  .left{grid-column:1;grid-row:2/4;display:grid;grid-template-rows:auto 1fr;gap:14px}
+  .center{grid-column:2;grid-row:2;min-height:0}
+  .right{grid-column:3;grid-row:2/4;display:grid;grid-template-rows:1fr 1fr;gap:14px;min-height:0}
+  .bottom{grid-column:2;grid-row:3;display:grid;grid-template-columns:1.2fr 1fr;gap:14px;min-height:0}
+  .center{border-color:rgba(218,240,255,0.18);background:rgba(0,0,0,0.22)}
+  .brain-stage{height:100%;position:relative;background:
+    radial-gradient(ellipse at 50% 48%,rgba(82,241,255,.14),transparent 32%),
+    radial-gradient(ellipse at 50% 45%,rgba(76,132,255,.07),transparent 42%),
+    linear-gradient(rgba(237,248,255,0.024) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(237,248,255,0.02) 1px,transparent 1px),
+    linear-gradient(rgba(82,241,255,0.048) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(82,241,255,0.042) 1px,transparent 1px),
+    linear-gradient(180deg,rgba(255,255,255,.025),transparent 48%,rgba(0,0,0,.42));
+    background-size:100% 100%,100% 100%,6px 6px,6px 6px,54px 54px,54px 54px,100% 100%;}
+  .brain-stage::before{
+    content:'';position:absolute;inset:18px;z-index:1;pointer-events:none;
+    border:1px solid rgba(237,248,255,.22);
+    box-shadow:inset 0 0 90px rgba(82,241,255,.04),0 0 36px rgba(82,241,255,.06);
+  }
+  .brain-stage::after{
+    content:'';position:absolute;left:18px;right:18px;top:50%;height:1px;z-index:2;pointer-events:none;
+    background:linear-gradient(90deg,transparent,rgba(237,248,255,.36),rgba(82,241,255,.24),transparent);
+  }
+  #brain-canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .stage-title{position:absolute;left:18px;right:18px;bottom:18px;z-index:6;display:flex;justify-content:space-between;gap:20px;align-items:flex-end;font-family:'Space Mono',monospace;font-size:8px;color:var(--faint);letter-spacing:.14em;text-transform:uppercase}
+  .stage-title b{display:block;margin-bottom:5px;color:var(--cyan);font-weight:400;font-size:10px}
+  .layer-controls{padding:48px 13px 14px;display:grid;gap:8px}
+  .layer-btn{height:32px;border:1px solid var(--line);background:rgba(255,255,255,.014);color:var(--dim);font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.15em;text-transform:uppercase;text-align:left;padding:0 10px;cursor:pointer;display:flex;align-items:center;justify-content:space-between}
+  .layer-btn.active{color:var(--ink);border-color:rgba(120,235,225,.38);background:rgba(120,235,225,.055);box-shadow:inset 0 0 20px rgba(120,235,225,.035)}
+  .layer-btn i{width:7px;height:7px;border-radius:50%;border:1px solid currentColor;display:block}
+  .layer-btn.active i{background:currentColor;box-shadow:0 0 14px currentColor}
+  .metric-stack{padding:48px 16px 16px;display:grid;gap:13px}
+  .metric{border-top:1px solid var(--line);padding-top:11px}
+  .metric-head{display:flex;justify-content:space-between;align-items:baseline;font-family:'Space Mono',monospace;text-transform:uppercase;letter-spacing:.14em;font-size:8px;color:var(--faint)}
+  .metric-value{font-family:'din-2014','Barlow',sans-serif;font-size:26px;font-weight:300;letter-spacing:.08em;margin-top:5px;color:var(--ink)}
+  .metric-value small{font-size:11px;color:var(--dim);font-family:'Space Mono',monospace}
+  .bar{height:4px;margin-top:8px;background:rgba(255,255,255,.06);position:relative;overflow:hidden}
+  .bar span{display:block;height:100%;width:50%;background:linear-gradient(90deg,var(--cyan),rgba(158,215,179,.9),var(--amber));box-shadow:0 0 16px rgba(120,235,225,.32)}
+  .source-list,.event-log{padding:46px 16px 16px;font-family:'Space Mono',monospace}
+  .source{padding:12px 0;border-top:1px solid var(--line)}
+  .source:first-child{border-top:0}
+  .source b{display:block;color:var(--ink);font-weight:400;font-size:10px;letter-spacing:.12em;text-transform:uppercase}
+  .source span,.source a{display:block;margin-top:5px;color:var(--dim);font-size:8.5px;line-height:1.55;text-decoration:none}
+  .source a:hover{color:var(--cyan)}
+  .matrix{padding:48px 16px 16px}
+  #connectome{width:100%;height:100%;min-height:260px}
+  .event-log{overflow:auto}
+  .event{display:grid;grid-template-columns:52px 1fr;gap:9px;border-top:1px solid var(--line);padding:9px 0;color:var(--dim);font-size:8.5px;line-height:1.45}
+  .event time{color:var(--faint)}
+  .event b{color:var(--ink);font-weight:400}
+  .specimen{padding:42px 18px 18px;display:grid;grid-template-columns:1fr auto;gap:20px;align-items:end}
+  .specimen h2{font-family:'din-2014','Barlow',sans-serif;font-weight:200;font-size:clamp(48px,5.8vw,92px);letter-spacing:.08em;line-height:.9;color:var(--ink)}
+  .specimen h2 em{font-style:normal;color:var(--cyan)}
+  .specimen p{max-width:440px;color:var(--dim);font-size:13px;line-height:1.55}
+  .readout-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
+  .readout{background:rgba(5,7,7,.82);padding:13px 14px;font-family:'Space Mono',monospace;min-width:120px}
+  .readout span{display:block;color:var(--faint);font-size:8px;letter-spacing:.16em;text-transform:uppercase}
+  .readout b{display:block;margin-top:7px;color:var(--ink);font-size:15px;font-weight:400;letter-spacing:.08em}
+  .mode-strip{position:absolute;top:12px;right:14px;z-index:8;display:flex;gap:8px}
+  .mode{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);border:1px solid var(--line);padding:5px 8px;background:rgba(0,0,0,.28)}
+  .mode.live{color:var(--green);border-color:rgba(158,215,179,.3)}
+  .noise{position:fixed;inset:0;pointer-events:none;z-index:19;opacity:.16;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.26'/%3E%3C/svg%3E");mix-blend-mode:screen}
+  @media(max-width:1100px){
+    html,body{overflow:auto}
+    .app{height:auto;min-height:100%;grid-template-columns:1fr;grid-template-rows:auto;gap:12px;padding:16px}
+    .topbar,.left,.center,.right,.bottom{grid-column:1;grid-row:auto}
+    .left,.right,.bottom{display:grid;grid-template-columns:1fr;grid-template-rows:auto}
+    .center{height:68vh;min-height:520px}
+    .brand h1{font-size:22px}
+    .clock b{font-size:18px}
+  }
+  @media(max-width:620px){
+    .topbar{display:block}
+    .clock{text-align:left;margin-top:16px}
+    .center{min-height:460px}
+    .specimen{grid-template-columns:1fr}
+    .readout-grid{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<div class="noise"></div>
+<main class="app">
+  <header class="topbar">
+    <div class="brand">
+      <h1>LIVING <span>BRAIN</span></h1>
+      <p>OpenNeuro / HCP target interface / MRI anatomy / diffusion tracts / fMRI activation</p>
+    </div>
+    <div class="clock"><b id="clock">--:--:--</b><span>HCP / Neurosynth / Allen Brain Atlas / OpenNeuro</span></div>
+  </header>
+
+  <section class="left">
+    <div class="panel">
+      <div class="panel-label"><span class="flag">[</span> Layers <span class="flag">]</span></div>
+      <div class="layer-controls" id="layer-controls"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-label"><span class="flag">[</span> Dataset Metrics <span class="flag">]</span></div>
+      <div class="metric-stack">
+        <div class="metric">
+          <div class="metric-head"><span>OpenNeuro Public Datasets</span><span>BIDS</span></div>
+          <div class="metric-value" id="m-studies">1,700+</div>
+          <div class="bar"><span id="b-studies"></span></div>
+        </div>
+        <div class="metric">
+          <div class="metric-head"><span>Neurosynth Activations</span><span>fMRI</span></div>
+          <div class="metric-value" id="m-activations">507,891</div>
+          <div class="bar"><span id="b-activations"></span></div>
+        </div>
+        <div class="metric">
+          <div class="metric-head"><span>HCP Young Adult Release</span><span>MRI</span></div>
+          <div class="metric-value" id="m-hcp">1,071</div>
+          <div class="bar"><span id="b-hcp"></span></div>
+        </div>
+        <div class="metric">
+          <div class="metric-head"><span>Network Synchrony</span><span>Model</span></div>
+          <div class="metric-value" id="m-sync">0.84</div>
+          <div class="bar"><span id="b-sync"></span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel center">
+    <div class="panel-label"><span class="flag">[</span> MRI-Derived Brain Plate / Browser Canvas <span class="flag">]</span></div>
+    <div class="mode-strip"><span class="mode live">OpenNeuro Target</span><span class="mode" id="frame-mode">Atlas Proxy</span></div>
+    <div class="brain-stage">
+      <canvas id="brain-canvas"></canvas>
+      <div class="stage-title">
+        <div><b>Cortical Field</b>Real-scan visual language with layered diffusion, vascular, activation, and electrode overlays</div>
+        <div>Open dataset target / Paths <span id="path-count">1,437</span></div>
+      </div>
+    </div>
+  </section>
+
+  <aside class="right">
+    <section class="panel matrix">
+      <div class="panel-label"><span class="flag">[</span> Connectome Matrix <span class="flag">]</span></div>
+      <canvas id="connectome"></canvas>
+    </section>
+    <section class="panel">
+      <div class="panel-label"><span class="flag">[</span> Source Index <span class="flag">]</span></div>
+      <div class="source-list">
+        <div class="source"><b>OpenNeuro</b><span>Primary target for public BIDS datasets, including structural MRI, fMRI, and diffusion scans.</span><a href="https://openneuro.org/" target="_blank" rel="noopener">openneuro.org / public datasets</a></div>
+        <div class="source"><b>Human Connectome Project</b><span>High-resolution multimodal healthy-brain scans. Full release generally requires free registration and data-use terms.</span><a href="https://www.humanconnectome.org/study/hcp-young-adult/data-releases" target="_blank" rel="noopener">humanconnectome.org / data releases</a></div>
+        <div class="source"><b>Neurosynth</b><span>Open database of fMRI studies, terms, and reported activation coordinates.</span><a href="https://neurosynth.org/" target="_blank" rel="noopener">neurosynth.org</a></div>
+        <div class="source"><b>Allen Brain Atlas</b><span>Open brain atlas APIs and human brain expression resources.</span><a href="https://portal.brain-map.org/" target="_blank" rel="noopener">brain-map.org</a></div>
+      </div>
+    </section>
+  </aside>
+
+  <section class="bottom">
+    <div class="panel specimen">
+      <div>
+        <div class="panel-label"><span class="flag">[</span> Signal Readout <span class="flag">]</span></div>
+        <h2>OPEN <em>NEURO</em></h2>
+        <p>This view is now framed as an atlas proxy for OpenNeuro/HCP ingestion: scan-like tissue contrast first, with tractography, BOLD activation, vessels, and electrodes as optional scientific overlays.</p>
+      </div>
+      <div class="readout-grid">
+        <div class="readout"><span>Neural Activity</span><b id="r-activity">72%</b></div>
+        <div class="readout"><span>Oxygen Proxy</span><b id="r-bold">98.4%</b></div>
+        <div class="readout"><span>Active Paths</span><b id="r-paths">1,437</b></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-label"><span class="flag">[</span> Event Log <span class="flag">]</span></div>
+      <div class="event-log" id="event-log"></div>
+    </div>
+  </section>
+</main>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const fmt = n => Math.round(n).toLocaleString();
+  const data = {
+    openneuroDatasets: 1700,
+    neurosynthStudies: 14371,
+    neurosynthActivations: 507891,
+    neurosynthTerms: 1334,
+    hcpProcessedSubjects: 1071,
+    hcpModalities: 4,
+    openneuroSeedDatasets: 12
+  };
+  const layers = [
+    {id:'surface', label:'Cortical Surface', on:true, color:'#78ebe1'},
+    {id:'tracts', label:'Fiber Tracts', on:true, color:'#8aa8ff'},
+    {id:'vessels', label:'Blood Vessels', on:true, color:'#d7655f'},
+    {id:'activation', label:'Functional Activation', on:true, color:'#e3b36a'},
+    {id:'electrodes', label:'Electrode Locations', on:true, color:'#e7f1ee'}
+  ];
+  const networks = ['VIS','SMN','DAN','VAN','LIM','FPN','DMN'];
+  const matrix = [
+    [1,.52,.36,.28,.12,.31,.25],
+    [.52,1,.41,.3,.16,.34,.22],
+    [.36,.41,1,.46,.2,.58,.33],
+    [.28,.3,.46,1,.38,.49,.29],
+    [.12,.16,.2,.38,1,.24,.44],
+    [.31,.34,.58,.49,.24,1,.57],
+    [.25,.22,.33,.29,.44,.57,1]
+  ];
+
+  function log(message){
+    const wrap = $('event-log');
+    const now = new Date();
+    const div = document.createElement('div');
+    div.className = 'event';
+    div.innerHTML = `<time>${now.toTimeString().slice(0,8)}</time><span>${message}</span>`;
+    wrap.prepend(div);
+    while(wrap.children.length > 12) wrap.lastChild.remove();
+  }
+
+  function setupLayers(){
+    const wrap = $('layer-controls');
+    layers.forEach(layer => {
+      const btn = document.createElement('button');
+      btn.className = 'layer-btn' + (layer.on ? ' active' : '');
+      btn.type = 'button';
+      btn.innerHTML = `<span>${layer.label}</span><i style="color:${layer.color}"></i>`;
+      btn.addEventListener('click', () => {
+        layer.on = !layer.on;
+        btn.classList.toggle('active', layer.on);
+        log(`<b>${layer.label}</b> ${layer.on ? 'layer enabled' : 'layer muted'}`);
+      });
+      wrap.appendChild(btn);
+    });
+  }
+
+  const brainCanvas = $('brain-canvas');
+  const brainCtx = brainCanvas.getContext('2d');
+  const matrixCanvas = $('connectome');
+  const matrixCtx = matrixCanvas.getContext('2d');
+  let frame = 0;
+  let points = [];
+  let electrodes = [];
+
+  function resizeCanvas(canvas, ctx){
+    const rect = canvas.getBoundingClientRect();
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+    canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    return rect;
+  }
+
+  function seedGeometry(){
+    points = [];
+    electrodes = [];
+    for(let i=0;i<520;i++){
+      const a = (i * 2.399963) % (Math.PI * 2);
+      const r = Math.sqrt(((i * 37) % 520) / 520);
+      const lobe = Math.sin(a * 2.2 + i * 0.013);
+      const x = -0.08 + r * 0.84 * Math.cos(a) * (0.96 + lobe * 0.08);
+      const y = r * 0.54 * Math.sin(a) * (0.9 + Math.cos(a*3) * 0.08) + 0.03 * Math.sin(x * 9);
+      if(x < -0.94 || x > 0.9 || y < brainTop(x)-0.04 || y > brainBottom(x)+0.05) continue;
+      const z = Math.sin(i * 1.71) * 0.38;
+      points.push({x,y,z, network:i%networks.length, phase:Math.sin(i*0.41)});
+    }
+    for(let i=0;i<24;i++){
+      const p = points[(i*37)%points.length];
+      electrodes.push({...p, pulse:i*.37});
+    }
+  }
+
+  function brainTop(x){
+    const dome = -0.44 * Math.sqrt(Math.max(0, 1 - Math.pow((x+0.03)/0.98, 2)));
+    return dome - 0.02*Math.sin((x+0.8)*12) - (x > 0.45 ? 0.04*(x-0.45) : 0);
+  }
+
+  function brainBottom(x){
+    const base = 0.36 * Math.sqrt(Math.max(0, 1 - Math.pow((x+0.06)/1.02, 2))) + 0.1;
+    const temporalDrop = 0.13 * Math.exp(-Math.pow((x+0.12)/0.25,2));
+    const frontalLift = x > 0.55 ? -0.09*(x-0.55) : 0;
+    return base + temporalDrop + frontalLift + 0.012*Math.sin((x+0.4)*18);
+  }
+
+  function brainPath(ctx, cx, cy, s){
+    ctx.beginPath();
+    ctx.moveTo(cx - .92*s, cy - .04*s);
+    ctx.bezierCurveTo(cx - .9*s, cy - .34*s, cx - .62*s, cy - .53*s, cx - .25*s, cy - .5*s);
+    ctx.bezierCurveTo(cx + .02*s, cy - .62*s, cx + .45*s, cy - .58*s, cx + .72*s, cy - .36*s);
+    ctx.bezierCurveTo(cx + .98*s, cy - .14*s, cx + .95*s, cy + .19*s, cx + .78*s, cy + .32*s);
+    ctx.bezierCurveTo(cx + .55*s, cy + .51*s, cx + .2*s, cy + .5*s, cx - .02*s, cy + .42*s);
+    ctx.bezierCurveTo(cx - .12*s, cy + .62*s, cx - .38*s, cy + .59*s, cx - .52*s, cy + .43*s);
+    ctx.bezierCurveTo(cx - .72*s, cy + .4*s, cx - .95*s, cy + .23*s, cx - .92*s, cy - .04*s);
+    ctx.closePath();
+  }
+
+  function cerebellumPath(ctx, cx, cy, s){
+    ctx.beginPath();
+    ctx.moveTo(cx - .34*s, cy + .34*s);
+    ctx.bezierCurveTo(cx - .17*s, cy + .2*s, cx + .12*s, cy + .22*s, cx + .26*s, cy + .37*s);
+    ctx.bezierCurveTo(cx + .34*s, cy + .5*s, cx + .2*s, cy + .62*s, cx - .06*s, cy + .59*s);
+    ctx.bezierCurveTo(cx - .29*s, cy + .56*s, cx - .47*s, cy + .47*s, cx - .34*s, cy + .34*s);
+    ctx.closePath();
+  }
+
+  function project(p, w, h, t){
+    const rot = Math.sin(t*.0001) * 0.16;
+    const ca = Math.cos(rot), sa = Math.sin(rot);
+    const x = p.x * ca - p.z * sa;
+    const z = p.x * sa + p.z * ca;
+    const s = Math.min(w*.56, h*.78);
+    return {x:w/2 + x*s*.72, y:h/2 + p.y*s + z*s*.045, z};
+  }
+
+  function drawBrain(time){
+    const rect = resizeCanvas(brainCanvas, brainCtx);
+    const w = rect.width, h = rect.height;
+    const ctx = brainCtx;
+    ctx.clearRect(0,0,w,h);
+    ctx.globalCompositeOperation = 'source-over';
+
+    const cx = w/2;
+    const cy = h*.49;
+    const s = Math.min(w*.62, h*.82);
+    const pulse = (Math.sin(time*.0012)+1)/2;
+    const activity = 66 + pulse*18 + Math.sin(time*.0007)*4;
+    const sync = 0.74 + pulse*.16;
+    const oxygen = 97.6 + pulse*.9;
+    const activePaths = Math.round(1120 + activity*4.4);
+
+    ctx.save();
+    ctx.fillStyle = 'rgba(0,0,0,.2)';
+    ctx.fillRect(20,20,w-40,h-40);
+    ctx.strokeStyle = 'rgba(237,248,255,.18)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(20.5,20.5,w-41,h-41);
+    ctx.restore();
+
+    const scan = ctx.createRadialGradient(cx,cy,0,cx,cy,s*.82);
+    scan.addColorStop(0,'rgba(237,248,255,.16)');
+    scan.addColorStop(.3,'rgba(82,241,255,.09)');
+    scan.addColorStop(.62,'rgba(76,132,255,.035)');
+    scan.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle = scan;
+    ctx.fillRect(0,0,w,h);
+
+    const drawn = points.map(p => ({p, q:project(p,w,h,time)})).sort((a,b)=>a.q.z-b.q.z);
+    const surfaceOn = layers.find(l=>l.id==='surface').on;
+    const tractsOn = layers.find(l=>l.id==='tracts').on;
+    const vesselsOn = layers.find(l=>l.id==='vessels').on;
+    const activationOn = layers.find(l=>l.id==='activation').on;
+    const electrodesOn = layers.find(l=>l.id==='electrodes').on;
+
+    ctx.save();
+    brainPath(ctx,cx,cy,s);
+    ctx.clip();
+
+    const tissue = ctx.createLinearGradient(cx-s*.62,cy-s*.42,cx+s*.62,cy+s*.42);
+    tissue.addColorStop(0,'rgba(8,30,58,.7)');
+    tissue.addColorStop(.28,'rgba(26,93,132,.42)');
+    tissue.addColorStop(.5,'rgba(240,252,255,.24)');
+    tissue.addColorStop(.73,'rgba(29,86,150,.38)');
+    tissue.addColorStop(1,'rgba(11,21,42,.72)');
+    ctx.fillStyle = tissue;
+    ctx.fillRect(cx-s,cy-s*.7,s*2,s*1.38);
+
+    for(let i=0;i<900;i++){
+      const seed = Math.sin(i*73.119)*10000;
+      const x = cx + (Math.abs(seed)%1-.5)*s*1.86;
+      const y = cy + (Math.abs(Math.sin(seed*1.91))-.5)*s*1.03;
+      const d = Math.hypot((x-cx)/(s*.78),(y-cy)/(s*.46));
+      if(d > 1.08) continue;
+      const a = .025 + (1-d)*.085;
+      ctx.fillStyle = i%7===0 ? `rgba(246,255,255,${a*1.8})` : `rgba(82,241,255,${a})`;
+      ctx.fillRect(x,y,1.05,1.05);
+    }
+
+    if(surfaceOn){
+      ctx.globalCompositeOperation = 'screen';
+      for(let i=0;i<260;i++){
+        const seed = Math.sin(i*91.73)*10000;
+        const x0 = -0.86 + (Math.abs(seed)%1)*1.66;
+        const y0 = brainTop(x0) + 0.035 + (brainBottom(x0)-brainTop(x0)-0.08)*(Math.abs(Math.sin(seed*1.7))%1);
+        const x1 = Math.min(.9, x0 + 0.12 + (Math.abs(Math.sin(seed*2.1))%1)*0.36);
+        const y1 = y0 + Math.sin(seed)*0.075;
+        const p0 = project({x:x0,y:y0,z:Math.sin(seed)*.12},w,h,time);
+        const p1 = project({x:(x0+x1)/2,y:(y0+y1)/2 + Math.cos(seed)*.055,z:Math.cos(seed)*.12},w,h,time);
+        const p2 = project({x:x1,y:y1,z:Math.sin(seed*1.3)*.12},w,h,time);
+        ctx.strokeStyle = i%4===0 ? 'rgba(237,248,255,0.22)' : 'rgba(82,241,255,0.11)';
+        ctx.lineWidth = i%13===0 ? .9 : .45;
+        ctx.beginPath();
+        ctx.moveTo(p0.x,p0.y);
+        ctx.quadraticCurveTo(p1.x,p1.y,p2.x,p2.y);
+        ctx.stroke();
+      }
+    }
+
+    ctx.globalCompositeOperation = 'multiply';
+    ctx.fillStyle = 'rgba(0,0,0,.42)';
+    ctx.beginPath();
+    ctx.ellipse(cx+s*.02,cy+s*.03,s*.09,s*.2,-.17,0,Math.PI*2);
+    ctx.ellipse(cx+s*.19,cy+s*.02,s*.07,s*.16,.06,0,Math.PI*2);
+    ctx.fill();
+    ctx.globalCompositeOperation = 'screen';
+    ctx.strokeStyle = 'rgba(237,248,255,.22)';
+    ctx.lineWidth = 1.1;
+    ctx.beginPath();
+    ctx.moveTo(cx-s*.38,cy+s*.04);
+    ctx.bezierCurveTo(cx-s*.15,cy-s*.1,cx+s*.1,cy-s*.1,cx+s*.35,cy+s*.04);
+    ctx.stroke();
+
+    if(tractsOn){
+      for(let i=0;i<190;i++){
+        const a = drawn[(i*7)%drawn.length].q;
+        const b = drawn[(i*19+17)%drawn.length].q;
+        ctx.strokeStyle = i%5===0 ? `rgba(248,189,82,${0.07 + (i%7)*.012})` : `rgba(82,241,255,${0.04 + (i%7)*.012})`;
+        ctx.lineWidth = i%11===0 ? .95 : .42;
+        ctx.beginPath();
+        ctx.moveTo(a.x,a.y);
+        ctx.bezierCurveTo(cx-s*.08,cy + Math.sin(i)*s*.16,cx+s*.1,cy + Math.cos(i)*s*.12,b.x,b.y);
+        ctx.stroke();
+      }
+    }
+
+    if(vesselsOn){
+      for(let i=0;i<64;i++){
+        const y = cy - s*.34 + i*s*.012;
+        ctx.strokeStyle = `rgba(255,116,95,${.035 + (i%4)*.012})`;
+        ctx.lineWidth = .42;
+        ctx.beginPath();
+        ctx.moveTo(cx-s*.48,y);
+        for(let x=cx-s*.48;x<cx+s*.48;x+=16){
+          ctx.lineTo(x,y + Math.sin(x*.018 + i + time*.001)*5);
+        }
+        ctx.stroke();
+      }
+    }
+
+    if(activationOn){
+      drawn.filter((_,i)=>i%16===0).forEach(({q},i)=>{
+        const r = 14 + Math.sin(time*.002+i)*5;
+        const g = ctx.createRadialGradient(q.x,q.y,0,q.x,q.y,r);
+        g.addColorStop(0,'rgba(255,255,230,.42)');
+        g.addColorStop(.22,'rgba(248,189,82,.23)');
+        g.addColorStop(1,'rgba(248,189,82,0)');
+        ctx.fillStyle = g;
+        ctx.beginPath(); ctx.arc(q.x,q.y,r,0,Math.PI*2); ctx.fill();
+      });
+    }
+
+    ctx.restore();
+
+    ctx.globalCompositeOperation = 'screen';
+    brainPath(ctx,cx,cy,s);
+    ctx.strokeStyle = 'rgba(237,248,255,.72)';
+    ctx.lineWidth = 1.15;
+    ctx.shadowColor = 'rgba(82,241,255,.72)';
+    ctx.shadowBlur = 10;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    cerebellumPath(ctx,cx-.17*s,cy+.3*s,s*.48);
+    ctx.fillStyle = 'rgba(82,241,255,0.03)';
+    ctx.strokeStyle = 'rgba(237,248,255,0.42)';
+    ctx.lineWidth = .9;
+    ctx.fill(); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx-.05*s, cy+.52*s);
+    ctx.bezierCurveTo(cx+.02*s,cy+.68*s,cx,cy+.83*s,cx-.04*s,cy+.96*s);
+    ctx.strokeStyle = 'rgba(237,248,255,0.4)';
+    ctx.lineWidth = 1.25;
+    ctx.stroke();
+
+    if(electrodesOn){
+      electrodes.forEach((p,i)=>{
+        const q = project(p,w,h,time);
+        const a = .35 + (Math.sin(time*.004+p.pulse)+1)*.3;
+        ctx.strokeStyle = `rgba(237,248,255,${a})`;
+        ctx.fillStyle = `rgba(237,248,255,${a})`;
+        ctx.beginPath(); ctx.arc(q.x,q.y,3,0,Math.PI*2); ctx.stroke();
+        ctx.fillRect(q.x-1,q.y-1,2,2);
+        ctx.beginPath();
+        ctx.moveTo(q.x,q.y);
+        ctx.lineTo(q.x + (i%2?1:-1)*42, q.y - 18 - (i%5)*7);
+        ctx.strokeStyle = `rgba(237,248,255,${a*.24})`;
+        ctx.lineWidth = .55;
+        ctx.stroke();
+      });
+    }
+
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = 'rgba(237,248,255,.08)';
+    ctx.font = '9px Space Mono';
+    ctx.fillText('OPENNEURO BIDS TARGET / T1w + fMRI + dMRI', 34, 42);
+    ctx.fillText('HCP HIGH-RES REFERENCE REQUIRES REGISTERED DATA RELEASE', 34, h-34);
+    ctx.strokeStyle = 'rgba(237,248,255,.16)';
+    ctx.beginPath();
+    ctx.moveTo(44,cy); ctx.lineTo(w-44,cy);
+    ctx.moveTo(cx,42); ctx.lineTo(cx,h-42);
+    ctx.stroke();
+
+    $('r-activity').textContent = Math.round(activity) + '%';
+    $('r-bold').textContent = oxygen.toFixed(1) + '%';
+    $('r-paths').textContent = fmt(activePaths);
+    $('m-sync').textContent = sync.toFixed(2);
+    $('path-count').textContent = fmt(activePaths);
+    $('b-sync').style.width = Math.round(sync*100) + '%';
+  }
+
+  function drawMatrix(){
+    const rect = resizeCanvas(matrixCanvas, matrixCtx);
+    const w = rect.width, h = rect.height;
+    const ctx = matrixCtx;
+    ctx.clearRect(0,0,w,h);
+    const pad = 36;
+    const size = Math.min(w-pad*2,h-pad*2);
+    const cell = size / networks.length;
+    ctx.font = '9px Space Mono';
+    networks.forEach((n,i)=>{
+      ctx.fillStyle = 'rgba(145,161,157,.72)';
+      ctx.fillText(n,pad+i*cell+cell*.22,pad-12);
+      ctx.fillText(n,8,pad+i*cell+cell*.58);
+    });
+    for(let y=0;y<networks.length;y++){
+      for(let x=0;x<networks.length;x++){
+        const v = matrix[y][x];
+        ctx.fillStyle = `rgba(${Math.round(120+v*90)},${Math.round(160+v*75)},${Math.round(165+v*70)},${.14+v*.55})`;
+        ctx.fillRect(pad+x*cell+1,pad+y*cell+1,cell-2,cell-2);
+      }
+    }
+    ctx.strokeStyle = 'rgba(231,241,238,.12)';
+    ctx.strokeRect(pad,pad,size,size);
+  }
+
+  function updateMetrics(){
+    $('m-studies').textContent = fmt(data.openneuroDatasets) + '+';
+    $('m-activations').textContent = fmt(data.neurosynthActivations);
+    $('m-hcp').textContent = fmt(data.hcpProcessedSubjects);
+    $('b-studies').style.width = '78%';
+    $('b-activations').style.width = '88%';
+    $('b-hcp').style.width = '64%';
+  }
+
+  function tickClock(){
+    $('clock').textContent = new Date().toTimeString().slice(0,8);
+  }
+
+  function animate(time){
+    frame++;
+    drawBrain(time);
+    if(frame % 30 === 0) drawMatrix();
+    requestAnimationFrame(animate);
+  }
+
+  setupLayers();
+  seedGeometry();
+  updateMetrics();
+  drawMatrix();
+  tickClock();
+  setInterval(tickClock,1000);
+  log('<b>OpenNeuro</b> public BIDS archive selected as primary scan source');
+  log('<b>HCP</b> young adult release marked as high-resolution reference target');
+  log('<b>Neurosynth</b> corpus values mapped to activation density');
+  window.addEventListener('resize',()=>{ drawMatrix(); });
+  requestAnimationFrame(animate);
+})();
+</script>
+</body>
+</html>

@@ -219,6 +219,7 @@
   .iface-card.anim-5 { animation: fade-up 0.7s 1.7s ease forwards; }
   .iface-card.anim-6 { animation: fade-up 0.7s 1.85s ease forwards; }
   .iface-card.anim-7 { animation: fade-up 0.7s 2.0s ease forwards; }
+  .iface-card.anim-8 { animation: fade-up 0.7s 2.15s ease forwards; }
 
   /* Top accent line — color per card */
   .iface-card::before {
@@ -376,7 +377,7 @@
   <div class="top-right">
     <div class="top-status">
       <span class="status-dot"></span>
-      <span id="live-count">7</span> INTERFACES LIVE
+      <span id="live-count">8</span> INTERFACES LIVE
     </div>
     <a href="https://rondomingue.com" class="top-url">rondomingue.com</a>
   </div>
@@ -403,7 +404,7 @@
 <div class="content">
   <div class="section-header">
     <span class="section-label">Active Systems</span>
-    <span class="section-count">07 / ∞</span>
+    <span class="section-count">08 / ∞</span>
   </div>
 
   <div class="cards">
@@ -528,8 +529,38 @@
       </div>
     </a>
 
+    <!-- LIVING BRAIN -->
+    <a href="/brain.html" class="iface-card anim-5" style="--c:#78ebe1;"
+       onmouseenter="playHover()">
+      <div style="position:absolute;top:0;left:0;right:0;height:1px;z-index:3;background:linear-gradient(to right,rgba(120,235,225,0.55),rgba(138,168,255,0.34),transparent 70%);"></div>
+      <div class="card-preview" style="background:#050707;">
+        <img src="images/brain-preview.svg" alt="Living Brain Open Neuroscience Interface" class="preview-drift" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;filter:brightness(0.95);"/>
+        <div class="card-preview-overlay" style="background:linear-gradient(135deg,rgba(120,235,225,0.08) 0%,transparent 60%);"></div>
+        <div class="card-launch">
+          <span>LAUNCH</span><span class="launch-arrow">↗</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-meta">
+          <span class="card-type">Neuroscience / Open Data</span>
+          <span class="card-status live"><span class="sd"></span>ACTIVE</span>
+        </div>
+        <h2 class="card-title">LIVING <em style="color:rgba(120,235,225,0.9)">BRAIN</em></h2>
+        <p class="card-desc">
+          Near-future neuroscience instrument — transparent cortical model, fiber tracts, vascular overlays, activation fields, electrode locations, and open-data source counters.
+        </p>
+        <div class="card-tags">
+          <span class="tag">HCP</span>
+          <span class="tag">Neurosynth</span>
+          <span class="tag">Allen Atlas</span>
+          <span class="tag">OpenNeuro</span>
+          <span class="tag">canvas</span>
+        </div>
+      </div>
+    </a>
+
     <!-- LEXICON -->
-    <a href="/vocabulary.html" class="iface-card anim-5" style="--c:#b8783e;"
+    <a href="/vocabulary.html" class="iface-card anim-6" style="--c:#b8783e;"
        onmouseenter="playHover()">
       <div style="position:absolute;top:0;left:0;right:0;height:1px;z-index:3;background:linear-gradient(to right,rgba(184,120,62,0.58),transparent 70%);"></div>
       <div class="card-preview" style="background:linear-gradient(135deg,#f4efe5,#e6dccd);">
@@ -559,7 +590,7 @@
     </a>
 
     <!-- OUTBREAKS -->
-    <a href="/outbreaks.html" class="iface-card anim-6" style="--c:#9e3b34;"
+    <a href="/outbreaks.html" class="iface-card anim-7" style="--c:#9e3b34;"
        onmouseenter="playHover()">
       <div style="position:absolute;top:0;left:0;right:0;height:1px;z-index:3;background:linear-gradient(to right,rgba(158,59,52,0.58),transparent 70%);"></div>
       <div class="card-preview" style="background:#f5efe4;">
@@ -589,7 +620,7 @@
     </a>
 
     <!-- EVERYMOMENTVOTES -->
-    <a href="/everymomentvotes.html" class="iface-card anim-7" style="--c:#9e3b34;"
+    <a href="/everymomentvotes.html" class="iface-card anim-8" style="--c:#9e3b34;"
        onmouseenter="playHover()">
       <div style="position:absolute;top:0;left:0;right:0;height:1px;z-index:3;background:linear-gradient(to right,rgba(36,58,84,0.55),rgba(158,59,52,0.48),transparent 70%);"></div>
       <div class="card-preview" style="background:#f3efe6;">
@@ -653,7 +684,7 @@
 
   // Glitch the eyebrow text
   const eyebrow = document.getElementById('hero-eyebrow-data');
-  const targets = ['LIVE SYSTEMS / DATA VISUALIZATION','ADS-B / NHC / NOAA / NWS','29.9934°N 90.2581°W // KMSY','LANDFALL // TROPICAL CYCLONE OPS','TRANSIT // NEAR-EARTH OBJECT TRACKING','OUTBREAKS // EPIDEMIC INTELLIGENCE','EVERYMOMENTVOTES // CIVIC SYSTEMS'];
+  const targets = ['LIVE SYSTEMS / DATA VISUALIZATION','ADS-B / NHC / NOAA / NWS','29.9934°N 90.2581°W // KMSY','LANDFALL // TROPICAL CYCLONE OPS','TRANSIT // NEAR-EARTH OBJECT TRACKING','LIVING BRAIN // OPEN NEUROSCIENCE','OUTBREAKS // EPIDEMIC INTELLIGENCE','EVERYMOMENTVOTES // CIVIC SYSTEMS'];
   const glitch = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789/\\|<>[]{}!@#$%^&*';
   let ei=0;
   function cycleEyebrow(){
