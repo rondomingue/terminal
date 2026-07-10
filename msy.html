@@ -310,6 +310,10 @@
     position:absolute; display:block; border:0; user-select:none; pointer-events:none;
     image-rendering:auto; opacity:0.88;
   }
+  #weather-map canvas{
+    position:absolute; inset:0; width:100%; height:100%;
+    display:block; pointer-events:none;
+  }
   #weather-map::after{
     content:''; position:absolute; inset:0; pointer-events:none;
     background:radial-gradient(ellipse at 50% 48%, transparent 0 54%, rgba(0,0,0,0.36) 100%);
@@ -645,9 +649,9 @@
       <div class="panel" id="scope-panel">
       <div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
       <div class="panel-label"><span class="flag">[</span> T.DATA <span class="flag">]</span></div>
-      <button id="weather-toggle" type="button" aria-pressed="false" title="Toggle RainViewer storm radar coverage">WX RADAR</button>
+      <button id="weather-toggle" type="button" aria-pressed="false" title="Toggle sampled Open-Meteo cloud coverage">WX CLOUDS</button>
       <div class="panel-meta" id="scope-bbox">29.70/-90.40 — 30.20/-89.70</div>
-      <div class="panel-meta" style="top:auto; bottom:6px; right:10px; font-size:8px;">CARTO DARK MATTER / RAINVIEWER WX</div>
+      <div class="panel-meta" style="top:auto; bottom:6px; right:10px; font-size:8px;">CARTO DARK MATTER / OPEN-METEO WX</div>
       <div id="map-source-note">MAP DATA © OPENSTREETMAP CONTRIBUTORS / CARTO</div>
       <div id="hex-ticker" class="mono"></div>
       <div id="map-loader" class="mono">
@@ -1175,8 +1179,11 @@
 
   let weatherLayerEnabled = false;
   let weatherRadarFrame = null;
+  let weatherCloudSamples = null;
+  let weatherCloudSampleTime = 0;
   let weatherBuildToken = 0;
   const WEATHER_TILE_MAX_Z = 6; // RainViewer returns placeholder tiles above this in the Gulf region.
+  const WEATHER_CLOUD_TTL = 1000 * 60 * 8;
 
   async function fetchWeatherRadarFrame(){
     if(weatherRadarFrame) return weatherRadarFrame;
@@ -1190,6 +1197,97 @@
     return weatherRadarFrame;
   }
 
+  function weatherSampleGrid(){
+    const points = [];
+    const cols = 6, rows = 4;
+    for(let yi=0; yi<rows; yi++){
+      for(let xi=0; xi<cols; xi++){
+        points.push({
+          lat: activeBounds.lamin + (activeBounds.lamax-activeBounds.lamin) * (yi/(rows-1)),
+          lon: activeBounds.lomin + (activeBounds.lomax-activeBounds.lomin) * (xi/(cols-1))
+        });
+      }
+    }
+    return points;
+  }
+
+  async function fetchCloudSamples(){
+    if(weatherCloudSamples && Date.now() - weatherCloudSampleTime < WEATHER_CLOUD_TTL) return weatherCloudSamples;
+    const points = weatherSampleGrid();
+    const lats = points.map(p=>p.lat.toFixed(4)).join(',');
+    const lons = points.map(p=>p.lon.toFixed(4)).join(',');
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&current=cloud_cover,precipitation,weather_code&forecast_days=1`;
+    const res = await fetch(url, {cache:'no-store'});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const data = await res.json();
+    const rows = Array.isArray(data) ? data : [data];
+    weatherCloudSamples = rows.map((row, i)=>({
+      lat: points[i]?.lat ?? row.latitude,
+      lon: points[i]?.lon ?? row.longitude,
+      cloud: Number(row.current?.cloud_cover ?? 0),
+      precipitation: Number(row.current?.precipitation ?? 0),
+      code: Number(row.current?.weather_code ?? 0)
+    }));
+    weatherCloudSampleTime = Date.now();
+    return weatherCloudSamples;
+  }
+
+  function drawCloudOverlay(samples){
+    const container = $('weather-map');
+    if(!container) return;
+    const canvas = document.createElement('canvas');
+    canvas.width = SVG_W;
+    canvas.height = SVG_H;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0,0,SVG_W,SVG_H);
+    ctx.globalCompositeOperation = 'screen';
+    samples.forEach((sample, i)=>{
+      const cloud = Math.max(0, Math.min(1, sample.cloud / 100));
+      if(cloud < 0.08 && sample.precipitation <= 0) return;
+      const [x,y] = project(sample.lat, sample.lon);
+      const wobble = Math.sin(i * 12.9898) * 18;
+      const radius = 72 + cloud * 130;
+      const grad = ctx.createRadialGradient(x+wobble, y-wobble*0.25, radius*0.08, x, y, radius);
+      grad.addColorStop(0, `rgba(230,244,246,${0.04 + cloud*0.18})`);
+      grad.addColorStop(0.42, `rgba(190,205,208,${0.025 + cloud*0.1})`);
+      grad.addColorStop(1, 'rgba(230,244,246,0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.ellipse(x, y, radius*1.35, radius*0.72, (i%5-2)*0.25, 0, Math.PI*2);
+      ctx.fill();
+      if(sample.precipitation > 0){
+        const storm = ctx.createRadialGradient(x, y, 0, x, y, 44);
+        storm.addColorStop(0, 'rgba(230,244,246,0.22)');
+        storm.addColorStop(0.4, 'rgba(168,194,199,0.11)');
+        storm.addColorStop(1, 'rgba(230,244,246,0)');
+        ctx.fillStyle = storm;
+        ctx.beginPath();
+        ctx.arc(x, y, 44, 0, Math.PI*2);
+        ctx.fill();
+      }
+    });
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = 'rgba(0,0,0,0.08)';
+    ctx.fillRect(0,0,SVG_W,SVG_H);
+    container.innerHTML = '';
+    container.appendChild(canvas);
+  }
+
+  async function buildCloudOverlay(force=false){
+    const container = $('weather-map');
+    if(!container || !weatherLayerEnabled) return;
+    try{
+      const samples = await fetchCloudSamples();
+      if(!weatherLayerEnabled) return;
+      drawCloudOverlay(samples);
+      const avg = samples.reduce((sum,s)=>sum+s.cloud,0) / Math.max(1, samples.length);
+      logLine(`WX CLOUDS — COVERAGE FIELD ONLINE (${Math.round(avg)}% AVG)`);
+    }catch(e){
+      if(force) logLine(`WX CLOUDS FAIL — ${e.message}`);
+      container.innerHTML = '';
+    }
+  }
+
   async function buildWeatherOverlay(force=false){
     const container = $('weather-map');
     if(!container || !weatherLayerEnabled) return;
@@ -1197,6 +1295,10 @@
     const params = new URLSearchParams(location.search);
     if(params.get('noTiles') === '1'){
       container.innerHTML = '';
+      return;
+    }
+    if((params.get('wx') || 'cloud').toLowerCase() !== 'radar'){
+      buildCloudOverlay(force);
       return;
     }
     try{
@@ -1223,6 +1325,10 @@
       let loaded = 0;
       container.querySelectorAll('img').forEach(img=>{
         img.addEventListener('load', ()=>{
+          if(img.naturalWidth < 16 || img.naturalHeight < 16){
+            img.style.display = 'none';
+            return;
+          }
           loaded++;
           if(loaded === 1) logLine(`WX RADAR — STORM LAYER ONLINE (${tileCount} TILES / Z${z})`);
         }, {once:true});
@@ -1249,7 +1355,7 @@
       buildWeatherOverlay(true);
     } else if(layer){
       layer.innerHTML = '';
-      logLine('WX RADAR — STORM LAYER OFF');
+      logLine('WX LAYER OFF');
     }
   }
 
