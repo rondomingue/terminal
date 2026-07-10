@@ -599,7 +599,7 @@ function buildOption(data) {
       data,
       z: 3,
       radius:['24%','76%'],
-      center:['50%','53%'],
+      center:['50%','50%'],
       sort:null,
       nodeClick: false,
       animationDuration: 600,
@@ -834,7 +834,7 @@ function classCollectors(clusters) {
 
 function buildDecorGraphics() {
   const w = chart.getWidth(), h = chart.getHeight();
-  const cx = w * 0.50, cy = h * 0.53;  // must match ECharts center:['50%','53%']
+  const cx = w * 0.50, cy = h * 0.50;  // must match ECharts center:['50%','50%']
   const base = Math.min(w,h)/2;
 
   // Pin the HTML overlay to the exact same pixel point
