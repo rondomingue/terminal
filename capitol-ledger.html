@@ -558,6 +558,12 @@ function bindProfileHover(el,id){
   });
 }
 
+function bindProfilePreview(el,id){
+  el.addEventListener('mouseenter',event=>showProfile(id,event));
+  el.addEventListener('mousemove',positionProfile);
+  el.addEventListener('mouseleave',hideProfile);
+}
+
 function renderDataStatus(rows = enriched()){
   const dates = rows.map(d=>new Date(d.date)).filter(d=>!Number.isNaN(d.valueOf()));
   const latest = new Date(Math.max(...dates));
@@ -594,7 +600,7 @@ function renderRows(){
   renderDataStatus(rows);
   renderSummary(rows);
   document.getElementById('rows').innerHTML = rows.map(d=>`
-    <tr data-id="${d.id}">
+    <tr data-id="${d.id}" data-politician="${d.politician}">
       <td><div class="person"><span class="avatar">${d.pol.name.split(' ').map(x=>x[0]).join('').slice(0,2)}</span><div><button class="profile-open" data-politician="${d.politician}" type="button">${d.pol.name}</button><div class="party">${d.pol.party}-${d.pol.state} / ${d.pol.chamber}</div></div></div></td>
       <td>${d.assetObj.company}</td><td class="ticker">${d.assetObj.ticker}</td><td>${d.date}</td>
       <td>${fmtMoney(d.min)} - ${fmtMoney(d.max)}</td><td>${fmtMoney(d.mid)}</td>
@@ -603,10 +609,13 @@ function renderRows(){
       <td>${fmtPct(d.sp)}</td><td class="${d.excess>=0?'gain':'loss'}">${fmtPct(d.excess)}</td>
       <td>${d.owner}</td><td><span class="confidence ${d.confidence}"><i></i><i></i><i></i></span></td>
     </tr>`).join('');
-  document.querySelectorAll('#rows tr').forEach(tr=>tr.addEventListener('click',()=>{
-    selectedId=tr.dataset.id;
-    renderSelected();
-  }));
+  document.querySelectorAll('#rows tr').forEach(tr=>{
+    tr.addEventListener('click',()=>{
+      selectedId=tr.dataset.id;
+      renderSelected();
+    });
+    bindProfilePreview(tr,tr.dataset.politician);
+  });
   document.querySelectorAll('.profile-open').forEach(btn=>bindProfileHover(btn,btn.dataset.politician));
   renderFlow(rows);
   renderSector(rows);
