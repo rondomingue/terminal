@@ -114,14 +114,13 @@
   .locator.one{left:6%;top:14%}.locator.one:before{right:-46px}
   .locator.two{right:5%;top:19%}.locator.two:before{left:-46px}
   .locator.three{left:8%;bottom:15%}.locator.three:before{right:-46px}
-  .hotspot{position:absolute;z-index:10;width:10px;height:10px;border:1px solid rgba(255,255,255,.62);border-radius:50%;background:rgba(238,245,243,.24);box-shadow:0 0 15px rgba(230,244,241,.36);cursor:pointer}
-  .hotspot:after{content:"";position:absolute;inset:-13px;border:1px solid rgba(230,244,241,.12);border-radius:50%;animation:pulse 3.4s ease-in-out infinite}
-  .hotspot.active{background:var(--risk);border-color:var(--risk);box-shadow:0 0 22px rgba(227,210,173,.46)}
-  @keyframes pulse{0%,100%{transform:scale(.8);opacity:.08}50%{transform:scale(1.2);opacity:.55}}
+  .hotspot{position:absolute;z-index:10;width:8px;height:8px;border:1px solid rgba(255,255,255,.62);background:rgba(238,245,243,.2);box-shadow:0 0 12px rgba(230,244,241,.22);cursor:pointer;transform:rotate(45deg)}
+  .hotspot:after{content:"";position:absolute;left:50%;top:50%;width:24px;height:1px;background:rgba(230,244,241,.18);transform:translate(-50%,-50%) rotate(-45deg);pointer-events:none}
+  .hotspot.active{background:var(--risk);border-color:var(--risk);box-shadow:0 0 15px rgba(227,210,173,.34)}
   .plate-foot{position:absolute;left:28px;right:28px;bottom:12px;display:flex;justify-content:space-between;gap:14px;color:var(--muted);font-family:var(--mono);font-size:8px;letter-spacing:.13em;text-transform:uppercase}
   .plate-foot b{color:var(--soft);font-weight:400}
 
-  .rail{grid-column:3;grid-row:2/4;display:grid;grid-template-rows:35% 24% 1fr}
+  .rail{grid-column:3;grid-row:2/4;display:grid;grid-template-rows:32% 39% 1fr}
   .metrics{padding:42px 14px 10px;display:grid;gap:6px}
   .metric{border-top:1px solid var(--line);padding-top:6px}
   .metric:first-child{border-top:0}
@@ -129,12 +128,33 @@
   .metric-value{font-family:"din-2014",var(--cond);font-weight:200;font-size:clamp(20px,2vw,27px);line-height:1.02;letter-spacing:.16em;margin-top:3px}
   .meter{height:3px;background:rgba(255,255,255,.07);margin-top:7px}
   .meter span{display:block;height:100%;background:linear-gradient(90deg,var(--soft),var(--blue),var(--risk));box-shadow:0 0 12px rgba(143,196,255,.24)}
-  .matrix-wrap{position:relative;padding:42px 12px 58px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-  #matrix{width:100%;height:100%;display:block}
-  .matrix-legend{position:absolute;left:12px;right:12px;bottom:10px;display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;color:var(--muted);font-family:var(--mono);font-size:7px;line-height:1.35;text-transform:uppercase;letter-spacing:.08em}
-  .matrix-legend b{color:var(--ink);font-weight:400}
-  .legend-scale{grid-column:1/3;height:3px;background:linear-gradient(90deg,rgba(238,245,243,.08),rgba(238,245,243,.55),rgba(143,196,255,.65));margin-top:2px}
+  .matrix-wrap{position:relative;padding:42px 12px 12px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:linear-gradient(135deg,rgba(238,245,220,.055),rgba(2,4,5,.36) 44%,rgba(238,245,220,.025))}
+  .matrix-wrap:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,transparent 0 8%,rgba(238,245,220,.09) 8.1%,transparent 8.4% 31%,rgba(238,245,220,.075) 31.1%,transparent 31.4% 72%,rgba(238,245,220,.06) 72.1%,transparent 72.4%),linear-gradient(rgba(238,245,220,.05) 1px,transparent 1px);background-size:100% 100%,100% 31px;mix-blend-mode:screen;opacity:.55}
+  .region-treemap{position:relative;z-index:2;height:100%;display:grid;grid-template-columns:1.1fr .9fr;grid-template-rows:1.2fr .92fr .74fr .62fr;gap:3px}
+  .region-tile{position:relative;overflow:hidden;border:1px solid rgba(238,245,220,.2);background:rgba(238,245,220,.08);color:var(--ink);padding:8px;text-align:left;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(0,0,0,.46)}
+  .region-tile:before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 25% 12%,rgba(238,245,220,.24),transparent 34%),linear-gradient(135deg,rgba(255,255,255,.08),transparent 45%,rgba(0,0,0,.48));opacity:.62}
+  .region-tile:after{content:attr(data-code);position:absolute;right:7px;bottom:5px;color:rgba(238,245,220,.14);font-family:"din-2014",var(--cond);font-size:34px;font-weight:200;letter-spacing:.08em}
+  .region-tile b,.region-tile span,.region-tile i{position:relative;z-index:2;display:block}
+  .region-tile b{font-family:"din-2014",var(--cond);font-size:15px;font-weight:200;letter-spacing:.2em;text-transform:uppercase}
+  .region-tile span{margin-top:5px;color:rgba(238,245,220,.7);font-family:var(--mono);font-size:7px;line-height:1.4;letter-spacing:.08em;text-transform:uppercase}
+  .region-tile i{position:absolute;left:8px;bottom:7px;color:rgba(238,245,220,.82);font-family:"din-2014",var(--cond);font-size:20px;font-style:normal;font-weight:200;letter-spacing:.18em}
+  .region-tile.hip{grid-row:1/3;background:rgba(238,245,220,.16)}
+  .region-tile.ent{background:rgba(238,245,220,.22)}
+  .region-tile.tmp{background:rgba(238,245,220,.12)}
+  .region-tile.par{grid-column:2;grid-row:2/4;background:rgba(238,245,220,.1)}
+  .region-tile.pcc{background:rgba(238,245,220,.075)}
+  .region-tile.csf{background:rgba(238,245,220,.18)}
+  .region-tile.wm{grid-column:1/3;background:rgba(238,245,220,.055)}
+  .region-tile:hover,.region-tile.active{border-color:rgba(238,245,220,.62);background:rgba(238,245,220,.2)}
+  .region-tile.active:before{opacity:.9}
+  .treemap-key{position:relative;z-index:2;display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:7px;color:var(--muted);font-family:var(--mono);font-size:7px;text-transform:uppercase;letter-spacing:.08em}
+  .treemap-key:before{content:"";grid-column:1/3;height:3px;background:linear-gradient(90deg,rgba(238,245,220,.05),rgba(238,245,220,.58),rgba(143,196,255,.48))}
   .reference{position:relative;padding:42px 14px 12px;background:linear-gradient(180deg,rgba(255,255,255,.018),rgba(255,255,255,.004))}
+  .connection-panel{position:relative;height:104px;margin-bottom:10px;border:1px solid rgba(230,244,241,.14);background:linear-gradient(135deg,rgba(238,245,243,.08),rgba(0,0,0,.2) 42%,rgba(143,196,255,.045));overflow:hidden}
+  .connection-panel:before{content:"";position:absolute;inset:0;background:linear-gradient(rgba(238,245,243,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(238,245,243,.04) 1px,transparent 1px);background-size:100% 17px,23px 100%;opacity:.55;pointer-events:none}
+  .connection-panel canvas{position:absolute;inset:0;width:100%;height:100%}
+  .connection-stats{position:absolute;left:9px;right:9px;bottom:8px;display:flex;justify-content:space-between;gap:8px;color:var(--muted);font-family:var(--mono);font-size:7px;text-transform:uppercase;letter-spacing:.09em}
+  .connection-stats b{color:var(--ink);font-weight:400}
   .reference-grid{display:grid;grid-template-columns:1fr;gap:0;font-family:var(--mono);font-size:8px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
   .datum{display:grid;grid-template-columns:1fr auto;gap:12px;padding:8px 0;border-top:1px solid rgba(230,244,241,.12)}
   .datum b{color:var(--ink);font-weight:400}
@@ -214,7 +234,10 @@
     <div class="toggle-row" id="layerControls"></div>
     <div class="scan-area" id="scanArea">
       <div class="still"></div>
-      <video src="brain-mri.mp4" autoplay muted loop playsinline></video>
+      <video autoplay muted loop playsinline>
+        <source src="assets/brain/video/mri-brain-scan.mp4" type="video/mp4">
+        <source src="brain-mri.mp4" type="video/mp4">
+      </video>
       <canvas id="scanCanvas"></canvas>
       <div class="scanner-glass"></div>
       <div class="scan-line"></div>
@@ -245,19 +268,37 @@
     </section>
     <section class="matrix-wrap">
       <div class="label"><i>[</i> Regional Correlation <i>]</i></div>
-      <canvas id="matrix"></canvas>
-      <div class="matrix-legend">
-        <span><b>HIP</b> hippocampus / memory encoding</span>
-        <span><b>ENT</b> entorhinal cortex / early AD signal</span>
-        <span><b>TMP</b> temporal lobe / semantic memory</span>
-        <span><b>PAR</b> parietal association cortex</span>
-        <span><b>PCC</b> posterior cingulate / default mode</span>
-        <span><b>CSF</b> ventricular volume proxy</span>
-        <div class="legend-scale"></div>
+      <div class="region-treemap" id="regionTreemap" aria-label="Regional Alzheimer correlation treemap">
+        <button class="region-tile hip active" data-site="hippocampal" data-code="HIP">
+          <b>Hippocampal</b><span>memory encoding / medial temporal vulnerability</span><i>0.84</i>
+        </button>
+        <button class="region-tile ent" data-site="hippocampal" data-code="ENT">
+          <b>Entorhinal</b><span>early AD signal / cortical gateway</span><i>0.79</i>
+        </button>
+        <button class="region-tile tmp" data-site="cortical" data-code="TMP">
+          <b>Temporal</b><span>semantic recall / lateral thinning</span><i>0.63</i>
+        </button>
+        <button class="region-tile par" data-site="cortical" data-code="PAR">
+          <b>Parietal</b><span>association cortex / visuospatial support</span><i>0.56</i>
+        </button>
+        <button class="region-tile pcc" data-site="cortical" data-code="PCC">
+          <b>Posterior Cingulate</b><span>default-mode metabolism proxy</span><i>0.68</i>
+        </button>
+        <button class="region-tile csf" data-site="ventricular" data-code="CSF">
+          <b>Ventricle / CSF</b><span>central expansion / volume loss proxy</span><i>0.71</i>
+        </button>
+        <button class="region-tile wm" data-site="ventricular" data-code="WM">
+          <b>White Matter</b><span>tract integrity / nonspecific burden</span><i>0.38</i>
+        </button>
       </div>
+      <div class="treemap-key"><span>area = contribution to AD-pattern read</span><span>higher value = stronger regional correlation</span></div>
     </section>
     <section class="reference">
       <div class="label"><i>[</i> Clinical Orientation <i>]</i></div>
+      <div class="connection-panel">
+        <canvas id="connectivityCanvas" aria-label="Brain connectivity motion field"></canvas>
+        <div class="connection-stats"><span>tract motion / regional covariance</span><b>DMN / HIP / PCC</b></div>
+      </div>
       <div class="reference-grid">
         <div class="datum"><span>Primary concern</span><b id="concern">memory circuit</b></div>
         <div class="datum"><span>Observed pattern</span><b id="pattern">medial temporal</b></div>
@@ -338,6 +379,7 @@
   function setSite(id){
     activeSite = id;
     document.querySelectorAll(".hotspot").forEach(btn => btn.classList.toggle("active", btn.dataset.site === id));
+    document.querySelectorAll(".region-tile").forEach(btn => btn.classList.toggle("active", btn.dataset.site === id));
     const site = sites[id];
     $("activeSite").textContent = site.name;
     $("hippo").textContent = site.hippo + "%";
@@ -369,6 +411,7 @@
   }
 
   document.querySelectorAll(".hotspot").forEach(btn => btn.addEventListener("click", () => setSite(btn.dataset.site)));
+  document.querySelectorAll(".region-tile").forEach(btn => btn.addEventListener("click", () => setSite(btn.dataset.site)));
 
   function prepCanvas(canvas){
     const rect = canvas.getBoundingClientRect();
@@ -388,6 +431,18 @@
     ctx.fillText(text,x,y);
   }
 
+  function drawBracket(ctx,x,y,w,h,color){
+    const l = Math.min(w,h) * .22;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x,y+l);ctx.lineTo(x,y);ctx.lineTo(x+l,y);
+    ctx.moveTo(x+w-l,y);ctx.lineTo(x+w,y);ctx.lineTo(x+w,y+l);
+    ctx.moveTo(x+w,y+h-l);ctx.lineTo(x+w,y+h);ctx.lineTo(x+w-l,y+h);
+    ctx.moveTo(x+l,y+h);ctx.lineTo(x,y+h);ctx.lineTo(x,y+h-l);
+    ctx.stroke();
+  }
+
   function drawScan(t){
     const {ctx,w,h} = prepCanvas($("scanCanvas"));
     ctx.clearRect(0,0,w,h);
@@ -403,83 +458,80 @@
     }
 
     ctx.globalCompositeOperation = "lighter";
+    ctx.strokeStyle = "rgba(238,245,243,.16)";
     ctx.lineWidth = 1;
-    ctx.strokeStyle = "rgba(238,245,243,.24)";
-    ctx.beginPath();ctx.ellipse(cx,cy,Math.min(w,h)*.27,Math.min(w,h)*.2,0,0,Math.PI*2);ctx.stroke();
+    [
+      [w*.18,h*.2,w*.64,h*.6],
+      [w*.28,h*.28,w*.44,h*.44]
+    ].forEach(([x,y,bw,bh]) => drawBracket(ctx,x,y,bw,bh,"rgba(238,245,243,.16)"));
+    ctx.beginPath();
+    ctx.moveTo(cx, h*.16);ctx.lineTo(cx, h*.84);
+    ctx.moveTo(w*.23, cy);ctx.lineTo(w*.77, cy);
+    ctx.stroke();
 
     if(layerOn("ventricles")){
-      ctx.strokeStyle = activeSite === "ventricular" ? "rgba(227,210,173,.86)" : "rgba(238,245,243,.42)";
-      ctx.lineWidth = activeSite === "ventricular" ? 2 : 1;
-      [[-.034,-.018],[.034,-.018],[-.045,.035],[.045,.035]].forEach(([dx,dy],i) => {
+      const color = activeSite === "ventricular" ? "rgba(227,210,173,.82)" : "rgba(238,245,243,.34)";
+      const boxes = [
+        [cx-30,cy-74,25,82],
+        [cx+5,cy-74,25,82],
+        [cx-46,cy+4,28,72],
+        [cx+18,cy+4,28,72]
+      ];
+      boxes.forEach((box,i) => {
+        drawBracket(ctx,...box,color);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = activeSite === "ventricular" ? 1.4 : 1;
         ctx.beginPath();
-        ctx.ellipse(cx+w*dx,cy+h*dy,20+i%2*4,42-i%2*5,.08*(i%2?1:-1),0,Math.PI*2);
+        ctx.moveTo(box[0] + box[2] * .5, box[1] + 6);
+        ctx.lineTo(box[0] + box[2] * .5, box[1] + box[3] - 6);
         ctx.stroke();
       });
-      drawLabel(ctx,cx+48,cy-70,"VENTRICULAR INDEX 1.42x");
+      drawLabel(ctx,cx+54,cy-70,"VENTRICULAR INDEX 1.42x");
     }
 
     if(layerOn("hippocampus")){
-      ctx.strokeStyle = activeSite === "hippocampal" ? "rgba(227,210,173,.88)" : "rgba(143,196,255,.36)";
-      ctx.lineWidth = activeSite === "hippocampal" ? 2 : 1;
-      [["L",-.105,.105],["R",.105,.105]].forEach(([side,dx,dy]) => {
+      const color = activeSite === "hippocampal" ? "rgba(227,210,173,.84)" : "rgba(238,245,243,.32)";
+      [["L",-92,72],["R",42,72]].forEach(([side,dx,dy]) => {
+        drawBracket(ctx,cx+dx,cy+dy,72,30,color);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = activeSite === "hippocampal" ? 1.5 : 1;
         ctx.beginPath();
-        ctx.ellipse(cx+w*dx,cy+h*dy,38,16,dx<0?-.26:.26,0,Math.PI*2);
+        ctx.moveTo(cx+dx+7,cy+dy+15);
+        ctx.lineTo(cx+dx+65,cy+dy+15);
         ctx.stroke();
-        drawLabel(ctx,cx+w*dx,cy+h*dy+31,side+" HIPPO VOL P12","center");
+        drawLabel(ctx,cx+dx+36,cy+dy+45,side+" HIPPO VOL P12","center");
       });
     }
 
     if(layerOn("cortex")){
-      ctx.strokeStyle = activeSite === "cortical" ? "rgba(227,210,173,.72)" : "rgba(238,245,243,.22)";
-      ctx.lineWidth = 1.2;
-      for(let i=0;i<5;i++){
+      const color = activeSite === "cortical" ? "rgba(227,210,173,.66)" : "rgba(238,245,243,.22)";
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1;
+      [[w*.26,h*.26,w*.48,h*.06],[w*.25,h*.68,w*.5,h*.06],[w*.18,h*.36,w*.12,h*.22],[w*.7,h*.36,w*.12,h*.22]].forEach(([x,y,bw,bh]) => {
         ctx.beginPath();
-        ctx.ellipse(cx,cy,Math.min(w,h)*(.31+i*.018),Math.min(w,h)*(.225+i*.012),Math.sin(t*.0001)*.03,Math.PI*.02,Math.PI*1.98);
+        ctx.moveTo(x,y);ctx.lineTo(x+bw,y);
+        ctx.moveTo(x,y+bh);ctx.lineTo(x+bw,y+bh);
         ctx.stroke();
-      }
-      drawLabel(ctx,cx+Math.min(w,h)*.28,cy-Math.min(w,h)*.14,"TEMPORAL-PARIETAL THINNING");
+      });
+      drawLabel(ctx,cx+Math.min(w,h)*.22,cy-Math.min(w,h)*.18,"TEMPORAL-PARIETAL THINNING");
     }
 
     if(layerOn("amyloid")){
-      ctx.fillStyle = "rgba(227,210,173,.18)";
+      ctx.fillStyle = "rgba(227,210,173,.13)";
       for(let i=0;i<36;i++){
         const a = i*.71;
         const r = Math.min(w,h)*(.12 + (i%9)*.018);
         ctx.beginPath();
-        ctx.arc(cx+Math.cos(a)*r,cy+Math.sin(a*1.31)*r*.78,2+(i%3),0,Math.PI*2);
+        ctx.rect(cx+Math.cos(a)*r,cy+Math.sin(a*1.31)*r*.78,1.5+(i%3),1.5+(i%3));
         ctx.fill();
       }
       drawLabel(ctx,cx-130,cy-92,"AMYLOID / TAU RISK LAYER");
     }
 
-    ctx.strokeStyle = "rgba(238,245,243,.26)";
-    ctx.lineWidth = 1;
-    ctx.beginPath();ctx.arc(cx,cy,Math.min(w,h)*.11,0,Math.PI*2);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(cx-70,cy);ctx.lineTo(cx+70,cy);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(cx,cy-58);ctx.lineTo(cx,cy+58);ctx.stroke();
     ctx.fillStyle = "rgba(238,245,243,.7)";
     ctx.font = "10px Space Mono";
-    ctx.fillText("AD PATTERN " + sites[activeSite].confidence.toFixed(2), cx + 44, cy - 42);
+    ctx.fillText("AD PATTERN " + sites[activeSite].confidence.toFixed(2), cx + 44, cy - 38);
     ctx.restore();
-  }
-
-  function drawMatrix(){
-    const {ctx,w,h} = prepCanvas($("matrix"));
-    ctx.clearRect(0,0,w,h);
-    const labels = ["HIP","ENT","TMP","PAR","PCC","FRO","CSF","WM"];
-    const n = 16, gap = Math.min(w,h)/(n+2), ox = (w-gap*n)/2, oy = (h-gap*n)/2;
-    for(let y=0;y<n;y++){
-      for(let x=0;x<n;x++){
-        const dist = Math.abs(x-y);
-        const v = dist < 2 ? .55 : ((x*y)%9===0 ? .34 : .08);
-        ctx.fillStyle = `rgba(238,245,243,${v})`;
-        if((x+y)%7===0) ctx.fillStyle = `rgba(143,196,255,${v*.9})`;
-        ctx.fillRect(ox+x*gap, oy+y*gap, gap*.56, gap*.56);
-      }
-    }
-    ctx.fillStyle = "rgba(238,245,243,.58)";
-    ctx.font = "7px Space Mono";
-    labels.forEach((label,i) => ctx.fillText(label, ox+i*gap*2, oy-7));
   }
 
   function drawWave(t){
@@ -505,6 +557,55 @@
     ctx.stroke();
   }
 
+  function drawConnectivity(t){
+    const canvas = $("connectivityCanvas");
+    if(!canvas)return;
+    const {ctx,w,h} = prepCanvas(canvas);
+    ctx.clearRect(0,0,w,h);
+    const lanes = [
+      {x:.13,y:.25,c:"rgba(238,245,243,.72)"},
+      {x:.28,y:.64,c:"rgba(143,196,255,.46)"},
+      {x:.45,y:.35,c:"rgba(227,210,173,.58)"},
+      {x:.63,y:.68,c:"rgba(238,245,243,.5)"},
+      {x:.82,y:.31,c:"rgba(143,196,255,.38)"}
+    ];
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    for(let i=0;i<lanes.length;i++){
+      for(let j=i+1;j<lanes.length;j++){
+        const a = lanes[i], b = lanes[j];
+        const phase = Math.sin(t*.0012 + i*1.7 + j*.9);
+        const x1 = a.x*w, y1 = a.y*h + phase*5;
+        const x2 = b.x*w, y2 = b.y*h - phase*4;
+        const mx = (x1+x2)/2 + Math.sin(t*.0007+i)*26;
+        const my = (y1+y2)/2 + Math.cos(t*.0009+j)*16;
+        ctx.strokeStyle = i === 0 ? "rgba(238,245,243,.22)" : "rgba(143,196,255,.12)";
+        ctx.lineWidth = i === 0 ? 1.05 : .7;
+        ctx.beginPath();
+        ctx.moveTo(x1,y1);
+        ctx.quadraticCurveTo(mx,my,x2,y2);
+        ctx.stroke();
+      }
+    }
+    lanes.forEach((node,i) => {
+      const x = node.x*w + Math.sin(t*.001 + i)*3;
+      const y = node.y*h + Math.cos(t*.0014 + i)*3;
+      ctx.fillStyle = node.c;
+      ctx.fillRect(x-2,y-2,4,4);
+      ctx.strokeStyle = "rgba(238,245,243,.18)";
+      ctx.strokeRect(x-8,y-8,16,16);
+    });
+    ctx.fillStyle = "rgba(238,245,243,.48)";
+    ctx.font = "8px Space Mono";
+    ctx.fillText("CORRELATION FIELD", 9, 17);
+    ctx.fillStyle = "rgba(238,245,243,.22)";
+    for(let x=10;x<w;x+=18){
+      const y = h - 22 + Math.sin(t*.002 + x*.13)*8;
+      ctx.fillRect(x,y,2,8);
+    }
+    ctx.restore();
+  }
+
   function tickClock(){
     $("clock").textContent = new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false});
   }
@@ -512,6 +613,7 @@
   function loop(t){
     drawScan(t);
     drawWave(t);
+    drawConnectivity(t);
     if(Math.floor(t/8000)!==loop.last){
       loop.last = Math.floor(t/8000);
       addLog("atrophy model packet " + String(40 + loop.last%29).padStart(3,"0") + " refreshed", "MODEL");
@@ -521,10 +623,8 @@
 
   renderControls();
   setSite("hippocampal");
-  drawMatrix();
   tickClock();
   setInterval(tickClock,1000);
-  window.addEventListener("resize", drawMatrix);
   requestAnimationFrame(loop);
 </script>
 </body>
