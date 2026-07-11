@@ -265,7 +265,10 @@
 
     <aside class="side-stack">
       <div class="panel">
-        <div class="panel-head"><div class="panel-title"><span>[</span> Selected record <span>]</span></div></div>
+        <div class="panel-head">
+          <div class="panel-title"><span>[</span> Selected record <span>]</span></div>
+          <select class="select record-picker" id="recordSelect" aria-label="Choose selected record"></select>
+        </div>
         <div class="panel-body" id="selected"></div>
       </div>
       <div class="panel">
@@ -308,6 +311,10 @@
         <select class="select" id="assetSelect"></select>
       </div>
       <div class="panel-body" id="assetDetail"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><div class="panel-title"><span>[</span> Issuer context <span>]</span></div></div>
+      <div class="panel-body" id="assetContext"></div>
     </div>
   </section>
 
@@ -367,7 +374,13 @@ const politicians = [
   {id:'warner', name:'Mark Warner', party:'D', state:'VA', chamber:'Senate', office:'Senator', committees:['Intelligence','Finance context']},
   {id:'issa', name:'Darrell Issa', party:'R', state:'CA', chamber:'House', office:'Representative', committees:['Judiciary context','Technology policy']},
   {id:'schweikert', name:'David Schweikert', party:'R', state:'AZ', chamber:'House', office:'Representative', committees:['Ways and means','Finance context']},
-  {id:'matsui', name:'Doris Matsui', party:'D', state:'CA', chamber:'House', office:'Representative', committees:['Energy and commerce','Healthcare context']}
+  {id:'matsui', name:'Doris Matsui', party:'D', state:'CA', chamber:'House', office:'Representative', committees:['Energy and commerce','Healthcare context']},
+  {id:'kean', name:'Tom Kean Jr.', party:'R', state:'NJ', chamber:'House', office:'Representative', committees:['Foreign affairs context','Financial disclosure']},
+  {id:'merkley', name:'Jeff Merkley', party:'D', state:'OR', chamber:'Senate', office:'Senator', committees:['Appropriations','Banking context']},
+  {id:'mullin', name:'Markwayne Mullin', party:'R', state:'OK', chamber:'Senate', office:'Senator', committees:['Energy context','Business ownership']},
+  {id:'delbene', name:'Suzan DelBene', party:'D', state:'WA', chamber:'House', office:'Representative', committees:['Ways and means','Technology policy']},
+  {id:'moran', name:'Jerry Moran', party:'R', state:'KS', chamber:'Senate', office:'Senator', committees:['Appropriations','Aviation context']},
+  {id:'khanna', name:'Ro Khanna', party:'D', state:'CA', chamber:'House', office:'Representative', committees:['Technology policy','Oversight context']}
 ];
 
 const assets = [
@@ -453,7 +466,25 @@ const transactions = [
   {id:'t57', politician:'vance', asset:'xom', date:'2020-06-18', owner:'Self', min:15001, max:50000, priceThen:46.2, priceNow:116.5, sp:94, confidence:'low', source:'Senate PTR', note:'Energy row strengthens the sector distribution.'},
   {id:'t58', politician:'warner', asset:'amzn', date:'2023-03-28', owner:'Spouse', min:15001, max:50000, priceThen:98.1, priceNow:226.3, sp:51, confidence:'low', source:'Senate PTR', note:'Consumer/cloud row in the 2023 window.'},
   {id:'t59', politician:'matsui', asset:'meta', date:'2022-10-11', owner:'Spouse', min:15001, max:50000, priceThen:128.5, priceNow:719.0, sp:72, confidence:'low', source:'House PTR', note:'Communications row adds high-return color to the profile hover card.'},
-  {id:'t60', politician:'issa', asset:'blk', date:'2023-01-25', owner:'Self', min:15001, max:50000, priceThen:744.7, priceNow:1048.5, sp:49, confidence:'low', source:'House PTR', note:'Finance record balances the technology and consumer lanes.'}
+  {id:'t60', politician:'issa', asset:'blk', date:'2023-01-25', owner:'Self', min:15001, max:50000, priceThen:744.7, priceNow:1048.5, sp:49, confidence:'low', source:'House PTR', note:'Finance record balances the technology and consumer lanes.'},
+  {id:'t61', politician:'kean', asset:'jpm', date:'2021-09-08', owner:'Spouse', min:15001, max:50000, priceThen:158.2, priceNow:286.7, sp:56, confidence:'low', source:'House PTR', note:'Additional finance-sector row used to widen the politician lane.'},
+  {id:'t62', politician:'kean', asset:'msft', date:'2023-02-06', owner:'Self', min:15001, max:50000, priceThen:256.8, priceNow:504.2, sp:53, confidence:'low', source:'House PTR', note:'Technology row paired with finance exposure for issuer-context comparison.'},
+  {id:'t63', politician:'merkley', asset:'pfe', date:'2019-10-30', owner:'Spouse', min:15001, max:50000, priceThen:38.7, priceNow:24.9, sp:113, confidence:'low', source:'Senate PTR', note:'Older healthcare record adds a negative-return disclosure path.'},
+  {id:'t64', politician:'merkley', asset:'unh', date:'2022-07-18', owner:'Spouse', min:15001, max:50000, priceThen:518.6, priceNow:303.9, sp:41, confidence:'low', source:'Senate PTR', note:'Managed-care row extends healthcare context in the filing lane.'},
+  {id:'t65', politician:'mullin', asset:'xom', date:'2020-04-28', owner:'Self', min:50001, max:100000, priceThen:43.5, priceNow:116.5, sp:104, confidence:'med', source:'Senate PTR', note:'Energy-sector row added for business-context comparison.'},
+  {id:'t66', politician:'mullin', asset:'cat', date:'2021-05-25', owner:'Self', min:15001, max:50000, priceThen:239.4, priceNow:412.8, sp:62, confidence:'low', source:'Senate PTR', note:'Industrials row creates another cross-sector thread.'},
+  {id:'t67', politician:'delbene', asset:'msft', date:'2020-12-15', owner:'Spouse', min:100001, max:250000, priceThen:214.1, priceNow:504.2, sp:78, confidence:'med', source:'House PTR', note:'Washington technology exposure row with larger midpoint.'},
+  {id:'t68', politician:'delbene', asset:'amzn', date:'2022-09-09', owner:'Spouse', min:50001, max:100000, priceThen:133.3, priceNow:226.3, sp:61, confidence:'low', source:'House PTR', note:'Consumer/cloud row supports issuer-specific ownership mix.'},
+  {id:'t69', politician:'moran', asset:'lmt', date:'2021-02-11', owner:'Self', min:15001, max:50000, priceThen:334.8, priceNow:472.7, sp:68, confidence:'low', source:'Senate PTR', note:'Defense/aerospace disclosure row added for aviation context.'},
+  {id:'t70', politician:'moran', asset:'rtx', date:'2022-12-19', owner:'Self', min:15001, max:50000, priceThen:100.4, priceNow:148.4, sp:47, confidence:'low', source:'Senate PTR', note:'Aerospace row thickens the defense lane.'},
+  {id:'t71', politician:'khanna', asset:'googl', date:'2020-05-20', owner:'Spouse', min:50001, max:100000, priceThen:70.8, priceNow:184.0, sp:101, confidence:'low', source:'House PTR', note:'Technology-platform row adds another California profile.'},
+  {id:'t72', politician:'khanna', asset:'nvda', date:'2021-06-24', owner:'Spouse', min:15001, max:50000, priceThen:19.8, priceNow:157.1, sp:67, confidence:'low', source:'House PTR', note:'Semiconductor row creates a higher-return thread in the range chart.'},
+  {id:'t73', politician:'kean', asset:'cost', date:'2022-11-03', owner:'Self', min:15001, max:50000, priceThen:487.2, priceNow:985.9, sp:58, confidence:'low', source:'House PTR', note:'Retail row increases selected-record variety.'},
+  {id:'t74', politician:'merkley', asset:'blk', date:'2021-08-26', owner:'Spouse', min:15001, max:50000, priceThen:923.1, priceNow:1048.5, sp:49, confidence:'low', source:'Senate PTR', note:'Asset-management row adds another finance path with modest return.'},
+  {id:'t75', politician:'mullin', asset:'tsla', date:'2023-05-31', owner:'Self', min:15001, max:50000, priceThen:203.9, priceNow:312.8, sp:44, confidence:'low', source:'Senate PTR', note:'Consumer/auto row increases volatility in the new profiles.'},
+  {id:'t76', politician:'delbene', asset:'meta', date:'2021-09-21', owner:'Spouse', min:50001, max:100000, priceThen:357.5, priceNow:719.0, sp:52, confidence:'low', source:'House PTR', note:'Communications row supports related-issuer lists.'},
+  {id:'t77', politician:'moran', asset:'xom', date:'2023-09-15', owner:'Self', min:15001, max:50000, priceThen:117.6, priceNow:116.5, sp:24, confidence:'low', source:'Senate PTR', note:'Near-flat energy row adds recent disclosure texture.'},
+  {id:'t78', politician:'khanna', asset:'aapl', date:'2022-04-04', owner:'Spouse', min:50001, max:100000, priceThen:178.4, priceNow:212.4, sp:45, confidence:'low', source:'House PTR', note:'Apple row extends the technology lane and selected-record picker.'}
 ];
 
 const interests = [
@@ -581,8 +612,15 @@ function renderRows(){
   renderSector(rows);
 }
 
+function populateRecordSelector(){
+  const records = enriched().sort((a,b)=>new Date(b.date)-new Date(a.date));
+  document.getElementById('recordSelect').innerHTML = records.map(d=>`<option value="${d.id}">${d.pol.name.split(' ').slice(-1)[0]} / ${d.assetObj.ticker} / ${d.date} / ${fmtMoney(d.mid)}</option>`).join('');
+}
+
 function renderSelected(){
   const d = enriched().find(x=>x.id===selectedId) || enriched()[0];
+  const picker = document.getElementById('recordSelect');
+  if(picker && picker.value !== d.id) picker.value = d.id;
   document.getElementById('selected').innerHTML = `
     <h2 class="selected-name"><button class="selected-profile-open" data-politician="${d.politician}" type="button">${d.pol.name}</button></h2>
     <div class="selected-meta">${d.pol.party}-${d.pol.state} / ${d.owner} / ${d.source}<br>${d.assetObj.company} / ${d.assetObj.ticker} / ${d.assetObj.sector}</div>
@@ -682,6 +720,7 @@ function renderSector(rows){
 
 function populateSelectors(){
   document.getElementById('assetSelect').innerHTML = assets.filter(a=>transactions.some(t=>t.asset===a.id)).map(a=>`<option value="${a.id}">${a.ticker} / ${a.company}</option>`).join('');
+  populateRecordSelector();
 }
 
 function renderProfile(id, targetId='profilePopupBody'){
@@ -775,6 +814,38 @@ function renderAsset(){
     ${buildTrend(a, rows)}
     <div class="bars">${rows.map(d=>`<div class="bar"><span>${d.pol.name.split(' ').slice(-1)[0]}</span><span class="track"><span class="fill" style="width:${Math.min(100,Math.abs(d.gain)/Math.max(1,Math.max(...rows.map(r=>Math.abs(r.gain))))*100)}%;background:${colors[a.sector]}"></span></span><span>${fmtMoney(d.gain)}</span></div>`).join('')}</div>
     <p class="method">This stock trend is generated from the prototype's local adjusted-price fields and disclosure dates. Production pages should replace it with a market-data adapter for true daily adjusted closes, splits, dividends, and benchmark overlays.</p>`;
+  renderAssetContext(a, rows);
+}
+
+function renderAssetContext(a, rows){
+  const totalMid = rows.reduce((s,d)=>s+d.mid,0);
+  const totalGain = rows.reduce((s,d)=>s+d.gain,0);
+  const avgReturn = rows.length ? rows.reduce((s,d)=>s+d.ret,0)/rows.length : 0;
+  const owners = rows.reduce((acc,d)=>{acc[d.owner]=(acc[d.owner]||0)+1;return acc;},{});
+  const firstDate = rows.length ? rows.map(d=>d.date).sort()[0] : '—';
+  const lastDate = rows.length ? rows.map(d=>d.date).sort().slice(-1)[0] : '—';
+  const maxGain = Math.max(1,...rows.map(d=>Math.abs(d.gain)));
+  document.getElementById('assetContext').innerHTML = `
+    <h2 class="selected-name">${a.company}</h2>
+    <div class="selected-meta">${a.ticker} / ${a.sector}<br>${a.industry} / ${firstDate} - ${lastDate}</div>
+    <div class="context-grid">
+      <div class="mini-card"><div class="v">${rows.length}</div><div class="k">Disclosures</div></div>
+      <div class="mini-card"><div class="v">${fmtMoney(totalMid)}</div><div class="k">Tracked midpoint</div></div>
+      <div class="mini-card"><div class="v ${totalGain>=0?'gain':'loss'}">${fmtMoney(totalGain)}</div><div class="k">Aggregate gain</div></div>
+      <div class="mini-card"><div class="v ${avgReturn>=0?'gain':'loss'}">${fmtPct(avgReturn)}</div><div class="k">Avg. return</div></div>
+    </div>
+    <div class="context-list">
+      ${rows.sort((a,b)=>Math.abs(b.gain)-Math.abs(a.gain)).map(d=>`<div class="context-row">
+        <span><i class="dot" style="background:${colors[d.assetObj.sector]}"></i>${d.date.slice(2).replace(/-/g,'.')}</span>
+        <b>${d.pol.name}</b>
+        <span class="${d.gain>=0?'gain':'loss'}">${fmtMoney(d.gain)}</span>
+      </div>`).join('') || '<div class="method">No related disclosures in this sample.</div>'}
+    </div>
+    <div class="bars">
+      ${Object.entries(owners).map(([owner,count])=>`<div class="bar"><span>${owner}</span><span class="track"><span class="fill" style="width:${count/rows.length*100}%;background:${colors[a.sector]}"></span></span><span>${count}</span></div>`).join('')}
+      ${rows.slice(0,5).map(d=>`<div class="bar"><span>${d.pol.name.split(' ').slice(-1)[0]}</span><span class="track"><span class="fill" style="width:${Math.max(5,Math.abs(d.gain)/maxGain*100)}%;background:${colors[a.sector]}"></span></span><span>${fmtPct(d.excess)}</span></div>`).join('')}
+    </div>
+    <p class="method">Useful next layers here: true daily market feed, benchmark overlay, dividend/split audit, filing links, sale matching, and committee/context annotations.</p>`;
 }
 
 function renderLanes(){
@@ -794,6 +865,7 @@ document.querySelectorAll('[data-sort]').forEach(btn=>{
   });
 });
 document.getElementById('ownerFilter').addEventListener('change',renderRows);
+document.getElementById('recordSelect').addEventListener('change',event=>{selectedId=event.target.value;renderSelected();});
 document.getElementById('assetSelect').addEventListener('change',renderAsset);
 document.getElementById('closeProfile').addEventListener('click',closeProfile);
 document.getElementById('profileModal').addEventListener('click',event=>{
