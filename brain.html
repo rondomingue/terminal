@@ -59,7 +59,7 @@
   .lab{
     position:relative;z-index:2;height:100vh;padding:14px;
     display:grid;grid-template-columns:minmax(270px,23vw) minmax(580px,1fr) minmax(290px,23vw);
-    grid-template-rows:64px minmax(0,1fr) 236px;gap:10px;
+    grid-template-rows:92px minmax(0,1fr) 236px;gap:10px;
   }
   .topbar,.plate,.film,.rail,.module{
     position:relative;overflow:hidden;border:1px solid var(--line);
@@ -69,13 +69,14 @@
   .topbar:before,.plate:before,.film:before,.rail:before,.module:before{
     content:"";position:absolute;left:0;right:0;top:0;height:1px;background:linear-gradient(90deg,transparent,var(--line-strong),transparent);
   }
-  .topbar{grid-column:1/4;display:flex;align-items:flex-start;justify-content:space-between;padding:13px 16px}
+  .topbar{grid-column:1/4;display:flex;align-items:center;justify-content:space-between;padding:13px 16px}
   .brand h1{margin:0;font-family:"din-2014",var(--cond);font-weight:200;font-size:25px;line-height:.9;letter-spacing:.42em}
   .brand h1 span{color:var(--soft);text-shadow:0 0 18px rgba(143,196,255,.32)}
-  .brand p,.clock,.label,.micro,.toggle,.slice-meta,.datum,.event,.readout,.note{font-family:"din-2014",var(--mono);font-weight:200;letter-spacing:.16em;text-transform:uppercase}
+  .brand p,.scan-protocol,.label,.micro,.toggle,.slice-meta,.datum,.event,.readout,.note{font-family:"din-2014",var(--mono);font-weight:200;letter-spacing:.16em;text-transform:uppercase}
   .brand p{margin:10px 0 0;color:var(--muted);font-size:8px}
-  .clock{text-align:right;color:var(--muted);font-size:8px;line-height:1.7}
-  .clock b{display:block;color:var(--ink);font-family:"din-2014",var(--cond);font-size:25px;font-weight:200;letter-spacing:.22em}
+  .scan-protocol{display:grid;grid-template-columns:repeat(4,minmax(94px,auto));gap:7px 13px;text-align:right;color:var(--muted);font-size:7px;line-height:1.35;max-width:720px}
+  .scan-protocol span{display:block;border-left:1px solid rgba(238,245,243,.18);padding-left:10px}
+  .scan-protocol b{display:block;color:var(--ink);font-family:"din-2014",var(--cond);font-size:12px;font-weight:200;letter-spacing:.2em;white-space:nowrap}
   .label{position:absolute;z-index:9;top:11px;left:12px;color:var(--muted);font-size:8px}
   .label i{font-style:normal;color:var(--risk)}
 
@@ -89,22 +90,32 @@
   .film-title h2{margin:0;font-weight:200;font-size:34px;line-height:.88;letter-spacing:.12em}
   .film-title p{margin:11px 0 0;color:var(--muted);font-family:var(--mono);font-size:8px;line-height:1.5;text-transform:uppercase;letter-spacing:.12em}
   .slice-bank{position:relative;padding:46px 12px 12px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
-  .slice-tile{position:relative;min-height:100px;border:1px solid rgba(220,236,233,.12);background:rgba(0,0,0,.28);overflow:hidden}
+  .slice-tile{position:relative;min-height:112px;border:1px solid rgba(220,236,233,.12);background:rgba(0,0,0,.28);overflow:hidden;text-align:left;cursor:pointer}
   .slice-tile:before{content:"";position:absolute;inset:0;background-image:var(--slice);background-size:360% auto;background-position:var(--x) var(--y);filter:grayscale(1) contrast(1.38) brightness(.78)}
-  .slice-tile:after{content:"";position:absolute;left:50%;top:8px;bottom:8px;width:1px;background:rgba(255,255,255,.22);box-shadow:0 0 15px rgba(255,255,255,.2)}
-  .slice-meta{position:absolute;z-index:3;left:8px;right:8px;bottom:7px;display:flex;justify-content:space-between;color:var(--soft);font-size:7px}
+  .slice-tile:after{content:"";position:absolute;left:50%;top:8px;bottom:8px;width:1px;background:rgba(255,255,255,.18);box-shadow:0 0 15px rgba(255,255,255,.16)}
+  .slice-tile.active{border-color:rgba(227,210,173,.56);box-shadow:0 0 22px rgba(227,210,173,.08),inset 0 0 0 1px rgba(227,210,173,.18)}
+  .slice-tile.active:before{filter:grayscale(1) contrast(1.48) brightness(.9)}
+  .slice-tile.active .slice-score{color:var(--risk)}
+  .slice-meta{position:absolute;z-index:3;left:8px;right:8px;top:8px;display:flex;justify-content:space-between;color:var(--soft);font-size:7px}
+  .slice-data{position:absolute;z-index:3;left:8px;right:8px;bottom:8px;color:rgba(238,245,243,.72);font-family:"din-2014",var(--mono);font-size:7px;line-height:1.35;letter-spacing:.11em;text-transform:uppercase}
+  .slice-data b{display:block;color:var(--ink);font-family:"din-2014",var(--cond);font-size:16px;font-weight:200;letter-spacing:.18em;line-height:1.05;margin-bottom:3px}
+  .slice-data span{display:block;color:rgba(170,182,180,.78)}
+  .slice-bars{display:grid;grid-template-columns:repeat(8,1fr);gap:2px;margin-top:6px}
+  .slice-bars i{height:3px;background:rgba(238,245,243,.13)}
+  .slice-bars i.on{background:linear-gradient(90deg,rgba(238,245,243,.56),rgba(227,210,173,.76))}
 
   .plate{grid-column:2;grid-row:2;min-height:0;background:rgba(0,0,0,.5)}
   .scan-area{position:absolute;inset:38px 28px 34px;background:#020404}
   .scan-area video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:grayscale(.78) contrast(1.34) brightness(.72) saturate(.45);opacity:.9}
   .scan-area .still{position:absolute;inset:0;background-image:url("assets/brain/mri-film-wide.jpg");background-size:cover;background-position:center;opacity:.14;filter:grayscale(1) contrast(1.2);mix-blend-mode:screen}
   .scan-area canvas{position:absolute;inset:0;width:100%;height:100%;z-index:5;pointer-events:none}
+  .scan-area:after{content:"";position:absolute;inset:0;z-index:6;pointer-events:none;background:linear-gradient(90deg,#020404 0%,rgba(2,4,4,.92) 7%,rgba(2,4,4,0) 18%,rgba(2,4,4,0) 82%,rgba(2,4,4,.92) 93%,#020404 100%)}
   .scanner-glass{position:absolute;inset:0;z-index:4;pointer-events:none;border:1px solid rgba(230,244,241,.22);box-shadow:inset 0 0 110px rgba(143,196,255,.055),0 0 34px rgba(143,196,255,.05)}
   .scanner-glass:before{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;background:linear-gradient(transparent,rgba(255,255,255,.34),transparent)}
   .scanner-glass:after{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.28),transparent)}
   .scan-line{position:absolute;z-index:7;left:0;right:0;height:2px;top:12%;background:linear-gradient(90deg,transparent,rgba(180,215,250,.22),rgba(255,255,255,.78),rgba(180,215,250,.22),transparent);box-shadow:0 0 22px rgba(143,196,255,.38);animation:scan 6.6s linear infinite}
   @keyframes scan{0%{top:10%;opacity:.05}9%{opacity:.76}92%{opacity:.64}100%{top:88%;opacity:.05}}
-  .scan-scale{position:absolute;z-index:8;top:38px;bottom:34px;width:38px;border-left:1px solid rgba(230,244,241,.28);opacity:.65}
+  .scan-scale{display:none;position:absolute;z-index:8;top:38px;bottom:34px;width:38px;border-left:1px solid rgba(230,244,241,.28);opacity:.65}
   .scan-scale.left{left:28px}.scan-scale.right{right:28px;transform:scaleX(-1)}
   .scan-scale span{position:absolute;left:7px;width:12px;height:1px;background:rgba(230,244,241,.48)}
   .scan-scale span:nth-child(1){top:10%}.scan-scale span:nth-child(2){top:23%}.scan-scale span:nth-child(3){top:36%}.scan-scale span:nth-child(4){top:49%}.scan-scale span:nth-child(5){top:62%}.scan-scale span:nth-child(6){top:75%}.scan-scale span:nth-child(7){top:88%}
@@ -123,24 +134,24 @@
   .plate-foot{position:absolute;left:28px;right:28px;bottom:12px;display:flex;justify-content:space-between;gap:14px;color:var(--muted);font-family:var(--mono);font-size:8px;letter-spacing:.13em;text-transform:uppercase}
   .plate-foot b{color:var(--soft);font-weight:400}
 
-  .rail{grid-column:3;grid-row:2/4;display:grid;grid-template-rows:32% 39% 1fr}
-  .metrics{padding:42px 14px 10px;display:grid;gap:6px}
+  .rail{grid-column:3;grid-row:2/4;display:grid;grid-template-rows:36% 36% 1fr}
+  .metrics{padding:40px 14px 9px;display:grid;gap:5px;min-height:0;overflow:hidden}
   .metric{border-top:1px solid var(--line);padding-top:6px}
   .metric:first-child{border-top:0}
   .metric-head{display:flex;justify-content:space-between;color:var(--muted);font-family:var(--mono);font-size:8px;text-transform:uppercase;letter-spacing:.13em}
-  .metric-value{font-family:"din-2014",var(--cond);font-weight:200;font-size:clamp(20px,2vw,27px);line-height:1.02;letter-spacing:.16em;margin-top:3px}
+  .metric-value{font-family:"din-2014",var(--cond);font-weight:200;font-size:clamp(18px,1.55vw,24px);line-height:1;letter-spacing:.16em;margin-top:2px}
   .meter{height:3px;background:rgba(255,255,255,.07);margin-top:7px}
   .meter span{display:block;height:100%;background:linear-gradient(90deg,var(--soft),var(--blue),var(--risk));box-shadow:0 0 12px rgba(143,196,255,.24)}
-  .matrix-wrap{position:relative;padding:42px 12px 12px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:linear-gradient(135deg,rgba(238,245,220,.055),rgba(2,4,5,.36) 44%,rgba(238,245,220,.025))}
+  .matrix-wrap{position:relative;padding:34px 10px 10px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:linear-gradient(135deg,rgba(238,245,220,.055),rgba(2,4,5,.36) 44%,rgba(238,245,220,.025));min-height:0;overflow:hidden}
   .matrix-wrap:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,transparent 0 8%,rgba(238,245,220,.09) 8.1%,transparent 8.4% 31%,rgba(238,245,220,.075) 31.1%,transparent 31.4% 72%,rgba(238,245,220,.06) 72.1%,transparent 72.4%),linear-gradient(rgba(238,245,220,.05) 1px,transparent 1px);background-size:100% 100%,100% 31px;mix-blend-mode:screen;opacity:.55}
-  .region-treemap{position:relative;z-index:2;height:100%;display:grid;grid-template-columns:1.1fr .9fr;grid-template-rows:1.2fr .92fr .74fr .62fr;gap:3px}
-  .region-tile{position:relative;overflow:hidden;border:1px solid rgba(238,245,220,.2);background:rgba(238,245,220,.08);color:var(--ink);padding:8px;text-align:left;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(0,0,0,.46)}
+  .region-treemap{position:relative;z-index:2;height:calc(100% - 36px);display:grid;grid-template-columns:1.1fr .9fr;grid-template-rows:1.34fr 1fr .9fr .72fr .56fr;gap:5px}
+  .region-tile{position:relative;overflow:hidden;border:1px solid rgba(238,245,220,.2);background:rgba(238,245,220,.08);color:var(--ink);padding:7px 7px 26px;text-align:left;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(0,0,0,.46);min-height:58px}
   .region-tile:before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 25% 12%,rgba(238,245,220,.24),transparent 34%),linear-gradient(135deg,rgba(255,255,255,.08),transparent 45%,rgba(0,0,0,.48));opacity:.62}
-  .region-tile:after{content:attr(data-code);position:absolute;right:7px;bottom:5px;color:rgba(238,245,220,.14);font-family:"din-2014",var(--cond);font-size:34px;font-weight:200;letter-spacing:.08em}
+  .region-tile:after{content:attr(data-code);position:absolute;right:6px;bottom:4px;color:rgba(238,245,220,.11);font-family:"din-2014",var(--cond);font-size:25px;font-weight:200;letter-spacing:.08em}
   .region-tile b,.region-tile span,.region-tile i{position:relative;z-index:2;display:block}
-  .region-tile b{font-family:"din-2014",var(--cond);font-size:15px;font-weight:200;letter-spacing:.2em;text-transform:uppercase}
-  .region-tile span{margin-top:5px;color:rgba(238,245,220,.7);font-family:var(--mono);font-size:7px;line-height:1.4;letter-spacing:.08em;text-transform:uppercase}
-  .region-tile i{position:absolute;left:8px;bottom:7px;color:rgba(238,245,220,.82);font-family:"din-2014",var(--cond);font-size:20px;font-style:normal;font-weight:200;letter-spacing:.18em}
+  .region-tile b{font-family:"din-2014",var(--cond);font-size:12px;font-weight:200;letter-spacing:.2em;line-height:1.08;text-transform:uppercase}
+  .region-tile span{margin-top:4px;max-width:86%;max-height:2.5em;overflow:hidden;color:rgba(238,245,220,.68);font-family:var(--mono);font-size:6px;line-height:1.25;letter-spacing:.08em;text-transform:uppercase}
+  .region-tile i{position:absolute;left:7px;bottom:6px;color:rgba(238,245,220,.82);font-family:"din-2014",var(--cond);font-size:15px;font-style:normal;font-weight:200;letter-spacing:.18em}
   .region-tile.hip{grid-row:1/3;background:rgba(238,245,220,.16)}
   .region-tile.ent{background:rgba(238,245,220,.22)}
   .region-tile.tmp{background:rgba(238,245,220,.12)}
@@ -150,8 +161,8 @@
   .region-tile.wm{grid-column:1/3;background:rgba(238,245,220,.055)}
   .region-tile:hover,.region-tile.active{border-color:rgba(238,245,220,.62);background:rgba(238,245,220,.2)}
   .region-tile.active:before{opacity:.9}
-  .treemap-key{position:relative;z-index:2;display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:7px;color:var(--muted);font-family:var(--mono);font-size:7px;text-transform:uppercase;letter-spacing:.08em}
-  .treemap-key:before{content:"";grid-column:1/3;height:3px;background:linear-gradient(90deg,rgba(238,245,220,.05),rgba(238,245,220,.58),rgba(143,196,255,.48))}
+  .treemap-key{position:relative;z-index:2;display:grid;grid-template-columns:1fr;gap:3px;margin-top:6px;color:var(--muted);font-family:var(--mono);font-size:6px;line-height:1.25;text-transform:uppercase;letter-spacing:.08em}
+  .treemap-key:before{content:"";height:3px;background:linear-gradient(90deg,rgba(238,245,220,.05),rgba(238,245,220,.58),rgba(143,196,255,.48))}
   .reference{position:relative;padding:42px 14px 12px;background:linear-gradient(180deg,rgba(255,255,255,.018),rgba(255,255,255,.004))}
   .connection-panel{position:relative;height:104px;margin-bottom:10px;border:1px solid rgba(230,244,241,.14);background:linear-gradient(135deg,rgba(238,245,243,.08),rgba(0,0,0,.2) 42%,rgba(143,196,255,.045));overflow:hidden}
   .connection-panel:before{content:"";position:absolute;inset:0;background:linear-gradient(rgba(238,245,243,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(238,245,243,.04) 1px,transparent 1px);background-size:100% 17px,23px 100%;opacity:.55;pointer-events:none}
@@ -191,7 +202,7 @@
   }
   @media(max-width:680px){
     .topbar{display:block}
-    .clock{text-align:left;margin-top:12px}
+    .scan-protocol{text-align:left;margin-top:12px;grid-template-columns:1fr 1fr}
     .plate{height:68vh;min-height:480px}
     .scan-area{inset:34px 12px}
     .scan-scale,.locator{display:none}
@@ -209,7 +220,16 @@
       <h1>NEURODEGENERATIVE <span>MRI</span></h1>
       <p>Alzheimer pattern review / structural MRI / cognitive-region atlas / clinical orientation layer</p>
     </div>
-    <div class="clock"><b id="clock">--:--:--</b><span>ADNI + OPENNEURO + HCP REFERENCE MODEL / DEMONSTRATION DATA</span></div>
+    <div class="scan-protocol" aria-label="MRI acquisition and precision metadata">
+      <span><b>3T T1</b>structural acquisition</span>
+      <span><b>1.0 mm</b>isotropic voxel grid</span>
+      <span><b>0.7 mm</b>cortical surface precision</span>
+      <span><b>FLAIR</b>white-matter comparator</span>
+      <span><b>ADNI</b>atrophy reference cohort</span>
+      <span><b>OASIS</b>age-normal baseline</span>
+      <span><b>HCP</b>connectome atlas context</span>
+      <span><b>QC 94%</b>motion-corrected slice stack</span>
+    </div>
   </header>
 
   <aside class="film">
@@ -223,12 +243,12 @@
     </section>
     <section class="slice-bank">
       <div class="label"><i>[</i> Slice Index <i>]</i></div>
-      <div class="slice-tile" style="--slice:url('assets/brain/mri-scan-stack.jpg');--x:12%;--y:4%"><div class="slice-meta"><span>SL 012</span><b>posterior</b></div></div>
-      <div class="slice-tile" style="--slice:url('assets/brain/mri-scan-stack.jpg');--x:72%;--y:5%"><div class="slice-meta"><span>SL 019</span><b>pons</b></div></div>
-      <div class="slice-tile" style="--slice:url('assets/brain/mri-scan-stack.jpg');--x:12%;--y:31%"><div class="slice-meta"><span>SL 031</span><b>ventricle</b></div></div>
-      <div class="slice-tile" style="--slice:url('assets/brain/mri-scan-stack.jpg');--x:72%;--y:31%"><div class="slice-meta"><span>SL 038</span><b>basal</b></div></div>
-      <div class="slice-tile" style="--slice:url('assets/brain/mri-scan-stack.jpg');--x:14%;--y:58%"><div class="slice-meta"><span>SL 052</span><b>frontal</b></div></div>
-      <div class="slice-tile" style="--slice:url('assets/brain/mri-scan-stack.jpg');--x:70%;--y:58%"><div class="slice-meta"><span>SL 061</span><b>vertex</b></div></div>
+      <button class="slice-tile active" data-site="hippocampal" data-slice="0" style="--slice:url('assets/brain/mri-scan-stack.jpg');--x:12%;--y:4%"><div class="slice-meta"><span>SL 012</span><b>T1 AX</b></div><div class="slice-data"></div></button>
+      <button class="slice-tile" data-site="ventricular" data-slice="1" style="--slice:url('assets/brain/mri-scan-stack.jpg');--x:72%;--y:5%"><div class="slice-meta"><span>SL 019</span><b>FLAIR</b></div><div class="slice-data"></div></button>
+      <button class="slice-tile" data-site="ventricular" data-slice="2" style="--slice:url('assets/brain/mri-scan-stack.jpg');--x:12%;--y:31%"><div class="slice-meta"><span>SL 031</span><b>T1 AX</b></div><div class="slice-data"></div></button>
+      <button class="slice-tile" data-site="hippocampal" data-slice="3" style="--slice:url('assets/brain/mri-scan-stack.jpg');--x:72%;--y:31%"><div class="slice-meta"><span>SL 038</span><b>COR REF</b></div><div class="slice-data"></div></button>
+      <button class="slice-tile" data-site="cortical" data-slice="4" style="--slice:url('assets/brain/mri-scan-stack.jpg');--x:14%;--y:58%"><div class="slice-meta"><span>SL 052</span><b>T1 SAG</b></div><div class="slice-data"></div></button>
+      <button class="slice-tile" data-site="cortical" data-slice="5" style="--slice:url('assets/brain/mri-scan-stack.jpg');--x:70%;--y:58%"><div class="slice-meta"><span>SL 061</span><b>QC</b></div><div class="slice-data"></div></button>
     </section>
   </aside>
 
@@ -273,25 +293,25 @@
       <div class="label"><i>[</i> Regional Correlation <i>]</i></div>
       <div class="region-treemap" id="regionTreemap" aria-label="Regional Alzheimer correlation treemap">
         <button class="region-tile hip active" data-site="hippocampal" data-code="HIP">
-          <b>Hippocampal</b><span>memory encoding / medial temporal vulnerability</span><i>0.84</i>
+          <b>Hippocampal</b><span>memory encoding / medial temporal</span><i>0.84</i>
         </button>
         <button class="region-tile ent" data-site="hippocampal" data-code="ENT">
-          <b>Entorhinal</b><span>early AD signal / cortical gateway</span><i>0.79</i>
+          <b>Entorhinal</b><span>early AD signal / cortical gate</span><i>0.79</i>
         </button>
         <button class="region-tile tmp" data-site="cortical" data-code="TMP">
-          <b>Temporal</b><span>semantic recall / lateral thinning</span><i>0.63</i>
+          <b>Temporal</b><span>semantic recall / lateral</span><i>0.63</i>
         </button>
         <button class="region-tile par" data-site="cortical" data-code="PAR">
-          <b>Parietal</b><span>association cortex / visuospatial support</span><i>0.56</i>
+          <b>Parietal</b><span>association cortex</span><i>0.56</i>
         </button>
         <button class="region-tile pcc" data-site="cortical" data-code="PCC">
-          <b>Posterior Cingulate</b><span>default-mode metabolism proxy</span><i>0.68</i>
+          <b>Posterior Cingulate</b><span>default-mode proxy</span><i>0.68</i>
         </button>
         <button class="region-tile csf" data-site="ventricular" data-code="CSF">
-          <b>Ventricle / CSF</b><span>central expansion / volume loss proxy</span><i>0.71</i>
+          <b>Ventricle / CSF</b><span>central expansion</span><i>0.71</i>
         </button>
         <button class="region-tile wm" data-site="ventricular" data-code="WM">
-          <b>White Matter</b><span>tract integrity / nonspecific burden</span><i>0.38</i>
+          <b>White Matter</b><span>tract integrity / WMH burden</span><i>0.38</i>
         </button>
       </div>
       <div class="treemap-key"><span>area = contribution to AD-pattern read</span><span>higher value = stronger regional correlation</span></div>
@@ -350,6 +370,14 @@
     ventricular:{name:"VENTRICULAR",hippo:18,vent:1.58,cortex:-6.2,entorhinal:-8.5,fdg:-10,confidence:.71,concern:"CSF expansion",pattern:"central atrophy",mta:2.0,cdr:.5,mmse:25,tau:24,asym:5.4,memory:.68,parietal:-4.1,csf:27},
     cortical:{name:"CORTICAL",hippo:22,vent:1.31,cortex:-10.4,entorhinal:-9.1,fdg:-18,confidence:.74,concern:"association cortex",pattern:"temporal-parietal",mta:1.8,cdr:1,mmse:22,tau:36,asym:4.9,memory:.58,parietal:-9.7,csf:14}
   };
+  const sliceProfiles = [
+    {site:"hippocampal",region:"Medial temporal",measure:"hippocampal volume",base:12,unit:"pct",detail:"MTA 2.4 / asymmetry 7.8%"},
+    {site:"ventricular",region:"Periventricular",measure:"white-matter load",base:2,unit:"fazekas",detail:"FLAIR WMH / Fazekas grade"},
+    {site:"ventricular",region:"Lateral ventricles",measure:"Evans index",base:.34,unit:"ratio",detail:"central CSF expansion"},
+    {site:"hippocampal",region:"Entorhinal cortex",measure:"entorhinal thinning",base:-11.2,unit:"pct",detail:"early AD cortical gateway"},
+    {site:"cortical",region:"Temporal-parietal",measure:"cortical thickness",base:-8.6,unit:"pct",detail:"association cortex loss"},
+    {site:"cortical",region:"Posterior cingulate",measure:"FDG metabolism proxy",base:-14,unit:"pct",detail:"default-mode network marker"}
+  ];
   let activeSite = "hippocampal";
   const log = [];
 
@@ -378,6 +406,50 @@
   }
 
   function layerOn(id){return layers.find(d => d.id === id)?.on}
+
+  function formatSliceValue(profile, site){
+    if(profile.unit === "ratio"){
+      const value = profile.site === "ventricular" ? .29 + site.vent * .035 : profile.base;
+      return value.toFixed(2);
+    }
+    if(profile.unit === "fazekas"){
+      const value = site.vent > 1.5 ? 3 : site.vent > 1.35 ? 2 : 1;
+      return value + "/3";
+    }
+    if(profile.measure.includes("hippocampal")){
+      return "P" + site.hippo;
+    }
+    if(profile.measure.includes("entorhinal")){
+      return site.entorhinal.toFixed(1) + "%";
+    }
+    if(profile.measure.includes("cortical")){
+      return site.cortex.toFixed(1) + "%";
+    }
+    if(profile.measure.includes("FDG")){
+      return site.fdg + "%";
+    }
+    return profile.base + (profile.unit === "pct" ? "%" : "");
+  }
+
+  function renderSliceIndex(){
+    const site = sites[activeSite];
+    document.querySelectorAll(".slice-tile").forEach(tile => {
+      const profile = sliceProfiles[Number(tile.dataset.slice)];
+      const selected = profile.site === activeSite;
+      tile.classList.toggle("active", selected);
+      tile.dataset.site = profile.site;
+      const value = formatSliceValue(profile, site);
+      const intensity = Math.max(1, Math.min(8, Math.round((selected ? site.confidence : .38) * 8)));
+      tile.querySelector(".slice-data").innerHTML = `
+        <b class="slice-score">${value}</b>
+        <span>${profile.region}</span>
+        <span>${profile.measure}</span>
+        <span>${profile.detail}</span>
+        <span>1.0mm iso / qc 94 / motion corrected</span>
+        <div class="slice-bars">${Array.from({length:8}, (_, i) => `<i class="${i < intensity ? "on" : ""}"></i>`).join("")}</div>
+      `;
+    });
+  }
 
   function setSite(id){
     activeSite = id;
@@ -413,11 +485,13 @@
     $("hippoPanel").textContent = `P${site.hippo} / asym ${site.asym.toFixed(1)}%`;
     $("ventPanel").textContent = `${site.vent.toFixed(2)}x / CSF +${site.csf}%`;
     $("cortexPanel").textContent = `${site.cortex.toFixed(1)}% / confidence ${site.confidence.toFixed(2)}`;
+    renderSliceIndex();
     addLog(`${site.name} region selected`, "FOCUS");
   }
 
   document.querySelectorAll(".hotspot").forEach(btn => btn.addEventListener("click", () => setSite(btn.dataset.site)));
   document.querySelectorAll(".region-tile").forEach(btn => btn.addEventListener("click", () => setSite(btn.dataset.site)));
+  document.querySelectorAll(".slice-tile").forEach(btn => btn.addEventListener("click", () => setSite(btn.dataset.site)));
 
   function clampPanel(panel, x, y){
     const area = $("scanArea").getBoundingClientRect();
@@ -526,19 +600,19 @@
     ctx.lineWidth = 1;
     for(let i=0;i<10;i++){
       const y = h*(.14+i*.075);
-      ctx.beginPath();ctx.moveTo(w*.08,y);ctx.lineTo(w*.92,y);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(w*.15,y);ctx.lineTo(w*.85,y);ctx.stroke();
     }
 
     ctx.globalCompositeOperation = "lighter";
-    ctx.strokeStyle = "rgba(238,245,243,.16)";
+    ctx.strokeStyle = "rgba(238,245,243,.12)";
     ctx.lineWidth = 1;
     [
-      [w*.18,h*.2,w*.64,h*.6],
-      [w*.28,h*.28,w*.44,h*.44]
-    ].forEach(([x,y,bw,bh]) => drawBracket(ctx,x,y,bw,bh,"rgba(238,245,243,.16)"));
+      [w*.34,h*.28,w*.32,h*.44],
+      [w*.4,h*.34,w*.2,h*.32]
+    ].forEach(([x,y,bw,bh]) => drawBracket(ctx,x,y,bw,bh,"rgba(238,245,243,.13)"));
     ctx.beginPath();
-    ctx.moveTo(cx, h*.16);ctx.lineTo(cx, h*.84);
-    ctx.moveTo(w*.23, cy);ctx.lineTo(w*.77, cy);
+    ctx.moveTo(cx, h*.18);ctx.lineTo(cx, h*.82);
+    ctx.moveTo(w*.29, cy);ctx.lineTo(w*.71, cy);
     ctx.stroke();
 
     if(layerOn("ventricles")){
@@ -558,7 +632,7 @@
         ctx.lineTo(box[0] + box[2] * .5, box[1] + box[3] - 6);
         ctx.stroke();
       });
-      drawLabel(ctx,cx+54,cy-70,"VENTRICULAR INDEX 1.42x");
+      drawLabel(ctx,cx+42,cy-70,"VENTRICULAR INDEX " + sites[activeSite].vent.toFixed(2) + "x");
     }
 
     if(layerOn("hippocampus")){
@@ -579,13 +653,13 @@
       const color = activeSite === "cortical" ? "rgba(227,210,173,.66)" : "rgba(238,245,243,.22)";
       ctx.strokeStyle = color;
       ctx.lineWidth = 1;
-      [[w*.26,h*.26,w*.48,h*.06],[w*.25,h*.68,w*.5,h*.06],[w*.18,h*.36,w*.12,h*.22],[w*.7,h*.36,w*.12,h*.22]].forEach(([x,y,bw,bh]) => {
+      [[w*.34,h*.29,w*.32,h*.05],[w*.35,h*.67,w*.3,h*.05],[w*.32,h*.38,w*.08,h*.17],[w*.6,h*.38,w*.08,h*.17]].forEach(([x,y,bw,bh]) => {
         ctx.beginPath();
         ctx.moveTo(x,y);ctx.lineTo(x+bw,y);
         ctx.moveTo(x,y+bh);ctx.lineTo(x+bw,y+bh);
         ctx.stroke();
       });
-      drawLabel(ctx,cx+Math.min(w,h)*.22,cy-Math.min(w,h)*.18,"TEMPORAL-PARIETAL THINNING");
+      drawLabel(ctx,cx+Math.min(w,h)*.14,cy-Math.min(w,h)*.17,"TEMPORAL-PARIETAL THINNING");
     }
 
     if(layerOn("amyloid")){
@@ -678,10 +752,6 @@
     ctx.restore();
   }
 
-  function tickClock(){
-    $("clock").textContent = new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false});
-  }
-
   function loop(t){
     drawScan(t);
     drawWave(t);
@@ -695,8 +765,8 @@
 
   renderControls();
   setSite("hippocampal");
-  tickClock();
-  setInterval(tickClock,1000);
+  makePanelsDraggable();
+  window.addEventListener("resize", restorePanelPositions);
   requestAnimationFrame(loop);
 </script>
 </body>
