@@ -253,6 +253,13 @@
           <button data-sort="amount">Disclosed size</button>
           <button data-sort="excess">Vs S&amp;P</button>
           <button data-sort="recent">Recent</button>
+          <select class="select" id="rangeOwnerFilter" aria-label="Filter Disclosure Range owner">
+            <option value="all">All owners</option>
+            <option value="Self">Self</option>
+            <option value="Spouse">Spouse</option>
+            <option value="Dependent">Dependent</option>
+            <option value="Entity">Entity</option>
+          </select>
         </div>
       </div>
       <div class="panel-body">
@@ -588,7 +595,7 @@ function renderSummary(rows){
 }
 
 function renderRows(){
-  const filter = document.getElementById('ownerFilter').value;
+  const filter = document.getElementById('rangeOwnerFilter').value;
   let rows = enriched().filter(d=>filter==='all'||d.owner===filter);
   rows.sort((a,b)=>{
     if(currentSort==='loss') return a.gain-b.gain;
@@ -648,7 +655,7 @@ function renderFlow(rows){
   const topY = 104, midY = 446, bottomY = 790, left = 56, right = 1064;
   const upperSpan = midY - topY;
   const lowerSpan = bottomY - midY;
-  const ordered = rows.filter(d=>d.owner !== 'Entity' && d.assetObj.sector !== 'Index').sort((a,b)=>b.mid-a.mid);
+  const ordered = rows.filter(d=>d.assetObj.sector !== 'Index').sort((a,b)=>b.mid-a.mid);
   const people = [...new Set(ordered.map(d=>d.politician))];
   const sectors = [...new Set(ordered.map(d=>d.assetObj.sector))];
   const years = [...new Set(ordered.map(d=>new Date(d.date).getFullYear()))].sort();
@@ -687,7 +694,7 @@ function renderFlow(rows){
     const xEnd = sectorX(d.assetObj.sector) + ((i%4)-1.5)*10;
     const dateLabel = d.date.slice(2).replace(/-/g,'.');
     const dateY = topY + 18 + (i%3)*12;
-    const ownerOffset = d.owner === 'Spouse' ? -18 : d.owner === 'Dependent' ? 18 : 0;
+    const ownerOffset = d.owner === 'Spouse' ? -18 : d.owner === 'Dependent' ? 18 : d.owner === 'Entity' ? 30 : 0;
     const color = colors[d.assetObj.sector] || '#ddd';
     const w = Math.max(1, Math.min(4.8, Math.log10(d.mid)*1.05-3));
     const opacity = d.gain >= 0 ? .31 : .22;
@@ -875,7 +882,14 @@ document.querySelectorAll('[data-sort]').forEach(btn=>{
     renderRows();
   });
 });
-document.getElementById('ownerFilter').addEventListener('change',renderRows);
+document.getElementById('rangeOwnerFilter').addEventListener('change',event=>{
+  document.getElementById('ownerFilter').value = event.target.value;
+  renderRows();
+});
+document.getElementById('ownerFilter').addEventListener('change',event=>{
+  document.getElementById('rangeOwnerFilter').value = event.target.value;
+  renderRows();
+});
 document.getElementById('recordSelect').addEventListener('change',event=>{selectedId=event.target.value;renderSelected();});
 document.getElementById('assetSelect').addEventListener('change',renderAsset);
 document.getElementById('closeProfile').addEventListener('click',closeProfile);
