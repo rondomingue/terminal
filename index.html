@@ -220,6 +220,7 @@
   .iface-card.anim-6 { animation: fade-up 0.7s 1.85s ease forwards; }
   .iface-card.anim-7 { animation: fade-up 0.7s 2.0s ease forwards; }
   .iface-card.anim-8 { animation: fade-up 0.7s 2.15s ease forwards; }
+  .iface-card.anim-9 { animation: fade-up 0.7s 2.3s ease forwards; }
 
   /* Top accent line — color per card */
   .iface-card::before {
@@ -377,7 +378,7 @@
   <div class="top-right">
     <div class="top-status">
       <span class="status-dot"></span>
-      <span id="live-count">8</span> INTERFACES LIVE
+      <span id="live-count">9</span> INTERFACES LIVE
     </div>
     <a href="https://rondomingue.com" class="top-url">rondomingue.com</a>
   </div>
@@ -404,7 +405,7 @@
 <div class="content">
   <div class="section-header">
     <span class="section-label">Active Systems</span>
-    <span class="section-count">08 / ∞</span>
+    <span class="section-count">09 / ∞</span>
   </div>
 
   <div class="cards">
@@ -649,6 +650,63 @@
       </div>
     </a>
 
+    <!-- CAPITOL LEDGER -->
+    <a href="/capitol-ledger.html" class="iface-card anim-9" style="--c:#e7a84d;"
+       onmouseenter="playHover()">
+      <div style="position:absolute;top:0;left:0;right:0;height:1px;z-index:3;background:linear-gradient(to right,rgba(231,168,77,0.65),rgba(228,93,100,0.42),transparent 70%);"></div>
+      <div class="card-preview" style="background:#15131d;">
+        <svg class="preview-drift" viewBox="0 0 720 405" style="width:100%;height:100%;display:block;">
+          <defs>
+            <linearGradient id="ledgerGlow" x1="0" x2="1">
+              <stop offset="0" stop-color="#5fc6a5"/>
+              <stop offset=".5" stop-color="#e7a84d"/>
+              <stop offset="1" stop-color="#e45d64"/>
+            </linearGradient>
+          </defs>
+          <rect width="720" height="405" fill="#15131d"/>
+          <g opacity=".18" stroke="#ece6db" stroke-width="1">
+            <path d="M0 45H720M0 90H720M0 135H720M0 180H720M0 225H720M0 270H720M0 315H720M0 360H720"/>
+            <path d="M60 0V405M120 0V405M180 0V405M240 0V405M300 0V405M360 0V405M420 0V405M480 0V405M540 0V405M600 0V405M660 0V405"/>
+          </g>
+          <text x="44" y="56" fill="#ece6db" font-family="Space Mono, monospace" font-size="18" letter-spacing="7">CAPITOL LEDGER</text>
+          <text x="44" y="82" fill="#9a938d" font-family="Space Mono, monospace" font-size="9" letter-spacing="3">DISCLOSURES / ESTIMATES / MARKET COMPARISON</text>
+          <g fill="none" stroke-linecap="round" opacity=".72">
+            <path d="M82 285 C160 80, 270 360, 392 126 S572 60, 642 250" stroke="#e45d64" stroke-width="13" opacity=".43"/>
+            <path d="M94 290 C180 120, 260 160, 388 292 S548 360, 642 110" stroke="#5fc6a5" stroke-width="9" opacity=".45"/>
+            <path d="M104 278 C210 60, 250 250, 384 190 S550 112, 650 306" stroke="#8468d8" stroke-width="7" opacity=".5"/>
+            <path d="M112 294 C220 180, 320 342, 424 136 S570 176, 642 270" stroke="#e7a84d" stroke-width="11" opacity=".45"/>
+          </g>
+          <g fill="url(#ledgerGlow)">
+            <circle cx="132" cy="296" r="11"/><circle cx="256" cy="182" r="7"/><circle cx="386" cy="195" r="13"/><circle cx="522" cy="135" r="8"/><circle cx="642" cy="250" r="10"/>
+          </g>
+          <g font-family="Space Mono, monospace" fill="#ece6db" font-size="8" letter-spacing="2" opacity=".74">
+            <text x="44" y="340">MIDPOINT VALUE</text><text x="44" y="362">EXCESS RETURN</text><text x="44" y="384">CONFIDENCE RATING</text>
+          </g>
+        </svg>
+        <div class="card-preview-overlay" style="background:linear-gradient(135deg,rgba(231,168,77,0.10) 0%,transparent 60%);"></div>
+        <div class="card-launch">
+          <span>LAUNCH</span><span class="launch-arrow">↗</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-meta">
+          <span class="card-type">Politics / Finance</span>
+          <span class="card-status live"><span class="sd"></span>ACTIVE</span>
+        </div>
+        <h2 class="card-title">CAPITOL <em style="color:rgba(231,168,77,0.95)">LEDGER</em></h2>
+        <p class="card-desc">
+          Investigative dashboard for political financial disclosures, estimated stock performance, S&amp;P comparison, executive interests, and crypto exposure lanes.
+        </p>
+        <div class="card-tags">
+          <span class="tag">disclosures</span>
+          <span class="tag">stocks</span>
+          <span class="tag">crypto</span>
+          <span class="tag">S&amp;P 500</span>
+          <span class="tag">estimates</span>
+        </div>
+      </div>
+    </a>
+
   </div>
 </div>
 
@@ -684,7 +742,7 @@
 
   // Glitch the eyebrow text
   const eyebrow = document.getElementById('hero-eyebrow-data');
-  const targets = ['LIVE SYSTEMS / DATA VISUALIZATION','ADS-B / NHC / NOAA / NWS','29.9934°N 90.2581°W // KMSY','LANDFALL // TROPICAL CYCLONE OPS','TRANSIT // NEAR-EARTH OBJECT TRACKING','LIVING BRAIN // OPEN NEUROSCIENCE','OUTBREAKS // EPIDEMIC INTELLIGENCE','EVERYMOMENTVOTES // CIVIC SYSTEMS'];
+  const targets = ['LIVE SYSTEMS / DATA VISUALIZATION','ADS-B / NHC / NOAA / NWS','29.9934°N 90.2581°W // KMSY','LANDFALL // TROPICAL CYCLONE OPS','TRANSIT // NEAR-EARTH OBJECT TRACKING','LIVING BRAIN // OPEN NEUROSCIENCE','OUTBREAKS // EPIDEMIC INTELLIGENCE','EVERYMOMENTVOTES // CIVIC SYSTEMS','CAPITOL LEDGER // POLITICAL FINANCE'];
   const glitch = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789/\\|<>[]{}!@#$%^&*';
   let ei=0;
   function cycleEyebrow(){
