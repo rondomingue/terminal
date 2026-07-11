@@ -102,8 +102,8 @@
   button:hover,button.active,.select:focus{border-color:rgba(231,168,77,.72);color:var(--cream);background:rgba(231,168,77,.10)}
   .select{appearance:none}
 
-  .chart-shell{position:relative;min-height:1040px}
-  #flow{height:clamp(980px,92vh,1240px)}
+  .chart-shell{position:relative;min-height:0;height:clamp(700px,calc(100vh - 260px),980px)}
+  #flow{width:100%;height:100%;display:block}
   svg{display:block;width:100%;height:auto}
   .flow-label{font-family:var(--mono);font-size:10px;fill:#bdb3aa;letter-spacing:.12em;text-transform:uppercase}
   .flow-sub{font-family:var(--mono);font-size:8px;fill:#706a6a;letter-spacing:.08em}
@@ -212,8 +212,8 @@
     .summary,.split,.profile-grid{grid-template-columns:1fr}
     .panel-head{align-items:flex-start;flex-direction:column}
     .profile-modal .profile-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
-    .chart-shell{min-height:680px}
-    #flow{height:680px}
+    .chart-shell{height:clamp(560px,82vh,720px)}
+    #flow{height:100%}
     .table-wrap{max-height:540px}
     table{min-width:980px}
     .notice{grid-template-columns:1fr}
