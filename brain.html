@@ -3,27 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LIVING BRAIN // MRI Signal Theatre</title>
+<title>Neurodegenerative MRI // Alzheimer Review</title>
 <link rel="stylesheet" href="https://use.typekit.net/xhf1nbc.css">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-9CMETG9RBQ"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-9CMETG9RBQ');</script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date());gtag("config","G-9CMETG9RBQ");</script>
 <style>
   :root{
-    --bg:#030607;
-    --ink:#f2f7f5;
-    --muted:#879592;
-    --dim:#3f4b49;
-    --line:rgba(210,232,228,.16);
-    --line-strong:rgba(230,244,241,.42);
-    --cyan:#69fff0;
-    --cyan-soft:rgba(105,255,240,.16);
-    --blue:#8abaff;
-    --amber:#ffb547;
-    --orange:#ff754d;
-    --red:#ff4f49;
-    --green:#9bf4c9;
-    --panel:rgba(5,9,10,.66);
+    --bg:#030506;
+    --ink:#eef5f3;
+    --soft:#aab6b4;
+    --muted:#697371;
+    --faint:#303938;
+    --line:rgba(220,236,233,.13);
+    --line-strong:rgba(238,245,243,.34);
+    --blue:#8fc4ff;
+    --blue-soft:rgba(95,150,215,.16);
+    --cyan:#b7f4ef;
+    --amber:#c89d62;
+    --risk:#e3d2ad;
+    --panel:rgba(4,7,8,.74);
     --mono:"Space Mono","SFMono-Regular",monospace;
     --cond:"Barlow Condensed","Arial Narrow",sans-serif;
   }
@@ -31,126 +30,132 @@
   html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:var(--cond);overflow:hidden}
   body{
     background:
-      radial-gradient(circle at 54% 46%,rgba(105,255,240,.12),transparent 24rem),
-      radial-gradient(circle at 30% 72%,rgba(255,117,77,.09),transparent 28rem),
-      linear-gradient(180deg,#081010 0%,#030607 58%,#010202 100%);
+      radial-gradient(ellipse at 53% 46%,rgba(78,120,175,.18),transparent 32rem),
+      radial-gradient(ellipse at 72% 28%,rgba(185,213,240,.08),transparent 24rem),
+      linear-gradient(180deg,#080c10 0%,#030506 62%,#010202 100%);
   }
   body:before{
     content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
     background:
-      linear-gradient(rgba(210,232,228,.045) 1px,transparent 1px),
-      linear-gradient(90deg,rgba(210,232,228,.04) 1px,transparent 1px),
-      linear-gradient(rgba(105,255,240,.035) 1px,transparent 1px),
-      linear-gradient(90deg,rgba(105,255,240,.03) 1px,transparent 1px);
-    background-size:4px 4px,4px 4px,28px 28px,28px 28px;
-    opacity:.58;
-    mask-image:radial-gradient(ellipse at 50% 46%,black 0 62%,transparent 94%);
+      linear-gradient(rgba(220,236,233,.025) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(220,236,233,.022) 1px,transparent 1px),
+      linear-gradient(rgba(143,196,255,.025) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(143,196,255,.022) 1px,transparent 1px);
+    background-size:4px 4px,4px 4px,22px 22px,22px 22px;
+    opacity:.72;
+    mask-image:radial-gradient(ellipse at 50% 50%,black 0 66%,transparent 95%);
   }
   body:after{
-    content:"";position:fixed;inset:0;z-index:30;pointer-events:none;
+    content:"";position:fixed;inset:0;z-index:40;pointer-events:none;
     background:
-      linear-gradient(rgba(255,255,255,.035) 50%,rgba(0,0,0,.08) 50%),
-      radial-gradient(ellipse at center,transparent 0 54%,rgba(0,0,0,.78) 100%);
+      linear-gradient(rgba(255,255,255,.035) 50%,rgba(0,0,0,.09) 50%),
+      radial-gradient(ellipse at center,transparent 0 48%,rgba(0,0,0,.78) 100%);
     background-size:100% 3px,100% 100%;
     mix-blend-mode:soft-light;
   }
   button{font:inherit;color:inherit}
-  .noise{position:fixed;inset:0;z-index:29;pointer-events:none;opacity:.13;mix-blend-mode:screen;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E")}
+  .noise{position:fixed;inset:0;z-index:39;pointer-events:none;opacity:.11;mix-blend-mode:screen;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.34'/%3E%3C/svg%3E")}
 
   .lab{
     position:relative;z-index:2;height:100vh;padding:14px;
-    display:grid;grid-template-columns:minmax(260px,23vw) minmax(560px,1fr) minmax(260px,22vw);
+    display:grid;grid-template-columns:minmax(270px,23vw) minmax(580px,1fr) minmax(290px,23vw);
     grid-template-rows:64px minmax(0,1fr) 236px;gap:10px;
   }
   .topbar,.plate,.film,.rail,.module{
     position:relative;overflow:hidden;border:1px solid var(--line);
-    background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.01)),var(--panel);
-    box-shadow:0 24px 70px rgba(0,0,0,.5),inset 0 0 70px rgba(105,255,240,.025);
+    background:linear-gradient(180deg,rgba(255,255,255,.032),rgba(255,255,255,.008)),var(--panel);
+    box-shadow:0 24px 70px rgba(0,0,0,.58),inset 0 0 80px rgba(143,196,255,.025);
   }
   .topbar:before,.plate:before,.film:before,.rail:before,.module:before{
     content:"";position:absolute;left:0;right:0;top:0;height:1px;background:linear-gradient(90deg,transparent,var(--line-strong),transparent);
   }
   .topbar{grid-column:1/4;display:flex;align-items:flex-start;justify-content:space-between;padding:13px 16px}
-  .brand h1{margin:0;font-family:"din-2014",var(--cond);font-weight:300;font-size:24px;line-height:.9;letter-spacing:.36em}
-  .brand h1 span{color:var(--cyan);text-shadow:0 0 18px rgba(105,255,240,.45)}
-  .brand p,.clock,.label,.micro,.toggle,.tag,.slice-meta,.datum,.event,.readout{font-family:var(--mono);letter-spacing:.13em;text-transform:uppercase}
+  .brand h1{margin:0;font-family:"din-2014",var(--cond);font-weight:200;font-size:25px;line-height:.9;letter-spacing:.42em}
+  .brand h1 span{color:var(--soft);text-shadow:0 0 18px rgba(143,196,255,.32)}
+  .brand p,.clock,.label,.micro,.toggle,.slice-meta,.datum,.event,.readout,.note{font-family:"din-2014",var(--mono);font-weight:200;letter-spacing:.16em;text-transform:uppercase}
   .brand p{margin:10px 0 0;color:var(--muted);font-size:8px}
   .clock{text-align:right;color:var(--muted);font-size:8px;line-height:1.7}
-  .clock b{display:block;color:var(--ink);font-size:24px;font-weight:400;letter-spacing:.18em}
+  .clock b{display:block;color:var(--ink);font-family:"din-2014",var(--cond);font-size:25px;font-weight:200;letter-spacing:.22em}
   .label{position:absolute;z-index:9;top:11px;left:12px;color:var(--muted);font-size:8px}
-  .label i{font-style:normal;color:var(--amber)}
+  .label i{font-style:normal;color:var(--risk)}
 
   .film{grid-column:1;grid-row:2/4;display:grid;grid-template-rows:39% 1fr}
   .film-hero{position:relative;min-height:0;border-bottom:1px solid var(--line)}
-  .film-hero img,.slice-bank img,.reference img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(.85) contrast(1.28) brightness(.68) sepia(.14)}
-  .film-hero:after,.slice-bank:after,.reference:after{
-    content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 0 42%,rgba(0,0,0,.55) 100%),linear-gradient(90deg,rgba(105,255,240,.08),transparent 32%,rgba(255,117,77,.08));mix-blend-mode:screen;pointer-events:none;
+  .film-hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(.9) contrast(1.32) brightness(.62) sepia(.08)}
+  .film-hero:after,.slice-bank:after{
+    content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 0 39%,rgba(0,0,0,.62) 100%),linear-gradient(90deg,rgba(143,196,255,.08),transparent 36%,rgba(255,255,255,.035));mix-blend-mode:screen;pointer-events:none;
   }
   .film-title{position:absolute;left:16px;right:16px;bottom:15px;z-index:4}
-  .film-title h2{margin:0;font-weight:300;font-size:34px;line-height:.88;letter-spacing:.12em}
+  .film-title h2{margin:0;font-weight:200;font-size:34px;line-height:.88;letter-spacing:.12em}
   .film-title p{margin:11px 0 0;color:var(--muted);font-family:var(--mono);font-size:8px;line-height:1.5;text-transform:uppercase;letter-spacing:.12em}
   .slice-bank{position:relative;padding:46px 12px 12px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
-  .slice-tile{position:relative;min-height:100px;border:1px solid rgba(210,232,228,.12);background:rgba(0,0,0,.28);overflow:hidden}
-  .slice-tile:before{content:"";position:absolute;inset:0;background-image:var(--slice);background-size:360% auto;background-position:var(--x) var(--y);filter:grayscale(1) contrast(1.35) brightness(.86)}
-  .slice-tile:after{content:"";position:absolute;left:50%;top:8px;bottom:8px;width:1px;background:rgba(255,255,255,.24);box-shadow:0 0 15px rgba(255,255,255,.22)}
-  .slice-meta{position:absolute;z-index:3;left:8px;right:8px;bottom:7px;display:flex;justify-content:space-between;color:var(--cyan);font-size:7px}
+  .slice-tile{position:relative;min-height:100px;border:1px solid rgba(220,236,233,.12);background:rgba(0,0,0,.28);overflow:hidden}
+  .slice-tile:before{content:"";position:absolute;inset:0;background-image:var(--slice);background-size:360% auto;background-position:var(--x) var(--y);filter:grayscale(1) contrast(1.38) brightness(.78)}
+  .slice-tile:after{content:"";position:absolute;left:50%;top:8px;bottom:8px;width:1px;background:rgba(255,255,255,.22);box-shadow:0 0 15px rgba(255,255,255,.2)}
+  .slice-meta{position:absolute;z-index:3;left:8px;right:8px;bottom:7px;display:flex;justify-content:space-between;color:var(--soft);font-size:7px}
 
-  .plate{grid-column:2;grid-row:2;min-height:0;background:rgba(0,0,0,.48)}
+  .plate{grid-column:2;grid-row:2;min-height:0;background:rgba(0,0,0,.5)}
   .scan-area{position:absolute;inset:38px 28px 34px;background:#020404}
-  .scan-area video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:grayscale(.55) contrast(1.28) brightness(.8) saturate(.72);opacity:.82}
-  .scan-area .still{position:absolute;inset:0;background-image:url("assets/brain/mri-film-wide.jpg");background-size:cover;background-position:center;opacity:.2;filter:grayscale(1) contrast(1.15);mix-blend-mode:screen}
+  .scan-area video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:grayscale(.78) contrast(1.34) brightness(.72) saturate(.45);opacity:.9}
+  .scan-area .still{position:absolute;inset:0;background-image:url("assets/brain/mri-film-wide.jpg");background-size:cover;background-position:center;opacity:.14;filter:grayscale(1) contrast(1.2);mix-blend-mode:screen}
   .scan-area canvas{position:absolute;inset:0;width:100%;height:100%;z-index:5;pointer-events:none}
-  .scanner-glass{position:absolute;inset:0;z-index:4;pointer-events:none;border:1px solid rgba(230,244,241,.24);box-shadow:inset 0 0 100px rgba(105,255,240,.05),0 0 30px rgba(105,255,240,.05)}
-  .scanner-glass:before{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;background:linear-gradient(transparent,rgba(255,255,255,.42),transparent)}
-  .scanner-glass:after{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.38),transparent)}
-  .scan-line{position:absolute;z-index:7;left:0;right:0;height:2px;top:12%;background:linear-gradient(90deg,transparent,rgba(105,255,240,.36),rgba(255,255,255,.86),rgba(105,255,240,.36),transparent);box-shadow:0 0 26px rgba(105,255,240,.55);animation:scan 5.8s linear infinite}
-  @keyframes scan{0%{top:10%;opacity:.05}9%{opacity:.88}92%{opacity:.72}100%{top:88%;opacity:.05}}
-  .scan-scale{position:absolute;z-index:8;top:38px;bottom:34px;width:38px;border-left:1px solid rgba(230,244,241,.35);opacity:.75}
+  .scanner-glass{position:absolute;inset:0;z-index:4;pointer-events:none;border:1px solid rgba(230,244,241,.22);box-shadow:inset 0 0 110px rgba(143,196,255,.055),0 0 34px rgba(143,196,255,.05)}
+  .scanner-glass:before{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;background:linear-gradient(transparent,rgba(255,255,255,.34),transparent)}
+  .scanner-glass:after{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.28),transparent)}
+  .scan-line{position:absolute;z-index:7;left:0;right:0;height:2px;top:12%;background:linear-gradient(90deg,transparent,rgba(180,215,250,.22),rgba(255,255,255,.78),rgba(180,215,250,.22),transparent);box-shadow:0 0 22px rgba(143,196,255,.38);animation:scan 6.6s linear infinite}
+  @keyframes scan{0%{top:10%;opacity:.05}9%{opacity:.76}92%{opacity:.64}100%{top:88%;opacity:.05}}
+  .scan-scale{position:absolute;z-index:8;top:38px;bottom:34px;width:38px;border-left:1px solid rgba(230,244,241,.28);opacity:.65}
   .scan-scale.left{left:28px}.scan-scale.right{right:28px;transform:scaleX(-1)}
-  .scan-scale span{position:absolute;left:7px;width:12px;height:1px;background:rgba(230,244,241,.55)}
+  .scan-scale span{position:absolute;left:7px;width:12px;height:1px;background:rgba(230,244,241,.48)}
   .scan-scale span:nth-child(1){top:10%}.scan-scale span:nth-child(2){top:23%}.scan-scale span:nth-child(3){top:36%}.scan-scale span:nth-child(4){top:49%}.scan-scale span:nth-child(5){top:62%}.scan-scale span:nth-child(6){top:75%}.scan-scale span:nth-child(7){top:88%}
-  .locator{position:absolute;z-index:9;border:1px solid rgba(255,255,255,.28);background:rgba(2,7,8,.72);backdrop-filter:blur(8px);padding:10px 12px;min-width:190px;color:var(--muted);font-family:var(--mono);font-size:8px;text-transform:uppercase;line-height:1.55;letter-spacing:.08em}
-  .locator b{display:block;color:var(--ink);font-size:10px;letter-spacing:.16em;margin-bottom:5px}
-  .locator:before{content:"";position:absolute;top:22px;width:46px;height:1px;background:rgba(230,244,241,.4)}
-  .locator.one{left:7%;top:15%}.locator.one:before{right:-46px}
-  .locator.two{right:6%;top:18%}.locator.two:before{left:-46px}
-  .locator.three{left:9%;bottom:16%}.locator.three:before{right:-46px}
-  .hotspot{position:absolute;z-index:10;width:11px;height:11px;border:1px solid rgba(255,255,255,.75);border-radius:50%;background:rgba(105,255,240,.28);box-shadow:0 0 18px rgba(105,255,240,.5);cursor:pointer}
-  .hotspot:after{content:"";position:absolute;inset:-15px;border:1px solid rgba(105,255,240,.14);border-radius:50%;animation:pulse 2.8s ease-in-out infinite}
-  .hotspot.active{background:var(--amber);border-color:var(--amber);box-shadow:0 0 26px rgba(255,181,71,.62)}
-  @keyframes pulse{0%,100%{transform:scale(.8);opacity:.1}50%{transform:scale(1.25);opacity:.75}}
+  .locator{position:absolute;z-index:9;border:1px solid rgba(255,255,255,.22);background:rgba(2,6,7,.76);backdrop-filter:blur(8px);padding:10px 12px;min-width:210px;color:var(--muted);font-family:var(--mono);font-size:8px;text-transform:uppercase;line-height:1.55;letter-spacing:.08em}
+  .locator b{display:block;color:var(--ink);font-family:"din-2014",var(--cond);font-size:14px;font-weight:200;letter-spacing:.24em;margin-bottom:5px}
+  .locator:before{content:"";position:absolute;top:22px;width:46px;height:1px;background:rgba(230,244,241,.32)}
+  .locator.one{left:6%;top:14%}.locator.one:before{right:-46px}
+  .locator.two{right:5%;top:19%}.locator.two:before{left:-46px}
+  .locator.three{left:8%;bottom:15%}.locator.three:before{right:-46px}
+  .hotspot{position:absolute;z-index:10;width:10px;height:10px;border:1px solid rgba(255,255,255,.62);border-radius:50%;background:rgba(238,245,243,.24);box-shadow:0 0 15px rgba(230,244,241,.36);cursor:pointer}
+  .hotspot:after{content:"";position:absolute;inset:-13px;border:1px solid rgba(230,244,241,.12);border-radius:50%;animation:pulse 3.4s ease-in-out infinite}
+  .hotspot.active{background:var(--risk);border-color:var(--risk);box-shadow:0 0 22px rgba(227,210,173,.46)}
+  @keyframes pulse{0%,100%{transform:scale(.8);opacity:.08}50%{transform:scale(1.2);opacity:.55}}
   .plate-foot{position:absolute;left:28px;right:28px;bottom:12px;display:flex;justify-content:space-between;gap:14px;color:var(--muted);font-family:var(--mono);font-size:8px;letter-spacing:.13em;text-transform:uppercase}
-  .plate-foot b{color:var(--cyan);font-weight:400}
+  .plate-foot b{color:var(--soft);font-weight:400}
 
-  .rail{grid-column:3;grid-row:2/4;display:grid;grid-template-rows:34% 25% 1fr}
-  .metrics{padding:44px 14px 12px;display:grid;gap:10px}
-  .metric{border-top:1px solid var(--line);padding-top:8px}
+  .rail{grid-column:3;grid-row:2/4;display:grid;grid-template-rows:35% 24% 1fr}
+  .metrics{padding:42px 14px 10px;display:grid;gap:6px}
+  .metric{border-top:1px solid var(--line);padding-top:6px}
   .metric:first-child{border-top:0}
-  .metric-head{display:flex;justify-content:space-between;color:var(--dim);font-family:var(--mono);font-size:8px;text-transform:uppercase;letter-spacing:.13em}
-  .metric-value{font-family:"din-2014",var(--cond);font-weight:300;font-size:31px;line-height:1.05;letter-spacing:.08em;margin-top:5px}
-  .meter{height:3px;background:rgba(255,255,255,.08);margin-top:7px}
-  .meter span{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--green),var(--amber));box-shadow:0 0 16px rgba(105,255,240,.35)}
-  .matrix-wrap{position:relative;padding:42px 12px 12px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .metric-head{display:flex;justify-content:space-between;color:var(--muted);font-family:var(--mono);font-size:8px;text-transform:uppercase;letter-spacing:.13em}
+  .metric-value{font-family:"din-2014",var(--cond);font-weight:200;font-size:clamp(20px,2vw,27px);line-height:1.02;letter-spacing:.16em;margin-top:3px}
+  .meter{height:3px;background:rgba(255,255,255,.07);margin-top:7px}
+  .meter span{display:block;height:100%;background:linear-gradient(90deg,var(--soft),var(--blue),var(--risk));box-shadow:0 0 12px rgba(143,196,255,.24)}
+  .matrix-wrap{position:relative;padding:42px 12px 58px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
   #matrix{width:100%;height:100%;display:block}
-  .reference{position:relative;padding:42px 12px 12px}
-  .reference img{opacity:.33;filter:grayscale(.15) contrast(1.1) brightness(.48) saturate(1.45)}
-  .reference-grid{position:relative;z-index:4;display:grid;gap:9px;font-family:var(--mono);font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-  .datum{display:grid;grid-template-columns:1fr auto;gap:12px;padding:8px 0;border-top:1px solid rgba(230,244,241,.14)}
+  .matrix-legend{position:absolute;left:12px;right:12px;bottom:10px;display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;color:var(--muted);font-family:var(--mono);font-size:7px;line-height:1.35;text-transform:uppercase;letter-spacing:.08em}
+  .matrix-legend b{color:var(--ink);font-weight:400}
+  .legend-scale{grid-column:1/3;height:3px;background:linear-gradient(90deg,rgba(238,245,243,.08),rgba(238,245,243,.55),rgba(143,196,255,.65));margin-top:2px}
+  .reference{position:relative;padding:42px 14px 12px;background:linear-gradient(180deg,rgba(255,255,255,.018),rgba(255,255,255,.004))}
+  .reference-grid{display:grid;grid-template-columns:1fr;gap:0;font-family:var(--mono);font-size:8px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+  .datum{display:grid;grid-template-columns:1fr auto;gap:12px;padding:8px 0;border-top:1px solid rgba(230,244,241,.12)}
   .datum b{color:var(--ink);font-weight:400}
+  .note{margin:14px 0 0;color:var(--muted);font-size:8px;line-height:1.6;text-transform:none;letter-spacing:.05em}
   .toggle-row{position:absolute;z-index:12;right:12px;top:10px;display:flex;gap:6px}
-  .toggle{border:1px solid var(--line);background:rgba(0,0,0,.3);font-size:7px;color:var(--muted);padding:5px 7px;cursor:pointer}
-  .toggle.active{border-color:rgba(105,255,240,.6);color:var(--cyan);background:rgba(105,255,240,.08)}
+  .toggle{border:1px solid var(--line);background:rgba(0,0,0,.34);font-size:7px;color:var(--muted);padding:5px 7px;cursor:pointer}
+  .toggle.active{border-color:rgba(238,245,243,.45);color:var(--ink);background:rgba(238,245,243,.08)}
 
-  .bottom{grid-column:2;grid-row:3;display:grid;grid-template-columns:1.15fr .85fr;gap:10px;min-height:0}
+  .bottom{grid-column:2;grid-row:3;display:grid;grid-template-columns:1.08fr .92fr;gap:10px;min-height:0}
   .signal{min-height:0;padding:36px 14px 12px}
-  .signal:after{content:"";position:absolute;right:0;top:0;bottom:0;width:42%;background:url("assets/brain/brain-infographic-reference.jpg") center/cover;opacity:.12;filter:grayscale(.15) contrast(1.2) brightness(.6);mix-blend-mode:screen;pointer-events:none}
-  .signal h2{position:relative;z-index:2;margin:0;font-family:"din-2014",var(--cond);font-size:clamp(28px,3.8vw,50px);font-weight:200;line-height:.88;letter-spacing:.1em}
-  .signal h2 span{color:var(--cyan)}
-  .signal p{position:relative;z-index:2;max-width:700px;margin:10px 0 0;color:var(--muted);font-size:12px;line-height:1.4}
-  #wave{position:relative;z-index:2;width:100%;height:42px;margin-top:8px;display:block}
+  .signal:after{content:"";position:absolute;right:-10%;top:0;bottom:0;width:52%;background:url("images/index/Brain.png") center/cover;opacity:.11;filter:grayscale(.5) contrast(1.12) brightness(.62);mix-blend-mode:screen;pointer-events:none}
+  .signal h2{position:relative;z-index:2;margin:0;font-family:"din-2014",var(--cond);font-size:clamp(24px,3.1vw,42px);font-weight:200;line-height:.9;letter-spacing:.2em}
+  .signal h2 span{color:var(--soft)}
+  .signal p{position:relative;z-index:2;max-width:720px;margin:8px 0 0;color:var(--muted);font-size:11px;line-height:1.36}
+  .data-grid{position:relative;z-index:2;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+  .data-cell{border-top:1px solid var(--line);padding-top:7px;color:var(--muted);font-family:var(--mono);font-size:7px;text-transform:uppercase;letter-spacing:.08em}
+  .data-cell b{display:block;margin-bottom:4px;color:var(--ink);font-family:"din-2014",var(--cond);font-size:20px;font-weight:200;letter-spacing:.2em}
+  #wave{position:relative;z-index:2;width:100%;height:34px;margin-top:8px;display:block}
   .event-log{min-height:0;padding:38px 14px 14px;overflow:auto}
   .event{display:grid;grid-template-columns:58px 1fr auto;gap:11px;padding:8px 0;border-top:1px solid var(--line);color:var(--muted);font-size:8px;line-height:1.35}
-  .event b{color:var(--ink);font-weight:400}.event i{font-style:normal;color:var(--amber)}
+  .event b{color:var(--ink);font-weight:400}.event i{font-style:normal;color:var(--risk)}
 
   @media(max-width:1180px){
     html,body{overflow:auto}
@@ -159,16 +164,16 @@
     .film{grid-template-rows:320px auto}
     .slice-bank{min-height:390px}
     .plate{height:72vh;min-height:560px}
-    .rail{grid-template-rows:auto 300px 360px}
+    .rail{grid-template-rows:auto 300px auto}
   }
   @media(max-width:680px){
     .topbar{display:block}
     .clock{text-align:left;margin-top:12px}
     .plate{height:68vh;min-height:480px}
-    .scan-area{inset:34px 12px 34px}
-    .scan-scale{display:none}
-    .locator{display:none}
+    .scan-area{inset:34px 12px}
+    .scan-scale,.locator{display:none}
     .bottom{grid-template-columns:1fr}
+    .data-grid{grid-template-columns:1fr 1fr}
     .slice-bank{grid-template-columns:1fr}
   }
 </style>
@@ -178,10 +183,10 @@
 <main class="lab">
   <header class="topbar">
     <div class="brand">
-      <h1>LIVING <span>BRAIN</span></h1>
-      <p>diagnostic film wall / axial scan proxy / live signal overlays / open neuroscience atlas</p>
+      <h1>NEURODEGENERATIVE <span>MRI</span></h1>
+      <p>Alzheimer pattern review / structural MRI / cognitive-region atlas / clinical orientation layer</p>
     </div>
-    <div class="clock"><b id="clock">--:--:--</b><span>OPENNEURO + HCP + NEUROSYNTH + MRI FILM SOURCE</span></div>
+    <div class="clock"><b id="clock">--:--:--</b><span>ADNI + OPENNEURO + HCP REFERENCE MODEL / DEMONSTRATION DATA</span></div>
   </header>
 
   <aside class="film">
@@ -190,7 +195,7 @@
       <div class="label"><i>[</i> Source Film <i>]</i></div>
       <div class="film-title">
         <h2>AXIAL<br>CONTACT<br>SHEET</h2>
-        <p>Real MRI plate used as a diagnostic texture. Overlays are intentionally thin so the scan reads first.</p>
+        <p>Real scan film anchors the system. The interface treats Alzheimer's as structural change first: volume, symmetry, ventricle size, and cortical thinning.</p>
       </div>
     </section>
     <section class="slice-bank">
@@ -205,7 +210,7 @@
   </aside>
 
   <section class="plate">
-    <div class="label"><i>[</i> Acquisition Theatre <i>]</i></div>
+    <div class="label"><i>[</i> Alzheimer MRI Review <i>]</i></div>
     <div class="toggle-row" id="layerControls"></div>
     <div class="scan-area" id="scanArea">
       <div class="still"></div>
@@ -215,54 +220,75 @@
       <div class="scan-line"></div>
       <div class="scan-scale left"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
       <div class="scan-scale right"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-      <button class="hotspot active" data-site="thalamic" style="left:50%;top:49%" aria-label="Select thalamic region"></button>
-      <button class="hotspot" data-site="frontal" style="left:58%;top:34%" aria-label="Select frontal tract"></button>
-      <button class="hotspot" data-site="temporal" style="left:38%;top:58%" aria-label="Select temporal lobe"></button>
-      <div class="locator one"><b>CSF Boundary</b>ventricular index locked / axial depth 42.6mm / confidence .91</div>
-      <div class="locator two"><b>BOLD Cluster</b>activation centroid / gamma trace / temporal phase +0.12 sec</div>
-      <div class="locator three"><b>Fiber Tracts</b>diffusion proxy / 1,437 active weighted paths</div>
+      <button class="hotspot active" data-site="hippocampal" style="left:45%;top:57%" aria-label="Select hippocampal region"></button>
+      <button class="hotspot" data-site="ventricular" style="left:52%;top:47%" aria-label="Select ventricular region"></button>
+      <button class="hotspot" data-site="cortical" style="left:59%;top:34%" aria-label="Select cortical region"></button>
+      <div class="locator one"><b>Hippocampal Volume</b>left/right asymmetry reviewed / memory-circuit vulnerability / percentile model</div>
+      <div class="locator two"><b>Ventricular Index</b>enlargement proxy / central CSF expansion / structural atrophy signal</div>
+      <div class="locator three"><b>Cortical Thickness</b>temporal-parietal thinning / AD-pattern support / longitudinal comparator</div>
     </div>
     <div class="plate-foot">
-      <span><b id="activeSite">THALAMIC</b> target / scan layer composite</span>
-      <span>CT proxy kVP 120 / MRI video / 3mm slice model</span>
+      <span><b id="activeSite">HIPPOCAMPAL</b> focus / Alzheimer structural review</span>
+      <span>demonstration data only / not diagnostic output</span>
     </div>
   </section>
 
   <aside class="rail">
     <section class="metrics">
-      <div class="label"><i>[</i> Neuro Data <i>]</i></div>
-      <div class="metric"><div class="metric-head"><span>OpenNeuro public datasets</span><span>BIDS</span></div><div class="metric-value">1,700+</div><div class="meter"><span style="width:82%"></span></div></div>
-      <div class="metric"><div class="metric-head"><span>Neural activity</span><span id="activityLabel">72%</span></div><div class="metric-value" id="activity">72.4%</div><div class="meter"><span id="activityBar" style="width:72%"></span></div></div>
-      <div class="metric"><div class="metric-head"><span>Blood oxygen proxy</span><span>BOLD</span></div><div class="metric-value" id="oxygen">98.4%</div><div class="meter"><span id="oxygenBar" style="width:91%"></span></div></div>
-      <div class="metric"><div class="metric-head"><span>Network synchrony</span><span>model</span></div><div class="metric-value" id="sync">0.84</div><div class="meter"><span id="syncBar" style="width:84%"></span></div></div>
+      <div class="label"><i>[</i> Alzheimer Indicators <i>]</i></div>
+      <div class="metric"><div class="metric-head"><span>Hippocampal volume</span><span id="hippoLabel">12th pct</span></div><div class="metric-value" id="hippo">12%</div><div class="meter"><span id="hippoBar" style="width:12%"></span></div></div>
+      <div class="metric"><div class="metric-head"><span>Ventricular enlargement</span><span id="ventLabel">moderate</span></div><div class="metric-value" id="ventricles">1.42x</div><div class="meter"><span id="ventBar" style="width:62%"></span></div></div>
+      <div class="metric"><div class="metric-head"><span>Cortical thickness</span><span id="cortexLabel">temporal</span></div><div class="metric-value" id="cortex">-8.6%</div><div class="meter"><span id="cortexBar" style="width:48%"></span></div></div>
+      <div class="metric"><div class="metric-head"><span>Entorhinal thinning</span><span>early marker</span></div><div class="metric-value" id="entorhinal">-11.2%</div><div class="meter"><span id="entorhinalBar" style="width:67%"></span></div></div>
+      <div class="metric"><div class="metric-head"><span>Posterior cingulate</span><span>FDG proxy</span></div><div class="metric-value" id="fdg">-14%</div><div class="meter"><span id="fdgBar" style="width:58%"></span></div></div>
+      <div class="metric"><div class="metric-head"><span>Pattern confidence</span><span>AD-like</span></div><div class="metric-value" id="confidenceValue">0.78</div><div class="meter"><span id="confidenceBar" style="width:78%"></span></div></div>
     </section>
     <section class="matrix-wrap">
-      <div class="label"><i>[</i> Connectivity Matrix <i>]</i></div>
+      <div class="label"><i>[</i> Regional Correlation <i>]</i></div>
       <canvas id="matrix"></canvas>
+      <div class="matrix-legend">
+        <span><b>HIP</b> hippocampus / memory encoding</span>
+        <span><b>ENT</b> entorhinal cortex / early AD signal</span>
+        <span><b>TMP</b> temporal lobe / semantic memory</span>
+        <span><b>PAR</b> parietal association cortex</span>
+        <span><b>PCC</b> posterior cingulate / default mode</span>
+        <span><b>CSF</b> ventricular volume proxy</span>
+        <div class="legend-scale"></div>
+      </div>
     </section>
     <section class="reference">
-      <img src="assets/brain/neural-analysis-board.jpg" alt="Neural analysis interface reference">
-      <div class="label"><i>[</i> Analysis Rail <i>]</i></div>
+      <div class="label"><i>[</i> Clinical Orientation <i>]</i></div>
       <div class="reference-grid">
-        <div class="datum"><span>cortical shell</span><b>registered</b></div>
-        <div class="datum"><span>fiber tract density</span><b>1,437</b></div>
-        <div class="datum"><span>electrode candidates</span><b>24</b></div>
-        <div class="datum"><span>activation clusters</span><b>09</b></div>
-        <div class="datum"><span>atlas source</span><b>HCP / Allen</b></div>
-        <div class="datum"><span>confidence</span><b id="confidence">0.91</b></div>
+        <div class="datum"><span>Primary concern</span><b id="concern">memory circuit</b></div>
+        <div class="datum"><span>Observed pattern</span><b id="pattern">medial temporal</b></div>
+        <div class="datum"><span>Compare against</span><b>age norm</b></div>
+        <div class="datum"><span>Suggested sequence</span><b>T1 / FLAIR</b></div>
+        <div class="datum"><span>Longitudinal need</span><b>repeat scan</b></div>
+        <div class="datum"><span>Data sources</span><b>ADNI / OASIS</b></div>
       </div>
+      <p class="note">Alzheimer review typically weighs hippocampal atrophy, medial temporal lobe change, ventricular enlargement, cortical thinning, and clinical cognition together. This interface is a visual orientation model, not a diagnosis.</p>
     </section>
   </aside>
 
   <section class="bottom">
     <section class="module signal">
-      <div class="label"><i>[</i> Signal Output <i>]</i></div>
-      <h2>REAL SCAN<br><span>LIVE INFERENCE</span></h2>
-      <p>The film plate carries the real anatomy; the interface adds interpretive layers: activation, vessel contrast, tract paths, electrode candidates, and slice timing.</p>
+      <div class="label"><i>[</i> Alzheimer Data Panel <i>]</i></div>
+      <h2>STRUCTURAL<br><span>DISEASE MARKERS</span></h2>
+      <p>Orientation values combine MRI-visible structural markers with common Alzheimer research measures. Percentiles and scores are demonstration values for the interface.</p>
+      <div class="data-grid">
+        <div class="data-cell"><b id="mtaScore">2.4</b>medial temporal atrophy</div>
+        <div class="data-cell"><b id="cdrScore">0.5</b>clinical dementia rating</div>
+        <div class="data-cell"><b id="mmseScore">24</b>MMSE cognitive screen</div>
+        <div class="data-cell"><b id="tauScore">+31%</b>tau / amyloid risk proxy</div>
+        <div class="data-cell"><b id="asymScore">7.8%</b>hippocampal asymmetry</div>
+        <div class="data-cell"><b id="memoryScore">0.62</b>memory-network coherence</div>
+        <div class="data-cell"><b id="parietalScore">-6.4%</b>parietal association loss</div>
+        <div class="data-cell"><b id="csfScore">+18%</b>CSF expansion index</div>
+      </div>
       <canvas id="wave"></canvas>
     </section>
     <section class="module event-log" id="eventLog">
-      <div class="label"><i>[</i> Scan Log <i>]</i></div>
+      <div class="label"><i>[</i> Review Log <i>]</i></div>
     </section>
   </section>
 </main>
@@ -270,24 +296,24 @@
 <script>
   const $ = id => document.getElementById(id);
   const layers = [
-    {id:"tracts",label:"Tracts",on:true,color:"#8abaff"},
-    {id:"vessels",label:"Vessels",on:true,color:"#ff754d"},
-    {id:"bold",label:"BOLD",on:true,color:"#ffb547"},
-    {id:"probes",label:"Probes",on:true,color:"#f2f7f5"}
+    {id:"hippocampus",label:"Hippocampus",on:true},
+    {id:"ventricles",label:"Ventricles",on:true},
+    {id:"cortex",label:"Cortex",on:true},
+    {id:"amyloid",label:"Amyloid",on:false}
   ];
   const sites = {
-    thalamic:{name:"THALAMIC",activity:72.4,oxygen:98.4,sync:.84,confidence:.91},
-    frontal:{name:"FRONTAL",activity:81.2,oxygen:97.8,sync:.78,confidence:.88},
-    temporal:{name:"TEMPORAL",activity:64.8,oxygen:98.9,sync:.72,confidence:.86}
+    hippocampal:{name:"HIPPOCAMPAL",hippo:12,vent:1.42,cortex:-8.6,entorhinal:-11.2,fdg:-14,confidence:.78,concern:"memory circuit",pattern:"medial temporal",mta:2.4,cdr:.5,mmse:24,tau:31,asym:7.8,memory:.62,parietal:-6.4,csf:18},
+    ventricular:{name:"VENTRICULAR",hippo:18,vent:1.58,cortex:-6.2,entorhinal:-8.5,fdg:-10,confidence:.71,concern:"CSF expansion",pattern:"central atrophy",mta:2.0,cdr:.5,mmse:25,tau:24,asym:5.4,memory:.68,parietal:-4.1,csf:27},
+    cortical:{name:"CORTICAL",hippo:22,vent:1.31,cortex:-10.4,entorhinal:-9.1,fdg:-18,confidence:.74,concern:"association cortex",pattern:"temporal-parietal",mta:1.8,cdr:1,mmse:22,tau:36,asym:4.9,memory:.58,parietal:-9.7,csf:14}
   };
-  let activeSite = "thalamic";
+  let activeSite = "hippocampal";
   const log = [];
 
-  function addLog(text, type="SCAN"){
+  function addLog(text, type="MRI"){
     const stamp = new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit",second:"2-digit"});
     log.unshift({stamp,type,text});
     log.splice(8);
-    $("eventLog").innerHTML = '<div class="label"><i>[</i> Scan Log <i>]</i></div>' + log.map(d =>
+    $("eventLog").innerHTML = '<div class="label"><i>[</i> Review Log <i>]</i></div>' + log.map(d =>
       `<div class="event"><span>${d.stamp}</span><b>${d.type}</b><i>${d.text}</i></div>`
     ).join("");
   }
@@ -296,31 +322,50 @@
     $("layerControls").innerHTML = "";
     layers.forEach(layer => {
       const btn = document.createElement("button");
-      btn.className = "toggle active";
+      btn.className = "toggle" + (layer.on ? " active" : "");
       btn.textContent = layer.label;
       btn.addEventListener("click", () => {
         layer.on = !layer.on;
         btn.classList.toggle("active", layer.on);
-        addLog(`${layer.label} ${layer.on ? "enabled" : "muted"}`, "LAYER");
+        addLog(`${layer.label} ${layer.on ? "visible" : "hidden"}`, "LAYER");
       });
       $("layerControls").appendChild(btn);
     });
   }
+
+  function layerOn(id){return layers.find(d => d.id === id)?.on}
 
   function setSite(id){
     activeSite = id;
     document.querySelectorAll(".hotspot").forEach(btn => btn.classList.toggle("active", btn.dataset.site === id));
     const site = sites[id];
     $("activeSite").textContent = site.name;
-    $("activity").textContent = site.activity.toFixed(1) + "%";
-    $("activityLabel").textContent = Math.round(site.activity) + "%";
-    $("activityBar").style.width = site.activity + "%";
-    $("oxygen").textContent = site.oxygen.toFixed(1) + "%";
-    $("oxygenBar").style.width = (site.oxygen - 7) + "%";
-    $("sync").textContent = site.sync.toFixed(2);
-    $("syncBar").style.width = (site.sync * 100) + "%";
-    $("confidence").textContent = site.confidence.toFixed(2);
-    addLog(`${site.name} region selected`, "TARGET");
+    $("hippo").textContent = site.hippo + "%";
+    $("hippoLabel").textContent = site.hippo + "th pct";
+    $("hippoBar").style.width = Math.max(site.hippo, 8) + "%";
+    $("ventricles").textContent = site.vent.toFixed(2) + "x";
+    $("ventLabel").textContent = site.vent > 1.5 ? "elevated" : "moderate";
+    $("ventBar").style.width = Math.min(92, site.vent * 44) + "%";
+    $("cortex").textContent = site.cortex.toFixed(1) + "%";
+    $("cortexLabel").textContent = site.name.toLowerCase();
+    $("cortexBar").style.width = Math.min(92, Math.abs(site.cortex) * 6) + "%";
+    $("entorhinal").textContent = site.entorhinal.toFixed(1) + "%";
+    $("entorhinalBar").style.width = Math.min(92, Math.abs(site.entorhinal) * 6) + "%";
+    $("fdg").textContent = site.fdg + "%";
+    $("fdgBar").style.width = Math.min(92, Math.abs(site.fdg) * 4.2) + "%";
+    $("confidenceValue").textContent = site.confidence.toFixed(2);
+    $("confidenceBar").style.width = (site.confidence * 100) + "%";
+    $("concern").textContent = site.concern;
+    $("pattern").textContent = site.pattern;
+    $("mtaScore").textContent = site.mta.toFixed(1);
+    $("cdrScore").textContent = site.cdr.toFixed(1);
+    $("mmseScore").textContent = site.mmse;
+    $("tauScore").textContent = "+" + site.tau + "%";
+    $("asymScore").textContent = site.asym.toFixed(1) + "%";
+    $("memoryScore").textContent = site.memory.toFixed(2);
+    $("parietalScore").textContent = site.parietal.toFixed(1) + "%";
+    $("csfScore").textContent = "+" + site.csf + "%";
+    addLog(`${site.name} region selected`, "FOCUS");
   }
 
   document.querySelectorAll(".hotspot").forEach(btn => btn.addEventListener("click", () => setSite(btn.dataset.site)));
@@ -336,129 +381,126 @@
     return {ctx,w:rect.width,h:rect.height};
   }
 
-  function layerOn(id){return layers.find(d => d.id === id)?.on}
+  function drawLabel(ctx,x,y,text,align="left"){
+    ctx.font = "8px Space Mono";
+    ctx.fillStyle = "rgba(238,245,243,.72)";
+    ctx.textAlign = align;
+    ctx.fillText(text,x,y);
+  }
 
   function drawScan(t){
     const {ctx,w,h} = prepCanvas($("scanCanvas"));
     ctx.clearRect(0,0,w,h);
     const cx = w*.5, cy = h*.5;
-    const site = sites[activeSite];
     ctx.save();
+    ctx.globalCompositeOperation = "source-over";
+
+    ctx.strokeStyle = "rgba(238,245,243,.08)";
+    ctx.lineWidth = 1;
+    for(let i=0;i<10;i++){
+      const y = h*(.14+i*.075);
+      ctx.beginPath();ctx.moveTo(w*.08,y);ctx.lineTo(w*.92,y);ctx.stroke();
+    }
+
     ctx.globalCompositeOperation = "lighter";
-
-    ctx.strokeStyle = "rgba(242,247,245,.18)";
     ctx.lineWidth = 1;
-    for(let i=0;i<13;i++){
-      const y = h*(.12+i*.065);
-      ctx.beginPath();ctx.moveTo(w*.07,y);ctx.lineTo(w*.93,y);ctx.stroke();
-    }
+    ctx.strokeStyle = "rgba(238,245,243,.24)";
+    ctx.beginPath();ctx.ellipse(cx,cy,Math.min(w,h)*.27,Math.min(w,h)*.2,0,0,Math.PI*2);ctx.stroke();
 
-    ctx.strokeStyle = "rgba(105,255,240,.26)";
-    ctx.lineWidth = 1;
-    for(let r=68;r<Math.min(w,h)*.42;r+=34){
-      ctx.beginPath();ctx.ellipse(cx,cy,r*1.06,r*.82,Math.sin(t*.00018)*.12,0,Math.PI*2);ctx.stroke();
-    }
-
-    if(layerOn("tracts")){
-      ctx.strokeStyle = "rgba(138,186,255,.28)";
-      for(let i=0;i<44;i++){
-        const a = i*.43 + t*.00012;
-        const x1 = cx + Math.cos(a)*w*.14;
-        const y1 = cy + Math.sin(a*1.4)*h*.12;
-        const x2 = cx + Math.cos(a+1.7)*w*.35;
-        const y2 = cy + Math.sin(a+2.2)*h*.3;
+    if(layerOn("ventricles")){
+      ctx.strokeStyle = activeSite === "ventricular" ? "rgba(227,210,173,.86)" : "rgba(238,245,243,.42)";
+      ctx.lineWidth = activeSite === "ventricular" ? 2 : 1;
+      [[-.034,-.018],[.034,-.018],[-.045,.035],[.045,.035]].forEach(([dx,dy],i) => {
         ctx.beginPath();
-        ctx.moveTo(x1,y1);
-        ctx.bezierCurveTo(cx+Math.sin(a)*w*.18,cy-Math.cos(a)*h*.28,cx-Math.cos(a)*w*.25,cy+Math.sin(a)*h*.22,x2,y2);
+        ctx.ellipse(cx+w*dx,cy+h*dy,20+i%2*4,42-i%2*5,.08*(i%2?1:-1),0,Math.PI*2);
         ctx.stroke();
-      }
+      });
+      drawLabel(ctx,cx+48,cy-70,"VENTRICULAR INDEX 1.42x");
     }
 
-    if(layerOn("vessels")){
-      ctx.strokeStyle = "rgba(255,117,77,.24)";
-      for(let i=0;i<18;i++){
-        const a = i*.7 + .2;
+    if(layerOn("hippocampus")){
+      ctx.strokeStyle = activeSite === "hippocampal" ? "rgba(227,210,173,.88)" : "rgba(143,196,255,.36)";
+      ctx.lineWidth = activeSite === "hippocampal" ? 2 : 1;
+      [["L",-.105,.105],["R",.105,.105]].forEach(([side,dx,dy]) => {
         ctx.beginPath();
-        ctx.moveTo(cx + Math.cos(a)*w*.05, cy + Math.sin(a)*h*.06);
-        ctx.bezierCurveTo(cx+Math.cos(a+.8)*w*.11,cy+Math.sin(a+.8)*h*.22,cx+Math.cos(a+1.4)*w*.18,cy+Math.sin(a+1.4)*h*.28,cx+Math.cos(a+1.8)*w*.28,cy+Math.sin(a+1.8)*h*.34);
+        ctx.ellipse(cx+w*dx,cy+h*dy,38,16,dx<0?-.26:.26,0,Math.PI*2);
         ctx.stroke();
-      }
-    }
-
-    if(layerOn("bold")){
-      const blobs = activeSite === "frontal" ? [[.58,.34,36],[.54,.43,18]] : activeSite === "temporal" ? [[.38,.58,35],[.43,.62,18]] : [[.5,.49,42],[.56,.57,24],[.47,.61,18]];
-      blobs.forEach(([x,y,r],i) => {
-        const grd = ctx.createRadialGradient(w*x,h*y,0,w*x,h*y,r + Math.sin(t*.003+i)*5);
-        grd.addColorStop(0,"rgba(255,181,71,.72)");
-        grd.addColorStop(.32,"rgba(255,117,77,.26)");
-        grd.addColorStop(1,"rgba(255,117,77,0)");
-        ctx.fillStyle = grd;
-        ctx.beginPath();ctx.arc(w*x,h*y,r,0,Math.PI*2);ctx.fill();
+        drawLabel(ctx,cx+w*dx,cy+h*dy+31,side+" HIPPO VOL P12","center");
       });
     }
 
-    if(layerOn("probes")){
-      ctx.fillStyle = "rgba(242,247,245,.82)";
-      ctx.strokeStyle = "rgba(242,247,245,.45)";
-      for(let i=0;i<18;i++){
-        const a = i*Math.PI*2/18 + .1;
-        const x = cx + Math.cos(a)*w*.31;
-        const y = cy + Math.sin(a)*h*.31;
-        ctx.beginPath();ctx.arc(x,y,2.1,0,Math.PI*2);ctx.fill();
-        ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+Math.cos(a)*28,y+Math.sin(a)*28);ctx.stroke();
+    if(layerOn("cortex")){
+      ctx.strokeStyle = activeSite === "cortical" ? "rgba(227,210,173,.72)" : "rgba(238,245,243,.22)";
+      ctx.lineWidth = 1.2;
+      for(let i=0;i<5;i++){
+        ctx.beginPath();
+        ctx.ellipse(cx,cy,Math.min(w,h)*(.31+i*.018),Math.min(w,h)*(.225+i*.012),Math.sin(t*.0001)*.03,Math.PI*.02,Math.PI*1.98);
+        ctx.stroke();
       }
+      drawLabel(ctx,cx+Math.min(w,h)*.28,cy-Math.min(w,h)*.14,"TEMPORAL-PARIETAL THINNING");
     }
 
-    ctx.strokeStyle = "rgba(255,255,255,.3)";
-    ctx.beginPath();ctx.arc(cx,cy,Math.min(w,h)*.105,0,Math.PI*2);ctx.stroke();
-    ctx.fillStyle = "rgba(105,255,240,.75)";
+    if(layerOn("amyloid")){
+      ctx.fillStyle = "rgba(227,210,173,.18)";
+      for(let i=0;i<36;i++){
+        const a = i*.71;
+        const r = Math.min(w,h)*(.12 + (i%9)*.018);
+        ctx.beginPath();
+        ctx.arc(cx+Math.cos(a)*r,cy+Math.sin(a*1.31)*r*.78,2+(i%3),0,Math.PI*2);
+        ctx.fill();
+      }
+      drawLabel(ctx,cx-130,cy-92,"AMYLOID / TAU RISK LAYER");
+    }
+
+    ctx.strokeStyle = "rgba(238,245,243,.26)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();ctx.arc(cx,cy,Math.min(w,h)*.11,0,Math.PI*2);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cx-70,cy);ctx.lineTo(cx+70,cy);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cx,cy-58);ctx.lineTo(cx,cy+58);ctx.stroke();
+    ctx.fillStyle = "rgba(238,245,243,.7)";
     ctx.font = "10px Space Mono";
-    ctx.fillText("SYNC " + site.sync.toFixed(2), cx + 44, cy - 42);
+    ctx.fillText("AD PATTERN " + sites[activeSite].confidence.toFixed(2), cx + 44, cy - 42);
     ctx.restore();
   }
 
   function drawMatrix(){
     const {ctx,w,h} = prepCanvas($("matrix"));
     ctx.clearRect(0,0,w,h);
-    const n = 18, gap = Math.min(w,h)/(n+2), ox = (w-gap*n)/2, oy = (h-gap*n)/2;
-    ctx.font = "7px Space Mono";
+    const labels = ["HIP","ENT","TMP","PAR","PCC","FRO","CSF","WM"];
+    const n = 16, gap = Math.min(w,h)/(n+2), ox = (w-gap*n)/2, oy = (h-gap*n)/2;
     for(let y=0;y<n;y++){
       for(let x=0;x<n;x++){
-        const v = (Math.sin(x*1.7+y*2.1)+1)/2;
-        const linked = Math.abs(x-y)<2 || (x*y)%11===0;
-        ctx.fillStyle = linked ? `rgba(105,255,240,${.12+v*.52})` : `rgba(242,247,245,${.035+v*.06})`;
+        const dist = Math.abs(x-y);
+        const v = dist < 2 ? .55 : ((x*y)%9===0 ? .34 : .08);
+        ctx.fillStyle = `rgba(238,245,243,${v})`;
+        if((x+y)%7===0) ctx.fillStyle = `rgba(143,196,255,${v*.9})`;
         ctx.fillRect(ox+x*gap, oy+y*gap, gap*.56, gap*.56);
       }
     }
-    ctx.strokeStyle = "rgba(255,181,71,.6)";
-    ctx.lineWidth = 1;
-    for(let i=0;i<7;i++){
-      ctx.beginPath();
-      ctx.moveTo(ox + i*gap*2.4, oy + h*.08);
-      ctx.lineTo(ox + w*.68, oy + i*gap*2.1);
-      ctx.stroke();
-    }
+    ctx.fillStyle = "rgba(238,245,243,.58)";
+    ctx.font = "7px Space Mono";
+    labels.forEach((label,i) => ctx.fillText(label, ox+i*gap*2, oy-7));
   }
 
   function drawWave(t){
     const {ctx,w,h} = prepCanvas($("wave"));
     ctx.clearRect(0,0,w,h);
-    ctx.strokeStyle = "rgba(242,247,245,.16)";
+    ctx.strokeStyle = "rgba(238,245,243,.13)";
     ctx.lineWidth = 1;
-    for(let i=0;i<7;i++){ctx.beginPath();ctx.moveTo(0,i*h/6);ctx.lineTo(w,i*h/6);ctx.stroke()}
-    ctx.strokeStyle = "rgba(105,255,240,.75)";
-    ctx.lineWidth = 1.4;
+    for(let i=0;i<6;i++){ctx.beginPath();ctx.moveTo(0,i*h/5);ctx.lineTo(w,i*h/5);ctx.stroke()}
+    ctx.strokeStyle = "rgba(238,245,243,.68)";
+    ctx.lineWidth = 1.2;
     ctx.beginPath();
     for(let x=0;x<w;x++){
-      const y = h*.5 + Math.sin(x*.03+t*.004)*13 + Math.sin(x*.11+t*.002)*4;
+      const y = h*.5 + Math.sin(x*.035+t*.003)*9 + Math.sin(x*.13+t*.0016)*3;
       if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
     }
     ctx.stroke();
-    ctx.strokeStyle = "rgba(255,181,71,.55)";
+    ctx.strokeStyle = "rgba(143,196,255,.42)";
     ctx.beginPath();
-    for(let x=0;x<w;x+=18){
-      const y = h*.5 + Math.sin(x*.06+t*.003)*19;
-      ctx.moveTo(x,y-6);ctx.lineTo(x,y+6);
+    for(let x=0;x<w;x+=22){
+      const y = h*.5 + Math.sin(x*.05+t*.002)*14;
+      ctx.moveTo(x,y-5);ctx.lineTo(x,y+5);
     }
     ctx.stroke();
   }
@@ -470,15 +512,15 @@
   function loop(t){
     drawScan(t);
     drawWave(t);
-    if(Math.floor(t/7000)!==loop.last){
-      loop.last = Math.floor(t/7000);
-      addLog("slice packet " + String(120 + loop.last%41).padStart(3,"0") + " integrated", "ACQ");
+    if(Math.floor(t/8000)!==loop.last){
+      loop.last = Math.floor(t/8000);
+      addLog("atrophy model packet " + String(40 + loop.last%29).padStart(3,"0") + " refreshed", "MODEL");
     }
     requestAnimationFrame(loop);
   }
 
   renderControls();
-  setSite("thalamic");
+  setSite("hippocampal");
   drawMatrix();
   tickClock();
   setInterval(tickClock,1000);
