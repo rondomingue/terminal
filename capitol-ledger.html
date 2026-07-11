@@ -636,7 +636,9 @@ function renderSelected(){
 
 function renderFlow(rows){
   const svg = document.getElementById('flow');
-  const topY = 128, midY = 536, bottomY = 936, left = 68, right = 1050;
+  const topY = 104, midY = 446, bottomY = 790, left = 56, right = 1064;
+  const upperSpan = midY - topY;
+  const lowerSpan = bottomY - midY;
   const ordered = rows.filter(d=>d.owner !== 'Entity' && d.assetObj.sector !== 'Index').sort((a,b)=>b.mid-a.mid);
   const people = [...new Set(ordered.map(d=>d.politician))];
   const sectors = [...new Set(ordered.map(d=>d.assetObj.sector))];
@@ -682,8 +684,8 @@ function renderFlow(rows){
     const opacity = d.gain >= 0 ? .31 : .22;
     html += `<line x1="${xStart}" y1="${topY+5}" x2="${xStart}" y2="${dateY-8}" stroke="${color}" stroke-width=".45" opacity=".24"/>`;
     html += `<text x="${xStart}" y="${dateY}" text-anchor="middle" class="flow-date" fill="${color}" opacity=".58">${dateLabel}</text>`;
-    html += `<path class="thread" pathLength="1" style="animation-delay:${Math.min(i*.018,.35)}s" d="M${xStart} ${topY} C${xStart} ${topY+176+ownerOffset}, ${xMid} ${midY-150}, ${xMid} ${midY}" stroke="${color}" stroke-width="0.6" opacity=".22"/>`;
-    html += `<path class="ribbon" pathLength="1" style="animation-delay:${Math.min(i*.024,.42)}s" data-id="${d.id}" d="M${xStart} ${topY} C${xStart} ${topY+252+ownerOffset}, ${xMid} ${midY-232}, ${xMid} ${midY} S${xEnd} ${bottomY-218}, ${xEnd} ${bottomY}" stroke="${color}" stroke-width="${w}" opacity="${Math.min(.44, opacity+.08)}"/>`;
+    html += `<path class="thread" pathLength="1" style="animation-delay:${Math.min(i*.018,.35)}s" d="M${xStart} ${topY} C${xStart} ${topY+upperSpan*.52+ownerOffset}, ${xMid} ${midY-upperSpan*.38}, ${xMid} ${midY}" stroke="${color}" stroke-width="0.6" opacity=".22"/>`;
+    html += `<path class="ribbon" pathLength="1" style="animation-delay:${Math.min(i*.024,.42)}s" data-id="${d.id}" d="M${xStart} ${topY} C${xStart} ${topY+upperSpan*.68+ownerOffset}, ${xMid} ${midY-upperSpan*.56}, ${xMid} ${midY} S${xEnd} ${bottomY-lowerSpan*.55}, ${xEnd} ${bottomY}" stroke="${color}" stroke-width="${w}" opacity="${Math.min(.44, opacity+.08)}"/>`;
     html += `<rect class="node-dot" data-id="${d.id}" x="${xStart-4}" y="${topY-4}" width="8" height="8" fill="${color}" opacity=".78"/>`;
     html += `<circle class="thread-dot" cx="${xMid}" cy="${midY}" r="${Math.max(2,Math.min(4.3,w/2.4))}" fill="${color}" opacity=".68"/>`;
     html += `<circle class="node-dot" data-id="${d.id}" cx="${xEnd}" cy="${bottomY}" r="${Math.max(2.8,w/1.7)}" fill="${color}" opacity=".82"/>`;
