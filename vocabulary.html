@@ -562,10 +562,12 @@ async function renderDailyWord(){
   $('daily-trivia').textContent=entry.trivia;
 }
 function estimate(){
-  const answered=Math.max(1,state.answers.length);
-  const weighted=state.answers.reduce((sum,a)=>sum+(a.correct?(a.level*900+1800):0),0)/answered;
-  const base=Math.round((weighted+state.correct*310)/250)*250;
-  return Math.max(2500,Math.min(82000,base));
+  const earned=state.answers.reduce((sum,a)=>sum+(a.correct?a.level:0),0);
+  const possible=state.answers.reduce((sum,a)=>sum+a.level,0)||1;
+  const mastery=earned/possible;
+  const floor=6000,ceiling=40000;
+  const base=floor+mastery*(ceiling-floor);
+  return Math.round(base/250)*250;
 }
 function passiveEstimate(active){
   const answered=Math.max(1,state.answers.length);
@@ -573,22 +575,26 @@ function passiveEstimate(active){
   const hardCorrect=state.answers.filter(a=>a.correct&&a.level>=4).length;
   const hardSeen=Math.max(1,state.answers.filter(a=>a.level>=4).length);
   const hardRatio=hardCorrect/hardSeen;
-  const multiplier=1.45+(accuracy*.32)+(hardRatio*.28);
-  return Math.round(Math.min(120000,active*multiplier)/250)*250;
+  const multiplier=1.3+(accuracy*.25)+(hardRatio*.2);
+  return Math.round(Math.min(58000,active*multiplier)/250)*250;
 }
 function vocabularyBand(active){
-  if(active>=18000) return {label:'Elite',detail:'18,000+ active words',index:3};
-  if(active>=9000) return {label:'Exemplary',detail:'9,000-17,999 active words',index:2};
-  if(active>=4500) return {label:'Developing',detail:'4,500-8,999 active words',index:1};
-  return {label:'Below average',detail:'Under 4,500 active words',index:0};
+  if(active>=36000) return {label:'Exceptional',detail:'36,000+ active words',index:5};
+  if(active>=29000) return {label:'Extensive',detail:'29,000-35,999 active words',index:4};
+  if(active>=22000) return {label:'Advanced',detail:'22,000-28,999 active words',index:3};
+  if(active>=15000) return {label:'Proficient',detail:'15,000-21,999 active words',index:2};
+  if(active>=9000) return {label:'Developing',detail:'9,000-14,999 active words',index:1};
+  return {label:'Building',detail:'Under 9,000 active words',index:0};
 }
 function renderRangeGuide(active){
   const band=vocabularyBand(active);
   const ranges=[
-    ['Below average','Under 4,500','core recognition needs reinforcement'],
-    ['Developing','4,500-8,999','functional, still building range'],
-    ['Exemplary','9,000-17,999','above average literate range'],
-    ['Elite','18,000+','exceptionally broad command']
+    ['Building','Under 9,000','core vocabulary still forming'],
+    ['Developing','9,000-14,999','functional everyday range, expanding'],
+    ['Proficient','15,000-21,999','typical educated-adult range'],
+    ['Advanced','22,000-28,999','well-read, handles dense prose easily'],
+    ['Extensive','29,000-35,999','unusually broad, near-professional range'],
+    ['Exceptional','36,000+','rare even among widely read adults']
   ];
   $('range-guide').innerHTML=ranges.map((range,i)=>`<div class="range-item ${i===band.index?'active':''}"><b>${range[0]}</b><span>${range[1]}</span><br><span>${range[2]}</span></div>`).join('');
   return band;
