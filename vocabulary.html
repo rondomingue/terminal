@@ -585,12 +585,12 @@ function renderQuestion(){
   $('q-num').textContent=String(state.index+1).padStart(2,'0');
   $('q-total').textContent=`/${state.quiz.length}`;
   $('meter').style.width=`${(state.index/state.quiz.length)*100}%`;
-  $('level-label').textContent=`${LEVELS[word[7]-1]} vocabulary`;
+  $('level-label').textContent=`${LEVELS[word.level-1]} vocabulary`;
   $('score-label').textContent=`${state.correct} correct`;
-  document.documentElement.style.setProperty('--word-weight',[300,400,450,500,600][word[7]-1]);
-  $('word').className=`word ${word[0].length>20?'word-xlong':word[0].length>13?'word-long word-single':'word-single'}`;
-  $('word').innerHTML=displayWord(word[0]);
-  $('pronounce').textContent=`${word[1]} / ${word[2]}`;
+  document.documentElement.style.setProperty('--word-weight',[300,400,450,500,600][word.level-1]);
+  $('word').className=`word ${word.word.length>20?'word-xlong':word.word.length>13?'word-long word-single':'word-single'}`;
+  $('word').innerHTML=displayWord(word.word);
+  $('pronounce').textContent=`${word.phonetic} / ${word.pos}`;
   $('answers').innerHTML=optionSet(word).map(o=>`<button class="answer" data-correct="${o.correct}"><b>${o.letter}</b><span>${o.text}</span></button>`).join('');
   $('note').innerHTML=`<button class="next" id="next">Next word</button><div class="note-copy"><b>After you answer</b><span>Each word reveals its origin, useful neighbors, and a clean antonym.</span></div>`;
   document.querySelectorAll('.answer').forEach(btn=>btn.onclick=()=>answer(btn,word));
@@ -603,7 +603,7 @@ function answer(btn,word){
   state.answered=true;
   const correct=btn.dataset.correct==='true';
   if(correct) state.correct++;
-  state.answers.push({word:word[0],definition:word[3],level:word[7],correct});
+  state.answers.push({word:word.word,definition:word.definition,level:word.level,correct});
   state.seen.push(word);
   document.querySelectorAll('.answer').forEach(b=>{
     b.disabled=true;
