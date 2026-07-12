@@ -42,6 +42,7 @@
         radial-gradient(circle at 18% 78%, rgba(125, 154, 54, 0.08), transparent 32rem),
         linear-gradient(120deg, #020807, #061412 42%, #0b211e);
       overflow-x: hidden;
+      perspective: 1800px;
     }
 
     body::before,
@@ -73,6 +74,26 @@
 
     a { color: inherit; }
 
+    .depth-field,
+    .depth-vignette {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .depth-field {
+      opacity: 0.5;
+      mix-blend-mode: screen;
+    }
+
+    .depth-vignette {
+      background:
+        radial-gradient(circle at calc(50% + var(--depth-light-x, 0px)) calc(42% + var(--depth-light-y, 0px)), rgba(85, 229, 215, 0.11), transparent 34rem),
+        radial-gradient(circle at 50% 50%, transparent 0 46%, rgba(0, 0, 0, 0.34) 78%, rgba(0,0,0,0.72) 100%);
+      opacity: 0.88;
+    }
+
     .report-shell {
       position: relative;
       z-index: 1;
@@ -81,6 +102,34 @@
       border: 1px solid var(--line);
       background: linear-gradient(180deg, rgba(4, 20, 18, 0.74), rgba(3, 10, 9, 0.96));
       box-shadow: 0 0 80px rgba(0, 0, 0, 0.72), inset 0 0 0 1px rgba(255,255,255,0.03);
+      transform-style: preserve-3d;
+    }
+
+    .depth-surface {
+      transform:
+        translate3d(var(--depth-x, 0px), var(--depth-y, 0px), var(--depth-z, 0px))
+        rotateX(var(--depth-rx, 0deg))
+        rotateY(var(--depth-ry, 0deg));
+      transform-style: preserve-3d;
+      will-change: transform, filter;
+      transition:
+        transform 700ms cubic-bezier(0.16, 1, 0.3, 1),
+        filter 700ms cubic-bezier(0.16, 1, 0.3, 1);
+      filter: blur(var(--depth-blur, 0px));
+    }
+
+    .depth-surface:hover {
+      transform:
+        translate3d(var(--depth-x, 0px), var(--depth-y, 0px), calc(var(--depth-z, 0px) + 14px))
+        rotateX(var(--depth-rx, 0deg))
+        rotateY(var(--depth-ry, 0deg));
+    }
+
+    .report-shell.depth-ready .topbar,
+    .report-shell.depth-ready .hero,
+    .report-shell.depth-ready .panel,
+    .report-shell.depth-ready .side-card {
+      backdrop-filter: blur(8px);
     }
 
     .topbar {
@@ -856,6 +905,10 @@
     }
 
     @media (max-width: 760px) {
+      .depth-field {
+        opacity: 0.32;
+      }
+
       .report-shell {
         width: calc(100vw - 20px);
         margin: 10px auto 40px;
@@ -912,9 +965,25 @@
         height: 470px;
       }
     }
+
+    @media (prefers-reduced-motion: reduce) {
+      .depth-field {
+        display: none;
+      }
+
+      .depth-surface,
+      .depth-surface:hover {
+        transform: none !important;
+        transition: none !important;
+        filter: none !important;
+      }
+    }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 </head>
 <body>
+  <canvas id="depthField" class="depth-field" aria-hidden="true"></canvas>
+  <div class="depth-vignette" aria-hidden="true"></div>
   <div class="report-shell">
     <header class="topbar">
       <div class="identity">
@@ -1329,11 +1398,152 @@
       });
     }
 
-    renderStockNetwork();
+    function initDepthSystem() {
+      const shell = document.querySelector(".report-shell");
+      const canvas = document.getElementById("depthField");
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const surfaces = Array.from(document.querySelectorAll(".topbar, .nav-strip, .ticker, .hero, .side-card, .panel, .footer"));
+
+      surfaces.forEach((surface, index) => {
+        const depth = 4 + (index % 7) * 2.2;
+        surface.classList.add("depth-surface");
+        surface.dataset.depth = depth.toFixed(2);
+        surface.style.setProperty("--depth-z", `${(index % 5) * 4}px`);
+        surface.style.setProperty("--depth-blur", `${Math.max(0, (index % 4) * 0.08)}px`);
+      });
+
+      const applyPointerDepth = (event) => {
+        const nx = (event.clientX / window.innerWidth) - 0.5;
+        const ny = (event.clientY / window.innerHeight) - 0.5;
+        document.documentElement.style.setProperty("--depth-light-x", `${nx * 80}px`);
+        document.documentElement.style.setProperty("--depth-light-y", `${ny * 56}px`);
+
+        surfaces.forEach((surface) => {
+          const depth = Number(surface.dataset.depth || 6);
+          surface.style.setProperty("--depth-x", `${(nx * depth).toFixed(2)}px`);
+          surface.style.setProperty("--depth-y", `${(ny * depth * 0.55).toFixed(2)}px`);
+          surface.style.setProperty("--depth-rx", `${(-ny * 0.55).toFixed(3)}deg`);
+          surface.style.setProperty("--depth-ry", `${(nx * 0.75).toFixed(3)}deg`);
+        });
+      };
+
+      window.addEventListener("pointermove", applyPointerDepth, { passive: true });
+
+      if (reducedMotion || !canvas || !window.THREE) {
+        shell.classList.add("depth-ready");
+        return;
+      }
+
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.6));
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
+      camera.position.set(0, 0, 9);
+
+      const group = new THREE.Group();
+      scene.add(group);
+
+      const particleCount = 520;
+      const particlePositions = new Float32Array(particleCount * 3);
+      for (let i = 0; i < particleCount; i += 1) {
+        const spread = i % 5 === 0 ? 14 : 9;
+        particlePositions[i * 3] = (Math.random() - 0.5) * spread;
+        particlePositions[i * 3 + 1] = (Math.random() - 0.5) * 8;
+        particlePositions[i * 3 + 2] = (Math.random() - 0.5) * 8;
+      }
+      const particleGeometry = new THREE.BufferGeometry();
+      particleGeometry.setAttribute("position", new THREE.BufferAttribute(particlePositions, 3));
+      const particles = new THREE.Points(
+        particleGeometry,
+        new THREE.PointsMaterial({
+          color: 0x74fff0,
+          size: 0.018,
+          transparent: true,
+          opacity: 0.42,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false
+        })
+      );
+      group.add(particles);
+
+      const linePositions = [];
+      for (let z = -3; z <= 3; z += 1.5) {
+        for (let x = -7; x <= 7; x += 1.4) {
+          linePositions.push(x, -4, z, x, 4, z);
+        }
+        for (let y = -4; y <= 4; y += 1.2) {
+          linePositions.push(-7, y, z, 7, y, z);
+        }
+      }
+      const lineGeometry = new THREE.BufferGeometry();
+      lineGeometry.setAttribute("position", new THREE.Float32BufferAttribute(linePositions, 3));
+      const lineMesh = new THREE.LineSegments(
+        lineGeometry,
+        new THREE.LineBasicMaterial({
+          color: 0x55e5d7,
+          transparent: true,
+          opacity: 0.055,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false
+        })
+      );
+      group.add(lineMesh);
+
+      const plates = new THREE.Group();
+      for (let i = 0; i < 14; i += 1) {
+        const geometry = new THREE.PlaneGeometry(0.9 + Math.random() * 2.2, 0.18 + Math.random() * 0.52);
+        const material = new THREE.MeshBasicMaterial({
+          color: i % 4 === 0 ? 0xc7a75a : 0x55e5d7,
+          transparent: true,
+          opacity: i % 4 === 0 ? 0.05 : 0.035,
+          depthWrite: false,
+          side: THREE.DoubleSide
+        });
+        const plate = new THREE.Mesh(geometry, material);
+        plate.position.set((Math.random() - 0.5) * 11, (Math.random() - 0.5) * 6, -3.2 + Math.random() * 6);
+        plate.rotation.set((Math.random() - 0.5) * 0.4, (Math.random() - 0.5) * 0.7, (Math.random() - 0.5) * 0.25);
+        plates.add(plate);
+      }
+      group.add(plates);
+
+      let targetX = 0;
+      let targetY = 0;
+      window.addEventListener("pointermove", (event) => {
+        targetX = (event.clientX / window.innerWidth) - 0.5;
+        targetY = (event.clientY / window.innerHeight) - 0.5;
+      }, { passive: true });
+
+      const resizeDepth = () => {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        renderer.setSize(width, height, false);
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+      };
+
+      const animateDepth = () => {
+        group.rotation.x += ((targetY * 0.08) - group.rotation.x) * 0.025;
+        group.rotation.y += ((targetX * 0.12) - group.rotation.y) * 0.025;
+        particles.rotation.z += 0.00045;
+        lineMesh.rotation.z -= 0.00018;
+        plates.children.forEach((plate, index) => {
+          plate.position.x += Math.sin(Date.now() * 0.00018 + index) * 0.0007;
+        });
+        renderer.render(scene, camera);
+        requestAnimationFrame(animateDepth);
+      };
+
+      resizeDepth();
+      window.addEventListener("resize", resizeDepth, { passive: true });
+      shell.classList.add("depth-ready");
+      animateDepth();
+    }
+
+    initDepthSystem();
+    renderEquityRows();
     bindNav();
     drawThreads();
     window.addEventListener("resize", () => {
-      renderStockNetwork();
       drawThreads();
     });
   </script>
