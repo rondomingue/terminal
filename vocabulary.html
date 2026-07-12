@@ -696,9 +696,12 @@ $('theme').onclick=()=>{
 };
 $('restart').onclick=restart;
 $('again').onclick=restart;
-state.quiz=buildQuiz();
-renderQuestion();
-renderDailyWord();
+(async function init(){
+  await loadWordBank();
+  state.quiz=buildQuiz();
+  renderQuestion();
+  renderDailyWord();
+})();
 </script>
 </body>
 </html>
