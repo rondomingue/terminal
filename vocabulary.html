@@ -161,7 +161,7 @@
   .icon-btn{display:inline-flex;align-items:center;gap:8px}
   .social-icon{width:14px;height:14px;display:block;stroke:currentColor;fill:none;stroke-width:1.8}
   .social-icon.fill{fill:currentColor;stroke:none}
-  .side{display:grid;grid-template-rows:auto auto minmax(0,1fr);gap:18px;min-height:0;align-content:start}
+  .side{display:grid;grid-template-rows:auto minmax(0,1fr);gap:18px;min-height:0;align-content:start}
   .side-card{padding:20px}
   .daily-card{display:grid;gap:12px;align-content:start;align-self:start}
   .daily-word{font-family:var(--serif);font-size:clamp(34px,3.4vw,50px);line-height:.96;color:var(--accent);font-weight:400;letter-spacing:-.025em;overflow-wrap:anywhere}
@@ -184,6 +184,23 @@
   .tip-row{border-top:1px solid var(--line);padding-top:10px;display:grid;grid-template-columns:22px 1fr;gap:10px}
   .tip-row b{font-family:var(--serif);font-size:20px;line-height:1.1;color:var(--accent);font-weight:400}
   .tip-row span{font-size:14px;line-height:1.45;color:var(--ink-2)}
+  .intro-modal{
+    display:none;position:fixed;inset:0;z-index:50;align-items:center;justify-content:center;
+    background:rgba(10,8,6,.6);padding:24px;
+  }
+  .intro-modal.show{display:flex}
+  .intro-card{
+    position:relative;max-width:520px;width:100%;max-height:calc(100vh - 48px);overflow:auto;
+    background:var(--sheet);border:1px solid var(--line);box-shadow:var(--shadow);border-radius:3px;padding:36px;
+  }
+  .intro-close{
+    position:absolute;top:16px;right:16px;width:30px;height:30px;display:grid;place-items:center;
+    border:1px solid var(--line);border-radius:3px;color:var(--muted);font-size:16px;line-height:1;
+  }
+  .intro-close:hover{border-color:var(--accent);color:var(--accent)}
+  .intro-title{font-family:var(--serif);font-weight:400;font-size:clamp(28px,4vw,36px);line-height:1.05;letter-spacing:-.02em;color:var(--ink);margin:10px 0 20px}
+  .intro-card .tip-list{margin-top:0}
+  .intro-start{margin-top:26px;width:100%}
   .library{min-height:0;max-height:360px;overflow:auto}
   .library-list{display:grid;gap:12px;margin-top:14px}
   .library-item{border-top:1px solid var(--line);padding-top:10px}
@@ -336,15 +353,6 @@
         <p id="daily-definition">A small vocabulary note changes each day.</p>
         <p class="trivia" id="daily-trivia">Trivia loads from the local word bank by default, with Wordnik API support available when an API key is configured.</p>
       </article>
-      <article class="side-card tips-card">
-        <div class="kicker">Building your vocabulary</div>
-        <div class="tip-list">
-          <div class="tip-row"><b>1</b><span>Read one register above comfortable. Dense essays and older fiction surface words that frequency lists miss entirely.</span></div>
-          <div class="tip-row"><b>2</b><span>Learn roots, not isolated words. Most entries here trace a Latin or Greek root, and one root often unlocks four or five relatives.</span></div>
-          <div class="tip-row"><b>3</b><span>Use a new word within 48 hours of meeting it. Passive recognition only becomes active recall through deliberate use.</span></div>
-          <div class="tip-row"><b>4</b><span>Revisit your misses. The words you get wrong in a quiz are the highest-leverage material to restudy first.</span></div>
-        </div>
-      </article>
       <article class="side-card library">
         <div class="kicker">Recently studied</div>
         <div class="library-list" id="library-list"></div>
@@ -352,6 +360,21 @@
     </aside>
   </section>
 </main>
+
+<div class="intro-modal" id="intro-modal">
+  <div class="intro-card">
+    <button class="intro-close" id="intro-close" aria-label="Close">×</button>
+    <div class="kicker">Welcome to Lexicon</div>
+    <h2 class="intro-title">Building your vocabulary</h2>
+    <div class="tip-list">
+      <div class="tip-row"><b>1</b><span>Read one register above comfortable. Dense essays and older fiction surface words that frequency lists miss entirely.</span></div>
+      <div class="tip-row"><b>2</b><span>Learn roots, not isolated words. Most entries here trace a Latin or Greek root, and one root often unlocks four or five relatives.</span></div>
+      <div class="tip-row"><b>3</b><span>Use a new word within 48 hours of meeting it. Passive recognition only becomes active recall through deliberate use.</span></div>
+      <div class="tip-row"><b>4</b><span>Revisit your misses. The words you get wrong in a quiz are the highest-leverage material to restudy first.</span></div>
+    </div>
+    <button class="next intro-start" id="intro-start">Start the quiz</button>
+  </div>
+</div>
 
 <section class="results" id="results">
   <div>
@@ -697,11 +720,25 @@ $('theme').onclick=()=>{
 };
 $('restart').onclick=restart;
 $('again').onclick=restart;
+function dismissIntro(){
+  $('intro-modal').classList.remove('show');
+  try{ localStorage.setItem('lexicon-intro-seen','1'); }catch(e){}
+}
+function showIntroIfFirstVisit(){
+  let seen=true;
+  try{ seen=!!localStorage.getItem('lexicon-intro-seen'); }catch(e){}
+  if(!seen) $('intro-modal').classList.add('show');
+}
+$('intro-close').onclick=dismissIntro;
+$('intro-start').onclick=dismissIntro;
+$('intro-modal').addEventListener('click',e=>{ if(e.target.id==='intro-modal') dismissIntro(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') dismissIntro(); });
 (async function init(){
   await loadWordBank();
   state.quiz=buildQuiz();
   renderQuestion();
   renderDailyWord();
+  showIntroIfFirstVisit();
 })();
 </script>
 </body>
