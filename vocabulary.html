@@ -611,7 +611,7 @@ function answer(btn,word){
     else if(b===btn) b.classList.add('wrong');
   });
   $('score-label').textContent=`${state.correct} correct`;
-  $('note').innerHTML=`<button class="next" id="next">${state.index===state.quiz.length-1?'View results':'Next word'}</button><div class="note-copy"><b>${correct?'Correct':'Study note'}</b><span><strong>${escapeHtml(word[0])}</strong>: ${escapeHtml(word[3])}</span><span>Usage: “${escapeHtml(usageSentence(word))}”</span><span>Etymology: ${escapeHtml(word[4])}. Neighbors: ${escapeHtml(word[5])}. Antonym: ${escapeHtml(word[6])}.</span></div>`;
+  $('note').innerHTML=`<button class="next" id="next">${state.index===state.quiz.length-1?'View results':'Next word'}</button><div class="note-copy"><b>${correct?'Correct':'Study note'}</b><span><strong>${escapeHtml(word.word)}</strong>: ${escapeHtml(word.definition)}</span><span>Usage: “${escapeHtml(usageSentence(word))}”</span><span>Etymology: ${escapeHtml(word.etymology)}. Neighbors: ${escapeHtml(word.synonyms)}. Antonym: ${escapeHtml(word.antonym)}.</span></div>`;
   $('next').onclick=next;
   renderTiers();renderLibrary();
   $('live-estimate').textContent=`${estimate().toLocaleString()} words, provisional.`;
