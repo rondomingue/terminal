@@ -83,8 +83,9 @@
     }
 
     .depth-field {
-      opacity: 0.5;
+      opacity: 0.34;
       mix-blend-mode: screen;
+      filter: blur(0.4px);
     }
 
     .depth-vignette {
@@ -106,10 +107,10 @@
     }
 
     .depth-surface {
+      position: relative;
       transform:
         translate3d(var(--depth-x, 0px), var(--depth-y, 0px), var(--depth-z, 0px))
-        rotateX(var(--depth-rx, 0deg))
-        rotateY(var(--depth-ry, 0deg));
+        scale(var(--depth-scale, 1));
       transform-style: preserve-3d;
       will-change: transform, filter;
       transition:
@@ -120,9 +121,8 @@
 
     .depth-surface:hover {
       transform:
-        translate3d(var(--depth-x, 0px), var(--depth-y, 0px), calc(var(--depth-z, 0px) + 14px))
-        rotateX(var(--depth-rx, 0deg))
-        rotateY(var(--depth-ry, 0deg));
+        translate3d(var(--depth-x, 0px), var(--depth-y, 0px), calc(var(--depth-z, 0px) + 6px))
+        scale(var(--depth-scale, 1));
     }
 
     .report-shell.depth-ready .topbar,
@@ -130,6 +130,35 @@
     .report-shell.depth-ready .panel,
     .report-shell.depth-ready .side-card {
       backdrop-filter: blur(8px);
+    }
+
+    .report-shell.depth-ready .topbar {
+      z-index: 7;
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.42);
+    }
+
+    .report-shell.depth-ready .nav-strip {
+      z-index: 8;
+      box-shadow: 0 18px 54px rgba(0, 0, 0, 0.36);
+    }
+
+    .report-shell.depth-ready .hero {
+      z-index: 4;
+      margin-top: -8px;
+      box-shadow: 0 36px 120px rgba(0, 0, 0, 0.55);
+    }
+
+    .report-shell.depth-ready .main-grid,
+    .report-shell.depth-ready .classified {
+      position: relative;
+      z-index: 6;
+      margin-top: -24px;
+      box-shadow: 0 -18px 70px rgba(0, 0, 0, 0.42);
+    }
+
+    .report-shell.depth-ready .panel,
+    .report-shell.depth-ready .side-card {
+      box-shadow: 0 18px 54px rgba(0, 0, 0, 0.32), inset 0 0 0 1px rgba(255,255,255,0.018);
     }
 
     .topbar {
@@ -1407,26 +1436,22 @@
       const surfaces = Array.from(document.querySelectorAll(".topbar, .nav-strip, .ticker, .hero, .side-card, .panel, .footer"));
 
       surfaces.forEach((surface, index) => {
-        const depth = 4 + (index % 7) * 2.2;
+        const depth = index % 6;
+        const offsetPattern = [-3, 2, -1, 3, -2, 1];
         surface.classList.add("depth-surface");
         surface.dataset.depth = depth.toFixed(2);
-        surface.style.setProperty("--depth-z", `${(index % 5) * 4}px`);
-        surface.style.setProperty("--depth-blur", `${Math.max(0, (index % 4) * 0.08)}px`);
+        surface.style.setProperty("--depth-x", `${offsetPattern[index % offsetPattern.length]}px`);
+        surface.style.setProperty("--depth-y", `${depth * -1.35}px`);
+        surface.style.setProperty("--depth-z", `${depth * 7}px`);
+        surface.style.setProperty("--depth-scale", `${1 + depth * 0.0018}`);
+        surface.style.setProperty("--depth-blur", `${Math.max(0, depth * 0.055)}px`);
       });
 
       const applyPointerDepth = (event) => {
         const nx = (event.clientX / window.innerWidth) - 0.5;
         const ny = (event.clientY / window.innerHeight) - 0.5;
-        document.documentElement.style.setProperty("--depth-light-x", `${nx * 80}px`);
-        document.documentElement.style.setProperty("--depth-light-y", `${ny * 56}px`);
-
-        surfaces.forEach((surface) => {
-          const depth = Number(surface.dataset.depth || 6);
-          surface.style.setProperty("--depth-x", `${(nx * depth).toFixed(2)}px`);
-          surface.style.setProperty("--depth-y", `${(ny * depth * 0.55).toFixed(2)}px`);
-          surface.style.setProperty("--depth-rx", `${(-ny * 0.55).toFixed(3)}deg`);
-          surface.style.setProperty("--depth-ry", `${(nx * 0.75).toFixed(3)}deg`);
-        });
+        document.documentElement.style.setProperty("--depth-light-x", `${nx * 28}px`);
+        document.documentElement.style.setProperty("--depth-light-y", `${ny * 18}px`);
       };
 
       window.addEventListener("pointermove", applyPointerDepth, { passive: true });
@@ -1524,12 +1549,12 @@
       };
 
       const animateDepth = () => {
-        group.rotation.x += ((targetY * 0.08) - group.rotation.x) * 0.025;
-        group.rotation.y += ((targetX * 0.12) - group.rotation.y) * 0.025;
-        particles.rotation.z += 0.00045;
-        lineMesh.rotation.z -= 0.00018;
+        group.rotation.x += ((targetY * 0.018) - group.rotation.x) * 0.018;
+        group.rotation.y += ((targetX * 0.025) - group.rotation.y) * 0.018;
+        particles.rotation.z += 0.0002;
+        lineMesh.rotation.z -= 0.00008;
         plates.children.forEach((plate, index) => {
-          plate.position.x += Math.sin(Date.now() * 0.00018 + index) * 0.0007;
+          plate.position.x += Math.sin(Date.now() * 0.00012 + index) * 0.00028;
         });
         renderer.render(scene, camera);
         requestAnimationFrame(animateDepth);
