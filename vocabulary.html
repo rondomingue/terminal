@@ -160,7 +160,7 @@
   .icon-btn{display:inline-flex;align-items:center;gap:8px}
   .social-icon{width:14px;height:14px;display:block;stroke:currentColor;fill:none;stroke-width:1.8}
   .social-icon.fill{fill:currentColor;stroke:none}
-  .side{display:grid;grid-template-rows:auto minmax(0,1fr);gap:18px;min-height:0;align-content:start}
+  .side{display:grid;grid-template-rows:auto auto minmax(0,1fr);gap:18px;min-height:0;align-content:start}
   .side-card{padding:20px}
   .daily-card{display:grid;gap:12px;align-content:start;align-self:start}
   .daily-word{font-family:var(--serif);font-size:clamp(34px,3.4vw,50px);line-height:.96;color:var(--accent);font-weight:400;letter-spacing:-.025em;overflow-wrap:anywhere}
@@ -179,6 +179,10 @@
   .type-meta div{display:grid;gap:2px}
   .type-meta b{font-family:var(--sans);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:600}
   .type-meta span{font-size:13px;line-height:1.35;color:var(--muted)}
+  .tip-list{display:grid;gap:12px;margin-top:14px}
+  .tip-row{border-top:1px solid var(--line);padding-top:10px;display:grid;grid-template-columns:22px 1fr;gap:10px}
+  .tip-row b{font-family:var(--serif);font-size:20px;line-height:1.1;color:var(--accent);font-weight:400}
+  .tip-row span{font-size:14px;line-height:1.45;color:var(--ink-2)}
   .library{min-height:0;overflow:auto}
   .library-list{display:grid;gap:12px;margin-top:14px}
   .library-item{border-top:1px solid var(--line);padding-top:10px}
@@ -330,6 +334,15 @@
         <p id="daily-definition">A small vocabulary note changes each day.</p>
         <p class="trivia" id="daily-trivia">Trivia loads from the local word bank by default, with Wordnik API support available when an API key is configured.</p>
       </article>
+      <article class="side-card tips-card">
+        <div class="kicker">Building your vocabulary</div>
+        <div class="tip-list">
+          <div class="tip-row"><b>1</b><span>Read one register above comfortable. Dense essays and older fiction surface words that frequency lists miss entirely.</span></div>
+          <div class="tip-row"><b>2</b><span>Learn roots, not isolated words. Most entries here trace a Latin or Greek root, and one root often unlocks four or five relatives.</span></div>
+          <div class="tip-row"><b>3</b><span>Use a new word within 48 hours of meeting it. Passive recognition only becomes active recall through deliberate use.</span></div>
+          <div class="tip-row"><b>4</b><span>Revisit your misses. The words you get wrong in a quiz are the highest-leverage material to restudy first.</span></div>
+        </div>
+      </article>
       <article class="side-card library">
         <div class="kicker">Recently studied</div>
         <div class="library-list" id="library-list"></div>
@@ -388,209 +401,65 @@
 </section>
 
 <script>
-const WORDS=[
-['abate','uh-BAYT','verb','to become less intense or widespread','Latin battuere, to beat down','ease, subside','intensify',1],
-['candid','KAN-did','adjective','truthful and direct in speech','Latin candidus, white or clear','frank, open','evasive',1],
-['diligent','DIL-uh-jent','adjective','showing steady careful effort','Latin diligere, to value highly','careful, industrious','negligent',1],
-['elude','ih-LOOD','verb','to avoid or escape by skill','Latin ludere, to play','evade, escape','confront',1],
-['frugal','FROO-gul','adjective','careful in spending or using resources','Latin frux, fruit or value','economical, sparing','wasteful',1],
-['gregarious','grih-GAIR-ee-us','adjective','fond of company; sociable','Latin grex, flock','sociable, companionable','reclusive',1],
-['hinder','HIN-der','verb','to delay or obstruct','Old English hindrian, injure','impede, obstruct','assist',1],
-['lucid','LOO-sid','adjective','clear and easy to understand','Latin lucidus, bright','clear, intelligible','obscure',1],
-['novice','NAH-vis','noun','a person new to a field or activity','Latin novus, new','beginner, learner','veteran',1],
-['prudent','PROO-dent','adjective','acting with sound judgment and care','Latin providere, foresee','wise, cautious','rash',1],
-['resolute','REZ-uh-loot','adjective','admirably determined','Latin resolvere, loosen or decide','firm, steadfast','wavering',1],
-['skeptical','SKEP-tih-kul','adjective','inclined to question or doubt','Greek skeptikos, thoughtful','doubtful, questioning','credulous',1],
-['tedious','TEE-dee-us','adjective','too long, slow, or dull','Latin taedium, weariness','boring, tiresome','absorbing',1],
-['vivid','VIV-id','adjective','producing strong clear images','Latin vivere, to live','bright, graphic','dull',1],
-['wary','WAIR-ee','adjective','cautious about possible danger','Old English waer, aware','careful, watchful','reckless',1],
-['arduous','AR-joo-us','adjective','requiring strenuous effort','Latin arduus, steep','difficult, laborious','effortless',1],
-['benevolent','buh-NEV-uh-lent','adjective','well meaning and kindly','Latin bene + velle, wish well','kind, charitable','malicious',1],
-['concur','kun-KUR','verb','to agree or happen together','Latin concurrere, run together','agree, coincide','dissent',1],
-['discreet','dih-SKREET','adjective','careful and tactful in speech or action','Latin discretus, separate','tactful, circumspect','indiscreet',1],
-['emulate','EM-yuh-layt','verb','to imitate with the aim of matching or surpassing','Latin aemulus, rival','imitate, rival','neglect',1],
-['fastidious','fa-STID-ee-us','adjective','very attentive to detail and cleanliness','Latin fastidium, disgust','particular, meticulous','sloppy',2],
-['harbinger','HAR-bin-jer','noun','a sign that something is approaching','Old French herbergier, provide lodging','forerunner, omen','aftermath',2],
-['inert','in-URT','adjective','lacking power to move or act','Latin iners, unskilled or inactive','inactive, lifeless','animated',2],
-['juxtapose','JUK-stuh-pohz','verb','to place side by side for contrast','Latin juxta, next to','compare, collocate','separate',2],
-['kindle','KIN-dul','verb','to start a fire or feeling','Old Norse kynda, light a fire','ignite, arouse','extinguish',2],
-['languid','LANG-gwid','adjective','slow, relaxed, or weak in manner','Latin languere, be weak','listless, unhurried','energetic',2],
-['mitigate','MIT-ih-gayt','verb','to make less severe','Latin mitis, mild','alleviate, soften','aggravate',2],
-['nebulous','NEB-yuh-lus','adjective','vague or cloudlike','Latin nebula, mist','vague, hazy','definite',2],
-['opaque','oh-PAYK','adjective','not transparent; hard to understand','Latin opacus, shaded','clouded, obscure','transparent',2],
-['placate','PLAY-kayt','verb','to calm anger or hostility','Latin placare, soothe','appease, pacify','provoke',2],
-['quell','KWEL','verb','to suppress or calm','Old English cwellan, kill','subdue, quiet','incite',2],
-['rancor','RANG-ker','noun','bitter lasting resentment','Latin rancere, stink','bitterness, animosity','goodwill',2],
-['sagacious','suh-GAY-shus','adjective','having keen practical judgment','Latin sagire, perceive keenly','wise, discerning','foolish',2],
-['truculent','TRUK-yuh-lent','adjective','eager to argue or fight','Latin truculentus, fierce','belligerent, harsh','amiable',2],
-['urbane','ur-BAYN','adjective','polished and socially confident','Latin urbanus, of the city','suave, refined','boorish',2],
-['vacillate','VAS-uh-layt','verb','to waver between choices','Latin vacillare, sway','waver, fluctuate','resolve',2],
-['winsome','WIN-sum','adjective','attractive in a sweet innocent way','Old English wynsum, pleasant','charming, appealing','repellent',2],
-['zealous','ZEL-us','adjective','marked by energetic devotion','Greek zelos, ardor','ardent, fervent','apathetic',2],
-['abstruse','ab-STROOS','adjective','difficult to understand','Latin abstrudere, conceal','esoteric, obscure','plain',2],
-['capricious','kuh-PRISH-us','adjective','given to sudden changes of mood or behavior','Italian capriccio, whim','fickle, impulsive','steady',2],
-['deleterious','del-uh-TEER-ee-us','adjective','harmful, often subtly','Greek deleterios, destructive','damaging, injurious','beneficial',3],
-['equivocal','ih-KWIV-uh-kul','adjective','open to more than one interpretation','Latin aequus + vox, equal voice','ambiguous, uncertain','unequivocal',3],
-['felicitous','fih-LIS-ih-tus','adjective','well chosen or suited to the situation','Latin felix, happy','apt, fitting','inept',3],
-['garrulous','GAIR-uh-lus','adjective','excessively talkative','Latin garrire, chatter','loquacious, chatty','taciturn',3],
-['hegemony','hih-JEM-uh-nee','noun','dominant influence over others','Greek hegemonia, leadership','dominance, supremacy','subordination',3],
-['insouciant','in-SOO-see-unt','adjective','casually unconcerned','French soucier, to care','nonchalant, blithe','anxious',3],
-['jejune','jih-JOON','adjective','naive, simplistic, or dull','Latin jejunus, fasting or barren','immature, vapid','sophisticated',3],
-['lachrymose','LAK-ruh-mohs','adjective','tearful or mournful','Latin lacrima, tear','weepy, mournful','cheerful',3],
-['mendacious','men-DAY-shus','adjective','given to lying','Latin mendax, lying','false, dishonest','truthful',3],
-['nonplussed','nahn-PLUST','adjective','surprised and unsure how to react','Latin non plus, no more','perplexed, baffled','unfazed',3],
-['obdurate','AHB-duh-rit','adjective','stubbornly refusing to change','Latin obdurare, harden','unyielding, stubborn','pliant',3],
-['panacea','pan-uh-SEE-uh','noun','a supposed remedy for all problems','Greek panakes, all-healing','cure-all, remedy','poison',3],
-['quiescent','kwy-ES-unt','adjective','temporarily inactive or still','Latin quiescere, rest','dormant, still','active',3],
-['recondite','REK-un-dyte','adjective','little known and difficult to understand','Latin recondere, hide away','arcane, obscure','commonplace',3],
-['sartorial','sar-TOR-ee-ul','adjective','relating to clothing or tailoring','Latin sartor, tailor','tailored, dress-related','unkempt',3],
-['trenchant','TREN-chunt','adjective','sharply effective or perceptive','Old French trenchier, cut','incisive, sharp','blunt',3],
-['unctuous','UNGK-choo-us','adjective','excessively flattering in an oily way','Latin unctus, anointed','smarmy, fawning','sincere',3],
-['vicissitude','vih-SIS-ih-tood','noun','a change of circumstance, often unwelcome','Latin vicis, change','fluctuation, shift','stability',3],
-['welter','WEL-ter','noun','a confused mass or jumble','Middle Dutch welteren, roll about','jumble, turmoil','order',3],
-['aplomb','uh-PLOM','noun','self-confidence under pressure','French a plomb, according to the plumb line','poise, assurance','panic',3],
-['bellwether','BEL-weh-ther','noun','an indicator of future trends','Middle English, lead sheep with a bell','indicator, signal','outlier',4],
-['cynosure','SY-nuh-shoor','noun','the center of attention','Greek kunosoura, dog tail, Ursa Minor','focal point, lodestar','obscurity',4],
-['desuetude','DES-wih-tood','noun','a state of disuse','Latin desuetudo, disuse','disuse, neglect','use',4],
-['epistolary','ih-PIS-tuh-lair-ee','adjective','related to letters or correspondence','Greek epistole, letter','lettered, correspondence-based','oral',4],
-['fulminate','FUL-mih-nayt','verb','to protest loudly and bitterly','Latin fulminare, strike with lightning','denounce, thunder','praise',4],
-['gnomic','NOH-mik','adjective','short, wise, and mysterious in expression','Greek gnome, thought or maxim','aphoristic, cryptic','expansive',4],
-['hieratic','hy-uh-RAT-ik','adjective','priestly; highly stylized','Greek hieratikos, priestly','sacerdotal, formal','secular',4],
-['imbricate','IM-brih-kayt','verb','to overlap like roof tiles','Latin imbrex, roof tile','overlap, layer','separate',4],
-['jocund','JAH-kund','adjective','cheerful and lighthearted','Latin jucundus, pleasant','merry, buoyant','morose',4],
-['ken','KEN','noun','range of knowledge or perception','Old English cennan, make known','understanding, scope','ignorance',4],
-['liminal','LIM-ih-nul','adjective','relating to a threshold or transition','Latin limen, threshold','transitional, threshold','settled',4],
-['mawkish','MAW-kish','adjective','overly sentimental in a sickly way','Middle English mawk, maggot','saccharine, cloying','dry-eyed',4],
-['numinous','NOO-mih-nus','adjective','suggesting divine or spiritual mystery','Latin numen, divine will','sacred, mysterious','mundane',4],
-['otiose','OH-shee-ohs','adjective','serving no practical purpose','Latin otiosus, idle','pointless, idle','useful',4],
-['palimpsest','PAL-imp-sest','noun','something reused but still bearing traces of earlier forms','Greek palimpsestos, scraped again','layered record, overwritten text','blankness',4],
-['querulous','KWAIR-yuh-lus','adjective','complaining in a petulant way','Latin queri, complain','peevish, whining','contented',4],
-['rutilant','ROO-tih-lunt','adjective','glowing with red or golden light','Latin rutilus, reddish','glowing, burnished','ashen',4],
-['susurrus','soo-SUR-us','noun','a soft whispering or rustling sound','Latin susurrus, whisper','murmur, rustle','clamor',4],
-['tendentious','ten-DEN-shus','adjective','promoting a particular controversial viewpoint','German Tendenz, tendency','biased, partisan','impartial',4],
-['uxorious','uk-SOR-ee-us','adjective','excessively devoted to one’s wife','Latin uxor, wife','doting, devoted','neglectful',4],
-['verisimilitude','vair-ih-sih-MIL-ih-tood','noun','the appearance of being true or real','Latin veri similis, truthlike','plausibility, realism','implausibility',5],
-['weltschmerz','VELT-shmairts','noun','melancholy from comparing reality with ideals','German Welt + Schmerz, world-pain','world-weariness, melancholy','contentment',5],
-['xenial','ZEE-nee-ul','adjective','relating to hospitality between host and guest','Greek xenia, hospitality','hospitable, guest-friendly','inhospitable',5],
-['yare','YAIR','adjective','quick, agile, or easy to handle','Old English gearu, ready','nimble, ready','sluggish',5],
-['zugzwang','TSOOG-tsvahng','noun','a situation where any move worsens one’s position','German Zug + Zwang, move-compulsion','bind, forced disadvantage','freedom',5],
-['anfractuous','an-FRAK-choo-us','adjective','winding and intricate','Latin anfractus, winding','sinuous, tortuous','straight',5],
-['brontide','BRON-tyde','noun','a distant rumbling sound like thunder','Greek bronte, thunder','rumble, booming','silence',5],
-['chthonic','THON-ik','adjective','relating to the underworld or earth interior','Greek khthon, earth','subterranean, infernal','celestial',5],
-['diaphanous','dy-AF-uh-nus','adjective','light, delicate, and translucent','Greek diaphanes, transparent','sheer, gossamer','opaque',5],
-['enantiodromia','en-an-tee-oh-DROH-mee-uh','noun','the tendency of things to turn into their opposites','Greek enantios + dromos, opposite running','reversal, counterturn','persistence',5],
-['fugacious','fyoo-GAY-shus','adjective','fleeting or short-lived','Latin fugere, flee','evanescent, transient','enduring',5],
-['gloaming','GLOH-ming','noun','twilight or dusk','Old English glom, twilight','dusk, twilight','daybreak',5],
-['haecceity','hek-SEE-ih-tee','noun','the thisness or unique essence of a thing','Latin haecceitas, thisness','individuality, essence','generality',5],
-['irenic','eye-REN-ik','adjective','favoring peace or conciliation','Greek eirene, peace','peaceable, conciliatory','polemical',5],
-['katabasis','kuh-TAB-uh-sis','noun','a descent, especially into the underworld','Greek katabasis, going down','descent, lowering','anabasis',5],
-['logomachy','loh-GOM-uh-kee','noun','an argument about words','Greek logos + mache, word-fight','verbal dispute, quibble','agreement',5],
-['mellifluous','meh-LIF-loo-us','adjective','sweetly flowing in sound','Latin mel + fluere, honey-flowing','dulcet, smooth','grating',5],
-['quiddity','KWID-ih-tee','noun','the inherent nature or essence of something','Latin quidditas, whatness','essence, nature','accident',5],
-['refulgent','rih-FUL-jent','adjective','shining brightly','Latin refulgere, shine back','radiant, gleaming','dim',5],
-['sprezzatura','spret-sah-TOO-rah','noun','studied nonchalance that appears effortless','Italian, from sprezzare, disdain','effortless grace, ease','awkwardness',5]
-];
-const EXTRA_WORDS=[
-['acumen','AK-yoo-men','noun','quick, accurate judgment','Latin acumen, sharp point','discernment, insight','obtuseness',1],
-['bolster','BOHL-ster','verb','to support or strengthen','Old English bolster, long pillow','support, reinforce','undermine',1],
-['coherent','koh-HEER-unt','adjective','logical and consistent','Latin cohaerere, stick together','orderly, connected','incoherent',1],
-['defer','dih-FUR','verb','to postpone or yield respectfully','Latin differre, carry apart','postpone, yield','hasten',1],
-['scrutiny','SKROO-tih-nee','noun','careful examination','Latin scrutari, search thoroughly','inspection, review','neglect',1],
-['adumbrate','AD-um-brayt','verb','to outline or foreshadow faintly','Latin adumbrare, cast a shadow','outline, foreshadow','clarify',2],
-['cogent','KOH-jent','adjective','clear, logical, and convincing','Latin cogere, drive together','convincing, forceful','unpersuasive',2],
-['diffident','DIF-ih-dent','adjective','modest or lacking self-confidence','Latin diffidere, mistrust','shy, hesitant','confident',2],
-['enervate','EN-er-vayt','verb','to drain of energy','Latin enervare, remove the sinews','weaken, sap','invigorate',2],
-['prosaic','proh-ZAY-ik','adjective','ordinary or lacking poetic beauty','Latin prosa, straightforward speech','plain, mundane','imaginative',2],
-['apocryphal','uh-PAH-kruh-ful','adjective','of doubtful authenticity','Greek apokryphos, hidden away','spurious, doubtful','verified',3],
-['caesura','sih-ZHUR-uh','noun','a pause or break, especially in a line of verse','Latin caedere, cut','pause, break','continuity',3],
-['exigent','EK-sih-jent','adjective','requiring immediate attention','Latin exigere, demand','urgent, pressing','nonurgent',3],
-['pellucid','puh-LOO-sid','adjective','transparently clear in meaning or appearance','Latin pellucidus, shining through','clear, limpid','murky',3],
-['salubrious','suh-LOO-bree-us','adjective','health-giving or wholesome','Latin saluber, healthful','healthy, beneficial','unhealthy',3],
-['apotheosis','uh-pah-thee-OH-sis','noun','the highest point or ideal example','Greek apotheoun, make divine','culmination, ideal','nadir',4],
-['contumely','KON-too-meh-lee','noun','insulting language or treatment','Latin contumelia, insult','abuse, scorn','respect',4],
-['eidetic','eye-DET-ik','adjective','marked by vivid mental imagery','Greek eidos, form','vivid, image-rich','hazy',4],
-['inchoate','in-KOH-it','adjective','just begun and not fully formed','Latin inchoare, begin','nascent, undeveloped','mature',4],
-['perspicacious','pur-spih-KAY-shus','adjective','having sharp insight','Latin perspicere, see through','perceptive, astute','obtuse',4],
-['aporia','uh-POR-ee-uh','noun','an expression of doubt or logical impasse','Greek aporos, without passage','uncertainty, impasse','certainty',5],
-['deipnosophist','dype-NAH-suh-fist','noun','a learned dinner-table conversationalist','Greek deipnon + sophistes, dinner sage','conversationalist, raconteur','boor',5],
-['eucatastrophe','yoo-kuh-TAS-truh-fee','noun','a sudden happy turn in a story','Greek eu + catastrophe, good overturning','fortunate reversal, rescue','disaster',5],
-['mumpsimus','MUMP-sih-mus','noun','a stubbornly held mistaken belief','Postclassical Latin mumpsimus, erroneous mass phrase','error, obstinacy','correction',5],
-['opsimath','AHP-sih-math','noun','a person who begins learning late in life','Greek opsi + manthanein, late learning','late learner, autodidact','prodigy',5],
-['adapt','uh-DAPT','verb','to change for a new use or situation','Latin adaptare, fit to','adjust, modify','resist',1],
-['assert','uh-SURT','verb','to state firmly or confidently','Latin asserere, claim','declare, affirm','deny',1],
-['concise','kun-SYSE','adjective','brief but complete in expression','Latin concidere, cut up','brief, succinct','wordy',1],
-['derive','dih-RYVE','verb','to obtain from a source','Latin derivare, draw off','obtain, trace','originate',1],
-['imply','im-PLY','verb','to suggest without saying directly','Latin implicare, entwine','suggest, indicate','state',1],
-['keen','KEEN','adjective','sharp, eager, or highly developed','Old English cene, bold','sharp, acute','dull',1],
-['notable','NOH-tuh-bul','adjective','worthy of attention','Latin notabilis, noteworthy','remarkable, significant','ordinary',1],
-['persist','per-SIST','verb','to continue firmly despite difficulty','Latin persistere, stand firm','continue, endure','quit',1],
-['reliable','rih-LY-uh-bul','adjective','able to be trusted consistently','Old French relier, bind fast','dependable, steady','unreliable',1],
-['subtle','SUT-ul','adjective','delicate or not immediately obvious','Latin subtilis, finely woven','nuanced, delicate','obvious',1],
-['assiduous','uh-SIJ-oo-us','adjective','showing constant attention and effort','Latin assidere, sit near','attentive, diligent','careless',2],
-['censure','SEN-shur','verb','to express strong disapproval','Latin censura, judgment','condemn, rebuke','praise',2],
-['demur','dih-MUR','verb','to raise doubts or objections','Old French demorer, linger','object, hesitate','accept',2],
-['elicit','ih-LIS-it','verb','to draw out a response or fact','Latin elicere, draw out','evoke, extract','suppress',2],
-['fortuitous','for-TOO-ih-tus','adjective','happening by chance','Latin fortuitus, accidental','accidental, chance','planned',2],
-['incisive','in-SY-siv','adjective','clear, sharp, and direct','Latin incidere, cut into','penetrating, sharp','vague',2],
-['munificent','myoo-NIF-ih-sent','adjective','very generous','Latin munificus, bountiful','lavish, generous','stingy',2],
-['perfunctory','per-FUNK-tuh-ree','adjective','done with little care or interest','Latin perfungi, get through','cursory, mechanical','thorough',2],
-['redolent','RED-uh-lent','adjective','strongly suggestive or fragrant','Latin redolere, emit scent','evocative, aromatic','odorless',2],
-['transient','TRAN-zee-unt','adjective','lasting only a short time','Latin transire, go across','temporary, fleeting','permanent',2],
-['abjure','ab-JOOR','verb','to formally reject or give up','Latin abjurare, deny on oath','renounce, repudiate','embrace',3],
-['cadence','KAY-dens','noun','rhythmic flow or sequence','Latin cadere, fall','rhythm, beat','discord',3],
-['didactic','dy-DAK-tik','adjective','intended to teach, sometimes excessively','Greek didaktikos, apt at teaching','instructive, moralizing','uninstructive',3],
-['evanescent','ev-uh-NES-unt','adjective','quickly fading from sight or memory','Latin evanescere, vanish','fleeting, vanishing','lasting',3],
-['feckless','FEK-lis','adjective','weak, careless, or ineffective','Scots feck, effect or value','inept, irresponsible','capable',3],
-['invidious','in-VID-ee-us','adjective','likely to cause resentment or offense','Latin invidia, envy','resentful, unfair','benign',3],
-['obfuscate','AHB-fuh-skayt','verb','to make unclear or confusing','Latin obfuscare, darken','blur, obscure','clarify',3],
-['probity','PROH-bih-tee','noun','strong moral honesty','Latin probitas, uprightness','integrity, rectitude','corruption',3],
-['rarefied','RAIR-uh-fyde','adjective','elevated, refined, or thin in density','Latin rarus, thin or sparse','elevated, refined','common',3],
-['soporific','sah-puh-RIF-ik','adjective','tending to induce sleep','Latin sopor, sleep','sleepy, drowsy','stimulating',3],
-['abstemious','ab-STEE-mee-us','adjective','moderate in eating, drinking, or pleasure','Latin abstemius, abstaining','temperate, restrained','self-indulgent',4],
-['crepuscular','krih-PUS-kyuh-lur','adjective','relating to twilight','Latin crepusculum, twilight','twilit, dusky','nocturnal',4],
-['defenestrate','dee-FEN-uh-strayt','verb','to throw out of a window','Latin de + fenestra, from a window','eject, expel','install',4],
-['exculpate','EK-skul-payt','verb','to clear from blame','Latin exculpare, free from fault','absolve, vindicate','incriminate',4],
-['farrago','fuh-RAH-goh','noun','a confused mixture','Latin farrago, mixed fodder','jumble, medley','order',4],
-['noetic','noh-ET-ik','adjective','relating to intellect or thought','Greek noesis, thinking','intellectual, mental','sensory',4],
-['peripatetic','pair-ih-puh-TET-ik','adjective','traveling from place to place','Greek peripatein, walk about','itinerant, wandering','settled',4],
-['prolix','proh-LIKS','adjective','using too many words','Latin prolixus, extended','wordy, verbose','concise',4],
-['sempiternal','sem-pih-TUR-nul','adjective','everlasting or eternal','Latin sempiternus, perpetual','eternal, endless','temporary',4],
-['vatic','VAT-ik','adjective','prophetic or oracular','Latin vates, prophet','prophetic, oracular','retrospective',4],
-['absquatulate','ab-SKWAH-chuh-layt','verb','to leave abruptly or flee','American mock-Latin coinage','depart, flee','remain',5],
-['borborygmus','bor-buh-RIG-mus','noun','rumbling sounds made by gas in the intestines','Greek borborygmos, rumbling','rumble, gurgle','silence',5],
-['callipygian','kal-ih-PIJ-ee-un','adjective','having shapely buttocks','Greek kallipygos, beautiful buttocks','well-proportioned, shapely','ungainly',5],
-['deliquesce','del-ih-KWES','verb','to melt away or dissolve gradually','Latin deliquescere, become liquid','dissolve, liquefy','solidify',5],
-['eldritch','EL-dritch','adjective','strange, eerie, or otherworldly','Scots eldritch, uncanny','uncanny, weird','ordinary',5],
-['floccinaucinihilipilification','flok-sih-naw-sih-nih-hil-ih-pil-ih-fih-KAY-shun','noun','the act of judging something worthless','Latin words for trifling things','dismissal, depreciation','valuation',5],
-['gobemouche','gohb-MOOSH','noun','a gullible person','French gober + mouche, swallow flies','dupe, simpleton','skeptic',5],
-['horripilation','haw-rip-ih-LAY-shun','noun','the bristling of body hair from cold or fear','Latin horrere + pilus, bristle hair','gooseflesh, shiver','calm',5],
-['jentacular','jen-TAK-yuh-lur','adjective','relating to breakfast','Latin jentaculum, breakfast','breakfast-related, morning','vespertine',5],
-['ultracrepidarian','ul-truh-krep-ih-DAIR-ee-un','noun','someone who gives opinions beyond their knowledge','Latin ultra crepidam, beyond the sandal','pretender, opinionator','expert',5]
+const SEED_WORDS=[
+{word:'abate',phonetic:'uh-BAYT',pos:'verb',definition:'to become less intense or widespread',etymology:'Latin battuere, to beat down',synonyms:'ease, subside',antonym:'intensify',level:1},
+{word:'candid',phonetic:'KAN-did',pos:'adjective',definition:'truthful and direct in speech',etymology:'Latin candidus, white or clear',synonyms:'frank, open',antonym:'evasive',level:1},
+{word:'diligent',phonetic:'DIL-uh-jent',pos:'adjective',definition:'showing steady careful effort',etymology:'Latin diligere, to value highly',synonyms:'careful, industrious',antonym:'negligent',level:1},
+{word:'fastidious',phonetic:'fa-STID-ee-us',pos:'adjective',definition:'very attentive to detail and cleanliness',etymology:'Latin fastidium, disgust',synonyms:'particular, meticulous',antonym:'sloppy',level:2},
+{word:'harbinger',phonetic:'HAR-bin-jer',pos:'noun',definition:'a sign that something is approaching',etymology:'Old French herbergier, provide lodging',synonyms:'forerunner, omen',antonym:'aftermath',level:2},
+{word:'mitigate',phonetic:'MIT-ih-gayt',pos:'verb',definition:'to make less severe',etymology:'Latin mitis, mild',synonyms:'alleviate, soften',antonym:'aggravate',level:2},
+{word:'deleterious',phonetic:'del-uh-TEER-ee-us',pos:'adjective',definition:'harmful, often subtly',etymology:'Greek deleterios, destructive',synonyms:'damaging, injurious',antonym:'beneficial',level:3},
+{word:'equivocal',phonetic:'ih-KWIV-uh-kul',pos:'adjective',definition:'open to more than one interpretation',etymology:'Latin aequus + vox, equal voice',synonyms:'ambiguous, uncertain',antonym:'unequivocal',level:3},
+{word:'garrulous',phonetic:'GAIR-uh-lus',pos:'adjective',definition:'excessively talkative',etymology:'Latin garrire, chatter',synonyms:'loquacious, chatty',antonym:'taciturn',level:3},
+{word:'bellwether',phonetic:'BEL-weh-ther',pos:'noun',definition:'an indicator of future trends',etymology:'Middle English, lead sheep with a bell',synonyms:'indicator, signal',antonym:'outlier',level:4},
+{word:'cynosure',phonetic:'SY-nuh-shoor',pos:'noun',definition:'the center of attention',etymology:'Greek kunosoura, dog tail, Ursa Minor',synonyms:'focal point, lodestar',antonym:'obscurity',level:4},
+{word:'otiose',phonetic:'OH-shee-ohs',pos:'adjective',definition:'serving no practical purpose',etymology:'Latin otiosus, idle',synonyms:'pointless, idle',antonym:'useful',level:4},
+{word:'verisimilitude',phonetic:'vair-ih-sih-MIL-ih-tood',pos:'noun',definition:'the appearance of being true or real',etymology:'Latin veri similis, truthlike',synonyms:'plausibility, realism',antonym:'implausibility',level:5},
+{word:'weltschmerz',phonetic:'VELT-shmairts',pos:'noun',definition:'melancholy from comparing reality with ideals',etymology:'German Welt + Schmerz, world-pain',synonyms:'world-weariness, melancholy',antonym:'contentment',level:5},
+{word:'mellifluous',phonetic:'meh-LIF-loo-us',pos:'adjective',definition:'sweetly flowing in sound',etymology:'Latin mel + fluere, honey-flowing',synonyms:'dulcet, smooth',antonym:'grating',level:5}
 ];
 const LEVELS=['Core','Intermediate','Advanced','Scholarly','Rare'];
-const WORD_BANK=[...WORDS,...EXTRA_WORDS];
+let WORD_BANK=SEED_WORDS;
+async function loadWordBank(){
+  try{
+    if(location.protocol==='file:') throw new Error('local file, skipping fetch');
+    const response=await fetch('vocab-data.json');
+    if(!response.ok) throw new Error('vocab-data.json request failed');
+    const data=await response.json();
+    if(Array.isArray(data)&&data.length) WORD_BANK=data;
+  }catch(e){
+    console.warn('Falling back to the built-in seed word list:',e.message);
+  }
+}
 const state={index:0,correct:0,answered:false,answers:[],seen:[],mode:25,quiz:[]};
 const WORDNIK_API_KEY=window.LEXICON_WORDNIK_API_KEY||'';
 const DAILY_TOPICS=['language','literature','science','history','rhetoric','philosophy','art','architecture','astronomy','music'];
 const $=id=>document.getElementById(id);
-function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
+function shuffle(a){
+  const arr=[...a];
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
 function buildQuiz(length=state.mode){
   const perLevel=length===100?20:5;
-  return [1,2,3,4,5].flatMap(level=>shuffle(WORD_BANK.filter(w=>w[7]===level)).slice(0,perLevel));
+  return [1,2,3,4,5].flatMap(level=>shuffle(WORD_BANK.filter(w=>w.level===level)).slice(0,perLevel));
 }
 function optionSet(word){
-  const defs=shuffle(WORD_BANK.filter(w=>w[7]===word[7]&&w[0]!==word[0]).map(w=>w[3])).slice(0,4);
-  while(defs.length<4) defs.push(shuffle(WORD_BANK.filter(w=>w[0]!==word[0]).map(w=>w[3]))[0]);
-  return shuffle([word[3],...defs]).map((text,i)=>({letter:String.fromCharCode(65+i),text,correct:text===word[3]}));
+  const defs=shuffle(WORD_BANK.filter(w=>w.level===word.level&&w.word!==word.word).map(w=>w.definition)).slice(0,4);
+  while(defs.length<4) defs.push(shuffle(WORD_BANK.filter(w=>w.word!==word.word).map(w=>w.definition))[0]);
+  return shuffle([word.definition,...defs]).map((text,i)=>({letter:String.fromCharCode(65+i),text,correct:text===word.definition}));
 }
 function escapeHtml(text){
   return String(text).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 }
 function usageSentence(word){
-  if(word[8]) return word[8];
-  const term=word[0];
-  if(word[2]==='verb') return `The editor asked whether the final paragraph could ${term} the argument without weakening it.`;
-  if(word[2]==='noun') return `The essay treated ${term} as the clue that made the whole passage intelligible.`;
+  if(word.usage) return word.usage;
+  const term=word.word;
+  if(word.pos==='verb') return `The editor asked whether the final paragraph could ${term} the argument without weakening it.`;
+  if(word.pos==='noun') return `The essay treated ${term} as the clue that made the whole passage intelligible.`;
   return `Her ${term} phrasing made the sentence feel exact rather than merely decorative.`;
 }
 function displayWord(term){
@@ -616,10 +485,10 @@ function wordnikDate(date=new Date()){
 function dailyFallback(){
   const item=WORD_BANK[dayStamp()%WORD_BANK.length];
   return {
-    word:item[0],
-    meta:`${item[1]} / ${item[2]} / local daily selection`,
-    definition:item[3],
-    trivia:`From ${item[4]}. Useful neighbors: ${item[5]}. Clean opposite: ${item[6]}.`
+    word:item.word,
+    meta:`${item.phonetic} / ${item.pos} / local daily selection`,
+    definition:item.definition,
+    trivia:`From ${item.etymology}. Useful neighbors: ${item.synonyms}. Clean opposite: ${item.antonym}.`
   };
 }
 function cleanDatamuseDefinition(entry){
@@ -708,7 +577,7 @@ function renderTiers(){
 }
 function renderLibrary(){
   const recent=state.seen.slice(-6).reverse();
-  $('library-list').innerHTML=recent.length?recent.map(w=>`<div class="library-item"><strong>${w[0]}</strong><span>${w[3]}<br>${w[5]} / ${w[6]}</span></div>`).join(''):'<div class="library-item"><strong>Begin</strong><span>Your studied words will gather here as a quiet reading list.</span></div>';
+  $('library-list').innerHTML=recent.length?recent.map(w=>`<div class="library-item"><strong>${w.word}</strong><span>${w.definition}<br>${w.synonyms} / ${w.antonym}</span></div>`).join(''):'<div class="library-item"><strong>Begin</strong><span>Your studied words will gather here as a quiet reading list.</span></div>';
 }
 function renderQuestion(){
   const word=state.quiz[state.index];
