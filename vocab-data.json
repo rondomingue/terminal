@@ -1748,5 +1748,1005 @@
     "synonyms": "pretender, opinionator",
     "antonym": "expert",
     "level": 5
+  },
+  {
+    "word": "ample",
+    "phonetic": "AM-pul",
+    "pos": "adjective",
+    "definition": "more than enough; plentiful",
+    "etymology": "Latin amplus, spacious or abundant",
+    "synonyms": "abundant, plentiful",
+    "antonym": "scant",
+    "level": 1
+  },
+  {
+    "word": "brisk",
+    "phonetic": "BRISK",
+    "pos": "adjective",
+    "definition": "quick and lively in movement or manner",
+    "etymology": "possibly Celtic brysg, nimble",
+    "synonyms": "lively, spirited",
+    "antonym": "sluggish",
+    "level": 1
+  },
+  {
+    "word": "candor",
+    "phonetic": "KAN-der",
+    "pos": "noun",
+    "definition": "the quality of being open and honest",
+    "etymology": "Latin candor, whiteness or brightness",
+    "synonyms": "honesty, frankness",
+    "antonym": "deceit",
+    "level": 1
+  },
+  {
+    "word": "deft",
+    "phonetic": "DEFT",
+    "pos": "adjective",
+    "definition": "neatly skillful and quick in movement",
+    "etymology": "Middle English, variant of daft, meek or gentle",
+    "synonyms": "skillful, adroit",
+    "antonym": "clumsy",
+    "level": 1
+  },
+  {
+    "word": "eager",
+    "phonetic": "EE-ger",
+    "pos": "adjective",
+    "definition": "keen to do or have something",
+    "etymology": "Latin acer, sharp or keen",
+    "synonyms": "keen, enthusiastic",
+    "antonym": "indifferent",
+    "level": 1
+  },
+  {
+    "word": "feasible",
+    "phonetic": "FEE-zuh-bul",
+    "pos": "adjective",
+    "definition": "possible to do easily or conveniently",
+    "etymology": "Latin facere, to do",
+    "synonyms": "viable, practicable",
+    "antonym": "impossible",
+    "level": 1
+  },
+  {
+    "word": "genuine",
+    "phonetic": "JEN-yoo-in",
+    "pos": "adjective",
+    "definition": "truly what it is said to be; authentic",
+    "etymology": "Latin genuinus, native or natural",
+    "synonyms": "authentic, real",
+    "antonym": "fake",
+    "level": 1
+  },
+  {
+    "word": "hasty",
+    "phonetic": "HAY-stee",
+    "pos": "adjective",
+    "definition": "done with excessive speed or urgency",
+    "etymology": "Old French haste, speed",
+    "synonyms": "rushed, hurried",
+    "antonym": "deliberate",
+    "level": 1
+  },
+  {
+    "word": "impede",
+    "phonetic": "im-PEED",
+    "pos": "verb",
+    "definition": "to delay or prevent by obstructing",
+    "etymology": "Latin impedire, to entangle the feet",
+    "synonyms": "hinder, obstruct",
+    "antonym": "facilitate",
+    "level": 1
+  },
+  {
+    "word": "jubilant",
+    "phonetic": "JOO-bih-lunt",
+    "pos": "adjective",
+    "definition": "feeling or expressing great happiness",
+    "etymology": "Latin jubilare, to shout for joy",
+    "synonyms": "elated, joyful",
+    "antonym": "dejected",
+    "level": 1
+  },
+  {
+    "word": "lenient",
+    "phonetic": "LEE-nee-unt",
+    "pos": "adjective",
+    "definition": "permissive or merciful in judgment",
+    "etymology": "Latin lenire, to soften",
+    "synonyms": "merciful, permissive",
+    "antonym": "strict",
+    "level": 1
+  },
+  {
+    "word": "meager",
+    "phonetic": "MEE-ger",
+    "pos": "adjective",
+    "definition": "lacking in quantity or quality",
+    "etymology": "Latin macer, thin",
+    "synonyms": "scant, sparse",
+    "antonym": "abundant",
+    "level": 1
+  },
+  {
+    "word": "nimble",
+    "phonetic": "NIM-bul",
+    "pos": "adjective",
+    "definition": "quick and light in movement",
+    "etymology": "Old English numol, quick to grasp",
+    "synonyms": "agile, quick",
+    "antonym": "clumsy",
+    "level": 1
+  },
+  {
+    "word": "plausible",
+    "phonetic": "PLAW-zih-bul",
+    "pos": "adjective",
+    "definition": "seeming reasonable or probable",
+    "etymology": "Latin plausibilis, worthy of applause",
+    "synonyms": "credible, believable",
+    "antonym": "implausible",
+    "level": 1
+  },
+  {
+    "word": "quaint",
+    "phonetic": "KWAYNT",
+    "pos": "adjective",
+    "definition": "attractively unusual or old-fashioned",
+    "etymology": "Old French cointe, clever or elegant",
+    "synonyms": "charming, old-fashioned",
+    "antonym": "modern",
+    "level": 1
+  },
+  {
+    "word": "robust",
+    "phonetic": "roh-BUST",
+    "pos": "adjective",
+    "definition": "strong and healthy; vigorous",
+    "etymology": "Latin robustus, oaken or strong",
+    "synonyms": "sturdy, vigorous",
+    "antonym": "frail",
+    "level": 1
+  },
+  {
+    "word": "sturdy",
+    "phonetic": "STUR-dee",
+    "pos": "adjective",
+    "definition": "strongly and solidly built",
+    "etymology": "Old French estourdi, stunned or reckless",
+    "synonyms": "solid, robust",
+    "antonym": "flimsy",
+    "level": 1
+  },
+  {
+    "word": "thrifty",
+    "phonetic": "THRIF-tee",
+    "pos": "adjective",
+    "definition": "careful and prudent with money",
+    "etymology": "Old Norse thrift, prosperity",
+    "synonyms": "frugal, economical",
+    "antonym": "extravagant",
+    "level": 1
+  },
+  {
+    "word": "upright",
+    "phonetic": "UP-ryte",
+    "pos": "adjective",
+    "definition": "honest and morally correct",
+    "etymology": "Old English upriht, literally erect",
+    "synonyms": "honest, honorable",
+    "antonym": "corrupt",
+    "level": 1
+  },
+  {
+    "word": "valiant",
+    "phonetic": "VAL-yunt",
+    "pos": "adjective",
+    "definition": "possessing or showing courage",
+    "etymology": "Latin valere, to be strong",
+    "synonyms": "brave, courageous",
+    "antonym": "cowardly",
+    "level": 1
+  },
+  {
+    "word": "acrimony",
+    "phonetic": "AK-rih-moh-nee",
+    "pos": "noun",
+    "definition": "bitterness or ill feeling",
+    "etymology": "Latin acrimonia, sharpness",
+    "synonyms": "bitterness, rancor",
+    "antonym": "harmony",
+    "level": 2
+  },
+  {
+    "word": "brazen",
+    "phonetic": "BRAY-zun",
+    "pos": "adjective",
+    "definition": "bold and without shame",
+    "etymology": "Old English braesen, made of brass",
+    "synonyms": "bold, shameless",
+    "antonym": "timid",
+    "level": 2
+  },
+  {
+    "word": "congenial",
+    "phonetic": "kun-JEEN-yul",
+    "pos": "adjective",
+    "definition": "pleasant because of shared tastes or interests",
+    "etymology": "Latin congenialis, of the same birth",
+    "synonyms": "agreeable, compatible",
+    "antonym": "disagreeable",
+    "level": 2
+  },
+  {
+    "word": "deference",
+    "phonetic": "DEF-er-uns",
+    "pos": "noun",
+    "definition": "humble submission and respect",
+    "etymology": "Latin deferre, to carry away or submit",
+    "synonyms": "respect, submission",
+    "antonym": "defiance",
+    "level": 2
+  },
+  {
+    "word": "earnest",
+    "phonetic": "UR-nist",
+    "pos": "adjective",
+    "definition": "sincere and serious in intention",
+    "etymology": "Old English eornoste, serious",
+    "synonyms": "sincere, heartfelt",
+    "antonym": "flippant",
+    "level": 2
+  },
+  {
+    "word": "facetious",
+    "phonetic": "fuh-SEE-shus",
+    "pos": "adjective",
+    "definition": "treating serious matters with inappropriate humor",
+    "etymology": "Latin facetus, witty",
+    "synonyms": "flippant, joking",
+    "antonym": "solemn",
+    "level": 2
+  },
+  {
+    "word": "gullible",
+    "phonetic": "GUL-ih-bul",
+    "pos": "adjective",
+    "definition": "easily persuaded to believe something",
+    "etymology": "from gull, to deceive",
+    "synonyms": "credulous, naive",
+    "antonym": "skeptical",
+    "level": 2
+  },
+  {
+    "word": "hackneyed",
+    "phonetic": "HAK-need",
+    "pos": "adjective",
+    "definition": "overused and lacking freshness",
+    "etymology": "from hackney, a horse for hire",
+    "synonyms": "clichéd, trite",
+    "antonym": "original",
+    "level": 2
+  },
+  {
+    "word": "impetuous",
+    "phonetic": "im-PECH-oo-us",
+    "pos": "adjective",
+    "definition": "acting quickly without thought",
+    "etymology": "Latin impetus, a rushing attack",
+    "synonyms": "rash, impulsive",
+    "antonym": "cautious",
+    "level": 2
+  },
+  {
+    "word": "jaded",
+    "phonetic": "JAY-did",
+    "pos": "adjective",
+    "definition": "tired or lacking enthusiasm from overexposure",
+    "etymology": "from jade, a worn-out horse",
+    "synonyms": "weary, worn out",
+    "antonym": "enthusiastic",
+    "level": 2
+  },
+  {
+    "word": "laconic",
+    "phonetic": "luh-KAH-nik",
+    "pos": "adjective",
+    "definition": "using very few words",
+    "etymology": "Greek Lakonikos, of Laconia",
+    "synonyms": "terse, succinct",
+    "antonym": "verbose",
+    "level": 2
+  },
+  {
+    "word": "meticulous",
+    "phonetic": "muh-TIK-yuh-lus",
+    "pos": "adjective",
+    "definition": "showing great attention to detail",
+    "etymology": "Latin meticulosus, fearful",
+    "synonyms": "precise, careful",
+    "antonym": "careless",
+    "level": 2
+  },
+  {
+    "word": "novel",
+    "phonetic": "NAH-vul",
+    "pos": "adjective",
+    "definition": "new and original; not previously known",
+    "etymology": "Latin novus, new",
+    "synonyms": "original, new",
+    "antonym": "conventional",
+    "level": 2
+  },
+  {
+    "word": "onerous",
+    "phonetic": "OH-ner-us",
+    "pos": "adjective",
+    "definition": "burdensome; involving great effort",
+    "etymology": "Latin onus, load",
+    "synonyms": "burdensome, taxing",
+    "antonym": "effortless",
+    "level": 2
+  },
+  {
+    "word": "pragmatic",
+    "phonetic": "prag-MAT-ik",
+    "pos": "adjective",
+    "definition": "dealing with things sensibly and practically",
+    "etymology": "Greek pragma, deed",
+    "synonyms": "practical, sensible",
+    "antonym": "idealistic",
+    "level": 2
+  },
+  {
+    "word": "quandary",
+    "phonetic": "KWAHN-duh-ree",
+    "pos": "noun",
+    "definition": "a state of perplexity or a difficult decision",
+    "etymology": "origin uncertain, perhaps Latin quando, when",
+    "synonyms": "dilemma, predicament",
+    "antonym": "certainty",
+    "level": 2
+  },
+  {
+    "word": "reticent",
+    "phonetic": "RET-ih-sunt",
+    "pos": "adjective",
+    "definition": "not revealing thoughts or feelings readily",
+    "etymology": "Latin reticere, to keep silent",
+    "synonyms": "reserved, guarded",
+    "antonym": "talkative",
+    "level": 2
+  },
+  {
+    "word": "staid",
+    "phonetic": "STAYD",
+    "pos": "adjective",
+    "definition": "sedate, respectable, and unadventurous",
+    "etymology": "Middle English stayed, past participle of stay",
+    "synonyms": "sedate, sober",
+    "antonym": "wild",
+    "level": 2
+  },
+  {
+    "word": "tacit",
+    "phonetic": "TAS-it",
+    "pos": "adjective",
+    "definition": "understood without being stated",
+    "etymology": "Latin tacitus, silent",
+    "synonyms": "implied, unspoken",
+    "antonym": "explicit",
+    "level": 2
+  },
+  {
+    "word": "venerable",
+    "phonetic": "VEN-er-uh-bul",
+    "pos": "adjective",
+    "definition": "accorded great respect due to age or wisdom",
+    "etymology": "Latin venerari, to revere",
+    "synonyms": "esteemed, revered",
+    "antonym": "disreputable",
+    "level": 2
+  },
+  {
+    "word": "anachronistic",
+    "phonetic": "uh-nak-ruh-NIS-tik",
+    "pos": "adjective",
+    "definition": "belonging to a period other than the one being depicted",
+    "etymology": "Greek ana + chronos, against time",
+    "synonyms": "outdated, dated",
+    "antonym": "contemporary",
+    "level": 3
+  },
+  {
+    "word": "bombastic",
+    "phonetic": "bahm-BAS-tik",
+    "pos": "adjective",
+    "definition": "high-sounding but with little meaning; pompous",
+    "etymology": "Greek bombyx, silk padding",
+    "synonyms": "pompous, grandiose",
+    "antonym": "modest",
+    "level": 3
+  },
+  {
+    "word": "cacophony",
+    "phonetic": "kuh-KAH-fuh-nee",
+    "pos": "noun",
+    "definition": "a harsh mixture of discordant sounds",
+    "etymology": "Greek kakos + phone, bad sound",
+    "synonyms": "discord, noise",
+    "antonym": "harmony",
+    "level": 3
+  },
+  {
+    "word": "dichotomy",
+    "phonetic": "dy-KAH-tuh-mee",
+    "pos": "noun",
+    "definition": "a division into two contradictory groups",
+    "etymology": "Greek dicha + tomia, cutting in two",
+    "synonyms": "division, split",
+    "antonym": "unity",
+    "level": 3
+  },
+  {
+    "word": "ebullient",
+    "phonetic": "ih-BUL-yunt",
+    "pos": "adjective",
+    "definition": "cheerful and full of energy",
+    "etymology": "Latin ebullire, to bubble out",
+    "synonyms": "exuberant, buoyant",
+    "antonym": "despondent",
+    "level": 3
+  },
+  {
+    "word": "fecund",
+    "phonetic": "FEK-und",
+    "pos": "adjective",
+    "definition": "producing abundant offspring or results; fertile",
+    "etymology": "Latin fecundus, fruitful",
+    "synonyms": "fertile, prolific",
+    "antonym": "barren",
+    "level": 3
+  },
+  {
+    "word": "gratuitous",
+    "phonetic": "gruh-TOO-ih-tus",
+    "pos": "adjective",
+    "definition": "uncalled for; lacking good reason",
+    "etymology": "Latin gratuitus, given freely",
+    "synonyms": "unwarranted, needless",
+    "antonym": "warranted",
+    "level": 3
+  },
+  {
+    "word": "hyperbole",
+    "phonetic": "hy-PUR-buh-lee",
+    "pos": "noun",
+    "definition": "exaggerated statements not meant literally",
+    "etymology": "Greek hyperbole, excess",
+    "synonyms": "exaggeration, overstatement",
+    "antonym": "understatement",
+    "level": 3
+  },
+  {
+    "word": "iconoclast",
+    "phonetic": "eye-KAH-nuh-klast",
+    "pos": "noun",
+    "definition": "a person who attacks cherished beliefs",
+    "etymology": "Greek eikon + klastes, image breaker",
+    "synonyms": "dissenter, rebel",
+    "antonym": "conformist",
+    "level": 3
+  },
+  {
+    "word": "jocose",
+    "phonetic": "joh-KOHS",
+    "pos": "adjective",
+    "definition": "playful or humorous",
+    "etymology": "Latin jocus, joke",
+    "synonyms": "playful, jesting",
+    "antonym": "serious",
+    "level": 3
+  },
+  {
+    "word": "keening",
+    "phonetic": "KEE-ning",
+    "pos": "noun",
+    "definition": "a wailing lament for the dead",
+    "etymology": "Irish caoinim, to weep",
+    "synonyms": "wailing, lament",
+    "antonym": "rejoicing",
+    "level": 3
+  },
+  {
+    "word": "laudable",
+    "phonetic": "LAW-duh-bul",
+    "pos": "adjective",
+    "definition": "deserving praise and commendation",
+    "etymology": "Latin laudare, to praise",
+    "synonyms": "praiseworthy, commendable",
+    "antonym": "shameful",
+    "level": 3
+  },
+  {
+    "word": "magnanimous",
+    "phonetic": "mag-NAN-ih-mus",
+    "pos": "adjective",
+    "definition": "generous or forgiving toward a rival",
+    "etymology": "Latin magnus + animus, great soul",
+    "synonyms": "generous, noble",
+    "antonym": "petty",
+    "level": 3
+  },
+  {
+    "word": "nadir",
+    "phonetic": "NAY-deer",
+    "pos": "noun",
+    "definition": "the lowest or most unsuccessful point",
+    "etymology": "Arabic nazir, opposite of the zenith",
+    "synonyms": "low point, bottom",
+    "antonym": "zenith",
+    "level": 3
+  },
+  {
+    "word": "obsequious",
+    "phonetic": "ub-SEE-kwee-us",
+    "pos": "adjective",
+    "definition": "excessively eager to please or obey",
+    "etymology": "Latin obsequi, to comply",
+    "synonyms": "servile, fawning",
+    "antonym": "assertive",
+    "level": 3
+  },
+  {
+    "word": "paradigm",
+    "phonetic": "PAIR-uh-dyme",
+    "pos": "noun",
+    "definition": "a typical example or pattern of something",
+    "etymology": "Greek paradeigma, pattern",
+    "synonyms": "model, template",
+    "antonym": "anomaly",
+    "level": 3
+  },
+  {
+    "word": "quixotic",
+    "phonetic": "kwik-SAH-tik",
+    "pos": "adjective",
+    "definition": "extremely idealistic and unrealistic",
+    "etymology": "from the novel Don Quixote",
+    "synonyms": "idealistic, romantic",
+    "antonym": "pragmatic",
+    "level": 3
+  },
+  {
+    "word": "reprobate",
+    "phonetic": "REP-ruh-bayt",
+    "pos": "noun",
+    "definition": "an unprincipled or immoral person",
+    "etymology": "Latin reprobare, to disapprove",
+    "synonyms": "scoundrel, rogue",
+    "antonym": "saint",
+    "level": 3
+  },
+  {
+    "word": "surreptitious",
+    "phonetic": "sur-up-TISH-us",
+    "pos": "adjective",
+    "definition": "kept secret because it would not be approved of",
+    "etymology": "Latin surripere, to snatch secretly",
+    "synonyms": "clandestine, furtive",
+    "antonym": "open",
+    "level": 3
+  },
+  {
+    "word": "taciturn",
+    "phonetic": "TAS-ih-turn",
+    "pos": "adjective",
+    "definition": "reserved or uncommunicative in speech",
+    "etymology": "Latin tacitus, silent",
+    "synonyms": "reserved, quiet",
+    "antonym": "talkative",
+    "level": 3
+  },
+  {
+    "word": "antediluvian",
+    "phonetic": "an-tih-dih-LOO-vee-un",
+    "pos": "adjective",
+    "definition": "extremely old-fashioned; before the biblical flood",
+    "etymology": "Latin ante + diluvium, before the flood",
+    "synonyms": "archaic, ancient",
+    "antonym": "modern",
+    "level": 4
+  },
+  {
+    "word": "bucolic",
+    "phonetic": "byoo-KAH-lik",
+    "pos": "adjective",
+    "definition": "relating to pleasant rural life",
+    "etymology": "Greek boukolikos, pastoral",
+    "synonyms": "pastoral, rustic",
+    "antonym": "urban",
+    "level": 4
+  },
+  {
+    "word": "cognizant",
+    "phonetic": "KAHG-nih-zunt",
+    "pos": "adjective",
+    "definition": "having knowledge or awareness",
+    "etymology": "Latin cognoscere, to know",
+    "synonyms": "aware, mindful",
+    "antonym": "oblivious",
+    "level": 4
+  },
+  {
+    "word": "dilettante",
+    "phonetic": "dil-ih-TAHNT",
+    "pos": "noun",
+    "definition": "a person with a superficial interest in an art or subject",
+    "etymology": "Italian dilettare, to delight",
+    "synonyms": "amateur, dabbler",
+    "antonym": "expert",
+    "level": 4
+  },
+  {
+    "word": "effete",
+    "phonetic": "ih-FEET",
+    "pos": "adjective",
+    "definition": "affected, overrefined, and feeble",
+    "etymology": "Latin effetus, worn out by bearing young",
+    "synonyms": "feeble, decadent",
+    "antonym": "robust",
+    "level": 4
+  },
+  {
+    "word": "flagitious",
+    "phonetic": "fluh-JISH-us",
+    "pos": "adjective",
+    "definition": "criminal or villainous",
+    "etymology": "Latin flagitium, shameful crime",
+    "synonyms": "villainous, wicked",
+    "antonym": "virtuous",
+    "level": 4
+  },
+  {
+    "word": "gainsay",
+    "phonetic": "GAYN-say",
+    "pos": "verb",
+    "definition": "to deny or contradict",
+    "etymology": "Old English gain-, against + say",
+    "synonyms": "deny, contradict",
+    "antonym": "affirm",
+    "level": 4
+  },
+  {
+    "word": "hoary",
+    "phonetic": "HOR-ee",
+    "pos": "adjective",
+    "definition": "grayish white; extremely old",
+    "etymology": "Old English har, gray with age",
+    "synonyms": "ancient, gray",
+    "antonym": "youthful",
+    "level": 4
+  },
+  {
+    "word": "impecunious",
+    "phonetic": "im-pih-KYOO-nee-us",
+    "pos": "adjective",
+    "definition": "having little or no money",
+    "etymology": "Latin pecunia, money",
+    "synonyms": "penniless, poor",
+    "antonym": "affluent",
+    "level": 4
+  },
+  {
+    "word": "jeremiad",
+    "phonetic": "jair-uh-MY-ad",
+    "pos": "noun",
+    "definition": "a long, mournful complaint or lamentation",
+    "etymology": "from the prophet Jeremiah",
+    "synonyms": "lament, complaint",
+    "antonym": "paean",
+    "level": 4
+  },
+  {
+    "word": "knell",
+    "phonetic": "NEL",
+    "pos": "noun",
+    "definition": "the sound of a bell, especially rung for a death",
+    "etymology": "Old English cnyllan, to knock or strike",
+    "synonyms": "toll, omen",
+    "antonym": "fanfare",
+    "level": 4
+  },
+  {
+    "word": "lugubrious",
+    "phonetic": "luh-GOO-bree-us",
+    "pos": "adjective",
+    "definition": "looking or sounding sad and dismal",
+    "etymology": "Latin lugere, to mourn",
+    "synonyms": "mournful, dismal",
+    "antonym": "cheerful",
+    "level": 4
+  },
+  {
+    "word": "mercurial",
+    "phonetic": "mer-KYOOR-ee-ul",
+    "pos": "adjective",
+    "definition": "subject to sudden or unpredictable changes of mood",
+    "etymology": "from the god Mercury",
+    "synonyms": "volatile, fickle",
+    "antonym": "steady",
+    "level": 4
+  },
+  {
+    "word": "nescient",
+    "phonetic": "NESH-unt",
+    "pos": "adjective",
+    "definition": "lacking knowledge; ignorant",
+    "etymology": "Latin nescire, not to know",
+    "synonyms": "ignorant, unaware",
+    "antonym": "knowledgeable",
+    "level": 4
+  },
+  {
+    "word": "obtrude",
+    "phonetic": "ub-TROOD",
+    "pos": "verb",
+    "definition": "to become noticeable in an unwelcome way",
+    "etymology": "Latin obtrudere, to thrust upon",
+    "synonyms": "impose, intrude",
+    "antonym": "withdraw",
+    "level": 4
+  },
+  {
+    "word": "propitiate",
+    "phonetic": "proh-PISH-ee-ayt",
+    "pos": "verb",
+    "definition": "to win or regain someone's favor by pleasing them",
+    "etymology": "Latin propitiare, to appease",
+    "synonyms": "appease, placate",
+    "antonym": "provoke",
+    "level": 4
+  },
+  {
+    "word": "quotidian",
+    "phonetic": "kwoh-TID-ee-un",
+    "pos": "adjective",
+    "definition": "occurring every day; ordinary",
+    "etymology": "Latin quotidianus, daily",
+    "synonyms": "everyday, routine",
+    "antonym": "extraordinary",
+    "level": 4
+  },
+  {
+    "word": "rebarbative",
+    "phonetic": "rih-BAR-buh-tiv",
+    "pos": "adjective",
+    "definition": "causing irritation or a sense of repulsion",
+    "etymology": "French rebarbatif, forbidding",
+    "synonyms": "repellent, off-putting",
+    "antonym": "appealing",
+    "level": 4
+  },
+  {
+    "word": "sonorous",
+    "phonetic": "suh-NOR-us",
+    "pos": "adjective",
+    "definition": "having a deep, full, pleasant sound",
+    "etymology": "Latin sonor, sound",
+    "synonyms": "resonant, rich",
+    "antonym": "muted",
+    "level": 4
+  },
+  {
+    "word": "torpid",
+    "phonetic": "TOR-pid",
+    "pos": "adjective",
+    "definition": "mentally or physically inactive; sluggish",
+    "etymology": "Latin torpere, to be numb",
+    "synonyms": "sluggish, lethargic",
+    "antonym": "energetic",
+    "level": 4
+  },
+  {
+    "word": "apotropaic",
+    "phonetic": "ap-uh-troh-PAY-ik",
+    "pos": "adjective",
+    "definition": "having the power to avert evil or bad luck",
+    "etymology": "Greek apotrepein, to turn away",
+    "synonyms": "protective, ritual",
+    "antonym": "maleficent",
+    "level": 5
+  },
+  {
+    "word": "cachinnate",
+    "phonetic": "KAK-ih-nayt",
+    "pos": "verb",
+    "definition": "to laugh loudly or immoderately",
+    "etymology": "Latin cachinnare, to laugh loudly",
+    "synonyms": "guffaw, cackle",
+    "antonym": "sob",
+    "level": 5
+  },
+  {
+    "word": "desultory",
+    "phonetic": "DES-ul-tor-ee",
+    "pos": "adjective",
+    "definition": "lacking a plan; moving randomly from one thing to another",
+    "etymology": "Latin desultor, a circus rider who jumps between horses",
+    "synonyms": "aimless, sporadic",
+    "antonym": "methodical",
+    "level": 5
+  },
+  {
+    "word": "epigone",
+    "phonetic": "EP-ih-gohn",
+    "pos": "noun",
+    "definition": "an inferior imitator or follower",
+    "etymology": "Greek epigonos, offspring",
+    "synonyms": "imitator, follower",
+    "antonym": "originator",
+    "level": 5
+  },
+  {
+    "word": "fuliginous",
+    "phonetic": "fyoo-LIJ-ih-nus",
+    "pos": "adjective",
+    "definition": "sooty or dusky in color",
+    "etymology": "Latin fuligo, soot",
+    "synonyms": "smoky, dusky",
+    "antonym": "luminous",
+    "level": 5
+  },
+  {
+    "word": "grandiloquent",
+    "phonetic": "gran-DIL-uh-kwunt",
+    "pos": "adjective",
+    "definition": "pompous or extravagant in language",
+    "etymology": "Latin grandis + loqui, grand speaking",
+    "synonyms": "bombastic, pompous",
+    "antonym": "plainspoken",
+    "level": 5
+  },
+  {
+    "word": "hebetude",
+    "phonetic": "HEB-ih-tood",
+    "pos": "noun",
+    "definition": "lethargy or dullness of mind",
+    "etymology": "Latin hebes, blunt",
+    "synonyms": "lethargy, dullness",
+    "antonym": "acuity",
+    "level": 5
+  },
+  {
+    "word": "immure",
+    "phonetic": "ih-MYOOR",
+    "pos": "verb",
+    "definition": "to confine within walls; imprison",
+    "etymology": "Latin in + murus, wall",
+    "synonyms": "confine, incarcerate",
+    "antonym": "liberate",
+    "level": 5
+  },
+  {
+    "word": "jactitation",
+    "phonetic": "jak-tih-TAY-shun",
+    "pos": "noun",
+    "definition": "restless tossing of the body, or a false boastful claim",
+    "etymology": "Latin jactitare, to toss about",
+    "synonyms": "restlessness, false claim",
+    "antonym": "repose",
+    "level": 5
+  },
+  {
+    "word": "lapidary",
+    "phonetic": "LAP-ih-dair-ee",
+    "pos": "adjective",
+    "definition": "marked by precision and refinement, especially in language",
+    "etymology": "Latin lapis, stone",
+    "synonyms": "precise, polished",
+    "antonym": "slipshod",
+    "level": 5
+  },
+  {
+    "word": "nugatory",
+    "phonetic": "NOO-guh-tor-ee",
+    "pos": "adjective",
+    "definition": "of no value or importance; futile",
+    "etymology": "Latin nugae, jokes or trifles",
+    "synonyms": "trivial, worthless",
+    "antonym": "valuable",
+    "level": 5
+  },
+  {
+    "word": "obeisance",
+    "phonetic": "oh-BAY-suns",
+    "pos": "noun",
+    "definition": "deferential respect; a gesture of submission",
+    "etymology": "Old French obeissance, obedience",
+    "synonyms": "homage, deference",
+    "antonym": "disrespect",
+    "level": 5
+  },
+  {
+    "word": "panegyric",
+    "phonetic": "pan-ih-JEER-ik",
+    "pos": "noun",
+    "definition": "a public speech or writing in praise of someone",
+    "etymology": "Greek panegyrikos, of a public assembly",
+    "synonyms": "eulogy, tribute",
+    "antonym": "diatribe",
+    "level": 5
+  },
+  {
+    "word": "quondam",
+    "phonetic": "KWAHN-dam",
+    "pos": "adjective",
+    "definition": "that once was; former",
+    "etymology": "Latin quondam, formerly",
+    "synonyms": "former, erstwhile",
+    "antonym": "current",
+    "level": 5
+  },
+  {
+    "word": "roborant",
+    "phonetic": "ROH-bor-unt",
+    "pos": "adjective",
+    "definition": "strengthening or invigorating",
+    "etymology": "Latin roborare, to strengthen",
+    "synonyms": "fortifying, invigorating",
+    "antonym": "debilitating",
+    "level": 5
+  },
+  {
+    "word": "saturnine",
+    "phonetic": "SAT-ur-nyne",
+    "pos": "adjective",
+    "definition": "slow and gloomy in temperament",
+    "etymology": "from the god Saturn",
+    "synonyms": "dour, gloomy",
+    "antonym": "buoyant",
+    "level": 5
+  },
+  {
+    "word": "thaumaturge",
+    "phonetic": "THAW-muh-turj",
+    "pos": "noun",
+    "definition": "a worker of miracles; a magician",
+    "etymology": "Greek thauma + ergon, wonder-work",
+    "synonyms": "miracle-worker, conjurer",
+    "antonym": "skeptic",
+    "level": 5
+  },
+  {
+    "word": "ubiety",
+    "phonetic": "yoo-BY-ih-tee",
+    "pos": "noun",
+    "definition": "the state of being in a definite place",
+    "etymology": "Latin ubi, where",
+    "synonyms": "locality, position",
+    "antonym": "ubiquity",
+    "level": 5
+  },
+  {
+    "word": "vitiate",
+    "phonetic": "VISH-ee-ayt",
+    "pos": "verb",
+    "definition": "to spoil or impair the quality or efficiency of something",
+    "etymology": "Latin vitiare, to corrupt",
+    "synonyms": "corrupt, impair",
+    "antonym": "enhance",
+    "level": 5
+  },
+  {
+    "word": "welkin",
+    "phonetic": "WEL-kin",
+    "pos": "noun",
+    "definition": "the sky; the vault of heaven",
+    "etymology": "Old English wolcen, cloud",
+    "synonyms": "sky, firmament",
+    "antonym": "ground",
+    "level": 5
   }
 ]
