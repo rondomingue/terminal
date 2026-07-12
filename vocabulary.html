@@ -448,8 +448,8 @@ function buildQuiz(length=state.mode){
   return [1,2,3,4,5].flatMap(level=>shuffle(WORD_BANK.filter(w=>w.level===level)).slice(0,perLevel));
 }
 function optionSet(word){
-  const defs=shuffle(WORD_BANK.filter(w=>w.level===word.level&&w.word!==word.word).map(w=>w.definition)).slice(0,4);
-  while(defs.length<4) defs.push(shuffle(WORD_BANK.filter(w=>w.word!==word.word).map(w=>w.definition))[0]);
+  const defs=shuffle(WORD_BANK.filter(w=>w.level===word.level&&w.word!==word.word).map(w=>w.definition)).slice(0,3);
+  while(defs.length<3) defs.push(shuffle(WORD_BANK.filter(w=>w.word!==word.word).map(w=>w.definition))[0]);
   return shuffle([word.definition,...defs]).map((text,i)=>({letter:String.fromCharCode(65+i),text,correct:text===word.definition}));
 }
 function escapeHtml(text){
