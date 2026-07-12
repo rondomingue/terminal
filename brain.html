@@ -386,7 +386,6 @@
 
   function getAudioContext(){
     if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if(audioCtx.state === "suspended") audioCtx.resume();
     return audioCtx;
   }
 
@@ -405,22 +404,41 @@
   function playSoftClick(kind="click"){
     try{
       const ctx = getAudioContext();
+      const fire = () => {
       const now = ctx.currentTime;
       const src = ctx.createBufferSource();
       const filter = ctx.createBiquadFilter();
       const gain = ctx.createGain();
+      const tone = ctx.createOscillator();
+      const toneGain = ctx.createGain();
       src.buffer = getClickBuffer(ctx);
       filter.type = "bandpass";
-      filter.frequency.setValueAtTime(kind === "hover" ? 1850 : 1320, now);
-      filter.Q.value = kind === "hover" ? 7 : 5;
+      filter.frequency.setValueAtTime(kind === "hover" ? 2100 : 1550, now);
+      filter.Q.value = kind === "hover" ? 6 : 4.4;
       gain.gain.setValueAtTime(0.0001, now);
-      gain.gain.exponentialRampToValueAtTime(kind === "hover" ? 0.018 : 0.034, now + 0.004);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.048);
+      gain.gain.exponentialRampToValueAtTime(kind === "hover" ? 0.052 : 0.12, now + 0.003);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.06);
+      tone.type = "sine";
+      tone.frequency.setValueAtTime(kind === "hover" ? 880 : 520, now);
+      tone.frequency.exponentialRampToValueAtTime(kind === "hover" ? 1320 : 760, now + 0.035);
+      toneGain.gain.setValueAtTime(0.0001, now);
+      toneGain.gain.exponentialRampToValueAtTime(kind === "hover" ? 0.018 : 0.038, now + 0.002);
+      toneGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.055);
       src.connect(filter);
       filter.connect(gain);
       gain.connect(ctx.destination);
+      tone.connect(toneGain);
+      toneGain.connect(ctx.destination);
       src.start(now);
       src.stop(now + 0.06);
+      tone.start(now);
+      tone.stop(now + 0.06);
+      };
+      if(ctx.state === "suspended"){
+        ctx.resume().then(fire).catch(() => {});
+      }else{
+        fire();
+      }
     }catch(error){}
   }
 
@@ -432,10 +450,7 @@
   }
 
   function bindSoftSounds(){
-    document.addEventListener("pointerdown", () => {
-      try{ getAudioContext(); }catch(error){}
-    }, {once:true});
-    document.addEventListener("click", event => {
+    document.addEventListener("pointerdown", event => {
       if(event.target.closest("button,.locator")) playSoftClick("click");
     });
     document.querySelectorAll("button,.locator").forEach(el => {
