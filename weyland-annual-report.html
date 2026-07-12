@@ -1400,6 +1400,8 @@
 
     function initDepthSystem() {
       const shell = document.querySelector(".report-shell");
+      if (!shell) return;
+
       const canvas = document.getElementById("depthField");
       const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       const surfaces = Array.from(document.querySelectorAll(".topbar, .nav-strip, .ticker, .hero, .side-card, .panel, .footer"));
