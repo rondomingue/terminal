@@ -380,6 +380,68 @@
   ];
   let activeSite = "hippocampal";
   const log = [];
+  let audioCtx = null;
+  let clickBuffer = null;
+  let lastHoverTick = 0;
+
+  function getAudioContext(){
+    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if(audioCtx.state === "suspended") audioCtx.resume();
+    return audioCtx;
+  }
+
+  function getClickBuffer(ctx){
+    if(clickBuffer) return clickBuffer;
+    const len = Math.floor(ctx.sampleRate * 0.028);
+    clickBuffer = ctx.createBuffer(1, len, ctx.sampleRate);
+    const data = clickBuffer.getChannelData(0);
+    for(let i = 0; i < len; i++){
+      const t = i / len;
+      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, 4);
+    }
+    return clickBuffer;
+  }
+
+  function playSoftClick(kind="click"){
+    try{
+      const ctx = getAudioContext();
+      const now = ctx.currentTime;
+      const src = ctx.createBufferSource();
+      const filter = ctx.createBiquadFilter();
+      const gain = ctx.createGain();
+      src.buffer = getClickBuffer(ctx);
+      filter.type = "bandpass";
+      filter.frequency.setValueAtTime(kind === "hover" ? 1850 : 1320, now);
+      filter.Q.value = kind === "hover" ? 7 : 5;
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(kind === "hover" ? 0.018 : 0.034, now + 0.004);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.048);
+      src.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+      src.start(now);
+      src.stop(now + 0.06);
+    }catch(error){}
+  }
+
+  function playHoverTick(){
+    const now = performance.now();
+    if(now - lastHoverTick < 75)return;
+    lastHoverTick = now;
+    playSoftClick("hover");
+  }
+
+  function bindSoftSounds(){
+    document.addEventListener("pointerdown", () => {
+      try{ getAudioContext(); }catch(error){}
+    }, {once:true});
+    document.addEventListener("click", event => {
+      if(event.target.closest("button,.locator")) playSoftClick("click");
+    });
+    document.querySelectorAll("button,.locator").forEach(el => {
+      el.addEventListener("pointerenter", playHoverTick);
+    });
+  }
 
   function addLog(text, type="MRI"){
     const stamp = new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit",second:"2-digit"});
@@ -764,6 +826,7 @@
   }
 
   renderControls();
+  bindSoftSounds();
   setSite("hippocampal");
   makePanelsDraggable();
   window.addEventListener("resize", restorePanelPositions);
