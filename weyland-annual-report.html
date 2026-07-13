@@ -1043,7 +1043,64 @@
       animation: none !important;
     }
   }
-</style>
+    .depth-field {
+      --scroll-depth: 0px;
+    }
+
+    .depth-grid--rear {
+      translate: 0 calc(var(--scroll-depth) * -0.035);
+    }
+
+    .depth-grid--mid {
+      translate: 0 calc(var(--scroll-depth) * -0.065);
+    }
+
+    .depth-ribbon--one {
+      translate: 0 calc(var(--scroll-depth) * -0.08);
+    }
+
+    .depth-ribbon--two {
+      translate: 0 calc(var(--scroll-depth) * -0.045);
+    }
+
+    .depth-pane--one {
+      translate: 0 calc(var(--scroll-depth) * -0.10);
+    }
+
+    .depth-pane--two {
+      translate: 0 calc(var(--scroll-depth) * -0.06);
+    }
+
+    .depth-pane--three {
+      translate: 0 calc(var(--scroll-depth) * -0.12);
+    }
+
+    .depth-pane--four {
+      translate: 0 calc(var(--scroll-depth) * -0.05);
+    }
+
+    .depth-node--one {
+      translate: 0 calc(var(--scroll-depth) * -0.11);
+    }
+
+    .depth-node--two {
+      translate: 0 calc(var(--scroll-depth) * -0.055);
+    }
+
+    .depth-node--three {
+      translate: 0 calc(var(--scroll-depth) * -0.085);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .depth-field {
+        --scroll-depth: 0px !important;
+      }
+
+      .depth-field * {
+        translate: none !important;
+      }
+    }
+  </style>
 </head>
 <body>
 

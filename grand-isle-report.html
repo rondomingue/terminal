@@ -187,7 +187,7 @@
   .fperiod .fwind{font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:8px}
 
   /* map */
-  .map-frame{width:100%;aspect-ratio:16/10;border:1px solid var(--line);overflow:hidden;background:var(--panel-2);position:relative;z-index:1}
+  .map-frame{width:100%;aspect-ratio:16/13;border:1px solid var(--line);overflow:hidden;background:var(--panel-2);position:relative;z-index:1}
   #map{width:100%;height:100%}
   .route-readout{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;position:relative;z-index:1;font-family:var(--mono);font-size:12px}
   .route-readout div b{display:block;font-family:var(--sans);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:3px}
@@ -228,6 +228,17 @@
   .tide-cycle-note{margin-top:12px;font-size:12px;color:var(--ink-2);line-height:1.5;font-family:var(--sans);position:relative;z-index:1}
 
   /* report links */
+  .species-intro{font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.5;font-family:var(--sans);position:relative;z-index:1}
+  .species-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;position:relative;z-index:1}
+  .species-card{border:1px solid var(--line);padding:12px;background:color-mix(in srgb,var(--panel-2) 55%,transparent)}
+  .sp-tag{display:inline-block;font-family:var(--sans);font-size:9px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;padding:2px 7px;border:1px solid currentColor;margin-bottom:8px}
+  .sp-tag.inshore{color:var(--cyan)}
+  .sp-tag.nearshore{color:var(--amber)}
+  .sp-tag.offshore{color:var(--red)}
+  .sp-tag.crabbing{color:var(--green)}
+  .sp-name{font-family:var(--sans);font-size:15px;font-weight:700;text-transform:uppercase;color:var(--ink);margin-bottom:6px;letter-spacing:.01em}
+  .sp-bait{font-family:var(--mono);font-size:10.5px;color:var(--ink-2);margin-bottom:6px;line-height:1.4}
+  .sp-note{font-family:var(--sans);font-size:11px;color:var(--muted);line-height:1.4}
   .report-groups{display:grid;gap:18px;position:relative;z-index:1}
   .report-group b{display:block;font-family:var(--sans);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--amber);font-weight:700;margin-bottom:8px}
   .report-item{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:baseline;border-top:1px solid var(--line);padding:10px 0}
@@ -258,6 +269,7 @@
     .tide-row{grid-template-columns:60px 1fr auto auto;font-size:11px}
     .panel{padding:16px}
     .moon-grid{grid-template-columns:1fr}
+    .species-grid{grid-template-columns:1fr}
   }
 </style>
 </head>
@@ -312,6 +324,76 @@
           <a class="link-btn" href="https://www.511la.org" target="_blank" rel="noopener">511 Louisiana ↗</a>
         </div>
         <div class="flood-note"><b>Know before you go:</b> LA-1 is the only road on and off Grand Isle. The Leeville and Fourchon stretches are prone to overwash at high tide, during onshore wind events, and in tropical weather.</div>
+      </article>
+
+      <article class="panel" id="card-species">
+        <div class="p-head">
+          <div class="p-label">Seasonal Species Guide · July</div>
+          <span class="p-updated">RESEARCHED</span>
+        </div>
+        <p class="species-intro">What's typically active in Grand Isle waters this time of year, and what locals bait for it. Not live catch data — no free source publishes that — this is a seasonal reference compiled from state and regional fishing sources.</p>
+        <div class="species-grid">
+          <div class="species-card">
+            <b class="sp-tag inshore">Inshore</b>
+            <div class="sp-name">Redfish</div>
+            <div class="sp-bait">BAIT · Live shrimp, cocahoe minnows, finger mullet</div>
+            <div class="sp-note">Most active early morning and evening on a moving tide; work marsh edges and points.</div>
+          </div>
+          <div class="species-card">
+            <b class="sp-tag inshore">Inshore</b>
+            <div class="sp-name">Speckled Trout</div>
+            <div class="sp-bait">BAIT · Live shrimp under a popping cork, cocahoe minnows</div>
+            <div class="sp-note">Calm summer mornings; look for diving birds and bait activity over grass flats and rigs.</div>
+          </div>
+          <div class="species-card">
+            <b class="sp-tag inshore">Inshore</b>
+            <div class="sp-name">Flounder</div>
+            <div class="sp-bait">BAIT · Cocahoes or finger mullet fished slow on bottom, soft-plastic jigs</div>
+            <div class="sp-note">Sandy troughs, drains, and pass mouths with moving water.</div>
+          </div>
+          <div class="species-card">
+            <b class="sp-tag inshore">Inshore</b>
+            <div class="sp-name">Sheepshead</div>
+            <div class="sp-bait">BAIT · Live shrimp, fiddler crabs</div>
+            <div class="sp-note">Fish tight to pilings, docks, and rig legs — light tackle, small hooks.</div>
+          </div>
+          <div class="species-card">
+            <b class="sp-tag inshore">Inshore</b>
+            <div class="sp-name">Black Drum</div>
+            <div class="sp-bait">BAIT · Crab or shrimp on bottom</div>
+            <div class="sp-note">Structure and channel edges; the bigger fish key in on crab.</div>
+          </div>
+          <div class="species-card">
+            <b class="sp-tag nearshore">Nearshore</b>
+            <div class="sp-name">Blacktip &amp; Bull Shark</div>
+            <div class="sp-bait">BAIT · Cut mullet or menhaden</div>
+            <div class="sp-note">Common close to the beach in summer heat; use a wire or heavy mono leader.</div>
+          </div>
+          <div class="species-card">
+            <b class="sp-tag offshore">Offshore</b>
+            <div class="sp-name">Red Snapper</div>
+            <div class="sp-bait">BAIT · Cut or live bait, bottom jigs</div>
+            <div class="sp-note">2026 federal season runs June 1–Oct 26; fish nearshore rigs and platforms.</div>
+          </div>
+          <div class="species-card">
+            <b class="sp-tag offshore">Offshore / Pass</b>
+            <div class="sp-name">Tarpon</div>
+            <div class="sp-bait">BAIT · Live mullet, live crab</div>
+            <div class="sp-note">Season builds through July into the Grand Isle Tarpon Rodeo in late summer.</div>
+          </div>
+          <div class="species-card">
+            <b class="sp-tag offshore">Offshore</b>
+            <div class="sp-name">Yellowfin Tuna</div>
+            <div class="sp-bait">BAIT · Trolled lures, live bait near rigs</div>
+            <div class="sp-note">Deepwater Gulf rigs; a year-round target and a summer staple for the fleet.</div>
+          </div>
+          <div class="species-card">
+            <b class="sp-tag crabbing">Crabbing</b>
+            <div class="sp-name">Blue Crab</div>
+            <div class="sp-bait">BAIT · Chicken or turkey necks</div>
+            <div class="sp-note">Peak season May–September; drop nets or trotlines off the beach or bay side.</div>
+          </div>
+        </div>
       </article>
     </div>
 
@@ -699,7 +781,7 @@ async function initMap(){
       container:'map',
       style:isLight?'mapbox://styles/mapbox/light-v11':'mapbox://styles/mapbox/dark-v11',
       center:[-90.12,29.3],
-      zoom:9.4,
+      zoom:8.6,
       attributionControl:false
     });
     map.addControl(new mapboxgl.AttributionControl({compact:true}));
@@ -722,7 +804,7 @@ async function initMap(){
         map.addLayer({id:'route-line',type:'line',source:'route',layout:{'line-join':'round','line-cap':'round'},paint:{'line-color':'#4fe0d4','line-width':2.5,'line-opacity':0.9}});
         const coords=route.geometry.coordinates;
         const bounds=coords.reduce((b,c)=>b.extend(c),new mapboxgl.LngLatBounds(coords[0],coords[0]));
-        map.fitBounds(bounds,{padding:36,duration:0});
+        map.fitBounds(bounds,{padding:70,maxZoom:9.3,duration:0});
 
         $('route-readout').innerHTML=`
           <div><b>Distance</b><span>${(route.distance*0.000621371).toFixed(1)} MI</span></div>
