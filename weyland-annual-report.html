@@ -1,1578 +1,1086 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Weyland Corporation // Annual Report 2093</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Weyland Yutani Annual Report</title>
   <style>
     :root {
-      --bg: #03100f;
-      --paper: #d7eee9;
-      --paper-soft: rgba(215, 238, 233, 0.68);
-      --paper-dim: rgba(215, 238, 233, 0.36);
-      --line: rgba(105, 214, 204, 0.18);
-      --line-strong: rgba(202, 242, 234, 0.44);
-      --green: #7d9a36;
-      --green-soft: rgba(125, 154, 54, 0.28);
-      --cyan: #55e5d7;
-      --cyan-soft: rgba(85, 229, 215, 0.18);
-      --red: #e15254;
-      --amber: #c7a75a;
-      --panel: rgba(10, 16, 14, 0.72);
-      --panel-2: rgba(18, 25, 22, 0.88);
-      --mono: "SFMono-Regular", "Menlo", "Consolas", monospace;
-      --sans: "Avenir Next Condensed", "DIN Condensed", "Helvetica Neue", Arial, sans-serif;
+      --bg: #061211;
+      --panel: rgba(7, 28, 29, 0.74);
+      --panel-soft: rgba(194, 255, 250, 0.055);
+      --line: rgba(157, 244, 239, 0.22);
+      --line-dim: rgba(157, 244, 239, 0.095);
+      --cyan: #66f6ff;
+      --cyan-soft: rgba(102, 246, 255, 0.18);
+      --green: #99d55f;
+      --red: #ff5a63;
+      --amber: #f0bd5f;
+      --text: #e9fbf7;
+      --muted: rgba(233, 251, 247, 0.58);
+      --ghost: rgba(233, 251, 247, 0.22);
+      --mono: "Avenir Next Condensed", "HelveticaNeue-CondensedBold", "Arial Narrow", "Inter Tight", "Helvetica Neue", Arial, sans-serif;
+      --sans: "Avenir Next", "Helvetica Neue", Arial, sans-serif;
     }
 
     * { box-sizing: border-box; }
 
     html {
-      background: var(--bg);
-      color: var(--paper);
-      font-family: var(--sans);
-      letter-spacing: 0.08em;
       min-height: 100%;
+      background: var(--bg);
     }
 
     body {
       margin: 0;
       min-height: 100vh;
+      color: var(--text);
+      font-family: var(--mono);
+      font-weight: 300;
+      letter-spacing: 0.08em;
       background:
-        radial-gradient(circle at 72% 16%, rgba(85, 229, 215, 0.12), transparent 28rem),
-        radial-gradient(circle at 18% 78%, rgba(125, 154, 54, 0.08), transparent 32rem),
-        linear-gradient(120deg, #020807, #061412 42%, #0b211e);
+        radial-gradient(circle at 74% 10%, rgba(76, 177, 164, 0.16), transparent 30rem),
+        radial-gradient(circle at 18% 42%, rgba(99, 246, 255, 0.08), transparent 26rem),
+        linear-gradient(rgba(82, 245, 238, 0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(82, 245, 238, 0.045) 1px, transparent 1px),
+        linear-gradient(rgba(82, 245, 238, 0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(82, 245, 238, 0.018) 1px, transparent 1px),
+        #061211;
+      background-size: auto, auto, 96px 96px, 96px 96px, 12px 12px, 12px 12px, auto;
       overflow-x: hidden;
-      perspective: 1800px;
     }
 
-    body::before,
-    body::after {
+    body::before {
       content: "";
       position: fixed;
       inset: 0;
       pointer-events: none;
-      z-index: 0;
-    }
-
-    body::before {
       background:
-        linear-gradient(rgba(85, 229, 215, 0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(85, 229, 215, 0.04) 1px, transparent 1px),
-        linear-gradient(34deg, transparent 0 48%, rgba(85, 229, 215, 0.035) 49% 50%, transparent 51% 100%);
-      background-size: 28px 28px, 28px 28px, 220px 160px;
-      mask-image: linear-gradient(to bottom, transparent, black 14%, black 86%, transparent);
-    }
-
-    body::after {
-      opacity: 0.13;
-      background-image:
-        repeating-linear-gradient(0deg, rgba(255,255,255,0.16) 0 1px, transparent 1px 3px),
-        radial-gradient(circle at 20% 30%, rgba(255,255,255,0.18), transparent 1px),
-        radial-gradient(circle at 75% 80%, rgba(255,255,255,0.18), transparent 1px);
+        repeating-linear-gradient(0deg, rgba(255,255,255,0.032) 0 1px, transparent 1px 4px),
+        radial-gradient(circle at 50% 0%, transparent 0, rgba(0,0,0,0.34) 62%);
       mix-blend-mode: screen;
+      opacity: 0.38;
+      z-index: 20;
     }
 
     a { color: inherit; }
 
-    .depth-field,
-    .depth-vignette {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
-    }
-
-    .depth-field {
-      opacity: 0.34;
-      mix-blend-mode: screen;
-      filter: blur(0.4px);
-    }
-
-    .depth-vignette {
-      background:
-        radial-gradient(circle at calc(50% + var(--depth-light-x, 0px)) calc(42% + var(--depth-light-y, 0px)), rgba(85, 229, 215, 0.11), transparent 34rem),
-        radial-gradient(circle at 50% 50%, transparent 0 46%, rgba(0, 0, 0, 0.34) 78%, rgba(0,0,0,0.72) 100%);
-      opacity: 0.88;
-    }
-
-    .report-shell {
-      position: relative;
-      z-index: 1;
-      width: min(1800px, calc(100vw - 56px));
-      margin: 28px auto 80px;
+    .report {
+      width: min(1680px, calc(100vw - 44px));
+      margin: 22px auto 64px;
       border: 1px solid var(--line);
-      background: linear-gradient(180deg, rgba(4, 20, 18, 0.74), rgba(3, 10, 9, 0.96));
-      box-shadow: 0 0 80px rgba(0, 0, 0, 0.72), inset 0 0 0 1px rgba(255,255,255,0.03);
-      transform-style: preserve-3d;
-    }
-
-    .depth-surface {
+      background: linear-gradient(135deg, rgba(8, 26, 27, 0.82), rgba(6, 15, 17, 0.94));
+      box-shadow: 0 28px 90px rgba(0, 0, 0, 0.5);
       position: relative;
-      transform:
-        translate3d(var(--depth-x, 0px), var(--depth-y, 0px), var(--depth-z, 0px))
-        scale(var(--depth-scale, 1));
-      transform-style: preserve-3d;
-      will-change: transform, filter;
-      transition:
-        transform 700ms cubic-bezier(0.16, 1, 0.3, 1),
-        filter 700ms cubic-bezier(0.16, 1, 0.3, 1);
-      filter: blur(var(--depth-blur, 0px));
+      isolation: isolate;
     }
 
-    .depth-surface:hover {
-      transform:
-        translate3d(var(--depth-x, 0px), var(--depth-y, 0px), calc(var(--depth-z, 0px) + 6px))
-        scale(var(--depth-scale, 1));
+    .report::before,
+    .report::after {
+      content: "";
+      position: absolute;
+      inset: 18px;
+      pointer-events: none;
+      border: 1px solid rgba(196, 255, 252, 0.08);
+      z-index: -1;
     }
 
-    .report-shell.depth-ready .topbar,
-    .report-shell.depth-ready .hero,
-    .report-shell.depth-ready .panel,
-    .report-shell.depth-ready .side-card {
-      backdrop-filter: blur(8px);
+    .report::after {
+      inset: 0;
+      border: 0;
+      background:
+        linear-gradient(132deg, transparent 0 16%, rgba(96, 255, 245, 0.065) 16.1% 16.24%, transparent 16.34%),
+        linear-gradient(28deg, transparent 0 42%, rgba(96, 255, 245, 0.05) 42.1% 42.22%, transparent 42.32%),
+        linear-gradient(153deg, transparent 0 72%, rgba(96, 255, 245, 0.055) 72.1% 72.24%, transparent 72.34%);
+      z-index: -2;
     }
 
-    .report-shell.depth-ready .topbar {
-      z-index: 7;
-      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.42);
-    }
-
-    .report-shell.depth-ready .nav-strip {
-      z-index: 8;
-      box-shadow: 0 18px 54px rgba(0, 0, 0, 0.36);
-    }
-
-    .report-shell.depth-ready .hero {
-      z-index: 4;
-      margin-top: -8px;
-      box-shadow: 0 36px 120px rgba(0, 0, 0, 0.55);
-    }
-
-    .report-shell.depth-ready .main-grid,
-    .report-shell.depth-ready .classified {
-      position: relative;
-      z-index: 6;
-      margin-top: -24px;
-      box-shadow: 0 -18px 70px rgba(0, 0, 0, 0.42);
-    }
-
-    .report-shell.depth-ready .panel,
-    .report-shell.depth-ready .side-card {
-      box-shadow: 0 18px 54px rgba(0, 0, 0, 0.32), inset 0 0 0 1px rgba(255,255,255,0.018);
-    }
-
-    .topbar {
+    .topline {
       display: grid;
       grid-template-columns: 1fr auto;
-      gap: 28px;
-      align-items: start;
-      padding: 28px 32px 22px;
-      border-bottom: 1px solid var(--line);
+      gap: 24px;
+      align-items: center;
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--line-dim);
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
     }
 
-    .identity {
+    .topline strong {
+      color: var(--text);
+      font-weight: 500;
+      letter-spacing: 0.16em;
+    }
+
+    .meta-chain {
       display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
       align-items: center;
-      gap: 18px;
+    }
+
+    .status-led {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--cyan);
+    }
+
+    .status-led::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 15px var(--cyan);
+    }
+
+    .hero {
+      min-height: 720px;
+      display: grid;
+      grid-template-columns: minmax(360px, 0.92fr) minmax(620px, 1.35fr);
+      gap: 30px;
+      padding: 42px 48px 52px;
+      position: relative;
+    }
+
+    .hero-copy {
+      align-self: stretch;
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      gap: 28px;
       min-width: 0;
     }
 
-    .identity img {
-      width: 128px;
-      height: 66px;
-      object-fit: contain;
-      filter: invert(1) contrast(1.2);
-      opacity: 0.82;
-      padding: 8px 12px;
-      border: 1px solid var(--line);
-      background: rgba(215, 213, 199, 0.05);
-    }
-
-    .kicker {
-      margin: 0 0 8px;
-      color: var(--paper-dim);
-      font: 700 12px/1.2 var(--mono);
+    .eyebrow {
+      color: var(--cyan);
+      font-size: 12px;
       letter-spacing: 0.28em;
       text-transform: uppercase;
     }
 
     h1 {
       margin: 0;
-      font-size: clamp(32px, 5.2vw, 92px);
-      line-height: 0.88;
-      letter-spacing: 0.18em;
-      font-weight: 500;
+      max-width: 12ch;
+      font-size: clamp(72px, 9vw, 168px);
+      line-height: 0.82;
+      font-weight: 200;
+      letter-spacing: 0.03em;
       text-transform: uppercase;
     }
 
-    .subline {
-      margin: 12px 0 0;
-      color: var(--paper-soft);
-      font: 12px/1.8 var(--mono);
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
+    .subtitle {
+      margin: 0;
+      max-width: 62ch;
+      color: rgba(233, 251, 247, 0.68);
+      font: 300 18px/1.55 var(--sans);
+      letter-spacing: 0.015em;
     }
 
-    .report-meta {
+    .metric-grid {
+      align-self: end;
       display: grid;
-      grid-template-columns: repeat(3, minmax(90px, 1fr));
-      gap: 8px;
-      min-width: 430px;
-    }
-
-    .meta-cell {
-      padding: 14px 14px 12px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       border: 1px solid var(--line);
-      background: rgba(255,255,255,0.025);
-      text-align: right;
+      background: rgba(0,0,0,0.18);
     }
 
-    .meta-cell strong {
-      display: block;
-      color: var(--paper);
-      font: 700 24px/1 var(--mono);
-      letter-spacing: 0.12em;
+    .metric {
+      min-height: 112px;
+      padding: 18px 18px 16px;
+      border-right: 1px solid var(--line-dim);
+      border-bottom: 1px solid var(--line-dim);
     }
 
-    .meta-cell span {
+    .metric:nth-child(2n) { border-right: 0; }
+    .metric:nth-last-child(-n+2) { border-bottom: 0; }
+
+    .metric b {
       display: block;
-      margin-top: 8px;
-      color: var(--paper-dim);
-      font: 700 10px/1.2 var(--mono);
-      letter-spacing: 0.16em;
+      color: var(--text);
+      font-size: clamp(28px, 3.5vw, 48px);
+      line-height: 1;
+      font-weight: 300;
+      letter-spacing: 0.08em;
+    }
+
+    .metric span {
+      display: block;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 11px;
       text-transform: uppercase;
     }
 
-    .nav-strip {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0;
-      padding: 0 32px;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .nav-strip button {
-      appearance: none;
-      border: 0;
-      border-right: 1px solid var(--line);
-      border-left: 1px solid transparent;
-      background: transparent;
-      color: var(--paper-dim);
-      cursor: pointer;
-      padding: 13px 18px;
-      font: 700 11px/1 var(--mono);
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-    }
-
-    .nav-strip button:first-child { border-left-color: var(--line); }
-    .nav-strip button.active {
-      color: var(--cyan);
-      background: var(--cyan-soft);
-      box-shadow: inset 0 -2px 0 var(--cyan);
-    }
-
-    .hero {
-      display: grid;
-      grid-template-columns: minmax(0, 1.55fr) minmax(360px, 0.75fr);
-      min-height: 620px;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .hero-visual {
+    .depth-stage {
       position: relative;
-      min-height: 620px;
-      overflow: hidden;
-      border-right: 1px solid var(--line);
-      background: #030504;
+      min-height: 640px;
+      perspective: 1200px;
+      transform-style: preserve-3d;
     }
 
-    .hero-visual img {
+    .media-card {
+      position: absolute;
+      border: 1px solid rgba(194,255,252,0.18);
+      background: rgba(5, 20, 21, 0.75);
+      overflow: hidden;
+      box-shadow: 0 20px 70px rgba(0,0,0,0.42);
+    }
+
+    .media-card::before {
+      content: attr(data-label);
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      z-index: 2;
+      padding: 5px 8px;
+      background: rgba(102, 246, 255, 0.74);
+      color: #001819;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+
+    .media-card::after {
+      content: "";
       position: absolute;
       inset: 0;
+      background:
+        linear-gradient(90deg, transparent 0 46%, rgba(102,246,255,0.13) 46.1% 46.35%, transparent 46.5%),
+        repeating-linear-gradient(0deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 5px);
+      mix-blend-mode: screen;
+      pointer-events: none;
+    }
+
+    .media-card img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      opacity: 0.54;
-      filter: grayscale(0.15) hue-rotate(72deg) saturate(0.9) contrast(1.08) brightness(0.72);
+      display: block;
+      filter: saturate(0.72) contrast(1.08) brightness(0.72);
     }
 
-    .hero-visual::before {
-      content: "";
+    .media-card.primary {
+      width: 58%;
+      height: 72%;
+      top: 8%;
+      right: 7%;
+      transform: translateZ(80px) rotateY(-6deg);
+    }
+
+    .media-card.secondary {
+      width: 38%;
+      height: 36%;
+      top: 0;
+      left: 0;
+      transform: translateZ(-60px) rotateY(7deg);
+      filter: blur(1.1px);
+      opacity: 0.78;
+    }
+
+    .media-card.tertiary {
+      width: 43%;
+      height: 34%;
+      right: 0;
+      bottom: 0;
+      transform: translateZ(15px) rotateY(4deg);
+    }
+
+    .media-card.strip {
+      width: 42%;
+      height: 22%;
+      left: 6%;
+      bottom: 9%;
+      transform: translateZ(120px) rotateY(-12deg);
+    }
+
+    .scan-lines {
       position: absolute;
-      inset: 0;
-      background:
-        linear-gradient(90deg, rgba(4, 8, 7, 0.84), transparent 22%, transparent 66%, rgba(4, 8, 7, 0.78)),
-        linear-gradient(0deg, rgba(4, 8, 7, 0.92), transparent 36%, rgba(4, 8, 7, 0.22)),
-        repeating-linear-gradient(90deg, transparent 0 22px, rgba(85, 229, 215, 0.04) 22px 23px);
-      z-index: 1;
-    }
-
-    .hero-title {
-      position: absolute;
-      left: 34px;
-      bottom: 32px;
-      z-index: 2;
-      width: min(760px, calc(100% - 68px));
-    }
-
-    .hero-title h2 {
-      margin: 0;
-      font-size: clamp(38px, 7vw, 118px);
-      line-height: 0.9;
-      letter-spacing: 0.13em;
-      text-transform: uppercase;
-      font-weight: 500;
-      color: rgba(226, 226, 214, 0.93);
-    }
-
-    .hero-title p {
-      margin: 18px 0 0;
-      max-width: 790px;
-      color: var(--paper-soft);
-      font: 12px/1.85 var(--mono);
-      letter-spacing: 0.13em;
-      text-transform: uppercase;
-    }
-
-    .scan-grid {
-      position: absolute;
-      inset: 28px;
-      z-index: 2;
+      inset: 7% 4% 6%;
+      border: 1px solid rgba(194,255,252,0.16);
       pointer-events: none;
-      border: 1px solid rgba(215, 213, 199, 0.22);
+      transform: translateZ(170px);
     }
 
-    .scan-grid::before,
-    .scan-grid::after {
-      content: "";
+    .scan-lines i {
       position: absolute;
-      background: rgba(215, 213, 199, 0.22);
+      height: 1px;
+      background: rgba(180, 255, 250, 0.28);
+      box-shadow: 0 0 14px rgba(102, 246, 255, 0.38);
     }
 
-    .scan-grid::before { left: 50%; top: 0; bottom: 0; width: 1px; }
-    .scan-grid::after { top: 50%; left: 0; right: 0; height: 1px; }
+    .scan-lines i:nth-child(1) { top: 14%; left: 8%; width: 68%; }
+    .scan-lines i:nth-child(2) { top: 41%; left: 0; width: 86%; }
+    .scan-lines i:nth-child(3) { top: 62%; right: 3%; width: 72%; }
+    .scan-lines i:nth-child(4) { bottom: 15%; left: 12%; width: 56%; }
 
-    .hero-side {
-      padding: 30px;
-      background:
-        linear-gradient(135deg, rgba(125, 154, 54, 0.13), transparent 42%),
-        rgba(9, 13, 11, 0.9);
+    .section {
+      padding: 34px 48px 46px;
+      border-top: 1px solid var(--line-dim);
+      position: relative;
     }
 
-    .side-card {
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,0.025);
-      padding: 18px;
-      margin-bottom: 16px;
+    .section-header {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 22px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--line-dim);
+      padding-bottom: 16px;
     }
 
-    .side-card h3,
-    .panel h3,
-    .chart-card h3 {
-      margin: 0 0 14px;
-      color: var(--paper);
-      font: 700 14px/1 var(--mono);
+    .section h2,
+    .panel h3 {
+      margin: 0;
+      font-size: clamp(22px, 2.2vw, 38px);
+      line-height: 1;
+      font-weight: 300;
       letter-spacing: 0.22em;
       text-transform: uppercase;
     }
 
-    .exec {
-      display: grid;
-      grid-template-columns: 74px 1fr;
-      gap: 14px;
-      align-items: center;
-      margin-top: 14px;
-      border-top: 1px solid var(--line);
-      padding-top: 14px;
-    }
-
-    .exec:first-of-type {
-      margin-top: 0;
-      border-top: 0;
-      padding-top: 0;
-    }
-
-    .exec img {
-      width: 74px;
-      height: 92px;
-      object-fit: cover;
-      filter: grayscale(0.2) contrast(1.05) brightness(0.9);
-      border: 1px solid var(--line);
-    }
-
-    .exec strong {
-      display: block;
-      color: var(--paper);
-      font: 700 17px/1.1 var(--mono);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-    }
-
-    .exec span {
-      display: block;
-      margin-top: 6px;
-      color: var(--paper-soft);
-      font: 11px/1.55 var(--mono);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-    }
-
-    .metric-list {
-      display: grid;
-      gap: 10px;
-    }
-
-    .metric-row {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 16px;
-      align-items: end;
-      padding-bottom: 9px;
-      border-bottom: 1px solid rgba(215, 213, 199, 0.10);
-      color: var(--paper-soft);
-      font: 700 11px/1.35 var(--mono);
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-    }
-
-    .metric-row b {
-      color: var(--paper);
-      font-size: 18px;
-      letter-spacing: 0.08em;
-      white-space: nowrap;
-    }
-
-    .main-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 420px;
-      gap: 0;
-    }
-
-    .main-left {
-      border-right: 1px solid var(--line);
-      min-width: 0;
-    }
-
-    .panel {
-      padding: 28px 32px;
-      border-bottom: 1px solid var(--line);
-      background: linear-gradient(180deg, rgba(255,255,255,0.025), transparent);
-    }
-
-    .section-head {
-      display: flex;
-      justify-content: space-between;
-      gap: 16px;
-      align-items: end;
-      margin-bottom: 18px;
-    }
-
-    .section-head p {
-      margin: 0;
-      color: var(--paper-dim);
-      max-width: 720px;
-      font: 11px/1.6 var(--mono);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-    }
-
-    .earnings-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-family: var(--mono);
-      letter-spacing: 0.08em;
-    }
-
-    .earnings-table th {
-      color: var(--paper-dim);
-      text-align: left;
-      font-size: 10px;
-      text-transform: uppercase;
-      padding: 10px 10px;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .earnings-table td {
-      color: var(--paper-soft);
-      font-size: 12px;
-      padding: 12px 10px;
-      border-bottom: 1px solid rgba(215, 213, 199, 0.09);
-      vertical-align: top;
-    }
-
-    .earnings-table tbody tr {
-      cursor: crosshair;
-      transition: background 160ms ease, color 160ms ease;
-    }
-
-    .earnings-table tbody tr:hover,
-    .earnings-table tbody tr.active {
-      background: rgba(85, 229, 215, 0.075);
-    }
-
-    .earnings-table tbody tr:hover td,
-    .earnings-table tbody tr.active td {
-      color: var(--paper);
-    }
-
-    .equity-ledger {
-      position: relative;
-      border: 1px solid var(--line);
-      background:
-        linear-gradient(rgba(85, 229, 215, 0.026) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(85, 229, 215, 0.026) 1px, transparent 1px),
-        rgba(2, 12, 11, 0.84);
-      background-size: 20px 20px;
-      box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.52);
-      overflow: hidden;
-    }
-
-    .equity-ledger::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      background: repeating-linear-gradient(0deg, rgba(255,255,255,0.026) 0 1px, transparent 1px 4px);
-      opacity: 0.45;
-      mix-blend-mode: screen;
-    }
-
-    .equity-head,
-    .equity-row {
-      position: relative;
-      z-index: 1;
-      display: grid;
-      grid-template-columns: minmax(210px, 1.05fr) minmax(150px, 0.78fr) minmax(165px, 0.9fr) 100px 86px minmax(180px, 1fr);
-      gap: 14px;
-      align-items: center;
-    }
-
-    .equity-head {
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--line);
-      color: var(--paper-dim);
-      font: 700 10px/1.2 var(--mono);
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      background: rgba(255,255,255,0.026);
-    }
-
-    .equity-row {
-      width: 100%;
-      appearance: none;
-      border: 0;
-      border-bottom: 1px solid rgba(215, 213, 199, 0.09);
-      padding: 12px 16px;
-      background: transparent;
-      color: var(--paper-soft);
-      cursor: crosshair;
-      text-align: left;
-      font-family: var(--mono);
-      letter-spacing: 0.08em;
-      transition: background 160ms ease, color 160ms ease, box-shadow 160ms ease;
-    }
-
-    .equity-row:nth-child(odd) {
-      background: rgba(255,255,255,0.018);
-    }
-
-    .equity-row:hover,
-    .equity-row:focus,
-    .equity-row.active {
-      color: var(--paper);
-      background: rgba(85, 229, 215, 0.078);
-      box-shadow: inset 3px 0 0 var(--cyan), inset 0 0 26px rgba(85,229,215,0.055);
-      outline: 0;
-    }
-
-    .equity-row strong {
-      display: block;
-      color: var(--paper);
-      font: 700 13px/1.25 var(--mono);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-    }
-
-    .equity-row small {
-      display: block;
-      margin-top: 4px;
-      color: var(--paper-dim);
-      font: 700 9px/1.4 var(--mono);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-    }
-
-    .exposure-bar {
-      position: relative;
-      height: 7px;
-      border: 1px solid rgba(215,213,199,0.12);
-      background: rgba(215,213,199,0.055);
-      overflow: hidden;
-    }
-
-    .exposure-bar i {
-      display: block;
-      width: var(--level);
-      height: 100%;
-      background: linear-gradient(90deg, var(--cyan), var(--amber));
-      box-shadow: 0 0 16px rgba(85,229,215,0.28);
-    }
-
-    .equity-note {
-      color: var(--paper-dim);
-      font: 10px/1.55 var(--mono);
+    .section-note {
+      color: var(--muted);
+      font: 300 13px/1.5 var(--sans);
       letter-spacing: 0.08em;
       text-transform: uppercase;
+      max-width: 58ch;
     }
 
     .tag {
       display: inline-block;
-      padding: 3px 7px;
-      border: 1px solid rgba(85, 229, 215, 0.5);
-      color: #03100f;
-      background: rgba(85, 229, 215, 0.76);
-      font-size: 10px;
+      padding: 4px 9px;
+      color: #031c1d;
+      background: rgba(102, 246, 255, 0.78);
+      font-size: 12px;
+      font-weight: 650;
       letter-spacing: 0.12em;
       text-transform: uppercase;
-      white-space: nowrap;
     }
 
-    .tag.red {
-      color: #06100f;
-      border-color: rgba(255, 143, 145, 0.55);
-      background: rgba(255, 143, 145, 0.72);
-    }
-
-    .tag.green {
-      color: #03100f;
-      border-color: rgba(184, 215, 109, 0.55);
-      background: rgba(184, 215, 109, 0.72);
-    }
-
-    .thread-panel {
-      height: 560px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    #threadChart {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-    }
-
-    .thread-labels {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      font: 700 10px/1 var(--mono);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--paper-dim);
-    }
-
-    .thread-labels span {
-      position: absolute;
-      transform: translate(-50%, -50%);
-      white-space: nowrap;
-    }
-
-    .right-rail {
-      min-width: 0;
-      background: rgba(2, 5, 4, 0.38);
-    }
-
-    .selected {
-      min-height: 500px;
-    }
-
-    .selected-media {
-      height: 230px;
-      margin-bottom: 18px;
-      border: 1px solid var(--line);
-      position: relative;
-      overflow: hidden;
-      background: #060808;
-    }
-
-    .selected-media img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      opacity: 0.72;
-      filter: grayscale(0.15) hue-rotate(62deg) saturate(0.8) contrast(1.1);
-    }
-
-    .selected-media::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background:
-        linear-gradient(0deg, rgba(4, 8, 7, 0.82), transparent 60%),
-        repeating-linear-gradient(0deg, rgba(255,255,255,0.08) 0 1px, transparent 1px 5px);
-    }
-
-    .selected h4 {
-      margin: 0;
-      font-size: clamp(28px, 4vw, 54px);
-      line-height: 0.9;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      font-weight: 600;
-    }
-
-    .selected .type {
-      color: var(--cyan);
-      margin: 14px 0 18px;
-      font: 700 12px/1.6 var(--mono);
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-    }
-
-    .selected p {
-      color: var(--paper-soft);
-      margin: 0 0 18px;
-      font: 12px/1.75 var(--mono);
-      letter-spacing: 0.08em;
-    }
-
-    .mini-stats {
+    .panel-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-    }
-
-    .mini-stat {
-      border: 1px solid var(--line);
-      padding: 12px;
-      background: rgba(255,255,255,0.025);
-    }
-
-    .mini-stat strong {
-      display: block;
-      color: var(--paper);
-      font: 700 18px/1 var(--mono);
-      letter-spacing: 0.08em;
-    }
-
-    .mini-stat span {
-      display: block;
-      margin-top: 8px;
-      color: var(--paper-dim);
-      font: 700 9px/1.3 var(--mono);
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-    }
-
-    .asset-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 14px;
     }
 
-    .asset-card {
-      min-height: 330px;
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,0.025);
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .asset-card img {
-      height: 178px;
-      width: 100%;
-      object-fit: cover;
-      opacity: 0.66;
-      filter: grayscale(0.25) hue-rotate(66deg) saturate(0.9);
-    }
-
-    .asset-card .copy {
-      padding: 16px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .asset-card strong {
-      display: block;
-      color: var(--paper);
-      font: 700 16px/1.25 var(--mono);
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-    }
-
-    .asset-card p {
-      color: var(--paper-soft);
-      font: 11px/1.65 var(--mono);
-      letter-spacing: 0.09em;
-      margin: 10px 0 0;
-      text-transform: uppercase;
-    }
-
-    .classified {
-      display: grid;
-      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-      gap: 16px;
-      background:
-        linear-gradient(rgba(85, 229, 215, 0.035) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(85, 229, 215, 0.035) 1px, transparent 1px),
-        rgba(5, 18, 16, 0.54);
-      background-size: 24px 24px;
-    }
-
-    .classified .chemical {
-      min-height: 640px;
-      border: 1px solid var(--line);
-      background: #020403;
-      overflow: hidden;
-    }
-
-    .classified .chemical img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      opacity: 0.62;
-      filter: grayscale(0.2) hue-rotate(62deg) saturate(0.92) contrast(1.16);
-    }
-
-    .warning-stack {
-      display: grid;
-      gap: 16px;
-    }
-
-    .warning {
-      border: 1px solid var(--line);
+    .panel {
+      min-height: 220px;
       padding: 18px;
+      border: 1px solid var(--line);
       background:
-        linear-gradient(rgba(85, 229, 215, 0.035) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(85, 229, 215, 0.035) 1px, transparent 1px),
-        linear-gradient(120deg, rgba(85,229,215,0.08), rgba(5, 18, 16, 0.62));
-      background-size: 18px 18px, 18px 18px, auto;
+        linear-gradient(130deg, rgba(255,255,255,0.035), transparent 45%),
+        var(--panel);
+      backdrop-filter: blur(14px);
+      position: relative;
+      overflow: hidden;
     }
 
-    .warning h4 {
-      display: inline-block;
-      margin: 0 0 14px;
-      padding: 5px 8px 4px;
-      color: #04110f;
-      background: rgba(85, 229, 215, 0.78);
-      font: 700 18px/1.1 var(--mono);
+    .panel::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(138deg, transparent 0 52%, rgba(116,255,246,0.09) 52.1% 52.35%, transparent 52.55%);
+      pointer-events: none;
+    }
+
+    .panel.kpi {
+      display: grid;
+      align-content: space-between;
+    }
+
+    .panel-label {
+      color: var(--cyan);
+      font-size: 12px;
       letter-spacing: 0.18em;
       text-transform: uppercase;
     }
 
-    .warning p,
-    .warning li {
-      color: var(--paper-soft);
-      font: 12px/1.65 var(--mono);
-      letter-spacing: 0.08em;
+    .panel-value {
+      margin-top: 28px;
+      font-size: clamp(36px, 5vw, 78px);
+      line-height: 0.94;
+      font-weight: 200;
+      letter-spacing: 0.05em;
+    }
+
+    .panel-copy {
+      color: var(--muted);
+      font: 300 14px/1.55 var(--sans);
+      letter-spacing: 0.035em;
+    }
+
+    .image-panel {
+      padding: 0;
+      min-height: 280px;
+    }
+
+    .image-panel img {
+      width: 100%;
+      height: 100%;
+      min-height: 280px;
+      object-fit: cover;
+      filter: saturate(0.72) contrast(1.05) brightness(0.67);
+      display: block;
+    }
+
+    .image-panel .caption {
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      bottom: 16px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+      color: var(--text);
+      font-size: 12px;
+      text-transform: uppercase;
+      z-index: 2;
+    }
+
+    .equity-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.55fr) 360px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .table-wrap {
+      border: 1px solid var(--line);
+      background: rgba(3, 13, 14, 0.42);
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 12px;
       text-transform: uppercase;
     }
 
-    .warning ul {
-      margin: 0;
-      padding-left: 18px;
+    th,
+    td {
+      padding: 13px 12px;
+      border-bottom: 1px solid rgba(194,255,252,0.095);
+      text-align: left;
+      vertical-align: top;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .footer {
+    th {
+      color: var(--muted);
+      letter-spacing: 0.18em;
+      font-weight: 400;
+      background: rgba(255,255,255,0.03);
+    }
+
+    tbody tr {
+      cursor: pointer;
+      transition: background 180ms ease, color 180ms ease;
+    }
+
+    tbody tr:nth-child(even) { background: rgba(255,255,255,0.018); }
+    tbody tr:hover,
+    tbody tr.is-active {
+      background: rgba(102,246,255,0.1);
+      color: #fff;
+    }
+
+    td:first-child {
+      color: var(--cyan);
+      font-weight: 600;
+      width: 86px;
+    }
+
+    .trend {
+      color: var(--green);
+      white-space: nowrap;
+    }
+
+    .trend.neg { color: var(--red); }
+    .trend.warn { color: var(--amber); }
+
+    .selected {
+      min-height: 100%;
+      border: 1px solid var(--line);
+      background:
+        radial-gradient(circle at 80% 15%, rgba(102,246,255,0.12), transparent 14rem),
+        rgba(3, 13, 14, 0.64);
+      padding: 18px;
+    }
+
+    .selected h3 {
+      margin: 18px 0 8px;
+      font-size: 42px;
+      line-height: 0.92;
+      letter-spacing: 0.08em;
+    }
+
+    .selected p {
+      margin: 0;
+      color: var(--muted);
+      font: 300 14px/1.55 var(--sans);
+      letter-spacing: 0.04em;
+    }
+
+    .selected img {
+      width: 100%;
+      aspect-ratio: 1.45;
+      object-fit: cover;
+      border: 1px solid var(--line-dim);
+      filter: saturate(0.78) contrast(1.08) brightness(0.72);
+      margin-bottom: 14px;
+    }
+
+    .selected-stats {
       display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 20px;
-      padding: 24px 32px;
-      color: var(--paper-dim);
-      font: 10px/1.6 var(--mono);
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .selected-stats div {
+      border: 1px solid var(--line-dim);
+      padding: 10px;
+      background: rgba(255,255,255,0.025);
+    }
+
+    .selected-stats b {
+      display: block;
+      font-size: 22px;
+      font-weight: 300;
+      color: var(--text);
+    }
+
+    .selected-stats span {
+      color: var(--muted);
+      font-size: 10px;
+      text-transform: uppercase;
+    }
+
+    .threads {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(320px, 0.55fr);
+      gap: 18px;
+    }
+
+    .radar-panel {
+      min-height: 520px;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,0.28);
+      position: relative;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+    }
+
+    .radar-panel svg {
+      width: min(680px, 96%);
+      height: auto;
+      overflow: visible;
+    }
+
+    .radar-grid {
+      fill: none;
+      stroke: rgba(194,255,252,0.14);
+      stroke-width: 1;
+    }
+
+    .radar-axis {
+      stroke: rgba(194,255,252,0.18);
+      stroke-width: 1;
+    }
+
+    .radar-shape {
+      fill: rgba(102,246,255,0.16);
+      stroke: rgba(102,246,255,0.8);
+      stroke-width: 2;
+    }
+
+    .radar-shape.alt {
+      fill: rgba(255,90,99,0.1);
+      stroke: rgba(255,90,99,0.7);
+    }
+
+    .radar-label {
+      fill: rgba(233,251,247,0.72);
+      font: 300 13px var(--mono);
       letter-spacing: 0.14em;
       text-transform: uppercase;
     }
 
-    .ticker {
-      overflow: hidden;
-      border-top: 1px solid var(--line);
-      border-bottom: 1px solid var(--line);
-      background: rgba(215, 213, 199, 0.03);
-      white-space: nowrap;
+    .log-list {
+      border: 1px solid var(--line);
+      background: rgba(3, 13, 14, 0.5);
+      padding: 18px;
     }
 
-    .ticker span {
-      display: inline-block;
-      padding: 11px 0;
-      animation: ticker 44s linear infinite;
-      color: var(--paper-dim);
-      font: 700 11px/1 var(--mono);
-      letter-spacing: 0.22em;
+    .log-entry {
+      display: grid;
+      grid-template-columns: 70px 1fr;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line-dim);
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .log-entry:last-child { border-bottom: 0; }
+    .log-entry b { color: var(--cyan); font-weight: 500; }
+
+    .restricted {
+      display: grid;
+      grid-template-columns: minmax(0, 1.04fr) minmax(420px, 0.74fr);
+      gap: 22px;
+    }
+
+    .chemical-stage {
+      border: 1px solid var(--line);
+      background: rgba(1, 16, 17, 0.58);
+      min-height: 900px;
+      padding: 22px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .chemical-stage::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(145deg, transparent 0 31%, rgba(102,246,255,0.08) 31.1% 31.25%, transparent 31.38%),
+        linear-gradient(35deg, transparent 0 48%, rgba(102,246,255,0.07) 48.1% 48.23%, transparent 48.36%),
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.028) 0 1px, transparent 1px 34px),
+        repeating-linear-gradient(0deg, rgba(255,255,255,0.028) 0 1px, transparent 1px 34px);
+      pointer-events: none;
+    }
+
+    .chemical-stage img {
+      position: absolute;
+      inset: 58px 5% auto;
+      width: 90%;
+      height: 260px;
+      object-fit: cover;
+      object-position: top center;
+      opacity: 0.55;
+      filter: saturate(0.7) contrast(1.25) brightness(0.72);
+    }
+
+    .chemical-title {
+      position: relative;
+      z-index: 2;
+      width: fit-content;
+      margin: 6px 0 300px;
+      padding: 8px 12px;
+      color: #001819;
+      background: rgba(102,246,255,0.76);
+      font-size: clamp(24px, 3vw, 46px);
+      line-height: 0.95;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+    }
+
+    .effects-grid {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .effect-box {
+      border: 1px solid var(--line-dim);
+      background: rgba(5, 28, 29, 0.54);
+      padding: 16px;
+      min-height: 230px;
+    }
+
+    .effect-box h4 {
+      margin: 0 0 16px;
+      width: fit-content;
+      padding: 5px 8px;
+      background: rgba(102,246,255,0.72);
+      color: #001819;
+      font-size: 14px;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
     }
 
-    @keyframes ticker {
-      from { transform: translateX(0); }
-      to { transform: translateX(-50%); }
+    .effect-row {
+      display: grid;
+      grid-template-columns: 86px 1fr;
+      gap: 12px;
+      padding: 10px 0;
+      border-top: 1px solid var(--line-dim);
+      font-size: 12px;
+      line-height: 1.35;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .field-notes {
+      position: relative;
+      z-index: 2;
+      margin-top: 22px;
+      border: 1px solid var(--line-dim);
+      padding: 18px;
+      background: rgba(0,0,0,0.22);
+      color: rgba(233,251,247,0.7);
+      font: 300 14px/1.6 var(--sans);
+      letter-spacing: 0.04em;
+    }
+
+    .mission-gallery {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .mission-tile {
+      min-height: 260px;
+      border: 1px solid var(--line);
+      position: relative;
+      overflow: hidden;
+      background: rgba(4,18,20,0.68);
+    }
+
+    .mission-tile.tall { min-height: 384px; }
+
+    .mission-tile img {
+      width: 100%;
+      height: 100%;
+      min-height: inherit;
+      object-fit: cover;
+      display: block;
+      filter: saturate(0.72) contrast(1.08) brightness(0.68);
+    }
+
+    .mission-tile span {
+      position: absolute;
+      left: 12px;
+      bottom: 12px;
+      right: 12px;
+      color: var(--text);
+      font-size: 12px;
+      text-transform: uppercase;
+      padding-top: 10px;
+      border-top: 1px solid var(--line);
+    }
+
+    .wide-gallery {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr 1fr;
+      gap: 14px;
+    }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 22px 48px;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      font-size: 11px;
+      text-transform: uppercase;
     }
 
     @media (max-width: 1180px) {
-      .topbar,
       .hero,
-      .main-grid,
-      .classified {
+      .restricted,
+      .equity-layout,
+      .threads,
+      .wide-gallery {
         grid-template-columns: 1fr;
       }
 
-      .report-meta {
-        min-width: 0;
-      }
-
-      .hero-visual,
-      .main-left {
-        border-right: 0;
-      }
-
-      .asset-grid {
-        grid-template-columns: 1fr;
-      }
+      .depth-stage { min-height: 560px; }
+      .panel-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
 
     @media (max-width: 760px) {
-      .depth-field {
-        opacity: 0.32;
-      }
-
-      .report-shell {
-        width: calc(100vw - 20px);
-        margin: 10px auto 40px;
-      }
-
-      .topbar,
-      .panel,
-      .hero-side,
-      .footer {
-        padding-left: 16px;
-        padding-right: 16px;
-      }
-
-      .identity {
-        align-items: flex-start;
-        flex-direction: column;
-      }
-
-      .report-meta,
-      .mini-stats {
-        grid-template-columns: 1fr;
-      }
-
-      .nav-strip {
-        padding: 0 16px;
-      }
-
-      .hero-visual {
-        min-height: 520px;
-      }
-
-      .hero-title {
-        left: 18px;
-        bottom: 20px;
-        width: calc(100% - 36px);
-      }
-
-      .earnings-table {
-        display: block;
-        overflow-x: auto;
-      }
-
-      .equity-ledger {
-        overflow-x: auto;
-      }
-
-      .equity-head,
-      .equity-row {
-        min-width: 900px;
-        grid-template-columns: 190px 140px 150px 92px 78px 220px;
-      }
-
-      .thread-panel {
-        height: 470px;
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .depth-field {
-        display: none;
-      }
-
-      .depth-surface,
-      .depth-surface:hover {
-        transform: none !important;
-        transition: none !important;
-        filter: none !important;
-      }
+      .report { width: min(100vw - 18px, 100%); margin-top: 9px; }
+      .topline,
+      .hero,
+      .section,
+      .footer { padding-left: 18px; padding-right: 18px; }
+      .topline { grid-template-columns: 1fr; }
+      h1 { font-size: clamp(54px, 16vw, 88px); }
+      .metric-grid,
+      .panel-grid,
+      .effects-grid,
+      .mission-gallery { grid-template-columns: 1fr; }
+      .depth-stage { min-height: 450px; }
+      .media-card.primary { width: 78%; right: 0; }
+      .media-card.secondary { width: 52%; }
+      .media-card.tertiary { width: 62%; }
+      .table-wrap { overflow-x: auto; }
+      table { min-width: 860px; }
+      .chemical-stage { min-height: auto; }
+      .chemical-stage img { position: relative; inset: auto; width: 100%; height: 220px; margin-bottom: 20px; }
+      .chemical-title { margin-bottom: 24px; }
     }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 </head>
 <body>
-  <canvas id="depthField" class="depth-field" aria-hidden="true"></canvas>
-  <div class="depth-vignette" aria-hidden="true"></div>
-  <div class="report-shell">
-    <header class="topbar">
-      <div class="identity">
-        <img src="assets/weyland/weyland-mark.jpg" alt="Weyland Corporation mark">
-        <div>
-          <p class="kicker">Tokyo / London / San Francisco / Sea of Tranquility / Thedus</p>
-          <h1>Weyland Corporation</h1>
-          <p class="subline">Annual report 2093 // Prometheus mission year // pre-merger strategic registry</p>
-        </div>
+  <main class="report">
+    <header class="topline">
+      <div class="meta-chain">
+        <strong>Weyland-Yutani Corp.</strong>
+        <span>Annual Report Archive</span>
+        <span>FY 2093</span>
+        <span>Prometheus Period</span>
+        <span>Tokyo · London · San Francisco · Sea of Tranquility · Thedus</span>
       </div>
-      <div class="report-meta" aria-label="Report metrics">
-        <div class="meta-cell"><strong>2093</strong><span>Fiscal year</span></div>
-        <div class="meta-cell"><strong>16.2T</strong><span>Consolidated revenue</span></div>
-        <div class="meta-cell"><strong>LV-223</strong><span>Restricted appendix</span></div>
-      </div>
+      <div class="status-led">Investor transfer range / all data banks</div>
     </header>
 
-    <nav class="nav-strip" aria-label="Annual report sections">
-      <button class="active" data-layer="public">Public Filing</button>
-      <button data-layer="investor">Investor Detail</button>
-      <button data-layer="restricted">Classified Annex</button>
-      <button data-layer="mining">Mining Operations</button>
-      <button data-layer="synthetic">Synthetic Labor</button>
-    </nav>
-
-    <div class="ticker">
-      <span>WYC +8.4 // TYR +2.1 // WLLC +4.7 // KO +0.9 // PANAM +1.6 // ATARI +3.0 // YUTANI AEROSPACE WATCHLIST // THEDUS MINERAL COMBINE ACTIVE // NOSTROMO-CLASS PROCUREMENT RESERVED // DAVID 8 SERIES FIELD VALIDATION // WYC +8.4 // TYR +2.1 // WLLC +4.7 // KO +0.9 // PANAM +1.6 // ATARI +3.0 // YUTANI AEROSPACE WATCHLIST // THEDUS MINERAL COMBINE ACTIVE // NOSTROMO-CLASS PROCUREMENT RESERVED // DAVID 8 SERIES FIELD VALIDATION //</span>
-    </div>
-
-    <section class="hero" id="public">
-      <div class="hero-visual">
-        <img src="assets/weyland/david-interface.jpg" alt="Prometheus-era holographic corporate interface">
-        <div class="scan-grid"></div>
-        <div class="hero-title">
-          <h2>Prometheus<br>Capital Cycle</h2>
-          <p>Special-project exposure is summarized as non-recurring exploration expense. Public statements exclude Engineer-origin archaeology, mutagenic materials, crew-risk assumptions, and synthetic behavioral telemetry.</p>
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow">source data 8379.164.5032.61 · board archive</div>
+        <h1>Weyland Yutani Annual Report</h1>
+        <p class="subtitle">
+          Consolidated Prometheus-era investor record covering synthetic labor, off-world transit,
+          terraforming systems, colonial logistics, restricted exoplanet research, and legacy mineral
+          extraction. Operating authority reflects Meredith Vickers during mission review and David 8
+          synthetic interpretation logs.
+        </p>
+        <div class="metric-grid">
+          <div class="metric"><b>624.0B</b><span>gross revenue index</span></div>
+          <div class="metric"><b>17.8%</b><span>synthetic systems margin</span></div>
+          <div class="metric"><b>2.21 AU</b><span>deep freight reserve</span></div>
+          <div class="metric"><b>LV-223</b><span>archive flag retained</span></div>
         </div>
       </div>
-      <aside class="hero-side">
-        <div class="side-card">
-          <h3>[ Executive Continuity ]</h3>
-          <div class="exec">
-            <img src="assets/weyland/vickers.jpg" alt="Meredith Vickers">
-            <div>
-              <strong>Meredith Vickers</strong>
-              <span>Acting corporate officer / mission authority / succession control</span>
-            </div>
-          </div>
-          <div class="exec">
-            <img src="assets/weyland/david-piano.jpg" alt="David 8 synthetic">
-            <div>
-              <strong>David 8</strong>
-              <span>Synthetic observer / language model / mission-integrated labor asset</span>
-            </div>
-          </div>
-        </div>
-        <div class="side-card">
-          <h3>[ Consolidated Indicators ]</h3>
-          <div class="metric-list">
-            <div class="metric-row"><span>Off-world asset base</span><b>$3.74T</b></div>
-            <div class="metric-row"><span>Synthetic labor backlog</span><b>18.6M units</b></div>
-            <div class="metric-row"><span>Deep-space insured hulls</span><b>912</b></div>
-            <div class="metric-row"><span>Prometheus gross capex</span><b>$1.03T</b></div>
-            <div class="metric-row"><span>Bio-instrumentation margin</span><b>31.4%</b></div>
-          </div>
-        </div>
-        <div class="side-card">
-          <h3>[ Disclosure Note ]</h3>
-          <p class="subline">Weyland Corporation remains independent in 2093. Yutani activity appears here as a monitored strategic counterparty, not a completed merger entity.</p>
-        </div>
-      </aside>
+
+      <div class="depth-stage" aria-label="Layered Weyland report imagery">
+        <figure class="media-card secondary" data-label="synthetic companion">
+          <img src="images/weyland/walter-green.jpg" alt="Weyland synthetic profile" />
+        </figure>
+        <figure class="media-card primary" data-label="incoming message">
+          <img src="images/weyland/david-interface.jpg" alt="David reading a holographic interface" />
+        </figure>
+        <figure class="media-card tertiary" data-label="restricted material">
+          <img src="images/weyland/chemical-restricted.jpg" alt="Restricted Weyland technical sheet" />
+        </figure>
+        <figure class="media-card strip" data-label="signal intercepted">
+          <img src="images/weyland/nostromo-warning.jpg" alt="Nostromo warning interface" />
+        </figure>
+        <div class="scan-lines"><i></i><i></i><i></i><i></i></div>
+      </div>
     </section>
 
-    <main class="main-grid">
-      <div class="main-left">
-        <section class="panel" id="investor">
-          <div class="section-head">
-            <div>
-              <h3>[ Equity Exposure Ledger ]</h3>
-              <p>Operating companies, strategic watches, consumer channels, and off-world vendors are listed as exposure rows for the 2093 Prometheus filing cycle.</p>
-            </div>
-            <span class="tag green">row registry</span>
-          </div>
-          <div class="equity-ledger" aria-label="Weyland stock and partner exposure ledger">
-            <div class="equity-head" aria-hidden="true">
-              <span>Entity / Channel</span>
-              <span>Sector</span>
-              <span>Exposure</span>
-              <span>Risk</span>
-              <span>Cycle</span>
-              <span>Prometheus Relevance</span>
-            </div>
-            <div id="equityRows"></div>
-          </div>
-        </section>
-
-        <section class="panel thread-panel" id="threadPanel">
-          <div class="section-head">
-            <div>
-              <h3>[ Capital Threads / Disclosure Range ]</h3>
-              <p>Primary ribbons show capital flow between portfolio companies, mission requirements, and operating lanes. Fine threads represent cross-licensing, cargo underwriting, and restricted procurement.</p>
-            </div>
-            <span class="tag">interactive hover</span>
-          </div>
-          <svg id="threadChart" role="img" aria-label="Capital flow chart"></svg>
-          <div class="thread-labels" id="threadLabels"></div>
-        </section>
-
-        <section class="panel" id="mining">
-          <div class="section-head">
-            <div>
-              <h3>[ Mission Assets / Mining Operations ]</h3>
-              <p>The mining layer connects Prometheus-era exploration financing with later commercial towing, refinery, and mineral-rights programs.</p>
-            </div>
-            <span class="tag red">restricted context</span>
-          </div>
-          <div class="asset-grid">
-            <article class="asset-card">
-              <img src="assets/weyland/nostromo-signal.jpg" alt="Nostromo signal panel">
-              <div class="copy">
-                <strong>Nostromo-Class Forward Registry</strong>
-                <p>M-class commercial towing platform reserved under Thedus mineral haulage. Reported as future industrial capacity, not active 2093 flight revenue.</p>
-              </div>
-            </article>
-            <article class="asset-card">
-              <img src="assets/weyland/chemical-data.jpg" alt="Chemical data sheet">
-              <div class="copy">
-                <strong>AO-3959X.91 Materials Desk</strong>
-                <p>Exobiological data appears only as non-audited special-project research. Investor-facing values are intentionally conservative.</p>
-              </div>
-            </article>
-            <article class="asset-card">
-              <img src="assets/weyland/david-interface.jpg" alt="Prometheus data display">
-              <div class="copy">
-                <strong>Prometheus Telemetry Archive</strong>
-                <p>Language, navigation, and artifact-analysis logs are controlled through synthetic review channels managed by David 8.</p>
-              </div>
-            </article>
-          </div>
-        </section>
-
-        <section class="panel classified" id="restricted">
-          <div class="chemical">
-            <img src="assets/weyland/chemical-data.jpg" alt="Classified Weyland chemical data">
-          </div>
-          <div class="warning-stack">
-            <article class="warning">
-              <h4>Classified Annex / LV-223</h4>
-              <p>Board-level supplement records mission costs as origin-of-life research, not as weapons development. Internal chemical notation remains incomplete and non-public.</p>
-            </article>
-            <article class="warning">
-              <h4>David 8 Field Autonomy</h4>
-              <ul>
-                <li>Language reconstruction tolerance: 96.8%</li>
-                <li>Artifact interpolation model: active</li>
-                <li>Crew-facing objective masking: executive authorized</li>
-                <li>Behavioral anomalies: sealed under synthetic labor warranty</li>
-              </ul>
-            </article>
-            <article class="warning">
-              <h4>Vickers Control Memo</h4>
-              <p>Meredith Vickers is listed as acting corporate officer aboard Prometheus with authority over mission discipline, quarantine, and capital containment.</p>
-            </article>
-            <article class="warning">
-              <h4>Yutani Watchlist</h4>
-              <p>Yutani Aerospace, Tyrell Corp, Wallace Corp, and Hyperdyne Systems are monitored for acquisition pressure, synthetic patents, and orbital manufacturing overlap.</p>
-            </article>
-          </div>
-        </section>
+    <section class="section">
+      <div class="section-header">
+        <h2>Executive Signal</h2>
+        <div class="section-note">Board-facing governance notes, mission authority and synthetic supervision channels.</div>
       </div>
+      <div class="panel-grid">
+        <article class="panel kpi">
+          <div>
+            <div class="panel-label">Founder / permanent chair</div>
+            <div class="panel-value">Peter Weyland</div>
+          </div>
+          <p class="panel-copy">Legacy vision portfolio anchored by Prometheus expedition, longevity research and extraterrestrial origin claims.</p>
+        </article>
+        <article class="panel kpi">
+          <div>
+            <div class="panel-label">Acting corporate officer</div>
+            <div class="panel-value">M. Vickers</div>
+          </div>
+          <p class="panel-copy">Operational cost discipline, mission containment authority and human-risk control during deep-space expenditure review.</p>
+        </article>
+        <article class="panel kpi">
+          <div>
+            <div class="panel-label">Synthetic operations interpreter</div>
+            <div class="panel-value">David 8</div>
+          </div>
+          <p class="panel-copy">Language bridge, specimen handling, crew monitoring and autonomous archive translation under founder directive.</p>
+        </article>
+        <article class="panel kpi">
+          <div>
+            <div class="panel-label">Legacy industrial note</div>
+            <div class="panel-value">Nostromo</div>
+          </div>
+          <p class="panel-copy">Commercial towing and ore refinery networks retained as long-duration mining assets within outer-system logistics.</p>
+        </article>
+      </div>
+    </section>
 
-      <aside class="right-rail">
-        <section class="panel selected" aria-live="polite">
-          <h3>[ Selected Counterparty ]</h3>
-          <div class="selected-media">
-            <img id="selectedImage" src="assets/weyland/david-interface.jpg" alt="">
+    <section class="section">
+      <div class="section-header">
+        <h2>Equity Exposure</h2>
+        <div class="section-note">Rows restore the investor ledger view. Select a counterparty to update the side record.</div>
+      </div>
+      <div class="equity-layout">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 86px;">Ticker</th>
+                <th>Counterparty</th>
+                <th>Lane</th>
+                <th>Exposure</th>
+                <th>Movement</th>
+                <th>Operational note</th>
+              </tr>
+            </thead>
+            <tbody id="equityRows">
+              <tr data-name="Weyland-Yutani Corp." data-lane="Parent holdings" data-exposure="$624.0B" data-move="+18.4%" data-note="Synthetic systems, colonial freight and restricted research drove the reporting cycle." data-image="images/weyland/david-interface.jpg"><td>WYC</td><td>Weyland-Yutani Corp.</td><td>Parent holdings</td><td>$624.0B</td><td class="trend">+18.4%</td><td>Prometheus and synthetic licensing are consolidated.</td></tr>
+              <tr data-name="Tyrell Corporation" data-lane="Replicant cognition" data-exposure="$82.4B" data-move="+9.1%" data-note="Neural architecture patents cross-reference David language and empathy testing." data-image="images/weyland/walter-green.jpg"><td>TYR</td><td>Tyrell Corporation</td><td>Replicant cognition</td><td>$82.4B</td><td class="trend">+9.1%</td><td>Biomorphic cognition licensing.</td></tr>
+              <tr data-name="Wallace Corporation" data-lane="Agricultural biofoundry" data-exposure="$74.8B" data-move="+11.6%" data-note="Protein-growth and synthetic fertility work overlaps with off-world colony provisioning." data-image="images/weyland/david-white-room.webp"><td>WLC</td><td>Wallace Corporation</td><td>Agricultural biofoundry</td><td>$74.8B</td><td class="trend">+11.6%</td><td>Food and synthetic supply lines.</td></tr>
+              <tr data-name="Coca-Cola Company" data-lane="Consumer stabilizers" data-exposure="$38.2B" data-move="+2.8%" data-note="Brand rationing and morale contracts retained across civilian orbital habitats." data-image="images/weyland/covenant-pods.webp"><td>KO</td><td>Coca-Cola Company</td><td>Consumer stabilizers</td><td>$38.2B</td><td class="trend">+2.8%</td><td>Colony retail channels.</td></tr>
+              <tr data-name="Pan Am Systems" data-lane="Orbital passenger transfer" data-exposure="$27.9B" data-move="-1.2%" data-note="Passenger transfer exposure narrowed after freight priority increased." data-image="images/weyland/med-pods.jpg"><td>PAA</td><td>Pan Am Systems</td><td>Orbital passenger transfer</td><td>$27.9B</td><td class="trend neg">-1.2%</td><td>Civilian transfer contracts softened.</td></tr>
+              <tr data-name="Atari Systems" data-lane="Interface hardware" data-exposure="$19.6B" data-move="+4.5%" data-note="Cockpit display boards, sleep-pod status surfaces and training simulators showed steady demand." data-image="images/weyland/nostromo-warning.jpg"><td>ATA</td><td>Atari Systems</td><td>Interface hardware</td><td>$19.6B</td><td class="trend">+4.5%</td><td>Embedded terminal hardware.</td></tr>
+              <tr data-name="Nostromo Haulage Pool" data-lane="Ore towage" data-exposure="$41.7B" data-move="+7.7%" data-note="Commercial towing remains profitable despite long claim cycles and crew-risk reserves." data-image="images/weyland/nostromo-warning.jpg"><td>NOST</td><td>Nostromo Haulage Pool</td><td>Ore towage</td><td>$41.7B</td><td class="trend">+7.7%</td><td>Outer-system mining carriage.</td></tr>
+              <tr data-name="Hyperdyne Systems" data-lane="Android substrate" data-exposure="$55.1B" data-move="+12.2%" data-note="Synthetic cortex fabrication and crew-assist firmware continue to scale." data-image="images/weyland/david-interface.jpg"><td>HYP</td><td>Hyperdyne Systems</td><td>Android substrate</td><td>$55.1B</td><td class="trend">+12.2%</td><td>Synthetic platform dependency.</td></tr>
+              <tr data-name="Seegson Industrial" data-lane="Low-cost automation" data-exposure="$14.3B" data-move="+0.8%" data-note="Lower-margin automation remains useful in remote refinery maintenance." data-image="images/weyland/rt01.jpg"><td>SEV</td><td>Seegson Industrial</td><td>Low-cost automation</td><td>$14.3B</td><td class="trend warn">+0.8%</td><td>Utility robotics only.</td></tr>
+              <tr data-name="Terraforma Q" data-lane="Atmosphere processing" data-exposure="$91.5B" data-move="+15.0%" data-note="Planetary processing and hydrocarbon scrubber systems grew with colony bond issuance." data-image="images/weyland/explorer.jpg"><td>TRQ</td><td>Terraforma Q</td><td>Atmosphere processing</td><td>$91.5B</td><td class="trend">+15.0%</td><td>Colony buildout exposure.</td></tr>
+              <tr data-name="Blue Sun Logistics" data-lane="Civil freight" data-exposure="$33.6B" data-move="+3.4%" data-note="Civilian container routing provides stable counterweight to restricted research spend." data-image="images/weyland/covenant-pods.webp"><td>BLD</td><td>Blue Sun Logistics</td><td>Civil freight</td><td>$33.6B</td><td class="trend">+3.4%</td><td>Colonial provisioning routes.</td></tr>
+              <tr data-name="Ore Basin Authority" data-lane="Mineral extraction" data-exposure="$106.8B" data-move="+6.9%" data-note="Refinery allotments and towing rights remain core balance-sheet support." data-image="images/weyland/rt01.jpg"><td>ORE</td><td>Ore Basin Authority</td><td>Mineral extraction</td><td>$106.8B</td><td class="trend">+6.9%</td><td>Mining operations retained.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <aside class="selected" id="selectedRecord">
+          <img src="images/weyland/david-interface.jpg" alt="Selected counterparty image" />
+          <span class="tag">selected exposure</span>
+          <h3>Weyland-Yutani Corp.</h3>
+          <p>Synthetic systems, colonial freight and restricted research drove the reporting cycle.</p>
+          <div class="selected-stats">
+            <div><b>$624.0B</b><span>exposure</span></div>
+            <div><b>+18.4%</b><span>movement</span></div>
+            <div><b>Parent</b><span>lane</span></div>
+            <div><b>2093</b><span>period</span></div>
           </div>
-          <h4 id="selectedName">Weyland Corporation</h4>
-          <div class="type" id="selectedType">Prime Registry / Origin Systems</div>
-          <p id="selectedText">The 2093 filing treats Prometheus as a special-project capital cycle while holding synthetics, mineral rights, and deep-space logistics in separate investor lanes.</p>
-          <div class="mini-stats">
-            <div class="mini-stat"><strong id="selectedExposure">$16.2T</strong><span>Disclosure exposure</span></div>
-            <div class="mini-stat"><strong id="selectedRisk">LOW</strong><span>Public risk code</span></div>
-            <div class="mini-stat"><strong id="selectedSignal">ACTIVE</strong><span>Thread state</span></div>
-            <div class="mini-stat"><strong id="selectedYear">2093</strong><span>Report year</span></div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <h2>Capital Threads</h2>
+        <div class="section-note">Radar-style operating emphasis across synthetic, transit, terraforming and bio-research lanes.</div>
+      </div>
+      <div class="threads">
+        <div class="radar-panel">
+          <svg viewBox="-230 -230 460 460" role="img" aria-label="Capital thread radar chart">
+            <polygon class="radar-grid" points="0,-190 165,-95 165,95 0,190 -165,95 -165,-95" />
+            <polygon class="radar-grid" points="0,-145 126,-72 126,72 0,145 -126,72 -126,-72" />
+            <polygon class="radar-grid" points="0,-100 87,-50 87,50 0,100 -87,50 -87,-50" />
+            <line class="radar-axis" x1="0" y1="0" x2="0" y2="-205" />
+            <line class="radar-axis" x1="0" y1="0" x2="178" y2="-102" />
+            <line class="radar-axis" x1="0" y1="0" x2="178" y2="102" />
+            <line class="radar-axis" x1="0" y1="0" x2="0" y2="205" />
+            <line class="radar-axis" x1="0" y1="0" x2="-178" y2="102" />
+            <line class="radar-axis" x1="0" y1="0" x2="-178" y2="-102" />
+            <polygon class="radar-shape" points="0,-184 142,-82 116,67 0,134 -152,88 -128,-74" />
+            <polygon class="radar-shape alt" points="0,-126 174,-100 70,40 0,178 -86,50 -78,-45" />
+            <text class="radar-label" x="-40" y="-214">Synthetics</text>
+            <text class="radar-label" x="132" y="-115">Terraform</text>
+            <text class="radar-label" x="134" y="124">Transit</text>
+            <text class="radar-label" x="-38" y="224">Mining</text>
+            <text class="radar-label" x="-222" y="124">Consumer</text>
+            <text class="radar-label" x="-222" y="-114">Bio-Research</text>
+          </svg>
+        </div>
+        <div class="log-list">
+          <span class="tag">thread log</span>
+          <div class="log-entry"><b>2089</b><span>Prometheus expenditure approved under founder reserve.</span></div>
+          <div class="log-entry"><b>2090</b><span>David 8 language archives and crew-psych monitoring cleared for autonomous use.</span></div>
+          <div class="log-entry"><b>2091</b><span>LV-223 navigation package transferred to secure mission systems.</span></div>
+          <div class="log-entry"><b>2092</b><span>Meredith Vickers assumes mission operating control and cost containment authority.</span></div>
+          <div class="log-entry"><b>2093</b><span>Prometheus incident reserves opened; xenobiology records segmented from investor-facing ledgers.</span></div>
+          <div class="log-entry"><b>2094</b><span>Outer-system towing pools remain active through Nostromo-linked ore transport contracts.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <h2>Restricted Material Transfer</h2>
+        <div class="section-note">Technical archive layout with specimen handling, exposure windows and planetary test records.</div>
+      </div>
+      <div class="restricted">
+        <div class="chemical-stage">
+          <img src="images/weyland/chemical-restricted.jpg" alt="Restricted chemical archive" />
+          <div class="chemical-title">CHEMICAL_A0-3959X.91-15_</div>
+          <div class="effects-grid">
+            <article class="effect-box">
+              <h4>Inhalation effects</h4>
+              <div class="effect-row"><span>1-59 min</span><strong>confusion / shock / elevated respiratory load</strong></div>
+              <div class="effect-row"><span>1-9 hrs</span><strong>acidosis / mottling of extremities / genetic disturbance</strong></div>
+              <div class="effect-row"><span>10-18 hrs</span><strong>cerebral dysmorphia / cellular mutation</strong></div>
+              <div class="effect-row"><span>37-50 hrs</span><strong>instinctual aggression / containment failure</strong></div>
+            </article>
+            <article class="effect-box">
+              <h4>Ingestion effects</h4>
+              <div class="effect-row"><span>1-59 min</span><strong>rapid heart rate / onset of sepsis</strong></div>
+              <div class="effect-row"><span>1-9 hrs</span><strong>paranoia / delirium / sexual arousal</strong></div>
+              <div class="effect-row"><span>10-18 hrs</span><strong>shortness of breath / loss of motor skills</strong></div>
+              <div class="effect-row"><span>37-50 hrs</span><strong>DNA disintegration / recovery improbable</strong></div>
+            </article>
           </div>
-        </section>
-        <section class="panel">
-          <h3>[ Board Summary ]</h3>
-          <div class="metric-list">
-            <div class="metric-row"><span>Peter Weyland life-extension reserve</span><b>sealed</b></div>
-            <div class="metric-row"><span>Vickers mission oversight</span><b>active</b></div>
-            <div class="metric-row"><span>David synthetic program</span><b>series 8</b></div>
-            <div class="metric-row"><span>Yutani strategic posture</span><b>monitor</b></div>
-            <div class="metric-row"><span>Thedus extraction channel</span><b>growth</b></div>
+          <div class="field-notes">
+            <span class="tag">field_notes_</span>
+            <p>Sample A0-3959X.91-15 is unstable at ambient temperature. It must be held in static ampules until dispersal. All ampules are aligned in rows and kept at 0.9652 meters apart from one another. Any amplification requires a controlled distance change.</p>
           </div>
-        </section>
-      </aside>
-    </main>
+        </div>
+
+        <div class="mission-gallery">
+          <figure class="mission-tile tall"><img src="images/weyland/rt01.jpg" alt="Prometheus rover" /><span>Planet test alpha / RT01 surface unit</span></figure>
+          <figure class="mission-tile tall"><img src="images/weyland/explorer.jpg" alt="Prometheus explorer" /><span>Planet test gamma / personnel exposure lane</span></figure>
+          <figure class="mission-tile"><img src="images/weyland/vickers.jpg" alt="Meredith Vickers" /><span>Vickers operational command</span></figure>
+          <figure class="mission-tile"><img src="images/weyland/med-pods.jpg" alt="Prometheus med pods" /><span>Automated medical platform reserve</span></figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <h2>Image Bank</h2>
+        <div class="section-note">Mission stills and synthetic product material used as investor archive plates.</div>
+      </div>
+      <div class="wide-gallery">
+        <figure class="mission-tile tall"><img src="images/weyland/david-piano.webp" alt="David at piano" /><span>David behavioral calibration / cultural library</span></figure>
+        <figure class="mission-tile tall"><img src="images/weyland/david-white-room.webp" alt="David in white room" /><span>Founder suite / synthetic continuity</span></figure>
+        <figure class="mission-tile tall"><img src="images/weyland/covenant-pods.webp" alt="Sleep pods" /><span>Cryogenic logistics / crew storage reserve</span></figure>
+      </div>
+    </section>
 
     <footer class="footer">
-      <span>Document_analysis: incomplete_source_data 04.413.91 / translation_accuracy 64.81 / data_interpolation 4.72</span>
-      <span>WEYLAND_CLASSIFIED</span>
+      <span>Weyland-Yutani Corp. Annual Report // FY 2093</span>
+      <span>Data transfer range // investor archive // board review copy</span>
     </footer>
-  </div>
+  </main>
 
   <script>
-    const companies = [
-      { name: "Weyland Corporation", channel: "Prime Registry", sector: "Origin Systems", exposure: "$16.2T", risk: "LOW", year: "2093", image: "david-interface", note: "Parent filing consolidates synthetics, bio-instrumentation, extra-terrestrial survey, and off-world infrastructure." },
-      { name: "Tyrell Corporation", channel: "Cognition", sector: "Replicant Cognition", exposure: "$420B", risk: "IP", year: "2093", image: "david-piano", note: "Synthetic cognition patents are tracked as competitor intelligence and possible licensing friction." },
-      { name: "Wallace Corp", channel: "Agri-Synth", sector: "Synthetic Agriculture", exposure: "$380B", risk: "WATCH", year: "2093", image: "david-piano", note: "Bio-synthetic production capacity is useful for colony provisioning and post-scarcity food systems." },
-      { name: "Yutani Aerospace", channel: "M&A Watch", sector: "Orbital Manufacturing", exposure: "$812B", risk: "M&A", year: "2093", image: "david-interface", note: "Strategic counterparty monitored before eventual Weyland-Yutani consolidation." },
-      { name: "Coca-Cola", channel: "Crew Provision", sector: "Consumer Provisioning", exposure: "$92B", risk: "LOW", year: "2093", image: "nostromo-signal", note: "Legacy beverage and ration-channel placement remains valuable for long-duration commercial crews." },
-      { name: "Pan Am", channel: "Transit Rights", sector: "Passenger Transport", exposure: "$66B", risk: "HERITAGE", year: "2093", image: "nostromo-signal", note: "Brand rights and transport nostalgia used in premium orbital passenger products." },
-      { name: "Atari", channel: "Simulation", sector: "Simulation Systems", exposure: "$41B", risk: "LOW", year: "2093", image: "david-interface", note: "Crew training, recreational simulation, and interface input patents remain useful in closed habitats." },
-      { name: "IBM", channel: "Archive Compute", sector: "Mainframe Continuity", exposure: "$508B", risk: "LOW", year: "2093", image: "david-interface", note: "Archive computation, audit infrastructure, and durable enterprise systems underpin off-world filings." },
-      { name: "Mitsubishi Heavy", channel: "Industrial Lift", sector: "Industrial Lift", exposure: "$316B", risk: "LOW", year: "2093", image: "chemical-data", note: "Heavy construction and orbital assembly capacity supports non-atmospheric yards." },
-      { name: "Lockheed Martin", channel: "Defense", sector: "Defense Aerospace", exposure: "$268B", risk: "REG", year: "2093", image: "chemical-data", note: "Defense-grade propulsion contracts are separated from public exploration statements." },
-      { name: "Samsung Biologics", channel: "Bioprocess", sector: "Bio-Instrumentation", exposure: "$164B", risk: "MED", year: "2093", image: "chemical-data", note: "Bioprocessing infrastructure supports tissue, cryo, and synthetic-organ programs." },
-      { name: "Toyota Lunar Systems", channel: "Surface Mobility", sector: "Surface Mobility", exposure: "$144B", risk: "LOW", year: "2093", image: "nostromo-signal", note: "Rover and habitat-mobility contracts support moon and near-Earth logistics." },
-      { name: "Hyperdyne Systems", channel: "Supervisory AI", sector: "AI Supervisory Logic", exposure: "$302B", risk: "AI", year: "2093", image: "david-interface", note: "Shipboard supervisory logic is watched for later deep-space towing and refinery operations." },
-      { name: "Seegson", channel: "Budget Labor", sector: "Budget Synthetics", exposure: "$58B", risk: "QUALITY", year: "2093", image: "nostromo-signal", note: "Low-cost synthetic labor competitor with potential industrial colony penetration." },
-      { name: "Omni Consumer Products", channel: "Urban Security", sector: "Security Urbanism", exposure: "$121B", risk: "CIVIC", year: "2093", image: "chemical-data", note: "Security robotics and privatized civic infrastructure provide useful urban-combat comparisons." },
-      { name: "Cyberdyne Systems", channel: "Autonomous Logic", sector: "Autonomous Defense", exposure: "$188B", risk: "AI", year: "2093", image: "david-interface", note: "Autonomous target-selection patents are excluded from Prometheus public mission language." },
-      { name: "Thedus Mineral Combine", channel: "Ore Refining", sector: "Ore Refining", exposure: "$734B", risk: "IND", year: "2093", image: "nostromo-signal", note: "Mineral haulage partner tied to refinery throughput and later commercial towing procurement." },
-      { name: "Eos Cryogenics", channel: "Cryo", sector: "Suspended Animation", exposure: "$211B", risk: "MED", year: "2093", image: "david-piano", note: "Cryo-bay redundancy and crew preservation are material to Prometheus-class mission risk." },
-      { name: "Arcturus Freight", channel: "Cargo", sector: "Deep-Space Cargo", exposure: "$97B", risk: "ROUTE", year: "2093", image: "nostromo-signal", note: "Underwrites freight lanes that will support refinery chains and class-M towing hulls." },
-      { name: "Tranquility Sea Holdings", channel: "Lunar Asset", sector: "Lunar Holdings", exposure: "$602B", risk: "LOW", year: "2093", image: "weyland-mark", note: "Moon-side land, port, and patent courts anchor the corporation's oldest off-world balance sheet." }
-    ];
+    const rows = document.querySelectorAll("#equityRows tr");
+    const selected = document.getElementById("selectedRecord");
 
-    const sectors = ["Synthetics", "Biotech", "Mining", "Logistics", "Consumer", "Defense", "Capital", "Exploration"];
-    const equityRows = document.getElementById("equityRows");
-    const selected = {
-      image: document.getElementById("selectedImage"),
-      name: document.getElementById("selectedName"),
-      type: document.getElementById("selectedType"),
-      text: document.getElementById("selectedText"),
-      exposure: document.getElementById("selectedExposure"),
-      risk: document.getElementById("selectedRisk"),
-      signal: document.getElementById("selectedSignal"),
-      year: document.getElementById("selectedYear")
-    };
-
-    function asset(name) {
-      return `assets/weyland/${name}.jpg`;
+    function setSelected(row) {
+      rows.forEach((item) => item.classList.remove("is-active"));
+      row.classList.add("is-active");
+      selected.querySelector("img").src = row.dataset.image;
+      selected.querySelector("h3").textContent = row.dataset.name;
+      selected.querySelector("p").textContent = row.dataset.note;
+      const stats = selected.querySelectorAll(".selected-stats b");
+      stats[0].textContent = row.dataset.exposure;
+      stats[1].textContent = row.dataset.move;
+      stats[2].textContent = row.dataset.lane.split(" ")[0];
     }
 
-    function selectCompany(company, row) {
-      selected.image.src = asset(company.image);
-      selected.name.textContent = company.name;
-      selected.type.textContent = `${company.channel} / ${company.sector}`;
-      selected.text.textContent = company.note;
-      selected.exposure.textContent = company.exposure;
-      selected.risk.textContent = company.risk;
-      selected.signal.textContent = company.risk === "LOW" ? "STABLE" : "ACTIVE";
-      selected.year.textContent = company.year;
-      document.querySelectorAll(".equity-row.active").forEach(el => el.classList.remove("active"));
-      if (row) row.classList.add("active");
-    }
-
-    function exposureValue(value) {
-      const num = Number(value.replace(/[$,]/g, "").replace(/[A-Z]/g, ""));
-      if (value.includes("T")) return num * 1000;
-      if (value.includes("B")) return num;
-      return num / 1000;
-    }
-
-    function clusterFor(company) {
-      const text = `${company.channel} ${company.sector} ${company.risk}`.toLowerCase();
-      if (/cognition|synthetic|simulation|ai|logic|compute/.test(text)) return "SYNTHETIC";
-      if (/bio|cryo|medical|med/.test(text)) return "BIOPROCESS";
-      if (/mineral|ore|lunar|industrial|lift/.test(text)) return "EXTRACTION";
-      if (/cargo|transit|transport|route|mobility/.test(text)) return "LOGISTICS";
-      if (/consumer|crew|provision|heritage/.test(text)) return "PROVISION";
-      if (/defense|security|civic/.test(text)) return "SECURITY";
-      if (/m&a|capital|watch|registry/.test(text)) return "CAPITAL";
-      return "EXPLORATION";
-    }
-
-    function renderEquityRows() {
-      const sortedCompanies = [...companies].sort((a, b) => exposureValue(b.exposure) - exposureValue(a.exposure));
-      const maxExposure = Math.max(...sortedCompanies.map(company => exposureValue(company.exposure)));
-      equityRows.innerHTML = sortedCompanies.map((company, index) => {
-        const level = Math.max(7, Math.round((exposureValue(company.exposure) / maxExposure) * 100));
-        return `
-          <button class="equity-row${index === 0 ? " active" : ""}" type="button" data-index="${companies.indexOf(company)}" style="--level:${level}%">
-            <span><strong>${company.name}</strong><small>${company.channel}</small></span>
-            <span><strong>${company.sector}</strong><small>${clusterFor(company)}</small></span>
-            <span><strong>${company.exposure}</strong><small><span class="exposure-bar"><i></i></span></small></span>
-            <span><strong>${company.risk}</strong><small>${company.risk === "LOW" ? "cleared" : "review"}</small></span>
-            <span><strong>${company.year}</strong><small>FY</small></span>
-            <span class="equity-note">${company.note}</span>
-          </button>
-        `;
-      }).join("");
-
-      equityRows.querySelectorAll(".equity-row").forEach(row => {
-        const company = companies[Number(row.dataset.index)];
-        row.addEventListener("mouseenter", () => selectCompany(company, row));
-        row.addEventListener("focus", () => selectCompany(company, row));
-        row.addEventListener("click", () => selectCompany(company, row));
-      });
-
-      const activeRow = equityRows.querySelector(".equity-row");
-      if (activeRow) selectCompany(companies[Number(activeRow.dataset.index)], activeRow);
-    }
-
-    function drawThreads() {
-      const svg = document.getElementById("threadChart");
-      const labels = document.getElementById("threadLabels");
-      const box = svg.getBoundingClientRect();
-      const width = Math.max(800, box.width);
-      const height = Math.max(520, box.height);
-      svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
-      svg.innerHTML = "";
-      labels.innerHTML = "";
-
-      const topY = 118;
-      const sectorY = height - 94;
-      const midY = height * 0.54;
-      const usableLeft = 70;
-      const usableRight = width - 70;
-
-      const colors = ["#7aa7e8", "#d85c66", "#6fd3b1", "#c6dd73", "#caa35b", "#9d72c7", "#d2d1c9", "#78d9de"];
-
-      sectors.forEach((sector, index) => {
-        const x = usableLeft + (usableRight - usableLeft) * index / (sectors.length - 1);
-        const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-        dot.setAttribute("cx", x);
-        dot.setAttribute("cy", sectorY);
-        dot.setAttribute("r", 4);
-        dot.setAttribute("fill", colors[index % colors.length]);
-        dot.setAttribute("opacity", 0.85);
-        svg.appendChild(dot);
-
-        const label = document.createElement("span");
-        label.textContent = sector;
-        label.style.left = `${(x / width) * 100}%`;
-        label.style.top = `${((sectorY + 34) / height) * 100}%`;
-        labels.appendChild(label);
-      });
-
-      companies.forEach((company, index) => {
-        const x = usableLeft + (usableRight - usableLeft) * index / (companies.length - 1);
-        const groupIndex = Math.abs(company.sector.length + index) % sectors.length;
-        const tx = usableLeft + (usableRight - usableLeft) * groupIndex / (sectors.length - 1);
-        const color = colors[groupIndex % colors.length];
-        const weight = 1.1 + (index % 5) * 0.72;
-        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-        const curve = (index % 2 === 0 ? 1 : -1) * (70 + (index % 4) * 28);
-        path.setAttribute("d", `M ${x} ${topY} C ${x + curve} ${midY - 110}, ${tx - curve} ${midY + 110}, ${tx} ${sectorY}`);
-        path.setAttribute("fill", "none");
-        path.setAttribute("stroke", color);
-        path.setAttribute("stroke-width", weight);
-        path.setAttribute("stroke-opacity", 0.38);
-        path.setAttribute("data-company", company.name);
-        svg.appendChild(path);
-
-        const node = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-        node.setAttribute("x", x - 5);
-        node.setAttribute("y", topY - 5);
-        node.setAttribute("width", 10);
-        node.setAttribute("height", 10);
-        node.setAttribute("fill", color);
-        node.setAttribute("opacity", 0.9);
-        svg.appendChild(node);
-
-        if (index % 2 === 0) {
-          const label = document.createElement("span");
-          label.textContent = company.name.split(" ")[0];
-          label.style.left = `${(x / width) * 100}%`;
-          label.style.top = `${((topY - 28) / height) * 100}%`;
-          labels.appendChild(label);
-        }
-
-        const yearX = usableLeft + (usableRight - usableLeft) * ((index % 5) / 4);
-        const fine = document.createElementNS("http://www.w3.org/2000/svg", "path");
-        fine.setAttribute("d", `M ${x} ${topY} C ${yearX} ${midY - 70}, ${x} ${midY + 70}, ${yearX} ${midY}`);
-        fine.setAttribute("fill", "none");
-        fine.setAttribute("stroke", color);
-        fine.setAttribute("stroke-width", 0.7);
-        fine.setAttribute("stroke-opacity", 0.18);
-        svg.appendChild(fine);
-      });
-
-      [2019, 2020, 2021, 2022, 2023, 2093].forEach((year, index, arr) => {
-        const x = usableLeft + (usableRight - usableLeft) * index / (arr.length - 1);
-        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-        line.setAttribute("x1", x);
-        line.setAttribute("x2", x);
-        line.setAttribute("y1", 155);
-        line.setAttribute("y2", sectorY - 22);
-        line.setAttribute("stroke", "rgba(215,213,199,0.13)");
-        svg.appendChild(line);
-
-        const label = document.createElement("span");
-        label.textContent = year;
-        label.style.left = `${(x / width) * 100}%`;
-        label.style.top = `${(midY / height) * 100}%`;
-        labels.appendChild(label);
-      });
-    }
-
-    function bindNav() {
-      document.querySelectorAll(".nav-strip button").forEach(button => {
-        button.addEventListener("click", () => {
-          document.querySelectorAll(".nav-strip button").forEach(el => el.classList.remove("active"));
-          button.classList.add("active");
-          const target = document.getElementById(button.dataset.layer);
-          if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
-        });
-      });
-    }
-
-    function initDepthSystem() {
-      const shell = document.querySelector(".report-shell");
-      if (!shell) return;
-
-      const canvas = document.getElementById("depthField");
-      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      const surfaces = Array.from(document.querySelectorAll(".topbar, .nav-strip, .ticker, .hero, .side-card, .panel, .footer"));
-
-      surfaces.forEach((surface, index) => {
-        const depth = index % 6;
-        const offsetPattern = [-3, 2, -1, 3, -2, 1];
-        surface.classList.add("depth-surface");
-        surface.dataset.depth = depth.toFixed(2);
-        surface.style.setProperty("--depth-x", `${offsetPattern[index % offsetPattern.length]}px`);
-        surface.style.setProperty("--depth-y", `${depth * -1.35}px`);
-        surface.style.setProperty("--depth-z", `${depth * 7}px`);
-        surface.style.setProperty("--depth-scale", `${1 + depth * 0.0018}`);
-        surface.style.setProperty("--depth-blur", `${Math.max(0, depth * 0.055)}px`);
-      });
-
-      const applyPointerDepth = (event) => {
-        const nx = (event.clientX / window.innerWidth) - 0.5;
-        const ny = (event.clientY / window.innerHeight) - 0.5;
-        document.documentElement.style.setProperty("--depth-light-x", `${nx * 28}px`);
-        document.documentElement.style.setProperty("--depth-light-y", `${ny * 18}px`);
-      };
-
-      window.addEventListener("pointermove", applyPointerDepth, { passive: true });
-
-      if (reducedMotion || !canvas || !window.THREE) {
-        shell.classList.add("depth-ready");
-        return;
-      }
-
-      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.6));
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
-      camera.position.set(0, 0, 9);
-
-      const group = new THREE.Group();
-      scene.add(group);
-
-      const particleCount = 520;
-      const particlePositions = new Float32Array(particleCount * 3);
-      for (let i = 0; i < particleCount; i += 1) {
-        const spread = i % 5 === 0 ? 14 : 9;
-        particlePositions[i * 3] = (Math.random() - 0.5) * spread;
-        particlePositions[i * 3 + 1] = (Math.random() - 0.5) * 8;
-        particlePositions[i * 3 + 2] = (Math.random() - 0.5) * 8;
-      }
-      const particleGeometry = new THREE.BufferGeometry();
-      particleGeometry.setAttribute("position", new THREE.BufferAttribute(particlePositions, 3));
-      const particles = new THREE.Points(
-        particleGeometry,
-        new THREE.PointsMaterial({
-          color: 0x74fff0,
-          size: 0.018,
-          transparent: true,
-          opacity: 0.42,
-          blending: THREE.AdditiveBlending,
-          depthWrite: false
-        })
-      );
-      group.add(particles);
-
-      const linePositions = [];
-      for (let z = -3; z <= 3; z += 1.5) {
-        for (let x = -7; x <= 7; x += 1.4) {
-          linePositions.push(x, -4, z, x, 4, z);
-        }
-        for (let y = -4; y <= 4; y += 1.2) {
-          linePositions.push(-7, y, z, 7, y, z);
-        }
-      }
-      const lineGeometry = new THREE.BufferGeometry();
-      lineGeometry.setAttribute("position", new THREE.Float32BufferAttribute(linePositions, 3));
-      const lineMesh = new THREE.LineSegments(
-        lineGeometry,
-        new THREE.LineBasicMaterial({
-          color: 0x55e5d7,
-          transparent: true,
-          opacity: 0.055,
-          blending: THREE.AdditiveBlending,
-          depthWrite: false
-        })
-      );
-      group.add(lineMesh);
-
-      const plates = new THREE.Group();
-      for (let i = 0; i < 14; i += 1) {
-        const geometry = new THREE.PlaneGeometry(0.9 + Math.random() * 2.2, 0.18 + Math.random() * 0.52);
-        const material = new THREE.MeshBasicMaterial({
-          color: i % 4 === 0 ? 0xc7a75a : 0x55e5d7,
-          transparent: true,
-          opacity: i % 4 === 0 ? 0.05 : 0.035,
-          depthWrite: false,
-          side: THREE.DoubleSide
-        });
-        const plate = new THREE.Mesh(geometry, material);
-        plate.position.set((Math.random() - 0.5) * 11, (Math.random() - 0.5) * 6, -3.2 + Math.random() * 6);
-        plate.rotation.set((Math.random() - 0.5) * 0.4, (Math.random() - 0.5) * 0.7, (Math.random() - 0.5) * 0.25);
-        plates.add(plate);
-      }
-      group.add(plates);
-
-      let targetX = 0;
-      let targetY = 0;
-      window.addEventListener("pointermove", (event) => {
-        targetX = (event.clientX / window.innerWidth) - 0.5;
-        targetY = (event.clientY / window.innerHeight) - 0.5;
-      }, { passive: true });
-
-      const resizeDepth = () => {
-        const width = window.innerWidth;
-        const height = window.innerHeight;
-        renderer.setSize(width, height, false);
-        camera.aspect = width / height;
-        camera.updateProjectionMatrix();
-      };
-
-      const animateDepth = () => {
-        group.rotation.x += ((targetY * 0.018) - group.rotation.x) * 0.018;
-        group.rotation.y += ((targetX * 0.025) - group.rotation.y) * 0.018;
-        particles.rotation.z += 0.0002;
-        lineMesh.rotation.z -= 0.00008;
-        plates.children.forEach((plate, index) => {
-          plate.position.x += Math.sin(Date.now() * 0.00012 + index) * 0.00028;
-        });
-        renderer.render(scene, camera);
-        requestAnimationFrame(animateDepth);
-      };
-
-      resizeDepth();
-      window.addEventListener("resize", resizeDepth, { passive: true });
-      shell.classList.add("depth-ready");
-      animateDepth();
-    }
-
-    initDepthSystem();
-    renderEquityRows();
-    bindNav();
-    drawThreads();
-    window.addEventListener("resize", () => {
-      drawThreads();
+    rows.forEach((row) => {
+      row.addEventListener("mouseenter", () => setSelected(row));
+      row.addEventListener("focus", () => setSelected(row));
+      row.addEventListener("click", () => setSelected(row));
+      row.tabIndex = 0;
     });
+
+    if (rows[0]) setSelected(rows[0]);
   </script>
 </body>
 </html>
