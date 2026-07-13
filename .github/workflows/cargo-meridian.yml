@@ -1,0 +1,45 @@
+name: Build Cargo Meridian
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'CargoMeridian/**'
+      - '!CargoMeridian/dist/**'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        working-directory: CargoMeridian
+        run: npm ci
+
+      - name: Build
+        working-directory: CargoMeridian
+        run: npm run build
+
+      - name: Sync build output to /cargo
+        run: |
+          rm -rf cargo
+          mkdir -p cargo
+          cp -r CargoMeridian/dist/. cargo/
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add cargo
+          if ! git diff --staged --quiet; then
+            git commit -m "Build Cargo Meridian [skip ci]"
+            git push
+          fi

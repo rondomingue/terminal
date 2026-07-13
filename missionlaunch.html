@@ -222,10 +222,24 @@
     .brand h1{font-size:25px;letter-spacing:.2em;}
     .layout{display:flex;flex-direction:column;}
     .main{order:1;}
-    .right{order:2;}
-    .timeline{order:3;}
-    .left{order:4;}
-    .left{min-height:420px;}
+    .timeline{order:2;}
+    .left{order:3;}
+    .right{order:4;}
+    .left{min-height:0;max-height:360px;padding:30px 8px 8px;gap:7px;}
+    .search{height:30px;font-size:9px;}
+    .filters{gap:4px;}
+    .filter{min-height:26px;padding:3px 6px;font-size:7.5px;}
+    .summary{grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;}
+    .stat{min-height:44px;padding:6px;}
+    .stat .k{font-size:6.5px;letter-spacing:.08em;}
+    .stat .v{font-size:22px;}
+    .mission-list{flex:1 1 auto;padding-top:3px;}
+    .stack-section{font-size:7px;padding:6px 2px 4px;}
+    .object-row,.mission-row{grid-template-columns:44px minmax(0,1fr) 36px;gap:6px;padding:5px 2px 5px 0;}
+    .datebox{font-size:7px;padding:3px 2px;}
+    .datebox b{font-size:12px;}
+    .row-title b{font-size:9px;}
+    .row-title span,.badge{font-size:7px;}
     .main{height:560px;}
     .right{display:flex;flex-direction:column;}
     .timer div{min-width:46px;}
