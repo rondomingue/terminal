@@ -39,6 +39,28 @@
   .rule{height:1px; background:var(--line); border:0; margin:0}
   .tnum{font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1}
 
+  /* ── Quote overlay ────────────────────────── */
+  #quote-overlay{
+    position:fixed; inset:0; z-index:1000; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    padding:40px;
+    background:rgba(6,8,7,.92);
+    backdrop-filter:blur(3px);
+    transition:opacity .5s ease;
+  }
+  #quote-overlay.hide{opacity:0; pointer-events:none}
+  #quote-box{max-width:640px; text-align:center}
+  #quote-text{
+    font-family:'Fraunces',Georgia,serif; font-weight:300; font-style:italic;
+    font-size:clamp(22px,3.2vw,34px); line-height:1.35; color:var(--bone);
+    margin:0 0 20px;
+  }
+  #quote-attr{
+    font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--muted); margin:0;
+  }
+  #quote-attr em{font-style:italic; color:var(--bone-dim)}
+
   /* ── Masthead ─────────────────────────────── */
   .masthead{padding:22px 0 0}
   .mast-top{display:flex; justify-content:space-between; align-items:flex-start; gap:24px; flex-wrap:wrap}
@@ -310,6 +332,12 @@
 </style>
 </head>
 <body>
+<div id="quote-overlay">
+  <div id="quote-box">
+    <p id="quote-text">&ldquo;Public health is not an ideology, religion, or political perspective….&rdquo;</p>
+    <p id="quote-attr">— Laurie Garrett, Author of <em>The Coming Plague</em> &amp; <em>Betray of Trust</em></p>
+  </div>
+</div>
 <div class="wrap">
 
   <header class="masthead">
@@ -1465,6 +1493,9 @@ function sparkPath(vals,w,h,pad){ const mx=Math.max(...vals),mn=Math.min(...vals
   s+=`<text class="axttl" x="${X(today)+6}" y="${T+12}">TODAY · 1,460</text>`;
   s+=`<text class="axttl" x="${W-R}" y="${T+8}" text-anchor="end">CUMULATIVE CASES</text>`;
   svg.innerHTML=s; })();
+
+(function(){ const ov=document.getElementById('quote-overlay');
+  ov.addEventListener('click',()=>{ ov.classList.add('hide'); setTimeout(()=>ov.remove(),500); }); })();
 </script>
 </body>
 </html>
