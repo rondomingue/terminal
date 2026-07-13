@@ -9,9 +9,59 @@
       <meta name="description" content="This web application offers a futuristic interface designed for creators to build and manage complex digital assets efficiently, enhancing productivity and innovation." />
       <meta name="robots" content="noindex, nofollow" />
       <style>html, body { height: 100%; margin: 0; } #root { height: 100%; }</style>
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-9CMETG9RBQ"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-9CMETG9RBQ');
+      </script>
       
       <script type="module" crossorigin src="./assets/index-CJGXpmRI.js"></script>
       <link rel="stylesheet" crossorigin href="./assets/index-CmUByGnF.css">
+      <style>
+        @media (max-width: 760px) {
+          html,
+          body,
+          #root {
+            height: auto;
+            min-height: 100%;
+          }
+
+          #root > div.relative.size-full.overflow-hidden.select-none {
+            height: auto !important;
+            min-height: 100dvh;
+            overflow-y: auto !important;
+          }
+
+          #root > div > div.relative.z-20.flex[style*="pointer-events"] {
+            flex-direction: column !important;
+            height: auto !important;
+            min-height: calc(100dvh - 40px);
+            overflow: visible !important;
+          }
+
+          #root > div > div.relative.z-20.flex[style*="pointer-events"] > div:first-child {
+            display: none !important;
+          }
+
+          #root > div > div.relative.z-20.flex[style*="pointer-events"] > div:nth-child(3) {
+            order: 1;
+            flex: 0 0 58dvh !important;
+            min-height: 380px;
+            width: 100%;
+          }
+
+          #root > div > div.relative.z-20.flex[style*="pointer-events"] > div:nth-child(2) {
+            order: 2;
+            width: 100% !important;
+            min-width: 0 !important;
+            min-height: 0;
+            border-right: 0 !important;
+            border-top: 1px solid rgba(110, 90, 35, 0.18);
+          }
+        }
+      </style>
     </head>
 
     <body>
@@ -20,4 +70,3 @@
       
     </body>
   </html>
-  
