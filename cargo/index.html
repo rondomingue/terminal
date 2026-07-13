@@ -29,9 +29,33 @@
           }
 
           #root > div.relative.size-full.overflow-hidden.select-none {
+            background: #eee6d4 !important;
             height: auto !important;
             min-height: 100dvh;
             overflow-y: auto !important;
+          }
+
+          #root > div > div.absolute.inset-0.z-0 .maplibregl-canvas {
+            filter: brightness(1.35) contrast(0.78) saturate(0.82) sepia(0.18);
+          }
+
+          #root > div > div.absolute.inset-0.z-0 > div.absolute.inset-0.pointer-events-none,
+          #root > div > div.absolute.inset-0.pointer-events-none {
+            background: rgba(244, 237, 220, 0.2) !important;
+          }
+
+          #root > div > svg,
+          #root > div > div.absolute.top-0.bottom-0 {
+            opacity: 0.36;
+          }
+
+          #root > div > div.relative.z-20.flex.items-center.justify-between {
+            background-color: rgba(248, 243, 229, 0.94) !important;
+            border-color: rgba(132, 108, 48, 0.24) !important;
+          }
+
+          #root > div > div.relative.z-20.flex.items-center.justify-between * {
+            color: #5f4b1f !important;
           }
 
           #root > div > div.relative.z-20.flex[style*="pointer-events"] {
@@ -57,8 +81,24 @@
             width: 100% !important;
             min-width: 0 !important;
             min-height: 0;
+            background-color: rgba(248, 243, 229, 0.92) !important;
             border-right: 0 !important;
             border-top: 1px solid rgba(110, 90, 35, 0.18);
+          }
+
+          #root > div > div.relative.z-20.flex[style*="pointer-events"] > div:nth-child(2) *,
+          #root > div > div.relative.z-20.flex[style*="pointer-events"] > div:nth-child(3) .absolute.border * {
+            color: #5f4b1f !important;
+          }
+
+          #root > div > div.relative.z-20.flex[style*="pointer-events"] > div:nth-child(2) .border,
+          #root > div > div.relative.z-20.flex[style*="pointer-events"] > div:nth-child(3) .absolute.border {
+            background-color: rgba(255, 251, 241, 0.74) !important;
+            border-color: rgba(132, 108, 48, 0.24) !important;
+          }
+
+          #root > div > div.relative.z-20.flex[style*="pointer-events"] > div:nth-child(2) button {
+            color: #6f551d !important;
           }
         }
       </style>
