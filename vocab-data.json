@@ -2748,5 +2748,25 @@
     "synonyms": "sky, firmament",
     "antonym": "ground",
     "level": 5
+  },
+  {
+    "word": "reflect",
+    "phonetic": "rih-FLEKT",
+    "pos": "verb",
+    "definition": "to think carefully, or to show an image as a mirror does",
+    "etymology": "Latin reflectere, to bend back",
+    "synonyms": "consider, mirror",
+    "antonym": "ignore",
+    "level": 1
+  },
+  {
+    "word": "confident",
+    "phonetic": "KON-fih-dent",
+    "pos": "adjective",
+    "definition": "feeling or showing certainty in oneself or a fact",
+    "etymology": "Latin confidere, to trust fully",
+    "synonyms": "assured, self-assured",
+    "antonym": "insecure",
+    "level": 1
   }
 ]

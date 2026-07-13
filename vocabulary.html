@@ -54,6 +54,7 @@
   body{
     font-family:var(--text);
     font-variant-ligatures:common-ligatures contextual;
+    text-wrap:pretty;
     -webkit-font-smoothing:antialiased;
     background:
       radial-gradient(900px 540px at 18% 8%, color-mix(in srgb,var(--accent) 10%, transparent), transparent 62%),
@@ -66,15 +67,18 @@
     background-image:
       linear-gradient(var(--line-2) 1px,transparent 1px),
       linear-gradient(90deg,var(--line-2) 1px,transparent 1px);
-    background-size:22px 22px;
+    background-size:14px 14px;
     mask-image:linear-gradient(180deg,rgba(0,0,0,.75),rgba(0,0,0,.18) 55%,rgba(0,0,0,.65));
   }
   body::after{
-    content:'';position:fixed;inset:0;pointer-events:none;z-index:30;opacity:.18;
+    content:'';position:fixed;inset:0;pointer-events:none;z-index:30;opacity:.22;
     background:
       repeating-linear-gradient(0deg,rgba(255,255,255,.04) 0 1px,transparent 1px 4px),
       radial-gradient(circle at 12% 24%,rgba(255,255,255,.16),transparent 1px),
-      radial-gradient(circle at 76% 70%,rgba(255,255,255,.12),transparent 1px);
+      radial-gradient(circle at 76% 70%,rgba(255,255,255,.12),transparent 1px),
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.08 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    background-repeat:no-repeat,no-repeat,no-repeat,repeat;
+    background-size:auto,auto,auto,140px 140px;
     mix-blend-mode:overlay;
   }
   button{-webkit-appearance:none;appearance:none;font:inherit;color:inherit;border:0;background:none;cursor:pointer}
@@ -301,6 +305,7 @@
         <div class="quiz-controls">
           <div class="mode-switch" aria-label="Quiz length">
             <button class="mode-btn active" data-mode="25">25 words</button>
+            <button class="mode-btn" data-mode="50">50 words</button>
             <button class="mode-btn" data-mode="100">100 words</button>
           </div>
           <button class="small-btn" id="restart">Restart</button>
@@ -395,7 +400,7 @@
     </div>
     <p class="result-copy" id="verdict"></p>
     <div class="range-guide" id="range-guide" aria-label="Vocabulary comparison ranges"></div>
-    <p class="result-method" id="methodology">Estimate model: your score reflects the share of a difficulty-weighted total you answered correctly, mapped onto a realistic adult vocabulary range (roughly 6,000-40,000 active words) informed by published vocabulary-size research. Passive vocabulary is projected above active vocabulary because recognition typically exceeds confident recall and use. The 100-word quiz is the more accurate gauge because it samples more words from each difficulty tier and reduces the effect of lucky guesses.</p>
+    <p class="result-method" id="methodology">Estimate model: your score reflects the share of a difficulty-weighted total you answered correctly, mapped onto a realistic adult vocabulary range (roughly 6,000-40,000 active words) informed by published vocabulary-size research. Passive vocabulary is projected above active vocabulary because recognition typically exceeds confident recall and use. The more words you quiz on, the more accurate the result: the 50-word quiz samples twice as many words per difficulty tier as the 25-word quiz, and the 100-word quiz samples four times as many, both reducing the effect of lucky guesses. How many times you take the quiz matters too — with a few hundred words in the bank, retaking it soon after a previous attempt raises the odds you are recognizing specific questions rather than demonstrating broader vocabulary, so a single fresh sitting is the most representative score.</p>
     <p class="source-note">This is a directional estimate, not a validated psychometric test: it samples from a curated bank of a few hundred words across five difficulty tiers, not the full dictionary. Other vocabulary tests often report a different number for the same person, partly from different sampling and partly because some count inflected word forms separately while others count word families as one entry. Treat this as a rough compass, not a certified score. Definitions are concise editorial definitions aligned to standard dictionary senses.</p>
     <div class="share-row">
       <button class="share-btn icon-btn" id="share-native" aria-label="Share result">
@@ -427,21 +432,66 @@
 
 <script>
 const SEED_WORDS=[
-{word:'abate',phonetic:'uh-BAYT',pos:'verb',definition:'to become less intense or widespread',etymology:'Latin battuere, to beat down',synonyms:'ease, subside',antonym:'intensify',level:1},
-{word:'candid',phonetic:'KAN-did',pos:'adjective',definition:'truthful and direct in speech',etymology:'Latin candidus, white or clear',synonyms:'frank, open',antonym:'evasive',level:1},
-{word:'diligent',phonetic:'DIL-uh-jent',pos:'adjective',definition:'showing steady careful effort',etymology:'Latin diligere, to value highly',synonyms:'careful, industrious',antonym:'negligent',level:1},
-{word:'fastidious',phonetic:'fa-STID-ee-us',pos:'adjective',definition:'very attentive to detail and cleanliness',etymology:'Latin fastidium, disgust',synonyms:'particular, meticulous',antonym:'sloppy',level:2},
-{word:'harbinger',phonetic:'HAR-bin-jer',pos:'noun',definition:'a sign that something is approaching',etymology:'Old French herbergier, provide lodging',synonyms:'forerunner, omen',antonym:'aftermath',level:2},
-{word:'mitigate',phonetic:'MIT-ih-gayt',pos:'verb',definition:'to make less severe',etymology:'Latin mitis, mild',synonyms:'alleviate, soften',antonym:'aggravate',level:2},
-{word:'deleterious',phonetic:'del-uh-TEER-ee-us',pos:'adjective',definition:'harmful, often subtly',etymology:'Greek deleterios, destructive',synonyms:'damaging, injurious',antonym:'beneficial',level:3},
-{word:'equivocal',phonetic:'ih-KWIV-uh-kul',pos:'adjective',definition:'open to more than one interpretation',etymology:'Latin aequus + vox, equal voice',synonyms:'ambiguous, uncertain',antonym:'unequivocal',level:3},
-{word:'garrulous',phonetic:'GAIR-uh-lus',pos:'adjective',definition:'excessively talkative',etymology:'Latin garrire, chatter',synonyms:'loquacious, chatty',antonym:'taciturn',level:3},
-{word:'bellwether',phonetic:'BEL-weh-ther',pos:'noun',definition:'an indicator of future trends',etymology:'Middle English, lead sheep with a bell',synonyms:'indicator, signal',antonym:'outlier',level:4},
-{word:'cynosure',phonetic:'SY-nuh-shoor',pos:'noun',definition:'the center of attention',etymology:'Greek kunosoura, dog tail, Ursa Minor',synonyms:'focal point, lodestar',antonym:'obscurity',level:4},
-{word:'otiose',phonetic:'OH-shee-ohs',pos:'adjective',definition:'serving no practical purpose',etymology:'Latin otiosus, idle',synonyms:'pointless, idle',antonym:'useful',level:4},
-{word:'verisimilitude',phonetic:'vair-ih-sih-MIL-ih-tood',pos:'noun',definition:'the appearance of being true or real',etymology:'Latin veri similis, truthlike',synonyms:'plausibility, realism',antonym:'implausibility',level:5},
-{word:'weltschmerz',phonetic:'VELT-shmairts',pos:'noun',definition:'melancholy from comparing reality with ideals',etymology:'German Welt + Schmerz, world-pain',synonyms:'world-weariness, melancholy',antonym:'contentment',level:5},
-{word:'mellifluous',phonetic:'meh-LIF-loo-us',pos:'adjective',definition:'sweetly flowing in sound',etymology:'Latin mel + fluere, honey-flowing',synonyms:'dulcet, smooth',antonym:'grating',level:5}
+{word:"abate",phonetic:"uh-BAYT",pos:"verb",definition:"to become less intense or widespread",etymology:"Latin battuere, to beat down",synonyms:"ease, subside",antonym:"intensify",level:1},
+{word:"candid",phonetic:"KAN-did",pos:"adjective",definition:"truthful and direct in speech",etymology:"Latin candidus, white or clear",synonyms:"frank, open",antonym:"evasive",level:1},
+{word:"diligent",phonetic:"DIL-uh-jent",pos:"adjective",definition:"showing steady careful effort",etymology:"Latin diligere, to value highly",synonyms:"careful, industrious",antonym:"negligent",level:1},
+{word:"elude",phonetic:"ih-LOOD",pos:"verb",definition:"to avoid or escape by skill",etymology:"Latin ludere, to play",synonyms:"evade, escape",antonym:"confront",level:1},
+{word:"frugal",phonetic:"FROO-gul",pos:"adjective",definition:"careful in spending or using resources",etymology:"Latin frux, fruit or value",synonyms:"economical, sparing",antonym:"wasteful",level:1},
+{word:"gregarious",phonetic:"grih-GAIR-ee-us",pos:"adjective",definition:"fond of company; sociable",etymology:"Latin grex, flock",synonyms:"sociable, companionable",antonym:"reclusive",level:1},
+{word:"hinder",phonetic:"HIN-der",pos:"verb",definition:"to delay or obstruct",etymology:"Old English hindrian, injure",synonyms:"impede, obstruct",antonym:"assist",level:1},
+{word:"lucid",phonetic:"LOO-sid",pos:"adjective",definition:"clear and easy to understand",etymology:"Latin lucidus, bright",synonyms:"clear, intelligible",antonym:"obscure",level:1},
+{word:"novice",phonetic:"NAH-vis",pos:"noun",definition:"a person new to a field or activity",etymology:"Latin novus, new",synonyms:"beginner, learner",antonym:"veteran",level:1},
+{word:"prudent",phonetic:"PROO-dent",pos:"adjective",definition:"acting with sound judgment and care",etymology:"Latin providere, foresee",synonyms:"wise, cautious",antonym:"rash",level:1},
+{word:"resolute",phonetic:"REZ-uh-loot",pos:"adjective",definition:"admirably determined",etymology:"Latin resolvere, loosen or decide",synonyms:"firm, steadfast",antonym:"wavering",level:1},
+{word:"skeptical",phonetic:"SKEP-tih-kul",pos:"adjective",definition:"inclined to question or doubt",etymology:"Greek skeptikos, thoughtful",synonyms:"doubtful, questioning",antonym:"credulous",level:1},
+{word:"fastidious",phonetic:"fa-STID-ee-us",pos:"adjective",definition:"very attentive to detail and cleanliness",etymology:"Latin fastidium, disgust",synonyms:"particular, meticulous",antonym:"sloppy",level:2},
+{word:"harbinger",phonetic:"HAR-bin-jer",pos:"noun",definition:"a sign that something is approaching",etymology:"Old French herbergier, provide lodging",synonyms:"forerunner, omen",antonym:"aftermath",level:2},
+{word:"inert",phonetic:"in-URT",pos:"adjective",definition:"lacking power to move or act",etymology:"Latin iners, unskilled or inactive",synonyms:"inactive, lifeless",antonym:"animated",level:2},
+{word:"juxtapose",phonetic:"JUK-stuh-pohz",pos:"verb",definition:"to place side by side for contrast",etymology:"Latin juxta, next to",synonyms:"compare, collocate",antonym:"separate",level:2},
+{word:"kindle",phonetic:"KIN-dul",pos:"verb",definition:"to start a fire or feeling",etymology:"Old Norse kynda, light a fire",synonyms:"ignite, arouse",antonym:"extinguish",level:2},
+{word:"languid",phonetic:"LANG-gwid",pos:"adjective",definition:"slow, relaxed, or weak in manner",etymology:"Latin languere, be weak",synonyms:"listless, unhurried",antonym:"energetic",level:2},
+{word:"mitigate",phonetic:"MIT-ih-gayt",pos:"verb",definition:"to make less severe",etymology:"Latin mitis, mild",synonyms:"alleviate, soften",antonym:"aggravate",level:2},
+{word:"nebulous",phonetic:"NEB-yuh-lus",pos:"adjective",definition:"vague or cloudlike",etymology:"Latin nebula, mist",synonyms:"vague, hazy",antonym:"definite",level:2},
+{word:"opaque",phonetic:"oh-PAYK",pos:"adjective",definition:"not transparent; hard to understand",etymology:"Latin opacus, shaded",synonyms:"clouded, obscure",antonym:"transparent",level:2},
+{word:"placate",phonetic:"PLAY-kayt",pos:"verb",definition:"to calm anger or hostility",etymology:"Latin placare, soothe",synonyms:"appease, pacify",antonym:"provoke",level:2},
+{word:"quell",phonetic:"KWEL",pos:"verb",definition:"to suppress or calm",etymology:"Old English cwellan, kill",synonyms:"subdue, quiet",antonym:"incite",level:2},
+{word:"rancor",phonetic:"RANG-ker",pos:"noun",definition:"bitter lasting resentment",etymology:"Latin rancere, stink",synonyms:"bitterness, animosity",antonym:"goodwill",level:2},
+{word:"deleterious",phonetic:"del-uh-TEER-ee-us",pos:"adjective",definition:"harmful, often subtly",etymology:"Greek deleterios, destructive",synonyms:"damaging, injurious",antonym:"beneficial",level:3},
+{word:"equivocal",phonetic:"ih-KWIV-uh-kul",pos:"adjective",definition:"open to more than one interpretation",etymology:"Latin aequus + vox, equal voice",synonyms:"ambiguous, uncertain",antonym:"unequivocal",level:3},
+{word:"felicitous",phonetic:"fih-LIS-ih-tus",pos:"adjective",definition:"well chosen or suited to the situation",etymology:"Latin felix, happy",synonyms:"apt, fitting",antonym:"inept",level:3},
+{word:"garrulous",phonetic:"GAIR-uh-lus",pos:"adjective",definition:"excessively talkative",etymology:"Latin garrire, chatter",synonyms:"loquacious, chatty",antonym:"taciturn",level:3},
+{word:"hegemony",phonetic:"hih-JEM-uh-nee",pos:"noun",definition:"dominant influence over others",etymology:"Greek hegemonia, leadership",synonyms:"dominance, supremacy",antonym:"subordination",level:3},
+{word:"insouciant",phonetic:"in-SOO-see-unt",pos:"adjective",definition:"casually unconcerned",etymology:"French soucier, to care",synonyms:"nonchalant, blithe",antonym:"anxious",level:3},
+{word:"jejune",phonetic:"jih-JOON",pos:"adjective",definition:"naive, simplistic, or dull",etymology:"Latin jejunus, fasting or barren",synonyms:"immature, vapid",antonym:"sophisticated",level:3},
+{word:"lachrymose",phonetic:"LAK-ruh-mohs",pos:"adjective",definition:"tearful or mournful",etymology:"Latin lacrima, tear",synonyms:"weepy, mournful",antonym:"cheerful",level:3},
+{word:"mendacious",phonetic:"men-DAY-shus",pos:"adjective",definition:"given to lying",etymology:"Latin mendax, lying",synonyms:"false, dishonest",antonym:"truthful",level:3},
+{word:"nonplussed",phonetic:"nahn-PLUST",pos:"adjective",definition:"surprised and unsure how to react",etymology:"Latin non plus, no more",synonyms:"perplexed, baffled",antonym:"unfazed",level:3},
+{word:"obdurate",phonetic:"AHB-duh-rit",pos:"adjective",definition:"stubbornly refusing to change",etymology:"Latin obdurare, harden",synonyms:"unyielding, stubborn",antonym:"pliant",level:3},
+{word:"panacea",phonetic:"pan-uh-SEE-uh",pos:"noun",definition:"a supposed remedy for all problems",etymology:"Greek panakes, all-healing",synonyms:"cure-all, remedy",antonym:"poison",level:3},
+{word:"bellwether",phonetic:"BEL-weh-ther",pos:"noun",definition:"an indicator of future trends",etymology:"Middle English, lead sheep with a bell",synonyms:"indicator, signal",antonym:"outlier",level:4},
+{word:"cynosure",phonetic:"SY-nuh-shoor",pos:"noun",definition:"the center of attention",etymology:"Greek kunosoura, dog tail, Ursa Minor",synonyms:"focal point, lodestar",antonym:"obscurity",level:4},
+{word:"desuetude",phonetic:"DES-wih-tood",pos:"noun",definition:"a state of disuse",etymology:"Latin desuetudo, disuse",synonyms:"disuse, neglect",antonym:"use",level:4},
+{word:"epistolary",phonetic:"ih-PIS-tuh-lair-ee",pos:"adjective",definition:"related to letters or correspondence",etymology:"Greek epistole, letter",synonyms:"lettered, correspondence-based",antonym:"oral",level:4},
+{word:"fulminate",phonetic:"FUL-mih-nayt",pos:"verb",definition:"to protest loudly and bitterly",etymology:"Latin fulminare, strike with lightning",synonyms:"denounce, thunder",antonym:"praise",level:4},
+{word:"gnomic",phonetic:"NOH-mik",pos:"adjective",definition:"short, wise, and mysterious in expression",etymology:"Greek gnome, thought or maxim",synonyms:"aphoristic, cryptic",antonym:"expansive",level:4},
+{word:"hieratic",phonetic:"hy-uh-RAT-ik",pos:"adjective",definition:"priestly; highly stylized",etymology:"Greek hieratikos, priestly",synonyms:"sacerdotal, formal",antonym:"secular",level:4},
+{word:"imbricate",phonetic:"IM-brih-kayt",pos:"verb",definition:"to overlap like roof tiles",etymology:"Latin imbrex, roof tile",synonyms:"overlap, layer",antonym:"separate",level:4},
+{word:"jocund",phonetic:"JAH-kund",pos:"adjective",definition:"cheerful and lighthearted",etymology:"Latin jucundus, pleasant",synonyms:"merry, buoyant",antonym:"morose",level:4},
+{word:"ken",phonetic:"KEN",pos:"noun",definition:"range of knowledge or perception",etymology:"Old English cennan, make known",synonyms:"understanding, scope",antonym:"ignorance",level:4},
+{word:"liminal",phonetic:"LIM-ih-nul",pos:"adjective",definition:"relating to a threshold or transition",etymology:"Latin limen, threshold",synonyms:"transitional, threshold",antonym:"settled",level:4},
+{word:"mawkish",phonetic:"MAW-kish",pos:"adjective",definition:"overly sentimental in a sickly way",etymology:"Middle English mawk, maggot",synonyms:"saccharine, cloying",antonym:"dry-eyed",level:4},
+{word:"verisimilitude",phonetic:"vair-ih-sih-MIL-ih-tood",pos:"noun",definition:"the appearance of being true or real",etymology:"Latin veri similis, truthlike",synonyms:"plausibility, realism",antonym:"implausibility",level:5},
+{word:"weltschmerz",phonetic:"VELT-shmairts",pos:"noun",definition:"melancholy from comparing reality with ideals",etymology:"German Welt + Schmerz, world-pain",synonyms:"world-weariness, melancholy",antonym:"contentment",level:5},
+{word:"xenial",phonetic:"ZEE-nee-ul",pos:"adjective",definition:"relating to hospitality between host and guest",etymology:"Greek xenia, hospitality",synonyms:"hospitable, guest-friendly",antonym:"inhospitable",level:5},
+{word:"yare",phonetic:"YAIR",pos:"adjective",definition:"quick, agile, or easy to handle",etymology:"Old English gearu, ready",synonyms:"nimble, ready",antonym:"sluggish",level:5},
+{word:"zugzwang",phonetic:"TSOOG-tsvahng",pos:"noun",definition:"a situation where any move worsens one’s position",etymology:"German Zug + Zwang, move-compulsion",synonyms:"bind, forced disadvantage",antonym:"freedom",level:5},
+{word:"anfractuous",phonetic:"an-FRAK-choo-us",pos:"adjective",definition:"winding and intricate",etymology:"Latin anfractus, winding",synonyms:"sinuous, tortuous",antonym:"straight",level:5},
+{word:"brontide",phonetic:"BRON-tyde",pos:"noun",definition:"a distant rumbling sound like thunder",etymology:"Greek bronte, thunder",synonyms:"rumble, booming",antonym:"silence",level:5},
+{word:"chthonic",phonetic:"THON-ik",pos:"adjective",definition:"relating to the underworld or earth interior",etymology:"Greek khthon, earth",synonyms:"subterranean, infernal",antonym:"celestial",level:5},
+{word:"diaphanous",phonetic:"dy-AF-uh-nus",pos:"adjective",definition:"light, delicate, and translucent",etymology:"Greek diaphanes, transparent",synonyms:"sheer, gossamer",antonym:"opaque",level:5},
+{word:"enantiodromia",phonetic:"en-an-tee-oh-DROH-mee-uh",pos:"noun",definition:"the tendency of things to turn into their opposites",etymology:"Greek enantios + dromos, opposite running",synonyms:"reversal, counterturn",antonym:"persistence",level:5},
+{word:"fugacious",phonetic:"fyoo-GAY-shus",pos:"adjective",definition:"fleeting or short-lived",etymology:"Latin fugere, flee",synonyms:"evanescent, transient",antonym:"enduring",level:5},
+{word:"gloaming",phonetic:"GLOH-ming",pos:"noun",definition:"twilight or dusk",etymology:"Old English glom, twilight",synonyms:"dusk, twilight",antonym:"daybreak",level:5}
 ];
 const LEVELS=['Core','Intermediate','Advanced','Scholarly','Rare'];
 let WORD_BANK=SEED_WORDS;
@@ -469,7 +519,7 @@ function shuffle(a){
   return arr;
 }
 function buildQuiz(length=state.mode){
-  const perLevel=length===100?20:5;
+  const perLevel=length===100?20:length===50?10:5;
   return [1,2,3,4,5].flatMap(level=>shuffle(WORD_BANK.filter(w=>w.level===level)).slice(0,perLevel));
 }
 function optionSet(word){
@@ -501,6 +551,23 @@ function displayWord(term){
   }
   return escapeHtml(term);
 }
+function fitWordSize(){
+  const el=$('word');
+  el.style.fontSize='';
+  const panel=el.parentElement;
+  const available=panel.clientWidth;
+  const overflow=el.scrollWidth-available;
+  if(overflow>2){
+    const computed=parseFloat(getComputedStyle(el).fontSize);
+    const scale=Math.max(.3,available/el.scrollWidth);
+    el.style.fontSize=Math.max(26,Math.floor(computed*scale))+'px';
+  }
+}
+let wordFitResizeTimer;
+window.addEventListener('resize',()=>{
+  clearTimeout(wordFitResizeTimer);
+  wordFitResizeTimer=setTimeout(fitWordSize,120);
+});
 function dayStamp(date=new Date()){
   return Date.UTC(date.getFullYear(),date.getMonth(),date.getDate())/86400000;
 }
@@ -620,6 +687,7 @@ function renderQuestion(){
   $('score-label').textContent=`${state.correct} correct`;
   $('word').className=`word ${word.word.length>20?'word-xlong':word.word.length>13?'word-long word-single':'word-single'}`;
   $('word').innerHTML=displayWord(word.word);
+  fitWordSize();
   $('pronounce').textContent=`${word.phonetic} / ${word.pos}`;
   $('answers').innerHTML=optionSet(word).map(o=>`<button class="answer" data-correct="${o.correct}"><b>${o.letter}</b><span>${o.text}</span></button>`).join('');
   $('note').innerHTML=`<button class="next" id="next">Next word</button><div class="note-copy"><b>After you answer</b><span>Each word reveals its origin, useful neighbors, and a clean antonym.</span></div>`;
