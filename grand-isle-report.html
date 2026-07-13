@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grand Isle Report — Tides, Weather &amp; Fishing Conditions</title>
+<link rel="stylesheet" href="https://use.typekit.net/xhf1nbc.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#0b1614;
+    --paper-2:#0f1e1b;
+    --sheet:#132420;
+    --sheet-2:#182b26;
+    --ink:#eef1ea;
+    --ink-2:#c3cdc2;
+    --muted:#7f948c;
+    --faint:#2a3e37;
+    --line:rgba(238,241,234,.14);
+    --line-2:rgba(238,241,234,.08);
+    --accent:#c98a3e;
+    --accent-2:#4f8a7c;
+    --good:#7db56f;
+    --fair:#d1a13f;
+    --bad:#c65b4e;
+    --shadow:0 22px 70px rgba(0,0,0,.42);
+    --serif:'surveyors','surveyor','freight-display-pro','adobe-caslon-pro','Fraunces',Georgia,serif;
+    --text:'freight-text-pro','source-serif-pro','adobe-caslon-pro','Fraunces',Georgia,serif;
+    --sans:'gotham','gotham ssm','proxima-nova','aktiv-grotesk','Barlow Condensed','Avenir Next',Arial,sans-serif;
+    --mono:'Space Mono','SFMono-Regular',monospace;
+  }
+  [data-theme="light"]{
+    --paper:#f1ede1;
+    --paper-2:#e6dfcc;
+    --sheet:#faf7ee;
+    --sheet-2:#f0ead9;
+    --ink:#141d19;
+    --ink-2:#3b4a42;
+    --muted:#6c7d73;
+    --faint:#d7cdb2;
+    --line:rgba(20,29,25,.14);
+    --line-2:rgba(20,29,25,.08);
+    --accent:#a56a28;
+    --accent-2:#2f6e5f;
+    --good:#3f7a3d;
+    --fair:#95701f;
+    --bad:#a8402f;
+    --shadow:0 22px 70px rgba(40,32,10,.14);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100%;background:var(--paper);color:var(--ink);overflow-x:hidden}
+  body{
+    font-family:var(--text);
+    text-wrap:pretty;
+    -webkit-font-smoothing:antialiased;
+    background:
+      radial-gradient(900px 540px at 12% 4%, color-mix(in srgb,var(--accent-2) 12%, transparent), transparent 62%),
+      radial-gradient(820px 520px at 92% 90%, color-mix(in srgb,var(--accent) 10%, transparent), transparent 60%),
+      linear-gradient(150deg,var(--paper),var(--paper-2));
+    transition:background .25s ease,color .25s ease;
+  }
+  body::before{
+    content:'';position:fixed;inset:0;pointer-events:none;opacity:.5;z-index:0;
+    background-image:
+      linear-gradient(var(--line-2) 1px,transparent 1px),
+      linear-gradient(90deg,var(--line-2) 1px,transparent 1px);
+    background-size:16px 16px;
+    mask-image:linear-gradient(180deg,rgba(0,0,0,.7),rgba(0,0,0,.16) 55%,rgba(0,0,0,.6));
+  }
+  body::after{
+    content:'';position:fixed;inset:0;pointer-events:none;z-index:30;opacity:.2;
+    background:
+      repeating-linear-gradient(0deg,rgba(255,255,255,.04) 0 1px,transparent 1px 4px),
+      radial-gradient(circle at 14% 20%,rgba(255,255,255,.14),transparent 1px),
+      radial-gradient(circle at 80% 76%,rgba(255,255,255,.1),transparent 1px);
+    mix-blend-mode:overlay;
+  }
+  button,a.btn{font:inherit;color:inherit;border:0;background:none;cursor:pointer;-webkit-appearance:none;appearance:none;text-decoration:none}
+  .app{position:relative;z-index:2;min-height:100vh;padding:clamp(14px,2.6vw,28px);display:grid;grid-template-rows:auto 1fr auto;gap:20px;max-width:1400px;margin:0 auto}
+  .topbar{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:18px;border-bottom:1px solid var(--line);padding-bottom:16px}
+  .brand{font-family:var(--sans);font-size:11px;letter-spacing:.32em;text-transform:uppercase;color:var(--muted);font-weight:500}
+  .brand b{font-weight:700;color:var(--ink)}
+  .masthead{
+    font-family:var(--serif);font-size:clamp(28px,3.6vw,46px);line-height:.95;font-weight:300;letter-spacing:-.01em;
+    color:var(--ink);font-style:italic;text-wrap:balance;
+  }
+  .clock{font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--muted);text-align:right;white-space:nowrap}
+  .small-btn{border:1px solid var(--line);background:color-mix(in srgb,var(--sheet) 74%,transparent);padding:9px 12px;border-radius:3px;font-family:var(--sans);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);font-weight:600}
+  .small-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .tools{display:flex;gap:8px;align-items:center}
+
+  .grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;min-height:0}
+  .col{display:grid;gap:18px;align-content:start;min-width:0}
+  .card{background:color-mix(in srgb,var(--sheet) 88%,transparent);border:1px solid var(--line);box-shadow:var(--shadow);border-radius:3px;padding:24px;position:relative;overflow:hidden}
+  .card::before{content:'';position:absolute;inset:14px;border:1px solid var(--line-2);border-radius:2px;pointer-events:none}
+  .kicker{font-family:var(--sans);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  .kicker.accent{color:var(--accent)}
+  .card-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:16px;position:relative;z-index:1}
+  .updated{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.02em}
+
+  /* current conditions */
+  .now-grid{display:grid;grid-template-columns:auto 1fr;gap:26px;align-items:center;position:relative;z-index:1}
+  .now-temp{font-family:var(--serif);font-size:clamp(64px,9vw,120px);line-height:.86;color:var(--accent);font-weight:300}
+  .now-temp small{font-family:var(--sans);font-size:16px;color:var(--muted);font-weight:500;vertical-align:top;margin-left:2px}
+  .now-desc{font-family:var(--text);font-size:20px;color:var(--ink);margin-bottom:10px}
+  .now-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 22px;margin-top:8px}
+  .now-stat{border-top:1px solid var(--line);padding-top:8px}
+  .now-stat b{display:block;font-family:var(--sans);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:4px}
+  .now-stat span{font-family:var(--mono);font-size:17px;color:var(--ink)}
+  .station-note{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);font-size:13px;color:var(--muted);line-height:1.5;position:relative;z-index:1}
+
+  /* outlook badge */
+  .outlook{display:flex;align-items:center;gap:14px;margin-top:18px;padding:14px 16px;border:1px solid var(--line);border-radius:3px;background:color-mix(in srgb,var(--sheet-2) 60%,transparent);position:relative;z-index:1}
+  .outlook-dot{width:12px;height:12px;border-radius:50%;flex:none;background:var(--muted)}
+  .outlook-dot.good{background:var(--good);box-shadow:0 0 14px color-mix(in srgb,var(--good) 60%,transparent)}
+  .outlook-dot.fair{background:var(--fair);box-shadow:0 0 14px color-mix(in srgb,var(--fair) 60%,transparent)}
+  .outlook-dot.bad{background:var(--bad);box-shadow:0 0 14px color-mix(in srgb,var(--bad) 60%,transparent)}
+  .outlook-copy b{display:block;font-family:var(--sans);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);font-weight:700}
+  .outlook-copy span{font-size:14px;color:var(--ink-2);line-height:1.4}
+
+  /* forecast strip */
+  .forecast-strip{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;position:relative;z-index:1}
+  .fperiod{border:1px solid var(--line);border-radius:3px;padding:14px 12px;background:color-mix(in srgb,var(--sheet-2) 55%,transparent);text-align:center}
+  .fperiod b{display:block;font-family:var(--sans);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:8px}
+  .fperiod .ftemp{font-family:var(--serif);font-size:28px;color:var(--ink);line-height:1}
+  .fperiod .fdesc{font-size:11px;color:var(--ink-2);margin-top:8px;line-height:1.35;min-height:28px}
+  .fperiod .fwind{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:8px}
+
+  /* tides */
+  .tide-now{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center;position:relative;z-index:1;margin-bottom:18px}
+  .tide-level{font-family:var(--serif);font-size:44px;color:var(--accent-2);line-height:1}
+  .tide-level small{font-family:var(--sans);font-size:12px;color:var(--muted);display:block;margin-top:2px;font-weight:500}
+  .tide-next b{display:block;font-family:var(--sans);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  .tide-next span{font-size:16px;color:var(--ink)}
+  .tide-list{display:grid;gap:0;position:relative;z-index:1}
+  .tide-row{display:grid;grid-template-columns:90px 1fr auto auto;gap:10px;align-items:center;border-top:1px solid var(--line);padding:9px 0;font-size:13px}
+  .tide-row.today{background:color-mix(in srgb,var(--accent) 6%, transparent)}
+  .tide-row .t-day{font-family:var(--sans);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .tide-row .t-time{font-family:var(--mono);color:var(--ink)}
+  .tide-row .t-type{font-family:var(--sans);font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+  .tide-row .t-type.H{color:var(--accent-2)}
+  .tide-row .t-type.L{color:var(--accent)}
+  .tide-row .t-height{font-family:var(--mono);color:var(--ink-2);text-align:right}
+  .water-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px 22px;margin-top:16px;padding-top:14px;border-top:1px solid var(--line);position:relative;z-index:1}
+
+  /* traffic */
+  .map-frame{width:100%;aspect-ratio:16/10;border:1px solid var(--line);border-radius:3px;overflow:hidden;background:var(--sheet-2);position:relative;z-index:1}
+  .map-frame iframe{width:100%;height:100%;border:0;filter:saturate(.85) contrast(1.02)}
+  [data-theme="dark"] .map-frame iframe{filter:saturate(.7) contrast(1.05) invert(1) hue-rotate(180deg)}
+  .traffic-links{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;position:relative;z-index:1}
+  .link-btn{border:1px solid var(--line);background:color-mix(in srgb,var(--sheet-2) 70%,transparent);padding:10px 13px;border-radius:3px;font-family:var(--sans);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);font-weight:600;display:inline-flex;align-items:center;gap:6px}
+  .link-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .link-btn .arrow{font-size:12px}
+  .flood-note{margin-top:14px;padding:12px 14px;border-left:2px solid var(--bad);background:color-mix(in srgb,var(--bad) 10%, transparent);font-size:13px;color:var(--ink-2);line-height:1.5;position:relative;z-index:1}
+  .flood-note b{color:var(--ink)}
+
+  /* report links */
+  .report-groups{display:grid;gap:20px;position:relative;z-index:1}
+  .report-group b{display:block;font-family:var(--sans);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:10px}
+  .report-list{display:grid;gap:0}
+  .report-item{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:baseline;border-top:1px solid var(--line);padding:11px 0}
+  .report-item a{color:var(--ink);font-size:15px;font-family:var(--text)}
+  .report-item a:hover{color:var(--accent)}
+  .report-item span{font-size:12px;color:var(--muted);grid-column:1/-1}
+  .report-item .go{font-family:var(--mono);font-size:11px;color:var(--muted)}
+
+  .footer{border-top:1px solid var(--line);padding-top:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-family:var(--sans);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .footer a{color:var(--muted)}
+  .footer a:hover{color:var(--accent)}
+
+  .err-note{font-size:13px;color:var(--bad);line-height:1.5;position:relative;z-index:1}
+  .skeleton{color:var(--muted);font-size:13px;position:relative;z-index:1}
+
+  @media(max-width:1080px){
+    .grid{grid-template-columns:1fr}
+    .forecast-strip{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .fperiod:nth-child(n+4){display:none}
+  }
+  @media(max-width:720px){
+    .topbar{grid-template-columns:1fr;gap:10px}
+    .clock{text-align:left}
+    .now-grid{grid-template-columns:1fr}
+    .now-stats{grid-template-columns:1fr 1fr}
+    .forecast-strip{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .fperiod:nth-child(n+3){display:none}
+    .tide-row{grid-template-columns:70px 1fr auto auto;font-size:12px}
+    .card{padding:18px}
+  }
+</style>
+</head>
+<body>
+<main class="app" id="app">
+  <header class="topbar">
+    <div class="brand"><b>GRAND ISLE</b> / Tide &amp; Weather Report</div>
+    <div class="masthead">Southeastern Louisiana Waters</div>
+    <div class="tools">
+      <span class="clock" id="clock">—</span>
+      <button class="small-btn" id="theme">Light</button>
+      <button class="small-btn" id="refresh">Refresh</button>
+    </div>
+  </header>
+
+  <section class="grid">
+    <div class="col">
+      <article class="card" id="card-now">
+        <div class="card-head">
+          <div class="kicker accent">Current Conditions · Grand Isle, LA</div>
+          <span class="updated" id="now-updated"></span>
+        </div>
+        <div id="now-body" class="skeleton">Reading the instrument station…</div>
+      </article>
+
+      <article class="card" id="card-forecast">
+        <div class="card-head">
+          <div class="kicker accent">Marine &amp; Coastal Forecast</div>
+          <span class="updated" id="forecast-updated"></span>
+        </div>
+        <div id="forecast-body" class="skeleton">Pulling the latest NWS forecast…</div>
+      </article>
+
+      <article class="card" id="card-traffic">
+        <div class="card-head">
+          <div class="kicker accent">Highway 1 &amp; Road Conditions</div>
+        </div>
+        <div class="map-frame">
+          <iframe id="traffic-map" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Map of LA Highway 1 to Grand Isle"></iframe>
+        </div>
+        <div class="traffic-links">
+          <a class="link-btn" href="https://www.google.com/maps/dir/Golden+Meadow,+LA/Grand+Isle,+LA/@29.45,-90.15,10z" target="_blank" rel="noopener">Live traffic in Google Maps <span class="arrow">↗</span></a>
+          <a class="link-btn" href="https://www.511la.org" target="_blank" rel="noopener">511 Louisiana road conditions <span class="arrow">↗</span></a>
+        </div>
+        <div class="flood-note"><b>Know before you go:</b> LA Highway 1 is the only road on and off Grand Isle. The Leeville and Fourchon stretches are prone to overwash at high tide, during onshore wind events, and in tropical weather — check 511la.org before a trip if tides are running high or a storm is nearby.</div>
+      </article>
+    </div>
+
+    <div class="col">
+      <article class="card" id="card-tides">
+        <div class="card-head">
+          <div class="kicker accent">Tides &amp; Water</div>
+          <span class="updated" id="tide-updated"></span>
+        </div>
+        <div id="tide-body" class="skeleton">Reading the tide gauge…</div>
+      </article>
+
+      <article class="card" id="card-outlook-host" style="display:none"></article>
+
+      <article class="card" id="card-reports">
+        <div class="card-head">
+          <div class="kicker accent">Fishing &amp; Crabbing Reports</div>
+        </div>
+        <div class="report-groups">
+          <div class="report-group">
+            <b>Fishing Reports</b>
+            <div class="report-list">
+              <div class="report-item">
+                <a href="https://captainexperiences.com/fishing-reports/locations/louisiana/grand-isle" target="_blank" rel="noopener">Captain Experiences — Grand Isle Reports</a>
+                <span class="go">↗</span>
+                <span>Guide-submitted reports on what's biting and where.</span>
+              </div>
+              <div class="report-item">
+                <a href="https://tides4fishing.com/us/louisiana/grand-isle/forecast/fishing" target="_blank" rel="noopener">Tides4Fishing — Grand Isle Forecast</a>
+                <span class="go">↗</span>
+                <span>Solunar fishing-activity forecast layered on the tide chart.</span>
+              </div>
+              <div class="report-item">
+                <a href="https://fishingbooker.com/reports/destination/us/LA/grand-isle" target="_blank" rel="noopener">FishingBooker — Grand Isle Daily Reports</a>
+                <span class="go">↗</span>
+                <span>Crowd-sourced catch reports from local charters.</span>
+              </div>
+            </div>
+          </div>
+          <div class="report-group">
+            <b>Crabbing</b>
+            <div class="report-list">
+              <div class="report-item">
+                <a href="https://www.louisianasportsman.com/fishing/blue-crab-beach-blitz-crabbing-on-grand-isle/" target="_blank" rel="noopener">Louisiana Sportsman — Crabbing on Grand Isle</a>
+                <span class="go">↗</span>
+                <span>Where and how to beach-crab the island, by season.</span>
+              </div>
+              <div class="report-item">
+                <a href="https://www.wlf.louisiana.gov/page/recreational-crab-oyster-shrimp" target="_blank" rel="noopener">LDWF — Crab, Oyster &amp; Shrimp Regulations</a>
+                <span class="go">↗</span>
+                <span>Size limits, gear rules, and season dates.</span>
+              </div>
+            </div>
+          </div>
+          <div class="report-group">
+            <b>Licenses &amp; Regulations</b>
+            <div class="report-list">
+              <div class="report-item">
+                <a href="https://www.wlf.louisiana.gov/go-fishing" target="_blank" rel="noopener">LDWF — Go Fishing</a>
+                <span class="go">↗</span>
+                <span>Official state fishing hub: seasons, limits, access points.</span>
+              </div>
+              <div class="report-item">
+                <a href="https://www.wlf.louisiana.gov/page/recreational-saltwater-finfish" target="_blank" rel="noopener">LDWF — Recreational Saltwater Finfish</a>
+                <span class="go">↗</span>
+                <span>Species-by-species size and creel limits.</span>
+              </div>
+              <div class="report-item">
+                <a href="https://www.wlf.louisiana.gov/page/recreational-fishing-licenses-and-permits" target="_blank" rel="noopener">LDWF — Licenses &amp; Permits</a>
+                <span class="go">↗</span>
+                <span>Buy or renew a Louisiana saltwater fishing license.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <span>Weather &amp; tide data: <a href="https://www.weather.gov" target="_blank" rel="noopener">National Weather Service</a> &amp; <a href="https://tidesandcurrents.noaa.gov/stationhome.html?id=8761724" target="_blank" rel="noopener">NOAA Tides &amp; Currents, Station 8761724</a></span>
+    <span id="footer-updated">—</span>
+  </footer>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+const NWS_UA={'User-Agent':'grand-isle-report (personal site, contact: interfaces.rondomingue.com)'};
+const TIDE_STATION='8761724';
+const COMPASS=['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
+function degToCompass(deg){
+  if(deg==null||isNaN(deg)) return '—';
+  return COMPASS[Math.round(deg/22.5)%16];
+}
+function cToF(c){return c*9/5+32}
+function kmhToMph(k){return k*0.621371}
+function paToInHg(pa){return pa*0.0002953}
+function mToMi(m){return m*0.000621371}
+function fmtTime(d){return d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}
+function fmtDay(d){return d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}
+function timeAgo(d){
+  const s=Math.round((Date.now()-d.getTime())/1000);
+  if(s<60) return 'just now';
+  if(s<3600) return Math.round(s/60)+' min ago';
+  return Math.round(s/3600)+' hr ago';
+}
+function ymd(d){
+  return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
+}
+
+function updateClock(){
+  $('clock').textContent=new Date().toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})+' local';
+}
+
+let latestObs=null, latestForecast=null;
+
+async function loadCurrentConditions(){
+  try{
+    const res=await fetch('https://api.weather.gov/stations/KGAO/observations/latest',{headers:NWS_UA});
+    if(!res.ok) throw new Error('observation request failed');
+    const data=await res.json();
+    const p=data.properties;
+    latestObs=p;
+    const tempF=p.temperature.value!=null?Math.round(cToF(p.temperature.value)):null;
+    const windMph=p.windSpeed.value!=null?Math.round(kmhToMph(p.windSpeed.value)):null;
+    const gustMph=p.windGust&&p.windGust.value!=null?Math.round(kmhToMph(p.windGust.value)):null;
+    const dir=degToCompass(p.windDirection.value);
+    const pressure=p.barometricPressure&&p.barometricPressure.value!=null?paToInHg(p.barometricPressure.value).toFixed(2):null;
+    const humidity=p.relativeHumidity&&p.relativeHumidity.value!=null?Math.round(p.relativeHumidity.value):null;
+    const visibility=p.visibility&&p.visibility.value!=null?mToMi(p.visibility.value).toFixed(1):null;
+    const desc=p.textDescription||'Conditions unavailable';
+    $('now-body').innerHTML=`
+      <div class="now-grid">
+        <div class="now-temp">${tempF!=null?tempF:'—'}<small>°F</small></div>
+        <div>
+          <div class="now-desc">${desc}</div>
+          <div class="now-stats">
+            <div class="now-stat"><b>Wind</b><span>${windMph!=null?windMph+' mph '+dir:'—'}${gustMph?' · G '+gustMph:''}</span></div>
+            <div class="now-stat"><b>Humidity</b><span>${humidity!=null?humidity+'%':'—'}</span></div>
+            <div class="now-stat"><b>Pressure</b><span>${pressure!=null?pressure+' inHg':'—'}</span></div>
+            <div class="now-stat"><b>Visibility</b><span>${visibility!=null?visibility+' mi':'—'}</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="station-note">Live from Grand Isle Airport station (KGAO), the closest official observation point to the island.</div>
+    `;
+    $('now-updated').textContent=timeAgo(new Date(p.timestamp));
+  }catch(e){
+    $('now-body').innerHTML=`<div class="err-note">Could not reach the Grand Isle station right now. <a href="https://forecast.weather.gov/MapClick.php?lat=29.2358&lon=-89.9873" target="_blank" rel="noopener" style="color:inherit">View on weather.gov ↗</a></div>`;
+  }
+  renderOutlook();
+}
+
+async function loadForecast(){
+  try{
+    const res=await fetch('https://api.weather.gov/gridpoints/LIX/72,57/forecast',{headers:NWS_UA});
+    if(!res.ok) throw new Error('forecast request failed');
+    const data=await res.json();
+    const periods=data.properties.periods.slice(0,5);
+    latestForecast=periods;
+    $('forecast-body').innerHTML=`<div class="forecast-strip">${periods.map(p=>`
+      <div class="fperiod">
+        <b>${p.name}</b>
+        <div class="ftemp">${p.temperature}°</div>
+        <div class="fdesc">${p.shortForecast}</div>
+        <div class="fwind">${p.windSpeed} ${p.windDirection}</div>
+      </div>
+    `).join('')}</div>`;
+    $('forecast-updated').textContent=timeAgo(new Date(data.properties.updateTime));
+  }catch(e){
+    $('forecast-body').innerHTML=`<div class="err-note">Could not load the coastal forecast right now. <a href="https://forecast.weather.gov/MapClick.php?lat=29.2358&lon=-89.9873" target="_blank" rel="noopener" style="color:inherit">View on weather.gov ↗</a></div>`;
+  }
+  renderOutlook();
+}
+
+let tidePredictions=[];
+async function loadTides(){
+  try{
+    const today=new Date();
+    const end=new Date(today.getTime()+2*86400000);
+    const [predRes,levelRes,tempRes]=await Promise.all([
+      fetch(`https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=predictions&application=grand_isle_report&begin_date=${ymd(today)}&end_date=${ymd(end)}&datum=MLLW&station=${TIDE_STATION}&time_zone=lst_ldt&units=english&interval=hilo&format=json`),
+      fetch(`https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=water_level&application=grand_isle_report&date=latest&datum=MLLW&station=${TIDE_STATION}&time_zone=lst_ldt&units=english&format=json`),
+      fetch(`https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=water_temperature&application=grand_isle_report&date=latest&station=${TIDE_STATION}&time_zone=lst_ldt&units=english&format=json`)
+    ]);
+    const predData=await predRes.json();
+    const levelData=await levelRes.json().catch(()=>null);
+    const tempData=await tempRes.json().catch(()=>null);
+    const preds=(predData.predictions||[]).map(p=>({time:new Date(p.t.replace(' ','T')),height:parseFloat(p.v),type:p.type}));
+    tidePredictions=preds;
+    const now=new Date();
+    const next=preds.find(p=>p.time>now);
+    const level=levelData&&levelData.data&&levelData.data[0]?parseFloat(levelData.data[0].v):null;
+    const waterTemp=tempData&&tempData.data&&tempData.data[0]?Math.round(parseFloat(tempData.data[0].v)):null;
+    const trend=next?(next.type==='H'?'Rising':'Falling'):'—';
+
+    let todayKey=fmtDay(now);
+    const rows=preds.map(p=>{
+      const dayKey=fmtDay(p.time);
+      const isToday=dayKey===todayKey;
+      return `<div class="tide-row ${isToday?'today':''}">
+        <span class="t-day">${dayKey.split(',')[0]}</span>
+        <span class="t-time">${fmtTime(p.time)}</span>
+        <span class="t-type ${p.type}">${p.type==='H'?'High':'Low'}</span>
+        <span class="t-height">${p.height.toFixed(1)} ft</span>
+      </div>`;
+    }).join('');
+
+    $('tide-body').innerHTML=`
+      <div class="tide-now">
+        <div class="tide-level">${level!=null?level.toFixed(1):'—'}<small>ft MLLW · ${trend}</small></div>
+        <div class="tide-next">
+          <b>Next tide</b>
+          <span>${next?(next.type==='H'?'High':'Low')+' at '+fmtTime(next.time)+' ('+next.height.toFixed(1)+' ft)':'—'}</span>
+        </div>
+      </div>
+      <div class="tide-list">${rows||'<div class="err-note">No predictions returned.</div>'}</div>
+      <div class="water-stats">
+        <div class="now-stat"><b>Water Temp</b><span>${waterTemp!=null?waterTemp+'°F':'—'}</span></div>
+        <div class="now-stat"><b>Station</b><span style="font-size:13px">Grand Isle, LA</span></div>
+      </div>
+    `;
+    $('tide-updated').textContent=levelData&&levelData.data&&levelData.data[0]?timeAgo(new Date(levelData.data[0].t.replace(' ','T'))):'';
+  }catch(e){
+    $('tide-body').innerHTML=`<div class="err-note">Could not load tide data right now. <a href="https://tidesandcurrents.noaa.gov/noaatidepredictions.html?id=8761724" target="_blank" rel="noopener" style="color:inherit">View on NOAA ↗</a></div>`;
+  }
+  renderOutlook();
+}
+
+function renderOutlook(){
+  const host=$('card-outlook-host');
+  if(!latestObs || !latestForecast){ return; }
+  const windMph=latestObs.windSpeed&&latestObs.windSpeed.value!=null?kmhToMph(latestObs.windSpeed.value):null;
+  const stormWords=/thunder|storm|tstm/i;
+  const rainWords=/rain|shower/i;
+  const soon=latestForecast.slice(0,2);
+  const hasStorms=soon.some(p=>stormWords.test(p.shortForecast));
+  const hasRain=soon.some(p=>rainWords.test(p.shortForecast));
+  let tier='fair', label='Fair', note='Moderate conditions — fishable, but check the forecast strip before heading out.';
+  if(hasStorms || (windMph!=null && windMph>=18)){
+    tier='bad'; label='Poor';
+    note=hasStorms?'Thunderstorms in the near-term forecast — small craft should stay in and off the water during storms.':'Wind is running high for comfortable boat handling on open water.';
+  }else if(windMph!=null && windMph<=12 && !hasRain){
+    tier='good'; label='Favorable';
+    note='Light wind and clear near-term forecast — good window for inshore fishing and beach crabbing.';
+  }
+  host.style.display='block';
+  host.innerHTML=`
+    <div class="card-head"><div class="kicker accent">On-the-Water Outlook</div></div>
+    <div class="outlook">
+      <div class="outlook-dot ${tier}"></div>
+      <div class="outlook-copy"><b>${label}</b><span>${note}</span></div>
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin-top:12px;line-height:1.5;position:relative;z-index:1">A simple read from current wind and the near-term forecast — not a substitute for the fishing reports below or your own judgment on the water.</p>
+  `;
+}
+
+function setTrafficMap(){
+  const theme=document.documentElement.dataset.theme;
+  const src='https://maps.google.com/maps?saddr=Golden+Meadow,+LA&daddr=Grand+Isle,+LA&t=m&z=10&output=embed';
+  $('traffic-map').src=src;
+}
+
+async function refreshAll(){
+  $('footer-updated').textContent='Updating…';
+  await Promise.all([loadCurrentConditions(), loadForecast(), loadTides()]);
+  $('footer-updated').textContent='Last updated '+new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+}
+
+$('theme').onclick=()=>{
+  const root=document.documentElement;
+  const dark=root.dataset.theme==='dark';
+  root.dataset.theme=dark?'light':'dark';
+  $('theme').textContent=dark?'Dark':'Light';
+};
+$('refresh').onclick=refreshAll;
+
+updateClock();
+setInterval(updateClock,30000);
+setTrafficMap();
+refreshAll();
+setInterval(refreshAll,600000);
+</script>
+</body>
+</html>
