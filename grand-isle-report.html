@@ -598,23 +598,30 @@ function moonPhaseName(frac){
 function moonIllumination(frac){ return Math.round((1-Math.cos(2*Math.PI*frac))/2*100); }
 function moonIconSvg(frac){
   const r=28,cx=32,cy=32;
-  const lit=Math.cos(2*Math.PI*frac);
-  const rx=Math.abs(lit)*r;
-  const waxing=frac<0.5;
-  let path;
-  if(frac<0.03||frac>0.97){
-    path=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--muted)" stroke-width="1.5"/>`;
-  }else if(Math.abs(frac-0.5)<0.03){
-    path=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="var(--cyan)"/>`;
-  }else{
-    const sweepOuter=waxing?1:0;
-    const sweepInner=waxing?(lit>0?1:0):(lit>0?0:1);
-    path=`
-      <circle cx="${cx}" cy="${cy}" r="${r}" fill="var(--faint)"/>
-      <path d="M ${cx} ${cy-r} A ${r} ${r} 0 0 ${sweepOuter} ${cx} ${cy+r} A ${rx} ${r} 0 0 ${sweepInner} ${cx} ${cy-r} Z" fill="var(--cyan)"/>
-    `;
+  if(frac<0.015||frac>0.985){
+    return `<svg viewBox="0 0 64 64" class="moon-icon"><circle cx="${cx}" cy="${cy}" r="${r}" fill="var(--faint)" stroke="var(--line)" stroke-width="1"/></svg>`;
   }
-  return `<svg viewBox="0 0 64 64" class="moon-icon">${path}<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--line)" stroke-width="1"/></svg>`;
+  if(Math.abs(frac-0.5)<0.015){
+    return `<svg viewBox="0 0 64 64" class="moon-icon"><circle cx="${cx}" cy="${cy}" r="${r}" fill="var(--cyan)"/></svg>`;
+  }
+  const theta=frac*2*Math.PI;
+  const xr=Math.abs(Math.cos(theta))*r;
+  const waxing=frac<0.5;
+  const baseSweep=waxing?1:0;
+  const isGibbous=frac>0.25 && frac<0.75;
+  const maskId='moonmask'+Math.random().toString(36).slice(2,8);
+  const basePath=`M ${cx} ${cy-r} A ${r} ${r} 0 0 ${baseSweep} ${cx} ${cy+r} Z`;
+  const ellipseFill=isGibbous?'white':'black';
+  return `<svg viewBox="0 0 64 64" class="moon-icon">
+    <defs><mask id="${maskId}">
+      <rect width="64" height="64" fill="black"/>
+      <path d="${basePath}" fill="white"/>
+      <ellipse cx="${cx}" cy="${cy}" rx="${xr}" ry="${r}" fill="${ellipseFill}"/>
+    </mask></defs>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="var(--faint)"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="var(--cyan)" mask="url(#${maskId})"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--line)" stroke-width="1"/>
+  </svg>`;
 }
 function nextPhaseDates(now){
   const t=now.getTime()/1000;
