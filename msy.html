@@ -514,6 +514,16 @@
 
   /* ===== RESPONSIVE: tablet/mobile — stack everything, allow page scroll ===== */
   @media (max-width: 1000px){
+    :root{
+      --bg:#111315;
+      --panel:#17191b;
+      --panel2:#1c1e20;
+      --line:#3c4043;
+      --line-dim:#2a2d30;
+      --ink:#eef0f0;
+      --ink-dim:#a3a7aa;
+      --ink-faint:#757b80;
+    }
     html,body{ overflow-y:auto; overflow-x:hidden; height:auto; }
     #vignette{ opacity:0.72; }
     .scanline{ opacity:0.24; }
@@ -545,6 +555,14 @@
     .clockblock .big{ font-size:18px; line-height:1; }
     .mini-stats{ margin-top:5px; justify-content:flex-end; gap:7px; font-size:7.5px; }
     #header-rule{ position:relative; top:auto; padding:0 16px; margin-bottom:2px; height:6px; }
+    .panel{
+      background:rgba(24,26,28,0.70);
+      border-color:rgba(255,255,255,0.13);
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.035),
+        inset 0 0 34px rgba(255,255,255,0.025),
+        0 14px 28px -18px rgba(0,0,0,0.58);
+    }
     #grid{
       position:relative; inset:auto;
       grid-template-columns: 1fr;
@@ -562,8 +580,8 @@
     #legend-card{ min-height:120px; }
     #scope-stack{ grid-column:1; grid-row:auto; min-height:440px; }
     #tile-map{
-      filter:grayscale(1) contrast(1.08) brightness(0.9);
-      opacity:0.78;
+      filter:grayscale(1) contrast(1.02) brightness(1.06);
+      opacity:0.9;
     }
     #tile-map img{ opacity:1; }
     #tile-map::after{
@@ -594,6 +612,17 @@
   @media (max-width: 640px){
     #vignette{ opacity:0.58; }
     #grain{ opacity:0.04; }
+    #stage{
+      background:
+        linear-gradient(to bottom, rgba(255,255,255,0.045) 0%, transparent 16%, transparent 86%, rgba(0,0,0,0.14) 100%),
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px),
+        var(--bg);
+      background-size:
+        100% 100%,
+        8px 8px,
+        8px 8px;
+    }
     #header{ gap:8px; padding:10px 14px 6px 14px; }
     .brand .title{ font-size:18px; }
     .brand .sub{ display:none; }
@@ -608,8 +637,8 @@
     .mini-stats span:first-child{ display:none; }
     #scope-stack{ min-height:340px; }
     #tile-map{
-      filter:grayscale(1) contrast(1.02) brightness(1.02);
-      opacity:0.86;
+      filter:grayscale(1) contrast(0.98) brightness(1.16);
+      opacity:0.94;
     }
     #tile-map::after{
       background:
