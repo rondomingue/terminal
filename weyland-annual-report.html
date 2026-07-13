@@ -834,215 +834,6 @@
     z-index: 2;
   }
 
-  .depth-field {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    overflow: hidden;
-    perspective: 1400px;
-    transform-style: preserve-3d;
-    background:
-      radial-gradient(circle at 18% 12%, rgba(102, 238, 240, .10), transparent 22%),
-      radial-gradient(circle at 82% 28%, rgba(132, 180, 86, .075), transparent 28%),
-      linear-gradient(145deg, #061312 0%, #020606 46%, #071817 100%);
-  }
-
-  .depth-field::before {
-    content: "";
-    position: absolute;
-    inset: -18%;
-    opacity: .42;
-    transform: rotateX(63deg) rotateZ(-8deg) translateY(-18vh) scale(1.35);
-    transform-origin: center;
-    background:
-      linear-gradient(rgba(112, 226, 229, .10) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(112, 226, 229, .10) 1px, transparent 1px),
-      linear-gradient(135deg, transparent 0 48%, rgba(214, 249, 244, .09) 49%, transparent 50%),
-      linear-gradient(45deg, transparent 0 50%, rgba(214, 249, 244, .055) 50.5%, transparent 51%);
-    background-size: 42px 42px, 42px 42px, 260px 260px, 320px 320px;
-    filter: blur(.2px);
-  }
-
-  .depth-field::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background:
-      repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0 1px, transparent 1px 5px),
-      radial-gradient(circle at center, transparent 0 42%, rgba(0,0,0,.44) 82%),
-      linear-gradient(90deg, rgba(0,0,0,.45), transparent 16%, transparent 82%, rgba(0,0,0,.52));
-    mix-blend-mode: screen;
-    opacity: .7;
-  }
-
-  .depth-grid {
-    position: absolute;
-    inset: 8% 5%;
-    border: 1px solid rgba(135, 245, 239, .13);
-    background:
-      linear-gradient(90deg, rgba(135, 245, 239, .055) 1px, transparent 1px),
-      linear-gradient(rgba(135, 245, 239, .045) 1px, transparent 1px);
-    box-shadow: inset 0 0 80px rgba(80, 220, 215, .055), 0 0 70px rgba(0,0,0,.55);
-  }
-
-  .depth-grid--rear {
-    transform: translate3d(-7vw, -6vh, -260px) rotateX(9deg) rotateY(-13deg);
-    background-size: 120px 120px;
-    opacity: .45;
-    filter: blur(2.4px);
-  }
-
-  .depth-grid--mid {
-    inset: 16% 13%;
-    transform: translate3d(9vw, 6vh, -120px) rotateX(4deg) rotateY(10deg);
-    background-size: 64px 64px;
-    opacity: .38;
-    filter: blur(1.1px);
-  }
-
-  .depth-pane {
-    position: absolute;
-    width: clamp(210px, 24vw, 470px);
-    min-height: 94px;
-    border: 1px solid rgba(135, 246, 238, .23);
-    background:
-      linear-gradient(180deg, rgba(142, 255, 246, .12), rgba(4, 18, 19, .35)),
-      repeating-linear-gradient(0deg, rgba(255,255,255,.045) 0 1px, transparent 1px 8px);
-    box-shadow: 0 24px 80px rgba(0,0,0,.45), inset 0 0 44px rgba(89, 248, 233, .055);
-    backdrop-filter: blur(4px);
-    opacity: .38;
-    transform-style: preserve-3d;
-    animation: depth-drift 16s ease-in-out infinite alternate;
-  }
-
-  .depth-pane::before,
-  .depth-pane::after {
-    content: "";
-    position: absolute;
-    height: 1px;
-    background: rgba(198, 255, 251, .36);
-  }
-
-  .depth-pane::before {
-    left: 14px;
-    right: 52px;
-    top: 17px;
-  }
-
-  .depth-pane::after {
-    left: 44px;
-    right: 18px;
-    bottom: 16px;
-  }
-
-  .depth-pane span {
-    position: absolute;
-    left: 18px;
-    top: 32px;
-    max-width: calc(100% - 36px);
-    color: rgba(217, 255, 249, .58);
-    font-family: "Avenir Next Condensed", "Arial Narrow", sans-serif;
-    font-size: 10px;
-    letter-spacing: .22em;
-    line-height: 1.7;
-    text-transform: uppercase;
-  }
-
-  .depth-pane--one {
-    left: 7vw;
-    top: 18vh;
-    transform: translateZ(-80px) rotateX(5deg) rotateY(18deg);
-    filter: blur(.9px);
-  }
-
-  .depth-pane--two {
-    right: 8vw;
-    top: 14vh;
-    transform: translateZ(-190px) rotateX(12deg) rotateY(-20deg);
-    filter: blur(2px);
-    animation-delay: -6s;
-  }
-
-  .depth-pane--three {
-    left: 14vw;
-    bottom: 12vh;
-    transform: translateZ(-150px) rotateX(-8deg) rotateY(9deg);
-    filter: blur(1.7px);
-    animation-delay: -3s;
-  }
-
-  .depth-pane--four {
-    right: 11vw;
-    bottom: 9vh;
-    transform: translateZ(-60px) rotateX(-5deg) rotateY(-14deg);
-    filter: blur(.8px);
-    animation-delay: -9s;
-  }
-
-  .depth-ribbon {
-    position: absolute;
-    height: 1px;
-    width: 72vw;
-    background: linear-gradient(90deg, transparent, rgba(106, 238, 237, .34), rgba(255, 255, 255, .12), transparent);
-    transform-origin: center;
-    filter: blur(.4px);
-    opacity: .42;
-  }
-
-  .depth-ribbon--one {
-    top: 23vh;
-    left: 8vw;
-    transform: rotate(-8deg) translateZ(-40px);
-  }
-
-  .depth-ribbon--two {
-    bottom: 25vh;
-    right: 5vw;
-    transform: rotate(11deg) translateZ(-120px);
-    opacity: .28;
-  }
-
-  .depth-node {
-    position: absolute;
-    width: 5px;
-    height: 5px;
-    border: 1px solid rgba(151, 255, 245, .54);
-    background: rgba(155, 255, 244, .25);
-    box-shadow: 0 0 18px rgba(120, 255, 244, .35);
-    animation: depth-pulse 5s ease-in-out infinite;
-  }
-
-  .depth-node--one { left: 22vw; top: 34vh; }
-  .depth-node--two { right: 26vw; top: 47vh; animation-delay: -2s; }
-  .depth-node--three { left: 57vw; bottom: 24vh; animation-delay: -3s; }
-
-  @keyframes depth-drift {
-    from { margin-top: -8px; }
-    to { margin-top: 10px; }
-  }
-
-  @keyframes depth-pulse {
-    0%, 100% { opacity: .22; transform: scale(.8); }
-    50% { opacity: .68; transform: scale(1.35); }
-  }
-
-  @media (max-width: 760px) {
-    .depth-pane {
-      opacity: .24;
-      filter: blur(1.8px);
-    }
-
-    .depth-grid--rear { inset: 4%; }
-    .depth-grid--mid { inset: 12% 6%; }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .depth-pane,
-    .depth-node {
-      animation: none !important;
-    }
-  }
     .depth-field {
       --scroll-depth: 0px;
     }
@@ -1100,6 +891,7 @@
         translate: none !important;
       }
     }
+
   </style>
 </head>
 <body>
@@ -1374,6 +1166,7 @@
 
     if (rows[0]) setSelected(rows[0]);
   </script>
+
   <script>
     (() => {
       const field = document.querySelector('.depth-field');
@@ -1404,5 +1197,6 @@
       updateDepth();
     })();
   </script>
+
 </body>
 </html>
