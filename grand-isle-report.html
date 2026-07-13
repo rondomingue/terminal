@@ -3,175 +3,230 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Grand Isle Report — Tides, Weather &amp; Fishing Conditions</title>
-<link rel="stylesheet" href="https://use.typekit.net/xhf1nbc.css">
+<title>GRAND ISLE // Tactical Conditions Report</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.js"></script>
 <style>
   :root{
-    --paper:#0b1614;
-    --paper-2:#0f1e1b;
-    --sheet:#132420;
-    --sheet-2:#182b26;
-    --ink:#eef1ea;
-    --ink-2:#c3cdc2;
-    --muted:#7f948c;
-    --faint:#2a3e37;
-    --line:rgba(238,241,234,.14);
-    --line-2:rgba(238,241,234,.08);
-    --accent:#c98a3e;
-    --accent-2:#4f8a7c;
-    --good:#7db56f;
-    --fair:#d1a13f;
-    --bad:#c65b4e;
-    --shadow:0 22px 70px rgba(0,0,0,.42);
-    --serif:'surveyors','surveyor','freight-display-pro','adobe-caslon-pro','Fraunces',Georgia,serif;
-    --text:'freight-text-pro','source-serif-pro','adobe-caslon-pro','Fraunces',Georgia,serif;
-    --sans:'gotham','gotham ssm','proxima-nova','aktiv-grotesk','Barlow Condensed','Avenir Next',Arial,sans-serif;
+    --bg:#04070a;
+    --bg-2:#070d11;
+    --panel:#0a1319;
+    --panel-2:#0e1a20;
+    --ink:#d9ece9;
+    --ink-2:#9ab5b1;
+    --muted:#5c7773;
+    --faint:#16262a;
+    --line:rgba(130,220,208,.2);
+    --line-2:rgba(130,220,208,.09);
+    --cyan:#4fe0d4;
+    --cyan-dim:#2c8f88;
+    --amber:#ef9b40;
+    --red:#ef5b4e;
+    --green:#6fe08a;
+    --shadow:0 0 0 1px rgba(79,224,212,.06), 0 30px 90px rgba(0,0,0,.65);
+    --sans:'Barlow Condensed','Arial Narrow',Arial,sans-serif;
     --mono:'Space Mono','SFMono-Regular',monospace;
   }
   [data-theme="light"]{
-    --paper:#f1ede1;
-    --paper-2:#e6dfcc;
-    --sheet:#faf7ee;
-    --sheet-2:#f0ead9;
-    --ink:#141d19;
-    --ink-2:#3b4a42;
-    --muted:#6c7d73;
-    --faint:#d7cdb2;
-    --line:rgba(20,29,25,.14);
-    --line-2:rgba(20,29,25,.08);
-    --accent:#a56a28;
-    --accent-2:#2f6e5f;
-    --good:#3f7a3d;
-    --fair:#95701f;
-    --bad:#a8402f;
-    --shadow:0 22px 70px rgba(40,32,10,.14);
+    --bg:#e9efed;
+    --bg-2:#dde6e3;
+    --panel:#f7faf9;
+    --panel-2:#eef4f2;
+    --ink:#0a1614;
+    --ink-2:#2f4340;
+    --muted:#647873;
+    --faint:#cdd9d6;
+    --line:rgba(10,40,36,.22);
+    --line-2:rgba(10,40,36,.1);
+    --cyan:#0d8f86;
+    --cyan-dim:#0a6b64;
+    --amber:#a85f16;
+    --red:#b23d2f;
+    --green:#2f7d43;
+    --shadow:0 0 0 1px rgba(13,143,134,.1), 0 30px 90px rgba(10,30,26,.14);
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  html,body{min-height:100%;background:var(--paper);color:var(--ink);overflow-x:hidden}
+  html,body{min-height:100%;background:var(--bg);color:var(--ink);overflow-x:hidden}
   body{
-    font-family:var(--text);
-    text-wrap:pretty;
+    font-family:var(--mono);
     -webkit-font-smoothing:antialiased;
     background:
-      radial-gradient(900px 540px at 12% 4%, color-mix(in srgb,var(--accent-2) 12%, transparent), transparent 62%),
-      radial-gradient(820px 520px at 92% 90%, color-mix(in srgb,var(--accent) 10%, transparent), transparent 60%),
-      linear-gradient(150deg,var(--paper),var(--paper-2));
+      radial-gradient(1100px 620px at 20% -6%, color-mix(in srgb,var(--cyan) 8%, transparent), transparent 60%),
+      radial-gradient(900px 560px at 100% 100%, color-mix(in srgb,var(--amber) 6%, transparent), transparent 62%),
+      linear-gradient(160deg,var(--bg),var(--bg-2));
     transition:background .25s ease,color .25s ease;
   }
   body::before{
-    content:'';position:fixed;inset:0;pointer-events:none;opacity:.5;z-index:0;
+    content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.55;
     background-image:
       linear-gradient(var(--line-2) 1px,transparent 1px),
       linear-gradient(90deg,var(--line-2) 1px,transparent 1px);
-    background-size:16px 16px;
-    mask-image:linear-gradient(180deg,rgba(0,0,0,.7),rgba(0,0,0,.16) 55%,rgba(0,0,0,.6));
+    background-size:34px 34px;
+    mask-image:radial-gradient(1200px 800px at 50% 0%,rgba(0,0,0,.9),transparent 78%);
   }
   body::after{
-    content:'';position:fixed;inset:0;pointer-events:none;z-index:30;opacity:.2;
-    background:
-      repeating-linear-gradient(0deg,rgba(255,255,255,.04) 0 1px,transparent 1px 4px),
-      radial-gradient(circle at 14% 20%,rgba(255,255,255,.14),transparent 1px),
-      radial-gradient(circle at 80% 76%,rgba(255,255,255,.1),transparent 1px);
-    mix-blend-mode:overlay;
+    content:'';position:fixed;inset:0;pointer-events:none;z-index:40;opacity:.5;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'><g fill='none' stroke='%234fe0d4' stroke-opacity='0.08' stroke-width='1'><path d='M8 4v8M4 8h8'/></g></svg>");
+    background-size:64px 64px;
+    mix-blend-mode:screen;
   }
+  [data-theme="light"] body::after{mix-blend-mode:multiply;opacity:.35}
   button,a.btn{font:inherit;color:inherit;border:0;background:none;cursor:pointer;-webkit-appearance:none;appearance:none;text-decoration:none}
-  .app{position:relative;z-index:2;min-height:100vh;padding:clamp(14px,2.6vw,28px);display:grid;grid-template-rows:auto 1fr auto;gap:20px;max-width:1400px;margin:0 auto}
-  .topbar{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:18px;border-bottom:1px solid var(--line);padding-bottom:16px}
-  .brand{font-family:var(--sans);font-size:11px;letter-spacing:.32em;text-transform:uppercase;color:var(--muted);font-weight:500}
-  .brand b{font-weight:700;color:var(--ink)}
-  .masthead{
-    font-family:var(--serif);font-size:clamp(28px,3.6vw,46px);line-height:.95;font-weight:300;letter-spacing:-.01em;
-    color:var(--ink);font-style:italic;text-wrap:balance;
+
+  .reticle-fixed{position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.35}
+  .reticle-fixed svg{width:100%;height:100%}
+
+  .app{position:relative;z-index:2;min-height:100vh;padding:clamp(12px,2.2vw,26px);display:grid;grid-template-rows:auto 1fr auto;gap:16px;max-width:1440px;margin:0 auto}
+
+  /* topbar / HUD header */
+  .topbar{border:1px solid var(--line);background:color-mix(in srgb,var(--panel) 82%,transparent);padding:14px 18px;position:relative}
+  .topbar::before,.topbar::after,.topbar-brack-l,.topbar-brack-r{content:''}
+  .hud-corners{position:absolute;inset:0;pointer-events:none;
+    background:
+      linear-gradient(var(--cyan),var(--cyan)) top left/16px 2px no-repeat,
+      linear-gradient(var(--cyan),var(--cyan)) top left/2px 16px no-repeat,
+      linear-gradient(var(--cyan),var(--cyan)) top right/16px 2px no-repeat,
+      linear-gradient(var(--cyan),var(--cyan)) top right/2px 16px no-repeat,
+      linear-gradient(var(--cyan),var(--cyan)) bottom left/16px 2px no-repeat,
+      linear-gradient(var(--cyan),var(--cyan)) bottom left/2px 16px no-repeat,
+      linear-gradient(var(--cyan),var(--cyan)) bottom right/16px 2px no-repeat,
+      linear-gradient(var(--cyan),var(--cyan)) bottom right/2px 16px no-repeat;
+    opacity:.75;
   }
-  .clock{font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--muted);text-align:right;white-space:nowrap}
-  .small-btn{border:1px solid var(--line);background:color-mix(in srgb,var(--sheet) 74%,transparent);padding:9px 12px;border-radius:3px;font-family:var(--sans);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);font-weight:600}
-  .small-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .topbar-row{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:18px}
+  .brand{font-family:var(--sans);font-size:12px;letter-spacing:.34em;text-transform:uppercase;color:var(--muted);font-weight:600;display:flex;align-items:center;gap:8px}
+  .brand .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);animation:pulse 2.4s ease-in-out infinite}
+  .brand b{font-weight:700;color:var(--cyan);letter-spacing:.1em}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  .masthead{font-family:var(--sans);font-size:clamp(20px,2.6vw,32px);line-height:1;font-weight:600;letter-spacing:.02em;color:var(--ink);text-transform:uppercase;text-align:center}
+  .masthead small{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--muted);font-weight:400;margin-top:5px;text-transform:none}
+  .clock{font-family:var(--mono);font-size:11px;letter-spacing:.03em;color:var(--cyan);text-align:right;white-space:nowrap}
+  .hud-btn{border:1px solid var(--line);background:color-mix(in srgb,var(--panel-2) 70%,transparent);padding:9px 13px;font-family:var(--sans);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);font-weight:600}
+  .hud-btn:hover{border-color:var(--cyan);color:var(--cyan)}
   .tools{display:flex;gap:8px;align-items:center}
 
-  .grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;min-height:0}
-  .col{display:grid;gap:18px;align-content:start;min-width:0}
-  .card{background:color-mix(in srgb,var(--sheet) 88%,transparent);border:1px solid var(--line);box-shadow:var(--shadow);border-radius:3px;padding:24px;position:relative;overflow:hidden}
-  .card::before{content:'';position:absolute;inset:14px;border:1px solid var(--line-2);border-radius:2px;pointer-events:none}
-  .kicker{font-family:var(--sans);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:600}
-  .kicker.accent{color:var(--accent)}
-  .card-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:16px;position:relative;z-index:1}
-  .updated{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.02em}
+  .grid{display:grid;grid-template-columns:1.15fr .85fr;gap:16px;min-height:0}
+  .col{display:grid;gap:16px;align-content:start;min-width:0}
+
+  /* HUD panel */
+  .panel{position:relative;background:color-mix(in srgb,var(--panel) 86%,transparent);border:1px solid var(--line);box-shadow:var(--shadow);padding:20px}
+  .panel::before{
+    content:'';position:absolute;inset:0;pointer-events:none;
+    background:
+      linear-gradient(var(--cyan),var(--cyan)) top left/13px 2px no-repeat,
+      linear-gradient(var(--cyan),var(--cyan)) top left/2px 13px no-repeat,
+      linear-gradient(var(--cyan),var(--cyan)) top right/13px 2px no-repeat,
+      linear-gradient(var(--cyan),var(--cyan)) top right/2px 13px no-repeat,
+      linear-gradient(var(--cyan),var(--cyan)) bottom left/13px 2px no-repeat,
+      linear-gradient(var(--cyan),var(--cyan)) bottom left/2px 13px no-repeat,
+      linear-gradient(var(--cyan),var(--cyan)) bottom right/13px 2px no-repeat,
+      linear-gradient(var(--cyan),var(--cyan)) bottom right/2px 13px no-repeat;
+    opacity:.55;
+  }
+  .panel.amber::before{
+    background:
+      linear-gradient(var(--amber),var(--amber)) top left/13px 2px no-repeat,
+      linear-gradient(var(--amber),var(--amber)) top left/2px 13px no-repeat,
+      linear-gradient(var(--amber),var(--amber)) top right/13px 2px no-repeat,
+      linear-gradient(var(--amber),var(--amber)) top right/2px 13px no-repeat,
+      linear-gradient(var(--amber),var(--amber)) bottom left/13px 2px no-repeat,
+      linear-gradient(var(--amber),var(--amber)) bottom left/2px 13px no-repeat,
+      linear-gradient(var(--amber),var(--amber)) bottom right/13px 2px no-repeat,
+      linear-gradient(var(--amber),var(--amber)) bottom right/2px 13px no-repeat;
+    opacity:.6;
+  }
+  .p-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:16px;position:relative;z-index:1}
+  .p-label{font-family:var(--sans);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--cyan);font-weight:700;display:flex;align-items:center;gap:8px}
+  .p-label::before{content:'//';color:var(--muted);font-weight:400}
+  .p-label.amber{color:var(--amber)}
+  .p-updated{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.02em}
 
   /* current conditions */
-  .now-grid{display:grid;grid-template-columns:auto 1fr;gap:26px;align-items:center;position:relative;z-index:1}
-  .now-temp{font-family:var(--serif);font-size:clamp(64px,9vw,120px);line-height:.86;color:var(--accent);font-weight:300}
-  .now-temp small{font-family:var(--sans);font-size:16px;color:var(--muted);font-weight:500;vertical-align:top;margin-left:2px}
-  .now-desc{font-family:var(--text);font-size:20px;color:var(--ink);margin-bottom:10px}
+  .now-grid{display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:center;position:relative;z-index:1}
+  .now-temp{font-family:var(--mono);font-size:clamp(56px,7.6vw,96px);line-height:.86;color:var(--cyan);font-weight:700;text-shadow:0 0 26px color-mix(in srgb,var(--cyan) 45%,transparent)}
+  .now-temp small{font-family:var(--sans);font-size:15px;color:var(--muted);font-weight:600;vertical-align:top;margin-left:2px}
+  .now-desc{font-family:var(--sans);font-size:19px;color:var(--ink);margin-bottom:10px;text-transform:uppercase;letter-spacing:.02em;font-weight:600}
   .now-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 22px;margin-top:8px}
-  .now-stat{border-top:1px solid var(--line);padding-top:8px}
-  .now-stat b{display:block;font-family:var(--sans);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:4px}
-  .now-stat span{font-family:var(--mono);font-size:17px;color:var(--ink)}
-  .station-note{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);font-size:13px;color:var(--muted);line-height:1.5;position:relative;z-index:1}
+  .stat{border-top:1px solid var(--line);padding-top:8px}
+  .stat b{display:block;font-family:var(--sans);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:4px}
+  .stat span{font-family:var(--mono);font-size:16px;color:var(--ink)}
+  .station-note{margin-top:16px;padding-top:12px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);line-height:1.5;position:relative;z-index:1;font-family:var(--sans);letter-spacing:.02em}
 
-  /* outlook badge */
-  .outlook{display:flex;align-items:center;gap:14px;margin-top:18px;padding:14px 16px;border:1px solid var(--line);border-radius:3px;background:color-mix(in srgb,var(--sheet-2) 60%,transparent);position:relative;z-index:1}
-  .outlook-dot{width:12px;height:12px;border-radius:50%;flex:none;background:var(--muted)}
-  .outlook-dot.good{background:var(--good);box-shadow:0 0 14px color-mix(in srgb,var(--good) 60%,transparent)}
-  .outlook-dot.fair{background:var(--fair);box-shadow:0 0 14px color-mix(in srgb,var(--fair) 60%,transparent)}
-  .outlook-dot.bad{background:var(--bad);box-shadow:0 0 14px color-mix(in srgb,var(--bad) 60%,transparent)}
-  .outlook-copy b{display:block;font-family:var(--sans);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);font-weight:700}
-  .outlook-copy span{font-size:14px;color:var(--ink-2);line-height:1.4}
+  .outlook{display:flex;align-items:center;gap:14px;margin-top:16px;padding:13px 15px;border:1px solid var(--line);background:color-mix(in srgb,var(--panel-2) 60%,transparent);position:relative;z-index:1}
+  .outlook-dot{width:11px;height:11px;border-radius:50%;flex:none;background:var(--muted)}
+  .outlook-dot.good{background:var(--green);box-shadow:0 0 14px color-mix(in srgb,var(--green) 70%,transparent)}
+  .outlook-dot.fair{background:var(--amber);box-shadow:0 0 14px color-mix(in srgb,var(--amber) 70%,transparent)}
+  .outlook-dot.bad{background:var(--red);box-shadow:0 0 14px color-mix(in srgb,var(--red) 70%,transparent)}
+  .outlook-copy b{display:block;font-family:var(--sans);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);font-weight:700}
+  .outlook-copy span{font-size:13px;color:var(--ink-2);line-height:1.4;font-family:var(--sans)}
 
   /* forecast strip */
-  .forecast-strip{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;position:relative;z-index:1}
-  .fperiod{border:1px solid var(--line);border-radius:3px;padding:14px 12px;background:color-mix(in srgb,var(--sheet-2) 55%,transparent);text-align:center}
-  .fperiod b{display:block;font-family:var(--sans);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:8px}
-  .fperiod .ftemp{font-family:var(--serif);font-size:28px;color:var(--ink);line-height:1}
-  .fperiod .fdesc{font-size:11px;color:var(--ink-2);margin-top:8px;line-height:1.35;min-height:28px}
-  .fperiod .fwind{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:8px}
+  .forecast-strip{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;position:relative;z-index:1}
+  .fperiod{border:1px solid var(--line);padding:12px 10px;background:color-mix(in srgb,var(--panel-2) 55%,transparent);text-align:center}
+  .fperiod b{display:block;font-family:var(--sans);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:8px}
+  .fperiod .ftemp{font-family:var(--mono);font-size:24px;color:var(--ink);line-height:1;font-weight:700}
+  .fperiod .fdesc{font-size:10px;color:var(--ink-2);margin-top:8px;line-height:1.35;min-height:26px;font-family:var(--sans)}
+  .fperiod .fwind{font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:8px}
 
-  /* tides */
-  .tide-now{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center;position:relative;z-index:1;margin-bottom:18px}
-  .tide-level{font-family:var(--serif);font-size:44px;color:var(--accent-2);line-height:1}
-  .tide-level small{font-family:var(--sans);font-size:12px;color:var(--muted);display:block;margin-top:2px;font-weight:500}
-  .tide-next b{display:block;font-family:var(--sans);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
-  .tide-next span{font-size:16px;color:var(--ink)}
-  .tide-list{display:grid;gap:0;position:relative;z-index:1}
-  .tide-row{display:grid;grid-template-columns:90px 1fr auto auto;gap:10px;align-items:center;border-top:1px solid var(--line);padding:9px 0;font-size:13px}
-  .tide-row.today{background:color-mix(in srgb,var(--accent) 6%, transparent)}
-  .tide-row .t-day{font-family:var(--sans);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-  .tide-row .t-time{font-family:var(--mono);color:var(--ink)}
-  .tide-row .t-type{font-family:var(--sans);font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
-  .tide-row .t-type.H{color:var(--accent-2)}
-  .tide-row .t-type.L{color:var(--accent)}
-  .tide-row .t-height{font-family:var(--mono);color:var(--ink-2);text-align:right}
-  .water-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px 22px;margin-top:16px;padding-top:14px;border-top:1px solid var(--line);position:relative;z-index:1}
-
-  /* traffic */
-  .map-frame{width:100%;aspect-ratio:16/10;border:1px solid var(--line);border-radius:3px;overflow:hidden;background:var(--sheet-2);position:relative;z-index:1}
-  .map-frame iframe{width:100%;height:100%;border:0;filter:saturate(.85) contrast(1.02)}
-  [data-theme="dark"] .map-frame iframe{filter:saturate(.7) contrast(1.05) invert(1) hue-rotate(180deg)}
+  /* map */
+  .map-frame{width:100%;aspect-ratio:16/10;border:1px solid var(--line);overflow:hidden;background:var(--panel-2);position:relative;z-index:1}
+  #map{width:100%;height:100%}
+  .route-readout{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;position:relative;z-index:1;font-family:var(--mono);font-size:12px}
+  .route-readout div b{display:block;font-family:var(--sans);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:3px}
+  .route-readout div span{color:var(--cyan)}
   .traffic-links{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;position:relative;z-index:1}
-  .link-btn{border:1px solid var(--line);background:color-mix(in srgb,var(--sheet-2) 70%,transparent);padding:10px 13px;border-radius:3px;font-family:var(--sans);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);font-weight:600;display:inline-flex;align-items:center;gap:6px}
-  .link-btn:hover{border-color:var(--accent);color:var(--accent)}
-  .link-btn .arrow{font-size:12px}
-  .flood-note{margin-top:14px;padding:12px 14px;border-left:2px solid var(--bad);background:color-mix(in srgb,var(--bad) 10%, transparent);font-size:13px;color:var(--ink-2);line-height:1.5;position:relative;z-index:1}
+  .link-btn{border:1px solid var(--line);background:color-mix(in srgb,var(--panel-2) 70%,transparent);padding:10px 13px;font-family:var(--sans);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);font-weight:600;display:inline-flex;align-items:center;gap:6px}
+  .link-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+  .flood-note{margin-top:14px;padding:12px 14px;border-left:2px solid var(--red);background:color-mix(in srgb,var(--red) 10%, transparent);font-size:12px;color:var(--ink-2);line-height:1.5;position:relative;z-index:1;font-family:var(--sans)}
   .flood-note b{color:var(--ink)}
 
+  /* tides */
+  .tide-now{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center;position:relative;z-index:1;margin-bottom:16px}
+  .tide-level{font-family:var(--mono);font-size:40px;color:var(--cyan);line-height:1;font-weight:700}
+  .tide-level small{font-family:var(--sans);font-size:11px;color:var(--muted);display:block;margin-top:2px;font-weight:600;letter-spacing:.04em}
+  .tide-next b{display:block;font-family:var(--sans);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  .tide-next span{font-size:15px;color:var(--ink);font-family:var(--mono)}
+  .tide-list{display:grid;gap:0;position:relative;z-index:1}
+  .tide-row{display:grid;grid-template-columns:74px 1fr auto auto;gap:10px;align-items:center;border-top:1px solid var(--line);padding:8px 0;font-size:12px;font-family:var(--mono)}
+  .tide-row.today{background:color-mix(in srgb,var(--cyan) 6%, transparent)}
+  .tide-row .t-day{font-family:var(--sans);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .tide-row .t-time{color:var(--ink)}
+  .tide-row .t-type{font-family:var(--sans);font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+  .tide-row .t-type.H{color:var(--cyan)}
+  .tide-row .t-type.L{color:var(--amber)}
+  .tide-row .t-height{color:var(--ink-2);text-align:right}
+  .water-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px 22px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line);position:relative;z-index:1}
+
+  .sparkline-wrap{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);position:relative;z-index:1}
+  .sparkline-wrap svg{width:100%;height:56px;display:block}
+  .sparkline-label{display:flex;justify-content:space-between;font-family:var(--sans);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+
+  /* moon */
+  .moon-grid{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center;position:relative;z-index:1}
+  .moon-icon{width:64px;height:64px;flex:none}
+  .moon-name{font-family:var(--sans);font-size:16px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink);font-weight:700}
+  .moon-illum{font-family:var(--mono);font-size:12px;color:var(--cyan);margin-top:4px}
+  .moon-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px 20px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line);position:relative;z-index:1}
+  .tide-cycle-note{margin-top:12px;font-size:12px;color:var(--ink-2);line-height:1.5;font-family:var(--sans);position:relative;z-index:1}
+
   /* report links */
-  .report-groups{display:grid;gap:20px;position:relative;z-index:1}
-  .report-group b{display:block;font-family:var(--sans);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:10px}
-  .report-list{display:grid;gap:0}
-  .report-item{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:baseline;border-top:1px solid var(--line);padding:11px 0}
-  .report-item a{color:var(--ink);font-size:15px;font-family:var(--text)}
-  .report-item a:hover{color:var(--accent)}
-  .report-item span{font-size:12px;color:var(--muted);grid-column:1/-1}
+  .report-groups{display:grid;gap:18px;position:relative;z-index:1}
+  .report-group b{display:block;font-family:var(--sans);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--amber);font-weight:700;margin-bottom:8px}
+  .report-item{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:baseline;border-top:1px solid var(--line);padding:10px 0}
+  .report-item a{color:var(--ink);font-size:13px;font-family:var(--sans);font-weight:600}
+  .report-item a:hover{color:var(--cyan)}
+  .report-item span{font-size:11px;color:var(--muted);grid-column:1/-1;font-family:var(--sans)}
   .report-item .go{font-family:var(--mono);font-size:11px;color:var(--muted)}
 
-  .footer{border-top:1px solid var(--line);padding-top:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-family:var(--sans);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .footer{border-top:1px solid var(--line);padding-top:14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-family:var(--sans);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
   .footer a{color:var(--muted)}
-  .footer a:hover{color:var(--accent)}
+  .footer a:hover{color:var(--cyan)}
 
-  .err-note{font-size:13px;color:var(--bad);line-height:1.5;position:relative;z-index:1}
-  .skeleton{color:var(--muted);font-size:13px;position:relative;z-index:1}
+  .err-note{font-size:12px;color:var(--red);line-height:1.5;position:relative;z-index:1;font-family:var(--sans)}
+  .skeleton{color:var(--muted);font-size:12px;position:relative;z-index:1;font-family:var(--sans)}
 
   @media(max-width:1080px){
     .grid{grid-template-columns:1fr}
@@ -179,76 +234,105 @@
     .fperiod:nth-child(n+4){display:none}
   }
   @media(max-width:720px){
-    .topbar{grid-template-columns:1fr;gap:10px}
+    .topbar-row{grid-template-columns:1fr;gap:10px;text-align:left}
     .clock{text-align:left}
     .now-grid{grid-template-columns:1fr}
     .now-stats{grid-template-columns:1fr 1fr}
     .forecast-strip{grid-template-columns:repeat(2,minmax(0,1fr))}
     .fperiod:nth-child(n+3){display:none}
-    .tide-row{grid-template-columns:70px 1fr auto auto;font-size:12px}
-    .card{padding:18px}
+    .tide-row{grid-template-columns:60px 1fr auto auto;font-size:11px}
+    .panel{padding:16px}
+    .moon-grid{grid-template-columns:1fr}
   }
 </style>
 </head>
 <body>
+<div class="reticle-fixed" aria-hidden="true">
+  <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
+    <g fill="none" stroke="var(--cyan)" stroke-width="0.08" opacity="0.5">
+      <circle cx="50" cy="50" r="16"/>
+      <circle cx="50" cy="50" r="24"/>
+      <line x1="50" y1="20" x2="50" y2="28"/>
+      <line x1="50" y1="72" x2="50" y2="80"/>
+      <line x1="20" y1="50" x2="28" y2="50"/>
+      <line x1="72" y1="50" x2="80" y2="50"/>
+    </g>
+  </svg>
+</div>
+
 <main class="app" id="app">
   <header class="topbar">
-    <div class="brand"><b>GRAND ISLE</b> / Tide &amp; Weather Report</div>
-    <div class="masthead">Southeastern Louisiana Waters</div>
-    <div class="tools">
-      <span class="clock" id="clock">—</span>
-      <button class="small-btn" id="theme">Light</button>
-      <button class="small-btn" id="refresh">Refresh</button>
+    <div class="hud-corners"></div>
+    <div class="topbar-row">
+      <div class="brand"><span class="dot"></span><b>GRAND ISLE</b> // TACTICAL CONDITIONS</div>
+      <div class="masthead">Southeastern Louisiana Waters<small id="coords">29.2358&deg; N · 89.9873&deg; W</small></div>
+      <div class="tools">
+        <span class="clock" id="clock">—</span>
+        <button class="hud-btn" id="theme">LIGHT</button>
+        <button class="hud-btn" id="refresh">SYNC</button>
+      </div>
     </div>
   </header>
 
   <section class="grid">
     <div class="col">
-      <article class="card" id="card-now">
-        <div class="card-head">
-          <div class="kicker accent">Current Conditions · Grand Isle, LA</div>
-          <span class="updated" id="now-updated"></span>
+      <article class="panel" id="card-now">
+        <div class="p-head">
+          <div class="p-label">Current Conditions · Grand Isle</div>
+          <span class="p-updated" id="now-updated"></span>
         </div>
-        <div id="now-body" class="skeleton">Reading the instrument station…</div>
+        <div id="now-body" class="skeleton">READING STATION KGAO…</div>
       </article>
 
-      <article class="card" id="card-forecast">
-        <div class="card-head">
-          <div class="kicker accent">Marine &amp; Coastal Forecast</div>
-          <span class="updated" id="forecast-updated"></span>
+      <article class="panel" id="card-forecast">
+        <div class="p-head">
+          <div class="p-label">Marine &amp; Coastal Forecast</div>
+          <span class="p-updated" id="forecast-updated"></span>
         </div>
-        <div id="forecast-body" class="skeleton">Pulling the latest NWS forecast…</div>
+        <div id="forecast-body" class="skeleton">PULLING NWS GRIDPOINT DATA…</div>
       </article>
 
-      <article class="card" id="card-traffic">
-        <div class="card-head">
-          <div class="kicker accent">Highway 1 &amp; Road Conditions</div>
+      <article class="panel amber" id="card-traffic">
+        <div class="p-head">
+          <div class="p-label amber">Highway 1 // Route Status</div>
+          <span class="p-updated" id="route-updated"></span>
         </div>
-        <div class="map-frame">
-          <iframe id="traffic-map" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Map of LA Highway 1 to Grand Isle"></iframe>
+        <div class="map-frame"><div id="map"></div></div>
+        <div class="route-readout" id="route-readout">
+          <div><b>Distance</b><span>—</span></div>
+          <div><b>Drive Time</b><span>—</span></div>
+          <div><b>Corridor</b><span>LA-1 · GOLDEN MEADOW → GRAND ISLE</span></div>
         </div>
         <div class="traffic-links">
-          <a class="link-btn" href="https://www.google.com/maps/dir/Golden+Meadow,+LA/Grand+Isle,+LA/@29.45,-90.15,10z" target="_blank" rel="noopener">Live traffic in Google Maps <span class="arrow">↗</span></a>
-          <a class="link-btn" href="https://www.511la.org" target="_blank" rel="noopener">511 Louisiana road conditions <span class="arrow">↗</span></a>
+          <a class="link-btn" href="https://www.google.com/maps/dir/Golden+Meadow,+LA/Grand+Isle,+LA/@29.45,-90.15,10z" target="_blank" rel="noopener">Live traffic ↗</a>
+          <a class="link-btn" href="https://www.511la.org" target="_blank" rel="noopener">511 Louisiana ↗</a>
         </div>
-        <div class="flood-note"><b>Know before you go:</b> LA Highway 1 is the only road on and off Grand Isle. The Leeville and Fourchon stretches are prone to overwash at high tide, during onshore wind events, and in tropical weather — check 511la.org before a trip if tides are running high or a storm is nearby.</div>
+        <div class="flood-note"><b>Know before you go:</b> LA-1 is the only road on and off Grand Isle. The Leeville and Fourchon stretches are prone to overwash at high tide, during onshore wind events, and in tropical weather.</div>
       </article>
     </div>
 
     <div class="col">
-      <article class="card" id="card-tides">
-        <div class="card-head">
-          <div class="kicker accent">Tides &amp; Water</div>
-          <span class="updated" id="tide-updated"></span>
+      <article class="panel" id="card-tides">
+        <div class="p-head">
+          <div class="p-label">Tides &amp; Water</div>
+          <span class="p-updated" id="tide-updated"></span>
         </div>
-        <div id="tide-body" class="skeleton">Reading the tide gauge…</div>
+        <div id="tide-body" class="skeleton">READING TIDE GAUGE 8761724…</div>
       </article>
 
-      <article class="card" id="card-outlook-host" style="display:none"></article>
+      <article class="panel" id="card-moon">
+        <div class="p-head">
+          <div class="p-label">Lunar Phase</div>
+          <span class="p-updated" id="moon-updated"></span>
+        </div>
+        <div id="moon-body" class="skeleton">CALCULATING…</div>
+      </article>
 
-      <article class="card" id="card-reports">
-        <div class="card-head">
-          <div class="kicker accent">Fishing &amp; Crabbing Reports</div>
+      <article class="panel" id="card-outlook-host" style="display:none"></article>
+
+      <article class="panel amber" id="card-reports">
+        <div class="p-head">
+          <div class="p-label amber">Fishing &amp; Crabbing Reports</div>
         </div>
         <div class="report-groups">
           <div class="report-group">
@@ -312,7 +396,7 @@
   </section>
 
   <footer class="footer">
-    <span>Weather &amp; tide data: <a href="https://www.weather.gov" target="_blank" rel="noopener">National Weather Service</a> &amp; <a href="https://tidesandcurrents.noaa.gov/stationhome.html?id=8761724" target="_blank" rel="noopener">NOAA Tides &amp; Currents, Station 8761724</a></span>
+    <span>Data: <a href="https://www.weather.gov" target="_blank" rel="noopener">National Weather Service</a> · <a href="https://tidesandcurrents.noaa.gov/stationhome.html?id=8761724" target="_blank" rel="noopener">NOAA Station 8761724</a> · <a href="https://www.mapbox.com" target="_blank" rel="noopener">Mapbox</a></span>
     <span id="footer-updated">—</span>
   </footer>
 </main>
@@ -321,29 +405,26 @@
 const $=id=>document.getElementById(id);
 const NWS_UA={'User-Agent':'grand-isle-report (personal site, contact: interfaces.rondomingue.com)'};
 const TIDE_STATION='8761724';
+const MAPBOX_TOKEN='pk.eyJ1Ijoicm9uZG9taW5ndWUiLCJhIjoiY21yaWlnb210MXVhcjJ4cHZrMnAwbzJlNyJ9.gpqmUsLBAMbQoNW_T_9S9A';
 const COMPASS=['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
-function degToCompass(deg){
-  if(deg==null||isNaN(deg)) return '—';
-  return COMPASS[Math.round(deg/22.5)%16];
-}
+function degToCompass(deg){ if(deg==null||isNaN(deg)) return '—'; return COMPASS[Math.round(deg/22.5)%16]; }
 function cToF(c){return c*9/5+32}
 function kmhToMph(k){return k*0.621371}
 function paToInHg(pa){return pa*0.0002953}
 function mToMi(m){return m*0.000621371}
 function fmtTime(d){return d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}
 function fmtDay(d){return d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}
+function fmtShortDate(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric'})}
 function timeAgo(d){
   const s=Math.round((Date.now()-d.getTime())/1000);
-  if(s<60) return 'just now';
-  if(s<3600) return Math.round(s/60)+' min ago';
-  return Math.round(s/3600)+' hr ago';
+  if(s<60) return 'JUST NOW';
+  if(s<3600) return Math.round(s/60)+' MIN AGO';
+  return Math.round(s/3600)+' HR AGO';
 }
-function ymd(d){
-  return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
-}
+function ymd(d){ return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0'); }
 
 function updateClock(){
-  $('clock').textContent=new Date().toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})+' local';
+  $('clock').textContent=new Date().toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}).toUpperCase()+' LOCAL';
 }
 
 let latestObs=null, latestForecast=null;
@@ -362,25 +443,25 @@ async function loadCurrentConditions(){
     const pressure=p.barometricPressure&&p.barometricPressure.value!=null?paToInHg(p.barometricPressure.value).toFixed(2):null;
     const humidity=p.relativeHumidity&&p.relativeHumidity.value!=null?Math.round(p.relativeHumidity.value):null;
     const visibility=p.visibility&&p.visibility.value!=null?mToMi(p.visibility.value).toFixed(1):null;
-    const desc=p.textDescription||'Conditions unavailable';
+    const desc=(p.textDescription||'CONDITIONS UNAVAILABLE').toUpperCase();
     $('now-body').innerHTML=`
       <div class="now-grid">
         <div class="now-temp">${tempF!=null?tempF:'—'}<small>°F</small></div>
         <div>
           <div class="now-desc">${desc}</div>
           <div class="now-stats">
-            <div class="now-stat"><b>Wind</b><span>${windMph!=null?windMph+' mph '+dir:'—'}${gustMph?' · G '+gustMph:''}</span></div>
-            <div class="now-stat"><b>Humidity</b><span>${humidity!=null?humidity+'%':'—'}</span></div>
-            <div class="now-stat"><b>Pressure</b><span>${pressure!=null?pressure+' inHg':'—'}</span></div>
-            <div class="now-stat"><b>Visibility</b><span>${visibility!=null?visibility+' mi':'—'}</span></div>
+            <div class="stat"><b>Wind</b><span>${windMph!=null?windMph+' MPH '+dir:'—'}${gustMph?' · G'+gustMph:''}</span></div>
+            <div class="stat"><b>Humidity</b><span>${humidity!=null?humidity+'%':'—'}</span></div>
+            <div class="stat"><b>Pressure</b><span>${pressure!=null?pressure+' inHg':'—'}</span></div>
+            <div class="stat"><b>Visibility</b><span>${visibility!=null?visibility+' mi':'—'}</span></div>
           </div>
         </div>
       </div>
-      <div class="station-note">Live from Grand Isle Airport station (KGAO), the closest official observation point to the island.</div>
+      <div class="station-note">LIVE FEED · GRAND ISLE AIRPORT STATION (KGAO), THE CLOSEST OFFICIAL OBSERVATION POINT TO THE ISLAND.</div>
     `;
     $('now-updated').textContent=timeAgo(new Date(p.timestamp));
   }catch(e){
-    $('now-body').innerHTML=`<div class="err-note">Could not reach the Grand Isle station right now. <a href="https://forecast.weather.gov/MapClick.php?lat=29.2358&lon=-89.9873" target="_blank" rel="noopener" style="color:inherit">View on weather.gov ↗</a></div>`;
+    $('now-body').innerHTML=`<div class="err-note">STATION UNREACHABLE. <a href="https://forecast.weather.gov/MapClick.php?lat=29.2358&lon=-89.9873" target="_blank" rel="noopener" style="color:inherit">View on weather.gov ↗</a></div>`;
   }
   renderOutlook();
 }
@@ -396,15 +477,47 @@ async function loadForecast(){
       <div class="fperiod">
         <b>${p.name}</b>
         <div class="ftemp">${p.temperature}°</div>
-        <div class="fdesc">${p.shortForecast}</div>
+        <div class="fdesc">${p.shortForecast.toUpperCase()}</div>
         <div class="fwind">${p.windSpeed} ${p.windDirection}</div>
       </div>
     `).join('')}</div>`;
     $('forecast-updated').textContent=timeAgo(new Date(data.properties.updateTime));
   }catch(e){
-    $('forecast-body').innerHTML=`<div class="err-note">Could not load the coastal forecast right now. <a href="https://forecast.weather.gov/MapClick.php?lat=29.2358&lon=-89.9873" target="_blank" rel="noopener" style="color:inherit">View on weather.gov ↗</a></div>`;
+    $('forecast-body').innerHTML=`<div class="err-note">FORECAST UNAVAILABLE. <a href="https://forecast.weather.gov/MapClick.php?lat=29.2358&lon=-89.9873" target="_blank" rel="noopener" style="color:inherit">View on weather.gov ↗</a></div>`;
   }
   renderOutlook();
+}
+
+function buildSparkline(points){
+  if(!points.length) return '';
+  const w=560,h=56,pad=4;
+  const vals=points.map(p=>p.v);
+  const min=Math.min(...vals), max=Math.max(...vals);
+  const range=(max-min)||1;
+  const step=(w-pad*2)/(points.length-1||1);
+  const coords=points.map((p,i)=>{
+    const x=pad+i*step;
+    const y=h-pad-((p.v-min)/range)*(h-pad*2);
+    return [x,y];
+  });
+  const path=coords.map((c,i)=>(i===0?'M':'L')+c[0].toFixed(1)+' '+c[1].toFixed(1)).join(' ');
+  const last=coords[coords.length-1];
+  return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
+    <path d="${path}" fill="none" stroke="var(--cyan)" stroke-width="1.6" opacity="0.85"/>
+    <circle cx="${last[0]}" cy="${last[1]}" r="3" fill="var(--cyan)"/>
+  </svg>`;
+}
+
+async function loadHistoricalTide(){
+  try{
+    const end=new Date();
+    const begin=new Date(end.getTime()-48*3600000);
+    const res=await fetch(`https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=water_level&application=grand_isle_report&begin_date=${ymd(begin)}&end_date=${ymd(end)}&datum=MLLW&station=${TIDE_STATION}&time_zone=lst_ldt&units=english&format=json`);
+    const data=await res.json();
+    const points=(data.data||[]).filter((p,i)=>i%3===0).map(p=>({t:p.t,v:parseFloat(p.v)})).filter(p=>!isNaN(p.v));
+    if(!points.length) return '';
+    return `<div class="sparkline-wrap">${buildSparkline(points)}<div class="sparkline-label"><span>${fmtShortDate(begin)} ${fmtTime(begin)}</span><span>PAST 48H WATER LEVEL</span><span>NOW</span></div></div>`;
+  }catch(e){ return ''; }
 }
 
 let tidePredictions=[];
@@ -412,10 +525,11 @@ async function loadTides(){
   try{
     const today=new Date();
     const end=new Date(today.getTime()+2*86400000);
-    const [predRes,levelRes,tempRes]=await Promise.all([
+    const [predRes,levelRes,tempRes,sparkHtml]=await Promise.all([
       fetch(`https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=predictions&application=grand_isle_report&begin_date=${ymd(today)}&end_date=${ymd(end)}&datum=MLLW&station=${TIDE_STATION}&time_zone=lst_ldt&units=english&interval=hilo&format=json`),
       fetch(`https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=water_level&application=grand_isle_report&date=latest&datum=MLLW&station=${TIDE_STATION}&time_zone=lst_ldt&units=english&format=json`),
-      fetch(`https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=water_temperature&application=grand_isle_report&date=latest&station=${TIDE_STATION}&time_zone=lst_ldt&units=english&format=json`)
+      fetch(`https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=water_temperature&application=grand_isle_report&date=latest&station=${TIDE_STATION}&time_zone=lst_ldt&units=english&format=json`),
+      loadHistoricalTide()
     ]);
     const predData=await predRes.json();
     const levelData=await levelRes.json().catch(()=>null);
@@ -426,7 +540,7 @@ async function loadTides(){
     const next=preds.find(p=>p.time>now);
     const level=levelData&&levelData.data&&levelData.data[0]?parseFloat(levelData.data[0].v):null;
     const waterTemp=tempData&&tempData.data&&tempData.data[0]?Math.round(parseFloat(tempData.data[0].v)):null;
-    const trend=next?(next.type==='H'?'Rising':'Falling'):'—';
+    const trend=next?(next.type==='H'?'RISING':'FALLING'):'—';
 
     let todayKey=fmtDay(now);
     const rows=preds.map(p=>{
@@ -435,30 +549,106 @@ async function loadTides(){
       return `<div class="tide-row ${isToday?'today':''}">
         <span class="t-day">${dayKey.split(',')[0]}</span>
         <span class="t-time">${fmtTime(p.time)}</span>
-        <span class="t-type ${p.type}">${p.type==='H'?'High':'Low'}</span>
+        <span class="t-type ${p.type}">${p.type==='H'?'HIGH':'LOW'}</span>
         <span class="t-height">${p.height.toFixed(1)} ft</span>
       </div>`;
     }).join('');
 
     $('tide-body').innerHTML=`
       <div class="tide-now">
-        <div class="tide-level">${level!=null?level.toFixed(1):'—'}<small>ft MLLW · ${trend}</small></div>
+        <div class="tide-level">${level!=null?level.toFixed(1):'—'}<small>FT MLLW · ${trend}</small></div>
         <div class="tide-next">
-          <b>Next tide</b>
-          <span>${next?(next.type==='H'?'High':'Low')+' at '+fmtTime(next.time)+' ('+next.height.toFixed(1)+' ft)':'—'}</span>
+          <b>Next Tide Event</b>
+          <span>${next?(next.type==='H'?'HIGH':'LOW')+' AT '+fmtTime(next.time)+' ('+next.height.toFixed(1)+' FT)':'—'}</span>
         </div>
       </div>
-      <div class="tide-list">${rows||'<div class="err-note">No predictions returned.</div>'}</div>
+      <div class="tide-list">${rows||'<div class="err-note">NO PREDICTIONS RETURNED.</div>'}</div>
       <div class="water-stats">
-        <div class="now-stat"><b>Water Temp</b><span>${waterTemp!=null?waterTemp+'°F':'—'}</span></div>
-        <div class="now-stat"><b>Station</b><span style="font-size:13px">Grand Isle, LA</span></div>
+        <div class="stat"><b>Water Temp</b><span>${waterTemp!=null?waterTemp+'°F':'—'}</span></div>
+        <div class="stat"><b>Station</b><span style="font-size:12px">GRAND ISLE, LA · 8761724</span></div>
       </div>
+      ${sparkHtml}
     `;
     $('tide-updated').textContent=levelData&&levelData.data&&levelData.data[0]?timeAgo(new Date(levelData.data[0].t.replace(' ','T'))):'';
   }catch(e){
-    $('tide-body').innerHTML=`<div class="err-note">Could not load tide data right now. <a href="https://tidesandcurrents.noaa.gov/noaatidepredictions.html?id=8761724" target="_blank" rel="noopener" style="color:inherit">View on NOAA ↗</a></div>`;
+    $('tide-body').innerHTML=`<div class="err-note">TIDE DATA UNAVAILABLE. <a href="https://tidesandcurrents.noaa.gov/noaatidepredictions.html?id=8761724" target="_blank" rel="noopener" style="color:inherit">View on NOAA ↗</a></div>`;
   }
   renderOutlook();
+}
+
+/* ---- moon phase ---- */
+const SYNODIC_SEC=2551443;
+const NEW_MOON_REF=Date.UTC(2000,0,6,18,14,0)/1000;
+function moonPhaseFraction(date){
+  const now=date.getTime()/1000;
+  let frac=((now-NEW_MOON_REF)%SYNODIC_SEC)/SYNODIC_SEC;
+  if(frac<0) frac+=1;
+  return frac;
+}
+function moonPhaseName(frac){
+  if(frac<0.03||frac>=0.97) return 'New Moon';
+  if(frac<0.22) return 'Waxing Crescent';
+  if(frac<0.28) return 'First Quarter';
+  if(frac<0.47) return 'Waxing Gibbous';
+  if(frac<0.53) return 'Full Moon';
+  if(frac<0.72) return 'Waning Gibbous';
+  if(frac<0.78) return 'Last Quarter';
+  return 'Waning Crescent';
+}
+function moonIllumination(frac){ return Math.round((1-Math.cos(2*Math.PI*frac))/2*100); }
+function moonIconSvg(frac){
+  const r=28,cx=32,cy=32;
+  const lit=Math.cos(2*Math.PI*frac);
+  const rx=Math.abs(lit)*r;
+  const waxing=frac<0.5;
+  let path;
+  if(frac<0.03||frac>0.97){
+    path=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--muted)" stroke-width="1.5"/>`;
+  }else if(Math.abs(frac-0.5)<0.03){
+    path=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="var(--cyan)"/>`;
+  }else{
+    const sweepOuter=waxing?1:0;
+    const sweepInner=waxing?(lit>0?1:0):(lit>0?0:1);
+    path=`
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="var(--faint)"/>
+      <path d="M ${cx} ${cy-r} A ${r} ${r} 0 0 ${sweepOuter} ${cx} ${cy+r} A ${rx} ${r} 0 0 ${sweepInner} ${cx} ${cy-r} Z" fill="var(--cyan)"/>
+    `;
+  }
+  return `<svg viewBox="0 0 64 64" class="moon-icon">${path}<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--line)" stroke-width="1"/></svg>`;
+}
+function nextPhaseDates(now){
+  const t=now.getTime()/1000;
+  const cyclesSinceRef=(t-NEW_MOON_REF)/SYNODIC_SEC;
+  const cycleNum=Math.floor(cyclesSinceRef);
+  let nextNew=NEW_MOON_REF+(cycleNum+1)*SYNODIC_SEC;
+  let thisFull=NEW_MOON_REF+(cycleNum+0.5)*SYNODIC_SEC;
+  let nextFull=thisFull*1000>now.getTime()?thisFull:thisFull+SYNODIC_SEC;
+  return {nextNew:new Date(nextNew*1000), nextFull:new Date(nextFull*1000)};
+}
+function renderMoon(){
+  const now=new Date();
+  const frac=moonPhaseFraction(now);
+  const name=moonPhaseName(frac);
+  const illum=moonIllumination(frac);
+  const {nextNew,nextFull}=nextPhaseDates(now);
+  const distToNew=Math.min(frac,1-frac);
+  const distToFull=Math.abs(frac-0.5);
+  const isSpring=Math.min(distToNew,distToFull)<0.09;
+  $('moon-body').innerHTML=`
+    <div class="moon-grid">
+      ${moonIconSvg(frac)}
+      <div>
+        <div class="moon-name">${name}</div>
+        <div class="moon-illum">${illum}% ILLUMINATED</div>
+      </div>
+    </div>
+    <div class="moon-stats">
+      <div class="stat"><b>Next New Moon</b><span style="font-family:var(--mono);font-size:13px">${fmtShortDate(nextNew)}</span></div>
+      <div class="stat"><b>Next Full Moon</b><span style="font-family:var(--mono);font-size:13px">${fmtShortDate(nextFull)}</span></div>
+    </div>
+    <div class="tide-cycle-note">${isSpring?'Near new/full moon — <b style="color:var(--ink)">spring tide</b> conditions, with wider tidal swings that many anglers favor for stronger current and more active feeding.':'Between phases — <b style="color:var(--ink)">neap tide</b> conditions, with a smaller tidal range than around the new and full moon.'}</div>
+  `;
+  $('moon-updated').textContent='COMPUTED';
 }
 
 function renderOutlook(){
@@ -470,48 +660,92 @@ function renderOutlook(){
   const soon=latestForecast.slice(0,2);
   const hasStorms=soon.some(p=>stormWords.test(p.shortForecast));
   const hasRain=soon.some(p=>rainWords.test(p.shortForecast));
-  let tier='fair', label='Fair', note='Moderate conditions — fishable, but check the forecast strip before heading out.';
+  let tier='fair', label='FAIR', note='Moderate conditions — fishable, but check the forecast strip before heading out.';
   if(hasStorms || (windMph!=null && windMph>=18)){
-    tier='bad'; label='Poor';
+    tier='bad'; label='POOR';
     note=hasStorms?'Thunderstorms in the near-term forecast — small craft should stay in and off the water during storms.':'Wind is running high for comfortable boat handling on open water.';
   }else if(windMph!=null && windMph<=12 && !hasRain){
-    tier='good'; label='Favorable';
+    tier='good'; label='FAVORABLE';
     note='Light wind and clear near-term forecast — good window for inshore fishing and beach crabbing.';
   }
   host.style.display='block';
   host.innerHTML=`
-    <div class="card-head"><div class="kicker accent">On-the-Water Outlook</div></div>
+    <div class="p-head"><div class="p-label">On-the-Water Outlook</div></div>
     <div class="outlook">
       <div class="outlook-dot ${tier}"></div>
       <div class="outlook-copy"><b>${label}</b><span>${note}</span></div>
     </div>
-    <p style="font-size:12px;color:var(--muted);margin-top:12px;line-height:1.5;position:relative;z-index:1">A simple read from current wind and the near-term forecast — not a substitute for the fishing reports below or your own judgment on the water.</p>
+    <p style="font-size:11px;color:var(--muted);margin-top:12px;line-height:1.5;position:relative;z-index:1;font-family:var(--sans)">A simple read from current wind and the near-term forecast — not a substitute for the fishing reports below or your own judgment on the water.</p>
   `;
 }
 
-function setTrafficMap(){
-  const theme=document.documentElement.dataset.theme;
-  const src='https://maps.google.com/maps?saddr=Golden+Meadow,+LA&daddr=Grand+Isle,+LA&t=m&z=10&output=embed';
-  $('traffic-map').src=src;
+/* ---- mapbox route ---- */
+async function initMap(){
+  try{
+    mapboxgl.accessToken=MAPBOX_TOKEN;
+    const isLight=document.documentElement.dataset.theme==='light';
+    const map=new mapboxgl.Map({
+      container:'map',
+      style:isLight?'mapbox://styles/mapbox/light-v11':'mapbox://styles/mapbox/dark-v11',
+      center:[-90.12,29.3],
+      zoom:9.4,
+      attributionControl:false
+    });
+    map.addControl(new mapboxgl.AttributionControl({compact:true}));
+    map.scrollZoom.disable();
+
+    const goldenMeadow=[-90.2665,29.3919];
+    const grandIsle=[-89.9873,29.2358];
+
+    const dirRes=await fetch(`https://api.mapbox.com/directions/v5/mapbox/driving/${goldenMeadow.join(',')};${grandIsle.join(',')}?geometries=geojson&access_token=${MAPBOX_TOKEN}`);
+    const dirData=await dirRes.json();
+    const route=dirData.routes&&dirData.routes[0];
+
+    map.on('load',()=>{
+      new mapboxgl.Marker({color:'#4fe0d4'}).setLngLat(goldenMeadow).addTo(map);
+      new mapboxgl.Marker({color:'#ef9b40'}).setLngLat(grandIsle).addTo(map);
+
+      if(route){
+        map.addSource('route',{type:'geojson',data:{type:'Feature',geometry:route.geometry}});
+        map.addLayer({id:'route-glow',type:'line',source:'route',layout:{'line-join':'round','line-cap':'round'},paint:{'line-color':'#4fe0d4','line-width':9,'line-opacity':0.18,'line-blur':4}});
+        map.addLayer({id:'route-line',type:'line',source:'route',layout:{'line-join':'round','line-cap':'round'},paint:{'line-color':'#4fe0d4','line-width':2.5,'line-opacity':0.9}});
+        const coords=route.geometry.coordinates;
+        const bounds=coords.reduce((b,c)=>b.extend(c),new mapboxgl.LngLatBounds(coords[0],coords[0]));
+        map.fitBounds(bounds,{padding:36,duration:0});
+
+        $('route-readout').innerHTML=`
+          <div><b>Distance</b><span>${(route.distance*0.000621371).toFixed(1)} MI</span></div>
+          <div><b>Drive Time</b><span>${Math.round(route.duration/60)} MIN</span></div>
+          <div><b>Corridor</b><span>LA-1 · GOLDEN MEADOW → GRAND ISLE</span></div>
+        `;
+      }
+    });
+    $('route-updated').textContent='LIVE ROUTE';
+    window.__gimap=map;
+  }catch(e){
+    $('map').innerHTML='<div class="err-note" style="padding:16px">MAP UNAVAILABLE.</div>';
+  }
 }
 
 async function refreshAll(){
-  $('footer-updated').textContent='Updating…';
+  $('footer-updated').textContent='SYNCING…';
   await Promise.all([loadCurrentConditions(), loadForecast(), loadTides()]);
-  $('footer-updated').textContent='Last updated '+new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  renderMoon();
+  $('footer-updated').textContent='LAST SYNC '+new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}).toUpperCase();
 }
 
 $('theme').onclick=()=>{
   const root=document.documentElement;
   const dark=root.dataset.theme==='dark';
   root.dataset.theme=dark?'light':'dark';
-  $('theme').textContent=dark?'Dark':'Light';
+  $('theme').textContent=dark?'DARK':'LIGHT';
+  if(window.__gimap){ window.__gimap.setStyle(dark?'mapbox://styles/mapbox/light-v11':'mapbox://styles/mapbox/dark-v11'); }
 };
 $('refresh').onclick=refreshAll;
 
 updateClock();
 setInterval(updateClock,30000);
-setTrafficMap();
+initMap();
 refreshAll();
 setInterval(refreshAll,600000);
 </script>
