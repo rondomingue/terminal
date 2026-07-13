@@ -60,12 +60,30 @@
     transition:background .25s ease,color .25s ease;
   }
   body::before{
-    content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.55;
+    content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:1;
     background-image:
-      linear-gradient(var(--line-2) 1px,transparent 1px),
-      linear-gradient(90deg,var(--line-2) 1px,transparent 1px);
-    background-size:34px 34px;
-    mask-image:radial-gradient(1200px 800px at 50% 0%,rgba(0,0,0,.9),transparent 78%);
+      linear-gradient(30deg, color-mix(in srgb,var(--cyan) 9%,transparent) 12%, transparent 12.5%, transparent 87%, color-mix(in srgb,var(--cyan) 9%,transparent) 87.5%, color-mix(in srgb,var(--cyan) 9%,transparent)),
+      linear-gradient(150deg, color-mix(in srgb,var(--cyan) 9%,transparent) 12%, transparent 12.5%, transparent 87%, color-mix(in srgb,var(--cyan) 9%,transparent) 87.5%, color-mix(in srgb,var(--cyan) 9%,transparent)),
+      linear-gradient(30deg, color-mix(in srgb,var(--cyan) 9%,transparent) 12%, transparent 12.5%, transparent 87%, color-mix(in srgb,var(--cyan) 9%,transparent) 87.5%, color-mix(in srgb,var(--cyan) 9%,transparent)),
+      linear-gradient(150deg, color-mix(in srgb,var(--cyan) 9%,transparent) 12%, transparent 12.5%, transparent 87%, color-mix(in srgb,var(--cyan) 9%,transparent) 87.5%, color-mix(in srgb,var(--cyan) 9%,transparent)),
+      linear-gradient(60deg, color-mix(in srgb,var(--cyan) 5%,transparent) 25%, transparent 25.5%, transparent 75%, color-mix(in srgb,var(--cyan) 5%,transparent) 75.5%, color-mix(in srgb,var(--cyan) 5%,transparent)),
+      linear-gradient(60deg, color-mix(in srgb,var(--cyan) 5%,transparent) 25%, transparent 25.5%, transparent 75%, color-mix(in srgb,var(--cyan) 5%,transparent) 75.5%, color-mix(in srgb,var(--cyan) 5%,transparent));
+    background-size:72px 126px;
+    background-position:0 0, 0 0, 36px 63px, 36px 63px, 0 0, 36px 63px;
+    mask-image:radial-gradient(1200px 900px at 50% 0%,rgba(0,0,0,.95),transparent 82%);
+  }
+  .hex-layer{
+    position:fixed;inset:0;pointer-events:none;z-index:1;
+    background-image:
+      linear-gradient(30deg, color-mix(in srgb,var(--amber) 7%,transparent) 12%, transparent 12.5%, transparent 87%, color-mix(in srgb,var(--amber) 7%,transparent) 87.5%, color-mix(in srgb,var(--amber) 7%,transparent)),
+      linear-gradient(150deg, color-mix(in srgb,var(--amber) 7%,transparent) 12%, transparent 12.5%, transparent 87%, color-mix(in srgb,var(--amber) 7%,transparent) 87.5%, color-mix(in srgb,var(--amber) 7%,transparent)),
+      linear-gradient(30deg, color-mix(in srgb,var(--amber) 7%,transparent) 12%, transparent 12.5%, transparent 87%, color-mix(in srgb,var(--amber) 7%,transparent) 87.5%, color-mix(in srgb,var(--amber) 7%,transparent)),
+      linear-gradient(150deg, color-mix(in srgb,var(--amber) 7%,transparent) 12%, transparent 12.5%, transparent 87%, color-mix(in srgb,var(--amber) 7%,transparent) 87.5%, color-mix(in srgb,var(--amber) 7%,transparent)),
+      linear-gradient(60deg, color-mix(in srgb,var(--amber) 4%,transparent) 25%, transparent 25.5%, transparent 75%, color-mix(in srgb,var(--amber) 4%,transparent) 75.5%, color-mix(in srgb,var(--amber) 4%,transparent)),
+      linear-gradient(60deg, color-mix(in srgb,var(--amber) 4%,transparent) 25%, transparent 25.5%, transparent 75%, color-mix(in srgb,var(--amber) 4%,transparent) 75.5%, color-mix(in srgb,var(--amber) 4%,transparent));
+    background-size:168px 294px;
+    background-position:84px 40px, 84px 40px, 0 187px, 0 187px, 84px 40px, 0 187px;
+    mask-image:radial-gradient(1300px 950px at 82% 8%,rgba(0,0,0,.85),transparent 70%);
   }
   body::after{
     content:'';position:fixed;inset:0;pointer-events:none;z-index:40;opacity:.5;
