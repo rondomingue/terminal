@@ -1374,5 +1374,35 @@
 
     if (rows[0]) setSelected(rows[0]);
   </script>
+  <script>
+    (() => {
+      const field = document.querySelector('.depth-field');
+      if (!field) return;
+
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+      let ticking = false;
+
+      function updateDepth() {
+        const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+        const progress = Math.min(1, Math.max(0, window.scrollY / maxScroll));
+        const depth = Math.round(progress * 180);
+        field.style.setProperty('--scroll-depth', reduceMotion.matches ? '0px' : depth + 'px');
+        ticking = false;
+      }
+
+      function requestDepthUpdate() {
+        if (ticking) return;
+        ticking = true;
+        window.requestAnimationFrame(updateDepth);
+      }
+
+      window.addEventListener('scroll', requestDepthUpdate, { passive: true });
+      window.addEventListener('resize', requestDepthUpdate);
+      if (reduceMotion.addEventListener) {
+        reduceMotion.addEventListener('change', requestDepthUpdate);
+      }
+      updateDepth();
+    })();
+  </script>
 </body>
 </html>
