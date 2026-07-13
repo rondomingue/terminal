@@ -1495,7 +1495,9 @@ function sparkPath(vals,w,h,pad){ const mx=Math.max(...vals),mn=Math.min(...vals
   svg.innerHTML=s; })();
 
 (function(){ const ov=document.getElementById('quote-overlay');
-  ov.addEventListener('click',()=>{ ov.classList.add('hide'); setTimeout(()=>ov.remove(),500); }); })();
+  const dismiss=()=>{ ov.classList.add('hide'); setTimeout(()=>ov.remove(),500); };
+  ov.addEventListener('click',dismiss);
+  setTimeout(dismiss,6000); })();
 </script>
 </body>
 </html>
