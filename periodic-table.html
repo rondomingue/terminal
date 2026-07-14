@@ -768,7 +768,7 @@ function buildAtomSVG(z){
       // inner shells orbit faster than outer ones; alternate spin direction shell to shell
       const duration = (5 + i*3.5).toFixed(1);
       const direction = i % 2 === 0 ? 'normal' : 'reverse';
-      svg += `<g style="transform-origin:${cx}px ${cy}px; animation:shellSpin ${duration}s linear infinite ${direction};">${dots}</g>`;
+      svg += `<g style="transform-box:fill-box; transform-origin:center; animation:shellSpin ${duration}s linear infinite ${direction};">${dots}</g>`;
     }
   });
   svg += `</svg>`;
