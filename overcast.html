@@ -74,7 +74,14 @@
     position:fixed;inset:0;pointer-events:none;z-index:0;
     background-size:cover;background-position:center;
   }
+  .hex-layer::after{
+    content:'';position:absolute;inset:0;pointer-events:none;opacity:.13;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.78' numOctaves='4' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.45'/></svg>");
+    background-size:180px 180px;
+    mix-blend-mode:screen;
+  }
   [data-theme="light"] .hex-layer{opacity:.22}
+  [data-theme="light"] .hex-layer::after{opacity:.18;mix-blend-mode:multiply}
   body::after{
     content:'';position:fixed;inset:0;pointer-events:none;z-index:40;opacity:.5;
     background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'><g fill='none' stroke='%234fe0d4' stroke-opacity='0.08' stroke-width='1'><path d='M8 4v8M4 8h8'/></g></svg>");
@@ -169,12 +176,34 @@
   .outlook-copy span{font-size:13px;color:var(--ink-2);line-height:1.4;font-family:var(--sans)}
 
   /* forecast strip */
-  .forecast-strip{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;position:relative;z-index:1}
-  .fperiod{border:1px solid var(--line);padding:12px 10px;background:color-mix(in srgb,var(--panel-2) 55%,transparent);text-align:center}
+  .forecast-strip{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;position:relative;z-index:1;perspective:900px;overflow:visible}
+  .fperiod{border:1px solid var(--line);padding:12px 10px;background:color-mix(in srgb,var(--panel-2) 55%,transparent);text-align:center;position:relative;overflow:hidden;cursor:default;transform-origin:center bottom;transition:transform .58s cubic-bezier(.22,.61,.36,1),opacity .5s ease,filter .5s ease,border-color .5s ease,box-shadow .5s ease,background .5s ease;will-change:transform;backface-visibility:hidden}
+  .fperiod::after{content:'';position:absolute;left:-25%;right:-25%;bottom:-32%;height:70%;pointer-events:none;opacity:0;background:radial-gradient(ellipse at center,color-mix(in srgb,var(--cyan) 30%,transparent) 0 18%,transparent 58%);transform:translate3d(0,18px,0) scaleX(.82);transition:opacity .45s ease,transform .72s cubic-bezier(.22,.61,.36,1);mix-blend-mode:screen}
+  [data-theme="light"] .fperiod::after{mix-blend-mode:multiply}
+  .forecast-strip:has(.fperiod:is(:hover,:focus-visible)) .fperiod{transform:translate3d(0,7px,0) scale(.96) rotateX(-2deg);opacity:.62;filter:saturate(.72) brightness(.84)}
+  .forecast-strip:has(.fperiod:is(:hover,:focus-visible)) .fperiod:is(:hover,:focus-visible){z-index:3;transform:translate3d(0,-12px,0) scale(1.055) rotateX(0deg);opacity:1;filter:none;border-color:color-mix(in srgb,var(--cyan) 72%,white);background:color-mix(in srgb,var(--panel-2) 84%,var(--cyan) 16%);box-shadow:0 16px 34px rgba(0,0,0,.34),0 0 28px color-mix(in srgb,var(--cyan) 20%,transparent);outline:none}
+  .forecast-strip:has(.fperiod:is(:hover,:focus-visible)) .fperiod:has(+ .fperiod:is(:hover,:focus-visible)),
+  .forecast-strip:has(.fperiod:is(:hover,:focus-visible)) .fperiod:is(:hover,:focus-visible)+.fperiod{transform:translate3d(0,1px,0) scale(.99) rotateX(-1deg);opacity:.84;filter:saturate(.88) brightness(.94)}
+  .forecast-strip:has(.fperiod:is(:hover,:focus-visible)) .fperiod:has(+ .fperiod + .fperiod:is(:hover,:focus-visible)),
+  .forecast-strip:has(.fperiod:is(:hover,:focus-visible)) .fperiod:is(:hover,:focus-visible)+.fperiod+.fperiod{transform:translate3d(0,4px,0) scale(.975) rotateX(-1.5deg);opacity:.72;filter:saturate(.78) brightness(.88)}
+  .fperiod:is(:hover,:focus-visible)::after{opacity:.5;transform:translate3d(0,-8px,0) scaleX(1.02);animation:forecast-swell 2.8s cubic-bezier(.22,.61,.36,1) infinite}
   .fperiod b{display:block;font-family:var(--sans);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:8px}
   .fperiod .ftemp{font-family:var(--mono);font-size:24px;color:var(--ink);line-height:1;font-weight:700}
   .fperiod .fdesc{font-size:10px;color:var(--ink-2);margin-top:8px;line-height:1.35;min-height:26px;font-family:var(--sans)}
   .fperiod .fwind{font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:8px}
+  .fperiod[role="button"]{cursor:pointer}
+  .fperiod.live-now{border-color:color-mix(in srgb,var(--amber) 64%,transparent);background:color-mix(in srgb,var(--panel-2) 78%,var(--amber) 10%)}
+  .fperiod.live-now b{color:var(--amber)}
+  .fperiod.live-now .ftemp{color:var(--amber)}
+  .fperiod.forecast-active{border-color:color-mix(in srgb,var(--cyan) 70%,transparent)}
+  @keyframes forecast-swell{
+    0%{opacity:0;transform:translate3d(0,18px,0) scaleX(.82)}
+    38%{opacity:.42}
+    100%{opacity:0;transform:translate3d(0,-24px,0) scaleX(1.08)}
+  }
+  @media(prefers-reduced-motion:reduce){
+    .fperiod,.fperiod::after{transition:none;animation:none !important}
+  }
 
   /* map */
   .map-frame{width:100%;aspect-ratio:16/13;border:1px solid var(--line);overflow:hidden;background:var(--panel-2);position:relative;z-index:1}
@@ -289,7 +318,9 @@
   .skeleton{color:var(--muted);font-size:12px;position:relative;z-index:1;font-family:var(--sans)}
 
   @media(max-width:1080px){
-    .grid{grid-template-columns:1fr}
+    .grid{display:flex;flex-direction:column}
+    .grid>.col{display:contents}
+    #card-traffic{order:-1}
     .forecast-strip{grid-template-columns:repeat(3,minmax(0,1fr))}
     .fperiod:nth-child(n+4){display:none}
   }
@@ -328,7 +359,7 @@
     <div class="col">
       <article class="panel" id="card-now">
         <div class="p-head">
-          <div class="p-label">Current Conditions · Grand Isle</div>
+          <div class="p-label" id="now-label">Current Conditions · Grand Isle</div>
           <span class="p-updated" id="now-updated"></span>
         </div>
         <div id="now-body" class="skeleton">READING STATION KGAO…</div>
@@ -557,7 +588,183 @@ function updateClock(){
   $('clock').textContent=new Date().toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}).toUpperCase()+' LOCAL';
 }
 
-let latestObs=null, latestForecast=null;
+let latestObs=null, latestForecast=null, selectedForecastIndex=null;
+let uiAudioCtx=null, lastHoverSoundAt=0;
+
+function getUiAudio(){
+  const AudioCtx=window.AudioContext||window.webkitAudioContext;
+  if(!AudioCtx) return null;
+  if(!uiAudioCtx) uiAudioCtx=new AudioCtx();
+  if(uiAudioCtx.state==='suspended') uiAudioCtx.resume().catch(()=>{});
+  return uiAudioCtx;
+}
+
+function playUiSound(type){
+  const ctx=getUiAudio();
+  if(!ctx) return;
+  const now=ctx.currentTime;
+  const master=ctx.createGain();
+  master.gain.setValueAtTime(0.0001,now);
+  master.gain.exponentialRampToValueAtTime(type==='click'?0.032:0.018,now+0.012);
+  master.gain.exponentialRampToValueAtTime(0.0001,now+(type==='click'?0.16:0.09));
+  master.connect(ctx.destination);
+
+  const osc=ctx.createOscillator();
+  osc.type=type==='click'?'triangle':'sine';
+  osc.frequency.setValueAtTime(type==='click'?184:760,now);
+  osc.frequency.exponentialRampToValueAtTime(type==='click'?246:980,now+(type==='click'?0.12:0.055));
+  osc.connect(master);
+  osc.start(now);
+  osc.stop(now+(type==='click'?0.17:0.1));
+
+  const noise=ctx.createBufferSource();
+  const buffer=ctx.createBuffer(1,ctx.sampleRate*0.045,ctx.sampleRate);
+  const data=buffer.getChannelData(0);
+  for(let i=0;i<data.length;i++) data[i]=(Math.random()*2-1)*(1-i/data.length);
+  const noiseGain=ctx.createGain();
+  noiseGain.gain.setValueAtTime(type==='click'?0.006:0.004,now);
+  noiseGain.gain.exponentialRampToValueAtTime(0.0001,now+0.045);
+  noise.buffer=buffer;
+  noise.connect(noiseGain).connect(master);
+  noise.start(now);
+  noise.stop(now+0.05);
+}
+
+window.addEventListener('pointerdown',getUiAudio,{once:true,passive:true});
+window.addEventListener('keydown',getUiAudio,{once:true});
+
+function liveObsSummary(){
+  if(!latestObs) return null;
+  const p=latestObs;
+  const tempF=p.temperature&&p.temperature.value!=null?Math.round(cToF(p.temperature.value)):null;
+  const windMph=p.windSpeed&&p.windSpeed.value!=null?Math.round(kmhToMph(p.windSpeed.value)):null;
+  const gustMph=p.windGust&&p.windGust.value!=null?Math.round(kmhToMph(p.windGust.value)):null;
+  const dir=degToCompass(p.windDirection&&p.windDirection.value);
+  const pressure=p.barometricPressure&&p.barometricPressure.value!=null?paToInHg(p.barometricPressure.value).toFixed(2):null;
+  const humidity=p.relativeHumidity&&p.relativeHumidity.value!=null?Math.round(p.relativeHumidity.value):null;
+  const visibility=p.visibility&&p.visibility.value!=null?mToMi(p.visibility.value).toFixed(1):null;
+  const desc=(p.textDescription||'CONDITIONS UNAVAILABLE').toUpperCase();
+  return {tempF,windMph,gustMph,dir,pressure,humidity,visibility,desc,timestamp:new Date(p.timestamp||Date.now())};
+}
+
+function renderLiveCurrent(){
+  const obs=liveObsSummary();
+  if(!obs) return;
+  selectedForecastIndex=null;
+  $('now-label').textContent='Current Conditions · Grand Isle';
+  $('now-body').innerHTML=`
+    <div class="now-grid">
+      <div class="now-temp">${obs.tempF!=null?obs.tempF:'—'}<small>°F</small></div>
+      <div>
+        <div class="now-desc">${obs.desc}</div>
+        <div class="now-stats">
+          <div class="stat"><b>Wind</b><span>${obs.windMph!=null?obs.windMph+' MPH '+obs.dir:'—'}${obs.gustMph?' · G'+obs.gustMph:''}</span></div>
+          <div class="stat"><b>Humidity</b><span>${obs.humidity!=null?obs.humidity+'%':'—'}</span></div>
+          <div class="stat"><b>Pressure</b><span>${obs.pressure!=null?obs.pressure+' inHg':'—'}</span></div>
+          <div class="stat"><b>Visibility</b><span>${obs.visibility!=null?obs.visibility+' mi':'—'}</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="station-note">LIVE FEED · GRAND ISLE AIRPORT STATION (KGAO), THE CLOSEST OFFICIAL OBSERVATION POINT TO THE ISLAND.</div>
+  `;
+  $('now-updated').textContent=timeAgo(obs.timestamp);
+}
+
+function renderSelectedForecast(index){
+  if(!latestForecast || !latestForecast[index]) return;
+  const p=latestForecast[index];
+  selectedForecastIndex=index;
+  const precip=p.probabilityOfPrecipitation&&p.probabilityOfPrecipitation.value!=null?p.probabilityOfPrecipitation.value+'%':'—';
+  $('now-label').textContent='Selected Forecast · '+p.name;
+  $('now-body').innerHTML=`
+    <div class="now-grid">
+      <div class="now-temp">${p.temperature!=null?p.temperature:'—'}<small>°F</small></div>
+      <div>
+        <div class="now-desc">${(p.shortForecast||'FORECAST UNAVAILABLE').toUpperCase()}</div>
+        <div class="now-stats">
+          <div class="stat"><b>Wind</b><span>${p.windSpeed||'—'} ${p.windDirection||''}</span></div>
+          <div class="stat"><b>Precip</b><span>${precip}</span></div>
+          <div class="stat"><b>Period</b><span>${p.name}</span></div>
+          <div class="stat"><b>Source</b><span>NWS LIX GRIDPOINT</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="station-note">${p.detailedForecast||'Forecast details unavailable.'}</div>
+  `;
+  $('now-updated').textContent='FORECAST SELECTED';
+}
+
+function forecastTileHtml(p,index){
+  return `
+    <div class="fperiod forecast-active" tabindex="0" role="button" data-forecast-index="${index}" aria-label="Show ${p.name} forecast as current conditions">
+      <b>${p.name}</b>
+      <div class="ftemp">${p.temperature}°</div>
+      <div class="fdesc">${(p.shortForecast||'Forecast unavailable').toUpperCase()}</div>
+      <div class="fwind">${p.windSpeed||'—'} ${p.windDirection||''}</div>
+    </div>
+  `;
+}
+
+function liveTileHtml(){
+  const obs=liveObsSummary();
+  if(!obs) return '';
+  return `
+    <div class="fperiod live-now" tabindex="0" role="button" data-live-now="true" aria-label="Restore live current conditions">
+      <b>Live Now</b>
+      <div class="ftemp">${obs.tempF!=null?obs.tempF:'—'}°</div>
+      <div class="fdesc">${obs.desc}</div>
+      <div class="fwind">${obs.windMph!=null?obs.windMph+' mph '+obs.dir:'KGAO'}</div>
+    </div>
+  `;
+}
+
+function wireForecastStrip(strip){
+  strip.addEventListener('pointerover',event=>{
+    const tile=event.target.closest('.fperiod');
+    if(!tile || !strip.contains(tile) || tile===strip.dataset.hoverTile) return;
+    const now=Date.now();
+    if(now-lastHoverSoundAt>90){
+      playUiSound('hover');
+      lastHoverSoundAt=now;
+    }
+    strip.dataset.hoverTile=tile.dataset.forecastIndex||tile.dataset.liveNow||'tile';
+  });
+  strip.addEventListener('pointerout',event=>{
+    if(!strip.contains(event.relatedTarget)) delete strip.dataset.hoverTile;
+  });
+  strip.addEventListener('click',event=>{
+    const tile=event.target.closest('.fperiod');
+    if(!tile) return;
+    playUiSound('click');
+    if(tile.dataset.liveNow){
+      renderLiveCurrent();
+      renderForecastStrip();
+      return;
+    }
+    if(tile.dataset.forecastIndex!=null){
+      renderSelectedForecast(Number(tile.dataset.forecastIndex));
+      renderForecastStrip();
+    }
+  });
+  strip.addEventListener('keydown',event=>{
+    if(event.key!=='Enter' && event.key!==' ') return;
+    const tile=event.target.closest('.fperiod');
+    if(!tile) return;
+    event.preventDefault();
+    tile.click();
+  });
+}
+
+function renderForecastStrip(){
+  if(!latestForecast) return;
+  const tiles=latestForecast.map((p,index)=>{
+    if(selectedForecastIndex===index && latestObs) return liveTileHtml();
+    return forecastTileHtml(p,index);
+  }).join('');
+  $('forecast-body').innerHTML=`<div class="forecast-strip">${tiles}</div>`;
+  const strip=$('forecast-body').querySelector('.forecast-strip');
+  if(strip) wireForecastStrip(strip);
+}
 
 async function loadCurrentConditions(){
   try{
@@ -566,30 +773,9 @@ async function loadCurrentConditions(){
     const data=await res.json();
     const p=data.properties;
     latestObs=p;
-    const tempF=p.temperature.value!=null?Math.round(cToF(p.temperature.value)):null;
-    const windMph=p.windSpeed.value!=null?Math.round(kmhToMph(p.windSpeed.value)):null;
-    const gustMph=p.windGust&&p.windGust.value!=null?Math.round(kmhToMph(p.windGust.value)):null;
-    const dir=degToCompass(p.windDirection.value);
-    const pressure=p.barometricPressure&&p.barometricPressure.value!=null?paToInHg(p.barometricPressure.value).toFixed(2):null;
-    const humidity=p.relativeHumidity&&p.relativeHumidity.value!=null?Math.round(p.relativeHumidity.value):null;
-    const visibility=p.visibility&&p.visibility.value!=null?mToMi(p.visibility.value).toFixed(1):null;
-    const desc=(p.textDescription||'CONDITIONS UNAVAILABLE').toUpperCase();
-    $('now-body').innerHTML=`
-      <div class="now-grid">
-        <div class="now-temp">${tempF!=null?tempF:'—'}<small>°F</small></div>
-        <div>
-          <div class="now-desc">${desc}</div>
-          <div class="now-stats">
-            <div class="stat"><b>Wind</b><span>${windMph!=null?windMph+' MPH '+dir:'—'}${gustMph?' · G'+gustMph:''}</span></div>
-            <div class="stat"><b>Humidity</b><span>${humidity!=null?humidity+'%':'—'}</span></div>
-            <div class="stat"><b>Pressure</b><span>${pressure!=null?pressure+' inHg':'—'}</span></div>
-            <div class="stat"><b>Visibility</b><span>${visibility!=null?visibility+' mi':'—'}</span></div>
-          </div>
-        </div>
-      </div>
-      <div class="station-note">LIVE FEED · GRAND ISLE AIRPORT STATION (KGAO), THE CLOSEST OFFICIAL OBSERVATION POINT TO THE ISLAND.</div>
-    `;
-    $('now-updated').textContent=timeAgo(new Date(p.timestamp));
+    if(selectedForecastIndex==null) renderLiveCurrent();
+    else renderSelectedForecast(selectedForecastIndex);
+    renderForecastStrip();
   }catch(e){
     $('now-body').innerHTML=`<div class="err-note">STATION UNREACHABLE. <a href="https://forecast.weather.gov/MapClick.php?lat=29.2358&lon=-89.9873" target="_blank" rel="noopener" style="color:inherit">View on weather.gov ↗</a></div>`;
   }
@@ -603,14 +789,8 @@ async function loadForecast(){
     const data=await res.json();
     const periods=data.properties.periods.slice(0,5);
     latestForecast=periods;
-    $('forecast-body').innerHTML=`<div class="forecast-strip">${periods.map(p=>`
-      <div class="fperiod">
-        <b>${p.name}</b>
-        <div class="ftemp">${p.temperature}°</div>
-        <div class="fdesc">${p.shortForecast.toUpperCase()}</div>
-        <div class="fwind">${p.windSpeed} ${p.windDirection}</div>
-      </div>
-    `).join('')}</div>`;
+    renderForecastStrip();
+    if(selectedForecastIndex!=null) renderSelectedForecast(selectedForecastIndex);
     $('forecast-updated').textContent=timeAgo(new Date(data.properties.updateTime));
   }catch(e){
     $('forecast-body').innerHTML=`<div class="err-note">FORECAST UNAVAILABLE. <a href="https://forecast.weather.gov/MapClick.php?lat=29.2358&lon=-89.9873" target="_blank" rel="noopener" style="color:inherit">View on weather.gov ↗</a></div>`;
