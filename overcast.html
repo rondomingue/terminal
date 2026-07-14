@@ -13,7 +13,7 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Oswald:wght@600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link href="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.css" rel="stylesheet">
 <script src="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.js"></script>
 <style>
@@ -35,6 +35,7 @@
     --green:#6fe08a;
     --shadow:0 0 0 1px rgba(79,224,212,.06), 0 30px 90px rgba(0,0,0,.65);
     --sans:'Barlow Condensed','Arial Narrow',Arial,sans-serif;
+    --display:'Oswald','Barlow Condensed','Arial Narrow',Arial,sans-serif;
     --mono:'Space Mono','SFMono-Regular',monospace;
   }
   [data-theme="light"]{
@@ -150,7 +151,7 @@
 
   /* current conditions */
   .now-grid{display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:center;position:relative;z-index:1}
-  .now-temp{font-family:var(--mono);font-size:clamp(56px,7.6vw,96px);line-height:.86;color:var(--cyan);font-weight:700;text-shadow:0 0 26px color-mix(in srgb,var(--cyan) 45%,transparent)}
+  .now-temp{font-family:var(--display);font-size:clamp(64px,8.2vw,108px);line-height:.82;color:var(--cyan);font-weight:700;letter-spacing:.01em;font-variant-numeric:tabular-nums;text-shadow:0 0 26px color-mix(in srgb,var(--cyan) 45%,transparent)}
   .now-temp small{font-family:var(--sans);font-size:15px;color:var(--muted);font-weight:600;vertical-align:top;margin-left:2px}
   .now-desc{font-family:var(--sans);font-size:19px;color:var(--ink);margin-bottom:10px;text-transform:uppercase;letter-spacing:.02em;font-weight:600}
   .now-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 22px;margin-top:8px}
