@@ -146,6 +146,7 @@
   .word.word-long{font-size:clamp(50px,6.7vw,108px);letter-spacing:-.038em}
   .word.word-xlong{font-size:clamp(40px,5.6vw,82px);line-height:.96;letter-spacing:-.03em}
   .word .word-line{display:block}
+  .word .word-hyphen{display:inline-block;transform:translateX(.03em)}
   .pronounce{margin-top:18px;font-family:var(--sans);font-size:12px;letter-spacing:.14em;color:var(--muted);font-weight:400}
   .prompt{margin:20px auto 0;max-width:640px;font-size:20px;line-height:1.45;color:var(--ink-2)}
   .answers{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px clamp(20px,4vw,42px) 18px;align-content:start;min-width:0}
@@ -552,12 +553,13 @@ function displayWord(term){
     floccinaucinihilipilification:['floccinaucini','hilipilification'],
     enantiodromia:['enantio','dromia']
   };
-  if(knownBreaks[term]) return knownBreaks[term].map(part=>`<span class="word-line">${escapeHtml(part)}</span>`).join('');
+  const hyphenatedLines=parts=>parts.map((part,index)=>`<span class="word-line">${escapeHtml(part)}${index<parts.length-1?'<span class="word-hyphen">-</span>':''}</span>`).join('');
+  if(knownBreaks[term]) return hyphenatedLines(knownBreaks[term]);
   if(term.length>20){
     const midpoint=Math.ceil(term.length/2);
     const vowels=[...term.matchAll(/[aeiouy]/gi)].map(match=>match.index).filter(i=>i>7&&i<term.length-7);
     const split=vowels.sort((a,b)=>Math.abs(a-midpoint)-Math.abs(b-midpoint))[0]||midpoint;
-    return `<span class="word-line">${escapeHtml(term.slice(0,split))}</span><span class="word-line">${escapeHtml(term.slice(split))}</span>`;
+    return hyphenatedLines([term.slice(0,split),term.slice(split)]);
   }
   return escapeHtml(term);
 }
