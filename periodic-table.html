@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Periodic Table — Reference</title>
+<title>Elemental Blocks — Reference</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -20,11 +20,11 @@
     --mono:'Space Mono', ui-monospace, monospace;
     --display:'Barlow Condensed', sans-serif;
 
-    --t1: rgba(110,200,140,0.13);
-    --t2: rgba(224,110,90,0.14);
-    --t3: rgba(100,150,230,0.14);
-    --t4: rgba(190,120,225,0.15);
-    --t5: rgba(80,215,210,0.16);
+    --t1: rgba(255,255,255,0.05);
+    --t2: rgba(255,255,255,0.10);
+    --t3: rgba(255,255,255,0.16);
+    --t4: rgba(255,255,255,0.24);
+    --t5: rgba(255,255,255,0.34);
 
     --g1: rgba(255,255,255,0.05);
     --g2: rgba(255,255,255,0.10);
@@ -220,7 +220,7 @@
     position:fixed; inset:0;
     background:rgba(0,0,0,0.5);
     opacity:0; pointer-events:none;
-    transition:opacity 160ms ease;
+    transition:opacity 380ms ease;
     z-index:40;
   }
   .scrim.show{opacity:1; pointer-events:auto;}
@@ -235,7 +235,7 @@
     -webkit-backdrop-filter:blur(10px);
     border-left:1px solid var(--line);
     transform:translateX(100%);
-    transition:transform 220ms cubic-bezier(.4,0,.2,1);
+    transition:transform 480ms cubic-bezier(.22,1,.36,1);
     z-index:50;
     display:flex;
     flex-direction:column;
@@ -332,6 +332,10 @@
     0%{background-position:0 -140%;}
     100%{background-position:0 100%;}
   }
+  @keyframes shellSpin{
+    from{transform:rotate(0deg);}
+    to{transform:rotate(360deg);}
+  }
 
   .empty-hint{
     padding:40px 22px;
@@ -363,7 +367,7 @@
 
 <div class="wrap">
   <header>
-    <h1>Periodic Table</h1>
+    <h1>Elemental Blocks</h1>
     <div class="sub">
       118 elements. Select any tile for atomic data and applications.<br>
       <button id="soundToggle" class="sound-toggle">SOUND: ON</button>
@@ -656,6 +660,31 @@ function playElementSound(z, cat, row){
   });
 }
 
+/* ---------- Soft rollover blip: single quiet tone, no chord, only plays
+   once audio has already been unlocked by a prior click ---------------- */
+function playHoverSound(z, row){
+  if(!soundOn || !audioCtx) return;
+  const ctx = getCtx();
+  const now = ctx.currentTime;
+  const period = row<=7 ? row : (row===9 ? 6 : 7);
+  const octave = 3 + Math.floor((period-1)/2);
+  const pitchClass = z % 12;
+  const dur = 0.09;
+
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(0.045, now + 0.008);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+  gain.connect(ctx.destination);
+
+  const osc = ctx.createOscillator();
+  osc.type = 'sine';
+  osc.frequency.value = noteFreq(pitchClass, octave + 1);
+  osc.connect(gain);
+  osc.start(now);
+  osc.stop(now + dur + 0.02);
+}
+
 /* ---------- Simplified Bohr-style electron shell diagram ----------
    Fills subshells in standard Aufbau order and sums electrons per
    principal shell (K,L,M,N,O,P,Q). This reproduces the textbook shell
@@ -691,11 +720,20 @@ function buildAtomSVG(z){
   shells.forEach((count, i)=>{
     const r = step*(i+1);
     svg += `<circle cx="${cx}" cy="${cy}" r="${r.toFixed(1)}" fill="none" stroke="rgba(255,255,255,0.16)" stroke-width="1"/>`;
+    let dots = '';
     for(let e=0;e<count;e++){
       const angle = (2*Math.PI/count)*e - Math.PI/2;
       const ex = (cx + r*Math.cos(angle)).toFixed(1);
       const ey = (cy + r*Math.sin(angle)).toFixed(1);
-      svg += `<circle cx="${ex}" cy="${ey}" r="2.2" fill="#eae9e6"/>`;
+      dots += `<circle cx="${ex}" cy="${ey}" r="2.2" fill="#eae9e6"/>`;
+    }
+    if(prefersReducedMotion){
+      svg += dots;
+    } else {
+      // inner shells orbit faster than outer ones; alternate spin direction shell to shell
+      const duration = (5 + i*3.5).toFixed(1);
+      const direction = i % 2 === 0 ? 'normal' : 'reverse';
+      svg += `<g style="transform-origin:${cx}px ${cy}px; animation:shellSpin ${duration}s linear infinite ${direction};">${dots}</g>`;
     }
   });
   svg += `</svg>`;
@@ -776,6 +814,7 @@ ELEMENTS.forEach(e=>{
   tile.dataset.z = z;
   tile._row = row;
   tile._col = col;
+  tile._cat = cat;
   tile.setAttribute('aria-label', `${name}, element ${z}`);
   tile.innerHTML = `
     <span class="num">${z}</span>
@@ -840,12 +879,21 @@ if(!prefersReducedMotion){
 
   applyGrid(null, null); // establish explicit baseline tracks before first paint
 
+  let lastHoverTile = null;
   board.addEventListener('pointerover', ev=>{
     const tile = ev.target.closest('.tile');
-    if(tile) applyGrid(tile._row, tile._col);
+    if(!tile) return;
+    applyGrid(tile._row, tile._col);
+    if(tile !== lastHoverTile){
+      lastHoverTile = tile;
+      playHoverSound(Number(tile.dataset.z), tile._row);
+    }
   });
   board.addEventListener('pointerout', ev=>{
-    if(!board.contains(ev.relatedTarget)) resetMagnify();
+    if(!board.contains(ev.relatedTarget)){
+      resetMagnify();
+      lastHoverTile = null;
+    }
   });
   board.addEventListener('pointerdown', ev=>{
     const tile = ev.target.closest('.tile');
