@@ -249,6 +249,73 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #030507; c
       -38px -22px 0 rgba(180,200,255,.34);
   }
 }
+
+.menu-toggle {
+  display: none;
+  position: relative;
+  z-index: 1301;
+  width: 36px;
+  height: 32px;
+  border: 1px solid rgba(180,200,255,.12);
+  border-radius: 2px;
+  background: rgba(180,200,255,.035);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 5px;
+}
+.menu-toggle span {
+  width: 17px;
+  height: 1px;
+  background: rgba(208,216,238,.74);
+  transition: transform .22s ease, opacity .18s ease;
+}
+.menu-toggle[aria-expanded="true"] span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.menu-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.menu-toggle[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+@media (max-width: 768px) {
+  #topbar { padding: 0 14px; }
+  .menu-toggle { display: inline-flex; }
+  #topbar .nav-links {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1300;
+    display: flex !important;
+    width: min(82vw, 320px);
+    height: 100dvh;
+    padding: 74px 24px 28px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    background: rgba(3,5,7,.54);
+    border-left: 1px solid rgba(180,200,255,.12);
+    box-shadow: -30px 0 80px rgba(0,0,0,.34);
+    backdrop-filter: blur(22px) saturate(1.2);
+    -webkit-backdrop-filter: blur(22px) saturate(1.2);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(105%);
+    transition: transform .28s cubic-bezier(.22,.72,.18,1), opacity .2s ease;
+  }
+  #topbar .nav-links a {
+    width: 100%;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(180,200,255,.08);
+    color: rgba(208,216,238,.72);
+    font-size: 10px;
+    letter-spacing: .18em;
+  }
+  body.menu-open #topbar .nav-links {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(0);
+  }
+  body.menu-open { overflow: hidden; }
+}
 </style>
 </head>
 <body>
@@ -265,6 +332,9 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #030507; c
       <button class="mode-btn active" id="btn-proportional" title="Area proportional to estimated deaths">Scaled</button>
       <button class="mode-btn" id="btn-equal" title="Equal area for each disease">Equal</button>
     </div>
+    <button class="menu-toggle" type="button" data-menu-toggle aria-label="Open navigation menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
     <nav class="nav-links">
       <a href="outbreaks.html">Dashboard</a>
       <a href="pathogen-history.html">Chronicle</a>
@@ -1381,6 +1451,26 @@ document.getElementById('btn-equal').addEventListener('click',function(){
     buildDecorGraphics();
   });
 });
+
+(function(){
+  const toggle = document.querySelector('[data-menu-toggle]');
+  const nav = document.querySelector('.nav-links');
+  if (!toggle || !nav) return;
+  const close = () => {
+    document.body.classList.remove('menu-open');
+    toggle.setAttribute('aria-expanded', 'false');
+  };
+  toggle.addEventListener('click', () => {
+    const isOpen = document.body.classList.toggle('menu-open');
+    toggle.setAttribute('aria-expanded', String(isOpen));
+  });
+  nav.addEventListener('click', event => {
+    if (event.target.closest('a')) close();
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') close();
+  });
+})();
 </script>
 </body>
 </html>

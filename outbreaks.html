@@ -148,6 +148,11 @@
   .nav-links a{color:var(--muted); text-decoration:none; transition:color .15s, border-color .15s; padding-bottom:2px; border-bottom:1px solid transparent}
   .nav-links a:hover{color:var(--bone-dim)}
   .nav-links a.active{color:var(--bone-dim); border-bottom-color:var(--severe)}
+  .menu-toggle{display:none;position:relative;z-index:1301;width:38px;height:34px;border:1px solid var(--line);border-radius:2px;background:rgba(233,229,217,.035);cursor:pointer;align-items:center;justify-content:center;flex-direction:column;gap:5px}
+  .menu-toggle span{width:18px;height:1px;background:var(--bone-dim);transition:transform .22s ease,opacity .18s ease}
+  .menu-toggle[aria-expanded="true"] span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+  .menu-toggle[aria-expanded="true"] span:nth-child(2){opacity:0}
+  .menu-toggle[aria-expanded="true"] span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
 
   @media (max-width:1080px){ .eth{grid-template-columns:1fr} .eth .side{border-left:0; border-top:1px solid var(--line)} }
   svg.map{width:100%; height:auto; display:block; overflow:visible}
@@ -311,6 +316,12 @@
     .fc .side{border-left:0; border-top:1px solid var(--line); flex-direction:row; flex-wrap:wrap; gap:26px}
   }
   @media (max-width:860px){
+    .mast-top{align-items:center}
+    .menu-toggle{display:inline-flex}
+    .masthead .nav-links{position:fixed;top:0;right:0;bottom:0;z-index:1300;display:flex!important;width:min(82vw,340px);height:100dvh;padding:86px 24px 28px;flex-direction:column;align-items:flex-start;gap:4px;background:rgba(10,13,12,.54);border-left:1px solid var(--line);box-shadow:-30px 0 80px rgba(0,0,0,.3);backdrop-filter:blur(22px) saturate(1.2);-webkit-backdrop-filter:blur(22px) saturate(1.2);opacity:0;pointer-events:none;transform:translateX(105%);transition:transform .28s cubic-bezier(.22,.72,.18,1),opacity .2s ease}
+    .masthead .nav-links a{width:100%;padding:12px 0;border-bottom:1px solid var(--line-2);font-size:10px;letter-spacing:.18em;color:var(--bone-dim)}
+    body.menu-open .masthead .nav-links{opacity:1;pointer-events:auto;transform:translateX(0)}
+    body.menu-open{overflow:hidden}
     .wrap{padding:0 22px}
     .spread{grid-template-columns:1fr}
     .stage{order:1}
@@ -346,6 +357,9 @@
         <span class="mark disp">Outbreaks<span class="dotmark">.</span></span>
         <span class="tag">Global Epidemic Intelligence</span>
       </div>
+      <button class="menu-toggle" type="button" data-menu-toggle aria-label="Open navigation menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
       <nav class="nav-links" aria-label="Site navigation">
         <a href="outbreaks.html" class="active">Dashboard</a>
         <a href="pathogen-history.html">Chronicle</a>
@@ -1498,6 +1512,26 @@ function sparkPath(vals,w,h,pad){ const mx=Math.max(...vals),mn=Math.min(...vals
   const dismiss=()=>{ ov.classList.add('hide'); setTimeout(()=>ov.remove(),500); };
   ov.addEventListener('click',dismiss);
   setTimeout(dismiss,6000); })();
+
+(function(){
+  const toggle = document.querySelector('[data-menu-toggle]');
+  const nav = document.querySelector('.nav-links');
+  if (!toggle || !nav) return;
+  const close = () => {
+    document.body.classList.remove('menu-open');
+    toggle.setAttribute('aria-expanded', 'false');
+  };
+  toggle.addEventListener('click', () => {
+    const isOpen = document.body.classList.toggle('menu-open');
+    toggle.setAttribute('aria-expanded', String(isOpen));
+  });
+  nav.addEventListener('click', event => {
+    if (event.target.closest('a')) close();
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') close();
+  });
+})();
 </script>
 </body>
 </html>
