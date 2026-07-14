@@ -115,6 +115,36 @@
     color:var(--text);
   }
 
+  .footnote{
+    display:flex;
+    gap:24px;
+    align-items:baseline;
+    flex-wrap:wrap;
+    margin-top:22px;
+    padding-top:20px;
+    border-top:1px solid var(--line);
+  }
+  .footnote-label{
+    font-family:var(--mono);
+    font-size:10.5px;
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    color:var(--text-faint);
+    white-space:nowrap;
+    padding-top:2px;
+  }
+  .footnote p{
+    margin:0;
+    max-width:760px;
+    font-size:12px;
+    line-height:1.7;
+    color:var(--text-faint);
+  }
+  .footnote p em{
+    font-style:normal;
+    color:var(--text-dim);
+  }
+
   .sound-toggle{
     margin-top:8px;
     background:none;
@@ -414,6 +444,11 @@
   </div>
 
   <div class="legend" id="legend"></div>
+
+  <div class="footnote">
+    <span class="footnote-label">Sonification</span>
+    <p>Every element plays a distinct, synthesized note — nothing is a recording. <em>Pitch</em> comes from the atomic number (chromatic, wrapping every 12 elements); <em>octave</em> comes from the period, so heavier rows sit lower. <em>Chord shape</em> and <em>waveform</em> are both drawn from the category: alkali metals ring out as a single bare tone, noble gases as a full closed major-seventh chord, halogens as a tight dissonant cluster — each voicing a rough analogy to that group's chemical character.</p>
+  </div>
 </div>
 
 <div class="scrim" id="scrim"></div>
@@ -745,6 +780,22 @@ function shellConfig(Z){
 }
 const SHELL_LETTERS = ['K','L','M','N','O','P','Q'];
 
+// Bohr-de Broglie standing wave: shell n fits exactly n electron wavelengths
+// around its orbit (2*pi*r = n*lambda) — traced here as a rippled ring instead
+// of a plain circle, with the ripple count equal to the shell number.
+function shellWavePath(cx, cy, r, n, amplitude){
+  const samples = 140;
+  let d = '';
+  for(let s=0; s<=samples; s++){
+    const theta = (2*Math.PI/samples)*s;
+    const rr = r + amplitude*Math.sin(n*theta);
+    const x = (cx + rr*Math.cos(theta)).toFixed(2);
+    const y = (cy + rr*Math.sin(theta)).toFixed(2);
+    d += (s===0 ? 'M' : 'L') + x + ',' + y + ' ';
+  }
+  return d + 'Z';
+}
+
 function buildAtomSVG(z){
   const shells = shellConfig(z);
   const size = 200, cx = size/2, cy = size/2;
@@ -754,7 +805,8 @@ function buildAtomSVG(z){
   svg += `<circle cx="${cx}" cy="${cy}" r="3.5" fill="#eae9e6"/>`;
   shells.forEach((count, i)=>{
     const r = step*(i+1);
-    svg += `<circle cx="${cx}" cy="${cy}" r="${r.toFixed(1)}" fill="none" stroke="rgba(255,255,255,0.16)" stroke-width="1"/>`;
+    const n = i+1;
+    svg += `<path d="${shellWavePath(cx,cy,r,n,2.4)}" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="1"/>`;
     let dots = '';
     for(let e=0;e<count;e++){
       const angle = (2*Math.PI/count)*e - Math.PI/2;
