@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Periodic Table — Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#08080a;
+    --bg-elev:#101013;
+    --line:#232327;
+    --line-dim:#18181b;
+    --text:#eae9e6;
+    --text-dim:#8a8a8e;
+    --text-faint:#48484c;
+    --accent:#f4f4f2;
+    --mono:'Space Mono', ui-monospace, monospace;
+    --display:'Barlow Condensed', sans-serif;
+
+    --t1: rgba(110,200,140,0.13);
+    --t2: rgba(224,110,90,0.14);
+    --t3: rgba(100,150,230,0.14);
+    --t4: rgba(190,120,225,0.15);
+    --t5: rgba(80,215,210,0.16);
+
+    --g1: rgba(255,255,255,0.05);
+    --g2: rgba(255,255,255,0.10);
+    --g3: rgba(255,255,255,0.16);
+    --g4: rgba(255,255,255,0.24);
+    --g5: rgba(255,255,255,0.34);
+  }
+
+  *{box-sizing:border-box;}
+  html{margin:0;padding:0;background:var(--bg);}
+  body{margin:0;padding:0;color:var(--text);}
+  body{
+    font-family:var(--mono);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  #starfield{
+    position:fixed;
+    inset:0;
+    width:100vw;
+    height:100vh;
+    display:block;
+    z-index:-1;
+  }
+
+  .wrap{
+    max-width:none;
+    margin:0 auto;
+    padding:28px 28px 60px;
+  }
+
+  header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:24px;
+    border-bottom:1px solid var(--line);
+    padding-bottom:16px;
+    margin-bottom:20px;
+    flex-wrap:wrap;
+  }
+  header h1{
+    font-family:var(--display);
+    font-weight:600;
+    font-size:clamp(28px,4vw,42px);
+    letter-spacing:0.02em;
+    margin:0;
+    text-transform:uppercase;
+  }
+  header .sub{
+    font-size:11px;
+    color:var(--text-dim);
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    max-width:320px;
+    line-height:1.6;
+    text-align:right;
+  }
+
+  .sound-toggle{
+    margin-top:8px;
+    background:none;
+    border:1px solid var(--line);
+    color:var(--text-dim);
+    font-family:var(--mono);
+    font-size:10px;
+    letter-spacing:0.08em;
+    padding:5px 9px;
+    cursor:pointer;
+  }
+  .sound-toggle:hover{color:var(--text); border-color:var(--text-faint);}
+
+  .legend{
+    display:flex;
+    flex-wrap:wrap;
+    gap:14px 22px;
+    margin-top:24px;
+    padding-top:18px;
+    border-top:1px solid var(--line);
+    font-size:10px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--text-dim);
+  }
+  .legend-item{display:flex;align-items:center;gap:7px;}
+  .legend-swatch{
+    width:11px;height:11px;
+    border:1px solid var(--line);
+  }
+  .legend-swatch.tier-1{background:var(--g1);}
+  .legend-swatch.tier-2{background:var(--g2);}
+  .legend-swatch.tier-3{background:var(--g3);}
+  .legend-swatch.tier-4{background:var(--g4);}
+  .legend-swatch.tier-5{background:var(--g5);}
+
+  .board-viewport{
+    width:100%;
+    overflow:hidden;
+  }
+  .board{
+    display:grid;
+    grid-template-columns:repeat(18, 52px);
+    gap:4px;
+    width:max-content;
+    transition:grid-template-columns 520ms cubic-bezier(.34,1.56,.64,1), grid-template-rows 520ms cubic-bezier(.34,1.56,.64,1);
+  }
+
+  .spacer{min-width:2px;}
+
+  .tile{
+    position:relative;
+    container-type:inline-size;
+    min-width:0;
+    min-height:0;
+    background:var(--bg-elev);
+    border:1px solid var(--line-dim);
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    padding:3px;
+    overflow:hidden;
+    transition:border-color 200ms ease, background 200ms ease;
+    outline:none;
+  }
+  .tile:hover{border-color:var(--text-faint);}
+  .tile:focus-visible{border-color:var(--accent);}
+  .tile.active{
+    border-color:var(--accent);
+    background:var(--t5);
+  }
+  .tile.tier-1{background:var(--t1);}
+  .tile.tier-2{background:var(--t2);}
+  .tile.tier-3{background:var(--t3);}
+  .tile.tier-4{background:var(--t4);}
+  .tile.tier-5{background:var(--t5);}
+
+  .tile .num{
+    position:absolute;
+    top:2px; right:3px;
+    font-size:clamp(6px,15cqw,11px);
+    color:var(--text-faint);
+    letter-spacing:0;
+  }
+  .tile .sym{
+    font-family:var(--display);
+    font-weight:600;
+    font-size:clamp(17px,46cqw,96px);
+    letter-spacing:0.01em;
+    line-height:1;
+    color:var(--text);
+  }
+  .tile .mass{
+    position:absolute;
+    top:2px; left:3px;
+    font-size:clamp(0px,9cqw,10px);
+    color:var(--text-faint);
+    letter-spacing:0.02em;
+    white-space:nowrap;
+  }
+  .tile .ename{
+    font-size:clamp(0px,11cqw,13px);
+    color:var(--text-dim);
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    white-space:nowrap;
+    margin-top:2px;
+  }
+  .tile .cfg{
+    font-family:var(--mono);
+    font-size:clamp(0px,8cqw,11px);
+    color:var(--text-dim);
+    letter-spacing:0;
+    white-space:nowrap;
+    margin-top:3px;
+  }
+  .tile .ox{
+    font-family:var(--mono);
+    font-size:clamp(0px,8cqw,11px);
+    color:var(--text-faint);
+    letter-spacing:0.02em;
+    white-space:nowrap;
+    margin-top:1px;
+  }
+
+
+  .fblock-row{grid-column:1/-1; height:4px;}
+
+  /* ---- Readout panel ---- */
+  .scrim{
+    position:fixed; inset:0;
+    background:rgba(0,0,0,0.5);
+    opacity:0; pointer-events:none;
+    transition:opacity 160ms ease;
+    z-index:40;
+  }
+  .scrim.show{opacity:1; pointer-events:auto;}
+
+  .panel{
+    position:fixed;
+    top:0; right:0;
+    height:100%;
+    width:min(380px, 92vw);
+    background:rgba(16,16,19,0.82);
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+    border-left:1px solid var(--line);
+    transform:translateX(100%);
+    transition:transform 220ms cubic-bezier(.4,0,.2,1);
+    z-index:50;
+    display:flex;
+    flex-direction:column;
+    overflow-y:auto;
+  }
+  .panel.show{transform:translateX(0);}
+
+  .panel-head{
+    padding:24px 22px 18px;
+    border-bottom:1px solid var(--line);
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+  }
+  .panel-close{
+    background:none;
+    border:1px solid var(--line);
+    color:var(--text-dim);
+    font-family:var(--mono);
+    font-size:11px;
+    padding:6px 10px;
+    cursor:pointer;
+    letter-spacing:0.08em;
+  }
+  .panel-close:hover{color:var(--text); border-color:var(--text-faint);}
+
+  .panel-symbol{
+    font-family:var(--display);
+    font-weight:700;
+    font-size:64px;
+    line-height:1;
+    letter-spacing:0.01em;
+  }
+  .panel-num{
+    font-size:11px;
+    color:var(--text-dim);
+    margin-top:6px;
+    letter-spacing:0.08em;
+  }
+  .panel-name{
+    font-family:var(--display);
+    font-weight:500;
+    font-size:22px;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    margin-top:2px;
+  }
+
+  .panel-body{padding:20px 22px 32px; flex:1;}
+
+  .field{
+    display:flex;
+    justify-content:space-between;
+    padding:11px 0;
+    border-bottom:1px solid var(--line-dim);
+    font-size:12px;
+    gap:16px;
+  }
+  .field .k{color:var(--text-dim); letter-spacing:0.08em; text-transform:uppercase; font-size:10px; padding-top:2px;}
+  .field .v{text-align:right; color:var(--text);}
+
+  .diagram{
+    text-align:center;
+    padding:6px 0 18px;
+    border-bottom:1px solid var(--line-dim);
+    margin-bottom:6px;
+  }
+  .diagram-caption{
+    font-size:12px;
+    letter-spacing:0.06em;
+    color:var(--text);
+    margin-top:4px;
+  }
+  .diagram-note{
+    font-size:9px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--text-faint);
+    margin-top:4px;
+  }
+
+  .uses-block{margin-top:22px;}
+  .uses-block .k{color:var(--text-dim); letter-spacing:0.08em; text-transform:uppercase; font-size:10px; margin-bottom:8px;}
+  .uses-block p{font-size:13px; line-height:1.7; color:var(--text); margin:0;}
+
+  .scan{
+    position:absolute; inset:0;
+    background:linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.08) 50%, transparent 100%);
+    background-size:100% 240%;
+    animation:scan 900ms ease-out 1;
+    pointer-events:none;
+  }
+  @keyframes scan{
+    0%{background-position:0 -140%;}
+    100%{background-position:0 100%;}
+  }
+
+  .empty-hint{
+    padding:40px 22px;
+    color:var(--text-faint);
+    font-size:11px;
+    letter-spacing:0.06em;
+    line-height:1.8;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .panel, .scrim, .scan{transition:none; animation:none;}
+  }
+
+  @media (max-width:760px){
+    .panel{
+      top:auto; bottom:0; right:0; left:0;
+      width:100%; height:min(78vh, 560px);
+      border-left:none;
+      border-top:1px solid var(--line);
+      transform:translateY(100%);
+    }
+    .panel.show{transform:translateY(0);}
+    header .sub{display:none;}
+  }
+</style>
+</head>
+<body>
+<canvas id="starfield"></canvas>
+
+<div class="wrap">
+  <header>
+    <h1>Periodic Table</h1>
+    <div class="sub">
+      118 elements. Select any tile for atomic data and applications.<br>
+      <button id="soundToggle" class="sound-toggle">SOUND: ON</button>
+    </div>
+  </header>
+
+  <div class="board-viewport" id="boardViewport">
+    <div class="board" id="board"></div>
+  </div>
+
+  <div class="legend" id="legend"></div>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<div class="panel" id="panel">
+  <div class="panel-head">
+    <div>
+      <div class="panel-symbol" id="pSym">—</div>
+      <div class="panel-name" id="pName">Select an element</div>
+      <div class="panel-num" id="pNum">&nbsp;</div>
+    </div>
+    <button class="panel-close" id="pClose">CLOSE</button>
+  </div>
+  <div id="panelBody">
+    <div class="empty-hint">Click any tile on the table to bring up its atomic number, mass, phase, category and common applications.</div>
+  </div>
+</div>
+
+<script>
+// [z, sym, name, mass, cat, state, row, col, uses]
+const ELEMENTS = [
+[1,"H","Hydrogen","1.008","nonmetal","gas",1,1,"Ammonia synthesis, fuel cells, hydrogenation of oils","s","Discovered by Henry Cavendish, 1766","Greek 'hydro' + 'genes' — water-forming"],
+[2,"He","Helium","4.003","noble-gas","gas",1,18,"Cryogenics, MRI magnet cooling, balloons and airships","s","Detected by Pierre Janssen and Norman Lockyer, 1868, in the Sun's spectrum","Greek 'helios', the sun"],
+[3,"Li","Lithium","6.94","alkali-metal","solid",2,1,"Rechargeable batteries, ceramics, mood-stabilizing medication","s","Discovered by Johan August Arfwedson, 1817","Greek 'lithos', stone"],
+[4,"Be","Beryllium","9.012","alkaline-earth","solid",2,2,"Aerospace alloys, X-ray windows, precision instruments","s","Discovered by Louis-Nicolas Vauquelin, 1798","Greek 'beryllos', after the mineral beryl"],
+[5,"B","Boron","10.81","metalloid","solid",2,13,"Borosilicate glass, detergents, semiconductor doping","p","Discovered by Joseph Louis Gay-Lussac and Louis Jacques Thenard, 1808","Arabic 'buraq', via borax"],
+[6,"C","Carbon","12.011","nonmetal","solid",2,14,"Steel alloying, graphite, diamond tooling, all organic chemistry","p","Known since antiquity","Latin 'carbo', charcoal"],
+[7,"N","Nitrogen","14.007","nonmetal","gas",2,15,"Fertilizer production, food packaging, cryopreservation","p","Discovered by Daniel Rutherford, 1772","Greek 'nitron' + 'genes' — saltpeter-forming"],
+[8,"O","Oxygen","15.999","nonmetal","gas",2,16,"Respiration, steelmaking, water treatment","p","Discovered independently by Carl Wilhelm Scheele and Joseph Priestley, 1774","Greek 'oxys' + 'genes' — acid-forming"],
+[9,"F","Fluorine","18.998","halogen","gas",2,17,"Toothpaste additive, Teflon production, refrigerants","p","Discovered by Henri Moissan, 1886","Latin 'fluere', to flow, after fluorspar"],
+[10,"Ne","Neon","20.180","noble-gas","gas",2,18,"Signage lighting, gas lasers, cryogenic refrigerant","p","Discovered by William Ramsay and Morris Travers, 1898","Greek 'neos', new"],
+[11,"Na","Sodium","22.990","alkali-metal","solid",3,1,"Table salt, streetlights, industrial chemical synthesis","s","Isolated by Humphry Davy, 1807","English 'soda'; symbol from Latin 'natrium'"],
+[12,"Mg","Magnesium","24.305","alkaline-earth","solid",3,2,"Lightweight structural alloys, fireworks, supplements","s","Recognized by Joseph Black, 1755; isolated by Humphry Davy, 1808","After Magnesia, a district in Greece"],
+[13,"Al","Aluminium","26.982","post-transition-metal","solid",3,13,"Aircraft frames, packaging, electrical transmission lines","p","Isolated by Hans Christian Oersted, 1825","Latin 'alumen', alum"],
+[14,"Si","Silicon","28.085","metalloid","solid",3,14,"Computer chips, solar cells, glass and silicones","p","Isolated by Jons Jacob Berzelius, 1824","Latin 'silex', flint"],
+[15,"P","Phosphorus","30.974","nonmetal","solid",3,15,"Fertilizers, matches, steel treatment","p","Discovered by Hennig Brand, 1669","Greek 'phosphoros', light-bearer"],
+[16,"S","Sulfur","32.06","nonmetal","solid",3,16,"Sulfuric acid production, rubber vulcanization, fungicides","p","Known since antiquity","Latin 'sulphurium'"],
+[17,"Cl","Chlorine","35.45","halogen","gas",3,17,"Water disinfection, PVC plastics, paper bleaching","p","Discovered by Carl Wilhelm Scheele, 1774","Greek 'chloros', pale green"],
+[18,"Ar","Argon","39.948","noble-gas","gas",3,18,"Welding shield gas, incandescent bulb fill, wine preservation","p","Discovered by Lord Rayleigh and William Ramsay, 1894","Greek 'argos', idle or inactive"],
+[19,"K","Potassium","39.098","alkali-metal","solid",4,1,"Fertilizers, food processing, essential electrolyte","s","Isolated by Humphry Davy, 1807","English 'potash'; symbol from Latin 'kalium'"],
+[20,"Ca","Calcium","40.078","alkaline-earth","solid",4,2,"Cement and concrete, bone structure, dietary supplements","s","Isolated by Humphry Davy, 1808","Latin 'calx', lime"],
+[21,"Sc","Scandium","44.956","transition-metal","solid",4,3,"Aerospace aluminum alloys, high-intensity stadium lighting","d","Discovered by Lars Fredrik Nilson, 1879","After Scandinavia"],
+[22,"Ti","Titanium","47.867","transition-metal","solid",4,4,"Surgical implants, aircraft components, white pigment","d","Discovered by William Gregor, 1791","After the Titans of Greek myth"],
+[23,"V","Vanadium","50.942","transition-metal","solid",4,5,"High-strength steel alloys, flow batteries","d","Discovered by Nils Gabriel Sefstrom, 1830","After Vanadis, a Norse goddess"],
+[24,"Cr","Chromium","51.996","transition-metal","solid",4,6,"Stainless steel, decorative plating, tanning leather","d","Discovered by Louis Nicolas Vauquelin, 1797","Greek 'chroma', color"],
+[25,"Mn","Manganese","54.938","transition-metal","solid",4,7,"Steel alloying, dry-cell batteries, aluminum alloys","d","Isolated by Johan Gottlieb Gahn, 1774","After magnesia, linked to magnetite"],
+[26,"Fe","Iron","55.845","transition-metal","solid",4,8,"Steel and construction, machinery, hemoglobin in blood","d","Known since antiquity","Symbol from Latin 'ferrum'"],
+[27,"Co","Cobalt","58.933","transition-metal","solid",4,9,"Lithium-ion battery cathodes, magnets, blue pigments","d","Discovered by Georg Brandt, 1735","German 'kobold', goblin"],
+[28,"Ni","Nickel","58.693","transition-metal","solid",4,10,"Stainless steel, rechargeable batteries, coinage","d","Discovered by Axel Fredrik Cronstedt, 1751","German 'kupfernickel', devil's copper"],
+[29,"Cu","Copper","63.546","transition-metal","solid",4,11,"Electrical wiring, plumbing, printed circuit boards","d","Known since antiquity","Latin 'cuprum', after Cyprus"],
+[30,"Zn","Zinc","65.38","transition-metal","solid",4,12,"Galvanizing steel, die-casting alloys, batteries","d","Isolated by Andreas Marggraf, 1746","German 'zink'"],
+[31,"Ga","Gallium","69.723","post-transition-metal","solid",4,13,"LEDs, semiconductors, low-melting alloys","p","Discovered by Paul-Emile Lecoq de Boisbaudran, 1875","Latin 'Gallia', France"],
+[32,"Ge","Germanium","72.630","metalloid","solid",4,14,"Fiber-optic cable, infrared optics, semiconductors","p","Discovered by Clemens Winkler, 1886","Latin 'Germania', Germany"],
+[33,"As","Arsenic","74.922","metalloid","solid",4,15,"Semiconductor doping, wood preservatives (restricted, toxic)","p","Known since antiquity","Greek 'arsenikon', yellow pigment"],
+[34,"Se","Selenium","78.971","nonmetal","solid",4,16,"Photocopier drums, glass decolorizing, dietary supplements","p","Discovered by Jons Jacob Berzelius, 1817","Greek 'selene', the moon"],
+[35,"Br","Bromine","79.904","halogen","liquid",4,17,"Flame retardants, water treatment, pharmaceuticals","p","Discovered by Antoine Balard, 1826","Greek 'bromos', stench"],
+[36,"Kr","Krypton","83.798","noble-gas","gas",4,18,"High-performance lighting, excimer lasers","p","Discovered by William Ramsay and Morris Travers, 1898","Greek 'kryptos', hidden"],
+[37,"Rb","Rubidium","85.468","alkali-metal","solid",5,1,"Atomic clocks, research reagent, specialty glass","s","Discovered by Robert Bunsen and Gustav Kirchhoff, 1861","Latin 'rubidus', deep red"],
+[38,"Sr","Strontium","87.62","alkaline-earth","solid",5,2,"Red fireworks, magnets, some toothpastes","s","Discovered by Adair Crawford, 1790","After Strontian, a village in Scotland"],
+[39,"Y","Yttrium","88.906","transition-metal","solid",5,3,"LED phosphors, superconductors, camera lenses","d","Discovered by Johan Gadolin, 1794","After Ytterby, a village in Sweden"],
+[40,"Zr","Zirconium","91.224","transition-metal","solid",5,4,"Nuclear reactor cladding, ceramics, dental crowns","d","Discovered by Martin Heinrich Klaproth, 1789","After zircon, from Persian 'zargun', gold-colored"],
+[41,"Nb","Niobium","92.906","transition-metal","solid",5,5,"Superconducting magnets, jet engine alloys","d","Discovered by Charles Hatchett, 1801","After Niobe, daughter of Tantalus in Greek myth"],
+[42,"Mo","Molybdenum","95.95","transition-metal","solid",5,6,"High-strength steel alloys, industrial catalysts","d","Discovered by Carl Wilhelm Scheele, 1778","Greek 'molybdos', lead"],
+[43,"Tc","Technetium","[98]","transition-metal","solid",5,7,"Medical imaging tracer (radioactive, no stable isotope)","d","Discovered by Carlo Perrier and Emilio Segre, 1937","Greek 'technetos', artificial"],
+[44,"Ru","Ruthenium","101.07","transition-metal","solid",5,8,"Electrical contacts, catalysts, hard-disk coatings","d","Discovered by Karl Ernst Claus, 1844","After Ruthenia, Latin for Russia"],
+[45,"Rh","Rhodium","102.906","transition-metal","solid",5,9,"Catalytic converters, high-reflectivity plating","d","Discovered by William Hyde Wollaston, 1803","Greek 'rhodon', rose"],
+[46,"Pd","Palladium","106.42","transition-metal","solid",5,10,"Catalytic converters, electronics, hydrogen purification","d","Discovered by William Hyde Wollaston, 1803","After the asteroid Pallas"],
+[47,"Ag","Silver","107.868","transition-metal","solid",5,11,"Jewelry, electrical contacts, photographic film","d","Known since antiquity","Symbol from Latin 'argentum'"],
+[48,"Cd","Cadmium","112.414","transition-metal","solid",5,12,"Nickel-cadmium batteries, pigments (heavily regulated)","d","Discovered by Friedrich Stromeyer, 1817","Latin 'cadmia', calamine"],
+[49,"In","Indium","114.818","post-transition-metal","solid",5,13,"Touchscreen electrodes, solders, semiconductors","p","Discovered by Ferdinand Reich and Hieronymous Richter, 1863","Named for the indigo line in its spectrum"],
+[50,"Sn","Tin","118.710","post-transition-metal","solid",5,14,"Solder, tin plating, bronze alloys","p","Known since antiquity","Symbol from Latin 'stannum'"],
+[51,"Sb","Antimony","121.760","metalloid","solid",5,15,"Flame retardants, lead-acid battery alloys","p","Known since antiquity","Symbol from Latin 'stibium'"],
+[52,"Te","Tellurium","127.60","metalloid","solid",5,16,"Solar panel alloys, thermoelectric devices","p","Discovered by Franz-Joseph Muller von Reichenstein, 1782","Latin 'tellus', earth"],
+[53,"I","Iodine","126.904","halogen","solid",5,17,"Antiseptics, thyroid medication, contrast dye","p","Discovered by Bernard Courtois, 1811","Greek 'iodes', violet"],
+[54,"Xe","Xenon","131.293","noble-gas","gas",5,18,"Ion propulsion, high-intensity lamps, anesthesia research","p","Discovered by William Ramsay and Morris Travers, 1898","Greek 'xenos', stranger"],
+[55,"Cs","Caesium","132.905","alkali-metal","solid",6,1,"Atomic clocks, drilling fluids, photoelectric cells","s","Discovered by Robert Bunsen and Gustav Kirchhoff, 1860","Latin 'caesius', sky blue"],
+[56,"Ba","Barium","137.327","alkaline-earth","solid",6,2,"Drilling mud, medical imaging contrast, fireworks (green)","s","Isolated by Humphry Davy, 1808","Greek 'barys', heavy"],
+[57,"La","Lanthanum","138.905","lanthanide","solid",6,3,"Camera and telescope lenses, hybrid battery electrodes","f","Discovered by Carl Gustaf Mosander, 1839","Greek 'lanthanein', to lie hidden"],
+[58,"Ce","Cerium","140.116","lanthanide","solid",9,4,"Catalytic converters, glass polishing, lighter flints","f","Discovered by Jons Jacob Berzelius and Wilhelm Hisinger, 1803","After the dwarf planet Ceres"],
+[59,"Pr","Praseodymium","140.908","lanthanide","solid",9,5,"Aircraft engine magnets, welding goggle glass","f","Discovered by Carl Auer von Welsbach, 1885","Greek 'prasios didymos', green twin"],
+[60,"Nd","Neodymium","144.242","lanthanide","solid",9,6,"High-strength permanent magnets, headphones, motors","f","Discovered by Carl Auer von Welsbach, 1885","Greek 'neos didymos', new twin"],
+[61,"Pm","Promethium","[145]","lanthanide","solid",9,7,"Luminous paint, betavoltaic power cells (radioactive)","f","Discovered by Jacob Marinsky, Lawrence Glendenin and Charles Coryell, 1945","After Prometheus, who stole fire from the gods"],
+[62,"Sm","Samarium","150.36","lanthanide","solid",9,8,"High-temperature magnets, cancer treatment isotopes","f","Discovered by Paul-Emile Lecoq de Boisbaudran, 1879","After the mineral samarskite"],
+[63,"Eu","Europium","151.964","lanthanide","solid",9,9,"Red and blue phosphors in displays, euro banknote security","f","Discovered by Eugene-Anatole Demarcay, 1901","After the continent of Europe"],
+[64,"Gd","Gadolinium","157.25","lanthanide","solid",9,10,"MRI contrast agents, neutron radiography","f","Discovered by Jean Charles Galissard de Marignac, 1880","After chemist Johan Gadolin"],
+[65,"Tb","Terbium","158.925","lanthanide","solid",9,11,"Green phosphors, magnetostrictive alloys","f","Discovered by Carl Gustaf Mosander, 1843","After Ytterby, a village in Sweden"],
+[66,"Dy","Dysprosium","162.500","lanthanide","solid",9,12,"High-performance magnets, nuclear control rods","f","Discovered by Paul-Emile Lecoq de Boisbaudran, 1886","Greek 'dysprositos', hard to get"],
+[67,"Ho","Holmium","164.930","lanthanide","solid",9,13,"Medical and industrial lasers, strongest known magnets","f","Discovered by Marc Delafontaine and Jacques-Louis Soret, 1878","After Stockholm, Latin 'Holmia'"],
+[68,"Er","Erbium","167.259","lanthanide","solid",9,14,"Fiber-optic signal amplifiers, pink glass and glazes","f","Discovered by Carl Gustaf Mosander, 1843","After Ytterby, a village in Sweden"],
+[69,"Tm","Thulium","168.934","lanthanide","solid",9,15,"Portable X-ray devices, high-power lasers","f","Discovered by Per Teodor Cleve, 1879","After Thule, a mythical northern land"],
+[70,"Yb","Ytterbium","173.045","lanthanide","solid",9,16,"Atomic clocks, stainless steel additive","f","Discovered by Jean Charles Galissard de Marignac, 1878","After Ytterby, a village in Sweden"],
+[71,"Lu","Lutetium","174.967","lanthanide","solid",9,17,"PET scan detector crystals, catalyst in oil refining","f","Discovered by Georges Urbain, 1907","After Lutetia, the ancient name for Paris"],
+[72,"Hf","Hafnium","178.49","transition-metal","solid",6,4,"Nuclear reactor control rods, microprocessor components","d","Discovered by Dirk Coster and George de Hevesy, 1923","After Hafnia, Latin for Copenhagen"],
+[73,"Ta","Tantalum","180.948","transition-metal","solid",6,5,"Electronic capacitors, surgical implants","d","Discovered by Anders Gustaf Ekeberg, 1802","After Tantalus of Greek myth"],
+[74,"W","Tungsten","183.84","transition-metal","solid",6,6,"Incandescent filaments, cutting tools, radiation shielding","d","Discovered by Juan Jose and Fausto Elhuyar, 1783","Swedish 'tung sten', heavy stone"],
+[75,"Re","Rhenium","186.207","transition-metal","solid",6,7,"Jet engine turbine blades, catalysts","d","Discovered by Walter Noddack, Ida Tacke and Otto Berg, 1925","After the Rhine river"],
+[76,"Os","Osmium","190.23","transition-metal","solid",6,8,"Fountain pen tips, electrical contacts, hard alloys","d","Discovered by Smithson Tennant, 1803","Greek 'osme', smell"],
+[77,"Ir","Iridium","192.217","transition-metal","solid",6,9,"Spark plugs, crucibles, spacecraft components","d","Discovered by Smithson Tennant, 1803","After Iris, the Greek goddess of the rainbow"],
+[78,"Pt","Platinum","195.084","transition-metal","solid",6,10,"Catalytic converters, jewelry, laboratory equipment","d","Known to pre-Columbian South Americans; described by Antonio de Ulloa, 1748","Spanish 'platina', little silver"],
+[79,"Au","Gold","196.967","transition-metal","solid",6,11,"Electronics connectors, jewelry, reserve currency","d","Known since antiquity","Symbol from Latin 'aurum'"],
+[80,"Hg","Mercury","200.592","transition-metal","liquid",6,12,"Fluorescent lighting, older thermometers, dental amalgam","d","Known since antiquity","Symbol from Latin 'hydrargyrum'; named for the god Mercury"],
+[81,"Tl","Thallium","204.38","post-transition-metal","solid",6,13,"Infrared optics, historically rodenticide (now restricted, toxic)","p","Discovered by William Crookes, 1861","Greek 'thallos', green shoot, from its spectral line"],
+[82,"Pb","Lead","207.2","post-transition-metal","solid",6,14,"Lead-acid batteries, radiation shielding, ammunition","p","Known since antiquity","Symbol from Latin 'plumbum'"],
+[83,"Bi","Bismuth","208.980","post-transition-metal","solid",6,15,"Pharmaceuticals (bismuth subsalicylate), low-toxicity alloys","p","Known since the Middle Ages","Possibly German 'weisse masse', white mass"],
+[84,"Po","Polonium","[209]","metalloid","solid",6,16,"Static eliminators, spacecraft heat sources (radioactive)","p","Discovered by Marie and Pierre Curie, 1898","After Poland, Marie Curie's homeland"],
+[85,"At","Astatine","[210]","halogen","solid",6,17,"Experimental cancer radiotherapy research only (radioactive)","p","Discovered by Dale Corson, Kenneth MacKenzie and Emilio Segre, 1940","Greek 'astatos', unstable"],
+[86,"Rn","Radon","[222]","noble-gas","gas",6,18,"Historical radiotherapy source; otherwise a hazard to avoid","p","Discovered by Friedrich Ernst Dorn, 1900","Named after radium, its source"],
+[87,"Fr","Francium","[223]","alkali-metal","solid",7,1,"No commercial use; studied only in atomic physics research","s","Discovered by Marguerite Perey, 1939","After France"],
+[88,"Ra","Radium","[226]","alkaline-earth","solid",7,2,"Historical luminous paint, legacy cancer therapy (radioactive)","s","Discovered by Marie and Pierre Curie, 1898","Latin 'radius', ray"],
+[89,"Ac","Actinium","[227]","actinide","solid",7,3,"Targeted cancer radiotherapy research","f","Discovered by Andre-Louis Debierne, 1899","Greek 'aktis', ray"],
+[90,"Th","Thorium","232.038","actinide","solid",10,4,"Next-generation nuclear fuel research, aerospace alloys","f","Discovered by Jons Jacob Berzelius, 1829","After Thor, the Norse god of thunder"],
+[91,"Pa","Protactinium","231.036","actinide","solid",10,5,"No practical application; studied only in research","f","Discovered by Kasimir Fajans and Oswald Helmuth Gohring, 1913","Greek 'protos' + actinium — before actinium"],
+[92,"U","Uranium","238.029","actinide","solid",10,6,"Nuclear reactor fuel, radiation shielding","f","Discovered by Martin Heinrich Klaproth, 1789","After the planet Uranus"],
+[93,"Np","Neptunium","[237]","actinide","solid",10,7,"Neutron detection instruments, research","f","Discovered by Edwin McMillan and Philip Abelson, 1940","After the planet Neptune"],
+[94,"Pu","Plutonium","[244]","actinide","solid",10,8,"Nuclear fuel, radioisotope power for deep-space probes","f","Discovered by Glenn Seaborg and team, 1940","After the dwarf planet Pluto"],
+[95,"Am","Americium","[243]","actinide","solid",10,9,"Ionization smoke detectors, industrial gauges","f","Discovered by Glenn Seaborg and team, 1944","After the Americas"],
+[96,"Cm","Curium","[247]","actinide","solid",10,10,"Radioisotope power sources, research","f","Discovered by Glenn Seaborg and team, 1944","After Marie and Pierre Curie"],
+[97,"Bk","Berkelium","[247]","actinide","solid",10,11,"No practical application; synthesized only for research","f","Discovered by Glenn Seaborg and team, 1949","After Berkeley, California"],
+[98,"Cf","Californium","[251]","actinide","solid",10,12,"Neutron source for reactor startup and detection","f","Discovered by Glenn Seaborg and team, 1950","After the state of California"],
+[99,"Es","Einsteinium","[252]","actinide","solid",10,13,"No practical application; research quantities only","f","Discovered by Albert Ghiorso and team, 1952","After Albert Einstein"],
+[100,"Fm","Fermium","[257]","actinide","solid",10,14,"No practical application; research quantities only","f","Discovered by Albert Ghiorso and team, 1952","After Enrico Fermi"],
+[101,"Md","Mendelevium","[258]","actinide","solid",10,15,"No practical application; research quantities only","f","Discovered by Albert Ghiorso and team, 1955","After Dmitri Mendeleev"],
+[102,"No","Nobelium","[259]","actinide","solid",10,16,"No practical application; research quantities only","f","Credited to researchers at Dubna and Berkeley, 1958 to 1966 (disputed)","After Alfred Nobel"],
+[103,"Lr","Lawrencium","[266]","actinide","solid",10,17,"No practical application; research quantities only","f","Discovered by Albert Ghiorso and team, 1961","After Ernest Lawrence"],
+[104,"Rf","Rutherfordium","[267]","transition-metal","unknown",7,4,"No practical application; a handful of atoms ever produced","d","Credited to researchers at Dubna and Berkeley, 1964 to 1969 (disputed)","After Ernest Rutherford"],
+[105,"Db","Dubnium","[268]","transition-metal","unknown",7,5,"No practical application; synthesized only for research","d","Credited to researchers at Dubna and Berkeley, 1967 to 1970 (disputed)","After Dubna, Russia"],
+[106,"Sg","Seaborgium","[269]","transition-metal","unknown",7,6,"No practical application; synthesized only for research","d","Discovered at Lawrence Berkeley National Laboratory, 1974","After Glenn Seaborg"],
+[107,"Bh","Bohrium","[270]","transition-metal","unknown",7,7,"No practical application; synthesized only for research","d","Discovered at GSI Darmstadt, 1981","After Niels Bohr"],
+[108,"Hs","Hassium","[269]","transition-metal","unknown",7,8,"No practical application; synthesized only for research","d","Discovered at GSI Darmstadt, 1984","After Hesse, a German state"],
+[109,"Mt","Meitnerium","[278]","unknown","unknown",7,9,"No practical application; a few atoms ever detected","d","Discovered at GSI Darmstadt, 1982","After Lise Meitner"],
+[110,"Ds","Darmstadtium","[281]","unknown","unknown",7,10,"No practical application; a few atoms ever detected","d","Discovered at GSI Darmstadt, 1994","After the city of Darmstadt, Germany"],
+[111,"Rg","Roentgenium","[282]","unknown","unknown",7,11,"No practical application; a few atoms ever detected","d","Discovered at GSI Darmstadt, 1994","After Wilhelm Rontgen"],
+[112,"Cn","Copernicium","[285]","unknown","unknown",7,12,"No practical application; a few atoms ever detected","d","Discovered at GSI Darmstadt, 1996","After Nicolaus Copernicus"],
+[113,"Nh","Nihonium","[286]","unknown","unknown",7,13,"No practical application; a few atoms ever detected","p","Discovered at RIKEN, Japan, 2004","After Nihon, Japanese for Japan"],
+[114,"Fl","Flerovium","[289]","unknown","unknown",7,14,"No practical application; a few atoms ever detected","p","Discovered at the Joint Institute for Nuclear Research, Dubna, 1998","After the Flerov Laboratory of Nuclear Reactions"],
+[115,"Mc","Moscovium","[290]","unknown","unknown",7,15,"No practical application; a few atoms ever detected","p","Discovered at Dubna, 2003","After Moscow Oblast"],
+[116,"Lv","Livermorium","[293]","unknown","unknown",7,16,"No practical application; a few atoms ever detected","p","Discovered at Dubna, 2000","After Lawrence Livermore National Laboratory"],
+[117,"Ts","Tennessine","[294]","unknown","unknown",7,17,"No practical application; a handful of atoms ever detected","p","Discovered at Dubna and Oak Ridge National Laboratory, 2010","After the state of Tennessee"],
+[118,"Og","Oganesson","[294]","unknown","unknown",7,18,"No practical application; a handful of atoms ever detected","p","Discovered at Dubna, 2002","After physicist Yuri Oganessian"]
+];
+
+/* ---------- Electron configuration (noble-gas shorthand) & common oxidation states, by atomic number ---------- */
+const ECONF = {
+  1:"1s¹",2:"1s²",3:"[He] 2s¹",4:"[He] 2s²",5:"[He] 2s² 2p¹",6:"[He] 2s² 2p²",
+  7:"[He] 2s² 2p³",8:"[He] 2s² 2p⁴",9:"[He] 2s² 2p⁵",10:"[He] 2s² 2p⁶",
+  11:"[Ne] 3s¹",12:"[Ne] 3s²",13:"[Ne] 3s² 3p¹",14:"[Ne] 3s² 3p²",15:"[Ne] 3s² 3p³",
+  16:"[Ne] 3s² 3p⁴",17:"[Ne] 3s² 3p⁵",18:"[Ne] 3s² 3p⁶",
+  19:"[Ar] 4s¹",20:"[Ar] 4s²",21:"[Ar] 3d¹ 4s²",22:"[Ar] 3d² 4s²",23:"[Ar] 3d³ 4s²",
+  24:"[Ar] 3d⁵ 4s¹",25:"[Ar] 3d⁵ 4s²",26:"[Ar] 3d⁶ 4s²",27:"[Ar] 3d⁷ 4s²",
+  28:"[Ar] 3d⁸ 4s²",29:"[Ar] 3d¹⁰ 4s¹",30:"[Ar] 3d¹⁰ 4s²",
+  31:"[Ar] 3d¹⁰ 4s² 4p¹",32:"[Ar] 3d¹⁰ 4s² 4p²",33:"[Ar] 3d¹⁰ 4s² 4p³",
+  34:"[Ar] 3d¹⁰ 4s² 4p⁴",35:"[Ar] 3d¹⁰ 4s² 4p⁵",36:"[Ar] 3d¹⁰ 4s² 4p⁶",
+  37:"[Kr] 5s¹",38:"[Kr] 5s²",39:"[Kr] 4d¹ 5s²",40:"[Kr] 4d² 5s²",
+  41:"[Kr] 4d⁴ 5s¹",42:"[Kr] 4d⁵ 5s¹",43:"[Kr] 4d⁵ 5s²",44:"[Kr] 4d⁷ 5s¹",
+  45:"[Kr] 4d⁸ 5s¹",46:"[Kr] 4d¹⁰",47:"[Kr] 4d¹⁰ 5s¹",48:"[Kr] 4d¹⁰ 5s²",
+  49:"[Kr] 4d¹⁰ 5s² 5p¹",50:"[Kr] 4d¹⁰ 5s² 5p²",51:"[Kr] 4d¹⁰ 5s² 5p³",
+  52:"[Kr] 4d¹⁰ 5s² 5p⁴",53:"[Kr] 4d¹⁰ 5s² 5p⁵",54:"[Kr] 4d¹⁰ 5s² 5p⁶",
+  55:"[Xe] 6s¹",56:"[Xe] 6s²",57:"[Xe] 5d¹ 6s²",58:"[Xe] 4f¹ 5d¹ 6s²",
+  59:"[Xe] 4f³ 6s²",60:"[Xe] 4f⁴ 6s²",61:"[Xe] 4f⁵ 6s²",62:"[Xe] 4f⁶ 6s²",
+  63:"[Xe] 4f⁷ 6s²",64:"[Xe] 4f⁷ 5d¹ 6s²",65:"[Xe] 4f⁹ 6s²",66:"[Xe] 4f¹⁰ 6s²",
+  67:"[Xe] 4f¹¹ 6s²",68:"[Xe] 4f¹² 6s²",69:"[Xe] 4f¹³ 6s²",70:"[Xe] 4f¹⁴ 6s²",
+  71:"[Xe] 4f¹⁴ 5d¹ 6s²",72:"[Xe] 4f¹⁴ 5d² 6s²",73:"[Xe] 4f¹⁴ 5d³ 6s²",
+  74:"[Xe] 4f¹⁴ 5d⁴ 6s²",75:"[Xe] 4f¹⁴ 5d⁵ 6s²",76:"[Xe] 4f¹⁴ 5d⁶ 6s²",
+  77:"[Xe] 4f¹⁴ 5d⁷ 6s²",78:"[Xe] 4f¹⁴ 5d⁹ 6s¹",79:"[Xe] 4f¹⁴ 5d¹⁰ 6s¹",
+  80:"[Xe] 4f¹⁴ 5d¹⁰ 6s²",81:"[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p¹",
+  82:"[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p²",83:"[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p³",
+  84:"[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁴",85:"[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁵",
+  86:"[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁶",
+  87:"[Rn] 7s¹",88:"[Rn] 7s²",89:"[Rn] 6d¹ 7s²",90:"[Rn] 6d² 7s²",
+  91:"[Rn] 5f² 6d¹ 7s²",92:"[Rn] 5f³ 6d¹ 7s²",93:"[Rn] 5f⁴ 6d¹ 7s²",
+  94:"[Rn] 5f⁶ 7s²",95:"[Rn] 5f⁷ 7s²",96:"[Rn] 5f⁷ 6d¹ 7s²",97:"[Rn] 5f⁹ 7s²",
+  98:"[Rn] 5f¹⁰ 7s²",99:"[Rn] 5f¹¹ 7s²",100:"[Rn] 5f¹² 7s²",
+  101:"[Rn] 5f¹³ 7s²",102:"[Rn] 5f¹⁴ 7s²",103:"[Rn] 5f¹⁴ 7s² 7p¹",
+  104:"[Rn] 5f¹⁴ 6d² 7s²",105:"[Rn] 5f¹⁴ 6d³ 7s²",106:"[Rn] 5f¹⁴ 6d⁴ 7s²",
+  107:"[Rn] 5f¹⁴ 6d⁵ 7s²",108:"[Rn] 5f¹⁴ 6d⁶ 7s²",109:"[Rn] 5f¹⁴ 6d⁷ 7s²",
+  110:"[Rn] 5f¹⁴ 6d⁸ 7s²",111:"[Rn] 5f¹⁴ 6d¹⁰ 7s¹",112:"[Rn] 5f¹⁴ 6d¹⁰ 7s²",
+  113:"[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p¹",114:"[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p²",
+  115:"[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p³",116:"[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁴",
+  117:"[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁵",118:"[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁶"
+};
+const OXID = {
+  1:"+1, −1",2:"0",3:"+1",4:"+2",5:"+3",6:"+4, −4",7:"+5, −3",8:"−2",9:"−1",10:"0",
+  11:"+1",12:"+2",13:"+3",14:"+4, −4",15:"+5, −3",16:"+6, −2",17:"+7, −1",18:"0",
+  19:"+1",20:"+2",21:"+3",22:"+4, +3",23:"+5, +2",24:"+6, +3, +2",25:"+7, +2",26:"+3, +2",27:"+3, +2",
+  28:"+2, +3",29:"+2, +1",30:"+2",31:"+3",32:"+4, +2",33:"+5, −3",34:"+6, −2",35:"+7, −1",36:"0",
+  37:"+1",38:"+2",39:"+3",40:"+4",41:"+5, +3",42:"+6, +4",43:"+7, +4",44:"+4, +3, +8",45:"+3, +1",
+  46:"+2, +4",47:"+1",48:"+2",49:"+3",50:"+4, +2",51:"+5, −3",52:"+6, −2",53:"+7, −1",54:"+2, +4",
+  55:"+1",56:"+2",57:"+3",58:"+4, +3",59:"+3, +4",60:"+3",61:"+3",62:"+3, +2",63:"+3, +2",64:"+3",
+  65:"+3, +4",66:"+3",67:"+3",68:"+3",69:"+3, +2",70:"+3, +2",71:"+3",72:"+4",73:"+5",74:"+6, +4",
+  75:"+7, +4",76:"+4, +8",77:"+4, +3",78:"+4, +2",79:"+3, +1",80:"+2, +1",81:"+3, +1",82:"+4, +2",
+  83:"+3, +5",84:"+4, +2",85:"−1, +1",86:"0",87:"+1",88:"+2",89:"+3",90:"+4",91:"+5",92:"+6, +4",
+  93:"+5",94:"+4",95:"+3",96:"+3",97:"+3",98:"+3",99:"+3",100:"+3",101:"+3, +2",102:"+2, +3",103:"+3",
+  104:"+4",105:"+5",106:"+6",107:"+7",108:"+8",109:"—",110:"—",111:"—",112:"+2",113:"+1",
+  114:"+2",115:"+1",116:"+2, +4",117:"−1, +1",118:"0, +2"
+};
+
+const CAT = {
+  "alkali-metal":      {tag:"ALK", tier:2, label:"Alkali metal"},
+  "alkaline-earth":    {tag:"ALE", tier:2, label:"Alkaline earth metal"},
+  "transition-metal":  {tag:"TRN", tier:3, label:"Transition metal"},
+  "post-transition-metal": {tag:"PTM", tier:3, label:"Post-transition metal"},
+  "metalloid":         {tag:"MTL", tier:4, label:"Metalloid"},
+  "nonmetal":          {tag:"NON", tier:1, label:"Reactive nonmetal"},
+  "halogen":           {tag:"HAL", tier:1, label:"Halogen"},
+  "noble-gas":         {tag:"NOB", tier:5, label:"Noble gas"},
+  "lanthanide":        {tag:"LAN", tier:3, label:"Lanthanide"},
+  "actinide":          {tag:"ACT", tier:3, label:"Actinide"},
+  "unknown":           {tag:"UNK", tier:1, label:"Unstable / not yet characterized"}
+};
+
+/* ---------- Sound: unique synthesized note/chord per element ----------
+   Root pitch  <- atomic number (chromatic, mod 12)
+   Octave      <- period (row on table)
+   Chord shape <- category (reflects the element's chemical character)
+   Timbre      <- category (waveform)
+------------------------------------------------------------------------ */
+let audioCtx = null;
+let soundOn = true;
+function getCtx(){
+  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if(audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+const CHORD = {
+  "alkali-metal":          [0],            // single tone — one loosely held valence electron
+  "alkaline-earth":        [0,7],          // open fifth
+  "transition-metal":      [0,4,7],        // major triad — structured d-shell
+  "post-transition-metal": [0,4,7],
+  "metalloid":              [0,5,7],       // sus4 — sits between metal and nonmetal
+  "nonmetal":                [0,3,7],      // minor triad
+  "halogen":                 [0,1,6],      // tight, dissonant — highly reactive
+  "noble-gas":                [0,4,7,11],  // full major7 — closed, stable shell
+  "lanthanide":               [0,7,12],    // wide open spread
+  "actinide":                 [0,6,12],    // tritone spread — unstable
+  "unknown":                  [0]
+};
+const WAVE = {
+  "alkali-metal":"sine", "alkaline-earth":"sine",
+  "transition-metal":"triangle", "post-transition-metal":"triangle",
+  "metalloid":"square",
+  "nonmetal":"sawtooth", "halogen":"sawtooth",
+  "noble-gas":"sine",
+  "lanthanide":"triangle", "actinide":"sawtooth",
+  "unknown":"square"
+};
+
+function noteFreq(pitchClass, octave){
+  const midi = (octave+1)*12 + pitchClass;
+  return 440 * Math.pow(2, (midi-69)/12);
+}
+
+function playElementSound(z, cat, row){
+  if(!soundOn) return;
+  const ctx = getCtx();
+  const now = ctx.currentTime;
+  const period = row<=7 ? row : (row===9 ? 6 : 7);
+  const octave = 3 + Math.floor((period-1)/2); // 3..6
+  const pitchClass = z % 12;
+  const intervals = CHORD[cat] || [0];
+  const wave = WAVE[cat] || 'sine';
+  const isEphemeral = cat === 'unknown';
+  const dur = isEphemeral ? 0.16 : 0.6;
+
+  const master = ctx.createGain();
+  master.gain.setValueAtTime(0.0001, now);
+  master.gain.exponentialRampToValueAtTime(0.16, now + 0.012);
+  master.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+  master.connect(ctx.destination);
+
+  intervals.forEach(iv=>{
+    const semis = pitchClass + iv;
+    const oct = octave + Math.floor(semis/12);
+    const osc = ctx.createOscillator();
+    osc.type = wave;
+    osc.frequency.value = noteFreq(((semis%12)+12)%12, oct);
+    osc.connect(master);
+    osc.start(now);
+    osc.stop(now + dur + 0.05);
+  });
+}
+
+/* ---------- Simplified Bohr-style electron shell diagram ----------
+   Fills subshells in standard Aufbau order and sums electrons per
+   principal shell (K,L,M,N,O,P,Q). This reproduces the textbook shell
+   diagram for the large majority of elements; a small number of heavy
+   transition/lanthanide/actinide elements have known subshell
+   exceptions this simplified model doesn't capture. Electron totals
+   always sum correctly to the atomic number.
+--------------------------------------------------------------------- */
+const AUFBAU = [[1,2],[2,2],[2,6],[3,2],[3,6],[4,2],[3,10],[4,6],[5,2],[4,10],
+                [5,6],[6,2],[4,14],[5,10],[6,6],[7,2],[5,14],[6,10],[7,6]];
+function shellConfig(Z){
+  let remaining = Z;
+  const shells = {1:0,2:0,3:0,4:0,5:0,6:0,7:0};
+  for(const [n,cap] of AUFBAU){
+    if(remaining<=0) break;
+    const take = Math.min(cap, remaining);
+    shells[n]+=take;
+    remaining-=take;
+  }
+  const arr=[];
+  for(let n=1;n<=7;n++){ if(shells[n]>0) arr.push(shells[n]); }
+  return arr;
+}
+const SHELL_LETTERS = ['K','L','M','N','O','P','Q'];
+
+function buildAtomSVG(z){
+  const shells = shellConfig(z);
+  const size = 200, cx = size/2, cy = size/2;
+  const maxR = 84;
+  const step = maxR / shells.length;
+  let svg = `<svg viewBox="0 0 ${size} ${size}" width="180" height="180" style="display:block;margin:0 auto;">`;
+  svg += `<circle cx="${cx}" cy="${cy}" r="3.5" fill="#eae9e6"/>`;
+  shells.forEach((count, i)=>{
+    const r = step*(i+1);
+    svg += `<circle cx="${cx}" cy="${cy}" r="${r.toFixed(1)}" fill="none" stroke="rgba(255,255,255,0.16)" stroke-width="1"/>`;
+    for(let e=0;e<count;e++){
+      const angle = (2*Math.PI/count)*e - Math.PI/2;
+      const ex = (cx + r*Math.cos(angle)).toFixed(1);
+      const ey = (cy + r*Math.sin(angle)).toFixed(1);
+      svg += `<circle cx="${ex}" cy="${ey}" r="2.2" fill="#eae9e6"/>`;
+    }
+  });
+  svg += `</svg>`;
+  return svg;
+}
+
+const BLOCK_LABEL = { s:"s-block", p:"p-block", d:"d-block", f:"f-block" };
+
+const board = document.getElementById('board');
+const legend = document.getElementById('legend');
+
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- Starfield background ---------- */
+(function initStarfield(){
+  const canvas = document.getElementById('starfield');
+  const ctx = canvas.getContext('2d');
+  let stars = [];
+
+  function resize(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const density = 9000;
+    const count = Math.floor((canvas.width * canvas.height) / density);
+    stars = Array.from({length: count}, ()=>({
+      x: Math.random()*canvas.width,
+      y: Math.random()*canvas.height,
+      r: Math.random()*1.2 + 0.3,
+      base: Math.random()*0.45 + 0.2,
+      phase: Math.random()*Math.PI*2,
+      speed: Math.random()*0.5 + 0.15
+    }));
+  }
+
+  function draw(t){
+    ctx.fillStyle = '#08080a';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    stars.forEach(s=>{
+      const alpha = prefersReducedMotion
+        ? s.base
+        : Math.max(0, Math.min(1, s.base + Math.sin(t*0.001*s.speed + s.phase)*0.18));
+      ctx.fillStyle = `rgba(234,233,230,${alpha})`;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+      ctx.fill();
+    });
+    if(!prefersReducedMotion) requestAnimationFrame(draw);
+  }
+
+  resize();
+  window.addEventListener('resize', resize);
+  requestAnimationFrame(draw);
+})();
+
+// build legend (unique categories in table order of appearance)
+// group by tier (the actual shade rendered on tiles) so each swatch matches a real color exactly
+const tierLabels = {};
+ELEMENTS.forEach(e=>{
+  const info = CAT[e[4]];
+  if(!tierLabels[info.tier]) tierLabels[info.tier] = [];
+  if(!tierLabels[info.tier].includes(info.label)) tierLabels[info.tier].push(info.label);
+});
+Object.keys(tierLabels).sort((a,b)=>a-b).forEach(tier=>{
+  const item = document.createElement('div');
+  item.className='legend-item';
+  item.innerHTML = `<span class="legend-swatch tier-${tier}"></span>${tierLabels[tier].join(' / ')}`;
+  legend.appendChild(item);
+});
+
+const allTiles = [];
+ELEMENTS.forEach(e=>{
+  const [z, sym, name, mass, cat, state, row, col, uses, block, discovery, naming] = e;
+  const info = CAT[cat];
+  const tile = document.createElement('button');
+  tile.className = `tile tier-${info.tier}`;
+  tile.style.gridRow = row;
+  tile.style.gridColumn = col;
+  tile.dataset.z = z;
+  tile._row = row;
+  tile._col = col;
+  tile.setAttribute('aria-label', `${name}, element ${z}`);
+  tile.innerHTML = `
+    <span class="num">${z}</span>
+    <span class="mass">${mass}</span>
+    <span class="sym">${sym}</span>
+    <span class="ename">${name}</span>
+    <span class="cfg">${ECONF[z] || ''}</span>
+    <span class="ox">${OXID[z] || ''}</span>
+  `;
+  tile.addEventListener('click', ()=>{
+    playElementSound(z, cat, row);
+    openPanel(e, tile);
+  });
+  board.appendChild(tile);
+  allTiles.push(tile);
+});
+
+/* ---------- Hover / press magnify: fisheye squeeze of grid tracks ----------
+   Hovered tile's row and column tracks grow; the extra space is pulled
+   evenly from every other track on that axis, so the board's total width
+   and height stay constant — surrounding elements visibly compress to
+   make room, like a lens pushed into the grid. ---------------------------- */
+if(!prefersReducedMotion){
+  const COLS = 18, ROWS = 10;
+  const BASE = 52;
+  const RADIUS = 2.6;
+  const PEAK = 78;
+  const FIXED_ROWS = {8:0}; // empty spacer row between period 7 and the f-block
+
+  function bump(idx, hoverIdx){
+    const d = Math.abs(idx - hoverIdx);
+    const f = Math.max(0, 1 - d / RADIUS);
+    return PEAK * f * f;
+  }
+
+  function computeAxis(count, hoverIdx, fixed){
+    const raw = [];
+    for(let i=1;i<=count;i++){
+      raw.push(fixed[i] !== undefined ? fixed[i] : BASE + (hoverIdx ? bump(i, hoverIdx) : 0));
+    }
+    let freeSum = 0, freeIdeal = 0;
+    for(let i=1;i<=count;i++){
+      if(fixed[i] !== undefined) continue;
+      freeSum += raw[i-1];
+      freeIdeal += BASE;
+    }
+    const perTrackAdjust = (freeSum - freeIdeal) / (count - Object.keys(fixed).length);
+    for(let i=1;i<=count;i++){
+      if(fixed[i] !== undefined) continue;
+      raw[i-1] -= perTrackAdjust;
+    }
+    return raw;
+  }
+
+  function applyGrid(hr, hc){
+    const cols = computeAxis(COLS, hc, {});
+    const rows = computeAxis(ROWS, hr, FIXED_ROWS);
+    board.style.gridTemplateColumns = cols.map(w=>w.toFixed(2)+'px').join(' ');
+    board.style.gridTemplateRows = rows.map(h=>h.toFixed(2)+'px').join(' ');
+  }
+  function resetMagnify(){ applyGrid(null, null); }
+
+  applyGrid(null, null); // establish explicit baseline tracks before first paint
+
+  board.addEventListener('pointerover', ev=>{
+    const tile = ev.target.closest('.tile');
+    if(tile) applyGrid(tile._row, tile._col);
+  });
+  board.addEventListener('pointerout', ev=>{
+    if(!board.contains(ev.relatedTarget)) resetMagnify();
+  });
+  board.addEventListener('pointerdown', ev=>{
+    const tile = ev.target.closest('.tile');
+    if(tile) applyGrid(tile._row, tile._col);
+  });
+  board.addEventListener('pointerup', ()=>{
+    if(!window.matchMedia('(hover: hover)').matches) resetMagnify();
+  });
+  board.addEventListener('pointercancel', resetMagnify);
+}
+
+
+const panel = document.getElementById('panel');
+const scrim = document.getElementById('scrim');
+const panelBody = document.getElementById('panelBody');
+const pSym = document.getElementById('pSym');
+const pName = document.getElementById('pName');
+const pNum = document.getElementById('pNum');
+
+function stateLabel(s){
+  if(s==='gas') return 'Gas';
+  if(s==='liquid') return 'Liquid';
+  if(s==='unknown') return 'Unknown / predicted';
+  return 'Solid';
+}
+
+function openPanel(e, tileEl){
+  document.querySelectorAll('.tile.active').forEach(t=>t.classList.remove('active'));
+  tileEl.classList.add('active');
+
+  const [z, sym, name, mass, cat, state, row, col, uses, block, discovery, naming] = e;
+  const info = CAT[cat];
+
+  pSym.textContent = sym;
+  pName.textContent = name;
+  pNum.textContent = `ATOMIC NUMBER ${z}`;
+
+  const shells = shellConfig(z);
+  const shellReadout = shells.map((c,i)=>`${SHELL_LETTERS[i]} ${c}`).join('   ·   ');
+
+  panelBody.innerHTML = `
+    <div class="panel-body" style="position:relative;">
+      <div class="scan"></div>
+      <div class="diagram">
+        ${buildAtomSVG(z)}
+        <div class="diagram-caption">${shellReadout}</div>
+        <div class="diagram-note">Simplified electron shell model</div>
+      </div>
+      <div class="field"><span class="k">Atomic mass</span><span class="v">${mass}</span></div>
+      <div class="field"><span class="k">Category</span><span class="v">${info.label}</span></div>
+      <div class="field"><span class="k">Block</span><span class="v">${BLOCK_LABEL[block] || block}</span></div>
+      <div class="field"><span class="k">Phase at room temp.</span><span class="v">${stateLabel(state)}</span></div>
+      <div class="uses-block">
+        <div class="k">Common applications</div>
+        <p>${uses}</p>
+      </div>
+      <div class="uses-block">
+        <div class="k">Discovery</div>
+        <p>${discovery}</p>
+      </div>
+      <div class="uses-block">
+        <div class="k">Name origin</div>
+        <p>${naming}</p>
+      </div>
+    </div>
+  `;
+
+  panel.classList.add('show');
+  scrim.classList.add('show');
+}
+
+function closePanel(){
+  panel.classList.remove('show');
+  scrim.classList.remove('show');
+  document.querySelectorAll('.tile.active').forEach(t=>t.classList.remove('active'));
+}
+
+const soundToggle = document.getElementById('soundToggle');
+soundToggle.addEventListener('click', ()=>{
+  soundOn = !soundOn;
+  soundToggle.textContent = soundOn ? 'SOUND: ON' : 'SOUND: OFF';
+});
+
+document.getElementById('pClose').addEventListener('click', closePanel);
+scrim.addEventListener('click', closePanel);
+document.addEventListener('keydown', (ev)=>{ if(ev.key==='Escape') closePanel(); });
+
+/* ---------- Scale the whole board to fit the viewport width ---------- */
+const boardViewport = document.getElementById('boardViewport');
+let fitScale = 1;
+
+function fitBoard(){
+  board.style.transform = 'none';
+  const naturalWidth = board.scrollWidth;
+  const naturalHeight = board.scrollHeight;
+  const availWidth = boardViewport.clientWidth;
+
+  fitScale = Math.min(2, availWidth / naturalWidth);
+  board.style.transformOrigin = 'top left';
+  board.style.transform = `scale(${fitScale})`;
+  boardViewport.style.height = (naturalHeight * fitScale) + 'px';
+}
+
+let resizeTimer;
+window.addEventListener('resize', ()=>{
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(fitBoard, 100);
+});
+window.addEventListener('orientationchange', fitBoard);
+window.addEventListener('load', fitBoard);
+fitBoard();
+
+</script>
+</body>
+</html>

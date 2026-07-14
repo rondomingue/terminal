@@ -767,26 +767,189 @@ function shareUrl(){
   if(location.protocol==='file:') return 'https://interfaces.rondomingue.com/vocabulary.html';
   return location.href.split('#')[0];
 }
-async function shareResult(){
+function resultStats(){
+  const active=estimate();
+  const passive=passiveEstimate(active);
+  const band=vocabularyBand(active);
+  const pct=Math.round((state.correct/state.quiz.length)*100);
+  return {active,passive,band,pct,text:shareText(),url:shareUrl()};
+}
+function drawRoundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);
+  ctx.arcTo(x,y,x+w,y,r);
+  ctx.closePath();
+}
+function drawWrappedText(ctx,text,x,y,maxWidth,lineHeight,maxLines){
+  const words=String(text).split(/\s+/);
+  let line='', lines=[];
+  for(const word of words){
+    const test=line?`${line} ${word}`:word;
+    if(ctx.measureText(test).width>maxWidth&&line){
+      lines.push(line);
+      line=word;
+      if(maxLines&&lines.length===maxLines-1) break;
+    }else{
+      line=test;
+    }
+  }
+  if(line) lines.push(line);
+  if(maxLines&&lines.length>maxLines) lines=lines.slice(0,maxLines);
+  lines.forEach((l,i)=>ctx.fillText(l,x,y+i*lineHeight));
+  return y+lines.length*lineHeight;
+}
+function canvasBlob(canvas){
+  return new Promise(resolve=>canvas.toBlob(resolve,'image/png',0.96));
+}
+async function generateResultCardBlob(){
+  const {active,passive,band,pct,url}=resultStats();
+  const canvas=document.createElement('canvas');
+  canvas.width=1200;
+  canvas.height=1500;
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='#1a1510';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.strokeStyle='rgba(232,220,202,.055)';
+  ctx.lineWidth=1;
+  for(let x=0;x<canvas.width;x+=32){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,canvas.height);ctx.stroke();}
+  for(let y=0;y<canvas.height;y+=32){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(canvas.width,y);ctx.stroke();}
+  const gradient=ctx.createRadialGradient(900,180,0,900,180,760);
+  gradient.addColorStop(0,'rgba(214,114,85,.22)');
+  gradient.addColorStop(.48,'rgba(184,120,62,.08)');
+  gradient.addColorStop(1,'rgba(214,114,85,0)');
+  ctx.fillStyle=gradient;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.strokeStyle='rgba(239,232,220,.22)';
+  ctx.lineWidth=2;
+  drawRoundRect(ctx,60,60,1080,1380,10);
+  ctx.stroke();
+
+  ctx.fillStyle='#d07255';
+  ctx.font='700 26px "IBM Plex Mono", "SFMono-Regular", monospace';
+  ctx.letterSpacing='4px';
+  ctx.fillText('LEXICON / VOCABULARY OBSERVATORY',92,118);
+  ctx.letterSpacing='0px';
+  ctx.fillStyle='#efe8dc';
+  ctx.font='400 88px Georgia, "Times New Roman", serif';
+  ctx.fillText('Your active English',92,230);
+  ctx.fillText('lexicon',92,322);
+
+  ctx.fillStyle='rgba(251,247,239,.06)';
+  drawRoundRect(ctx,92,392,1016,250,8);
+  ctx.fill();
+  ctx.strokeStyle='rgba(239,232,220,.16)';
+  ctx.stroke();
+  ctx.fillStyle='#d07255';
+  ctx.font='700 20px "IBM Plex Mono", monospace';
+  ctx.fillText('SCORE',128,448);
+  ctx.fillStyle='#efe8dc';
+  ctx.font='300 132px Georgia, serif';
+  ctx.fillText(String(pct),128,578);
+  ctx.font='700 24px "IBM Plex Mono", monospace';
+  ctx.fillStyle='rgba(239,232,220,.58)';
+  ctx.fillText('PERCENT',306,575);
+  ctx.fillStyle='#efe8dc';
+  ctx.font='400 50px Georgia, serif';
+  ctx.fillText(active.toLocaleString(),525,505);
+  ctx.fillText(passive.toLocaleString(),800,505);
+  ctx.fillStyle='rgba(239,232,220,.58)';
+  ctx.font='700 20px "IBM Plex Mono", monospace';
+  ctx.fillText('ACTIVE WORDS',525,552);
+  ctx.fillText('PASSIVE WORDS',800,552);
+
+  ctx.fillStyle='#d07255';
+  ctx.font='700 20px "IBM Plex Mono", monospace';
+  ctx.fillText('CURRENT BAND',92,720);
+  ctx.fillStyle='#efe8dc';
+  ctx.font='400 74px Georgia, serif';
+  ctx.fillText(band.label,92,805);
+  ctx.fillStyle='rgba(239,232,220,.7)';
+  ctx.font='400 32px Georgia, serif';
+  drawWrappedText(ctx,band.detail,92,862,760,42,2);
+
+  const verdict=$('verdict').textContent||'Vocabulary estimate complete.';
+  ctx.fillStyle='rgba(239,232,220,.78)';
+  ctx.font='400 34px Georgia, serif';
+  drawWrappedText(ctx,verdict,92,970,940,46,5);
+
+  const levels=LEVELS.map((name,i)=>{
+    const levelAnswers=state.answers.filter(a=>a.level===i+1);
+    const ok=levelAnswers.filter(a=>a.correct).length;
+    return {name,ok,total:levelAnswers.length,p:levelAnswers.length?ok/levelAnswers.length:0};
+  });
+  let y=1220;
+  ctx.font='700 18px "IBM Plex Mono", monospace';
+  for(const row of levels){
+    ctx.fillStyle='rgba(239,232,220,.66)';
+    ctx.fillText(row.name.toUpperCase(),92,y);
+    ctx.fillStyle='rgba(239,232,220,.10)';
+    ctx.fillRect(355,y-16,600,8);
+    const bar=ctx.createLinearGradient(355,0,955,0);
+    bar.addColorStop(0,'#d07255');
+    bar.addColorStop(1,'#c99048');
+    ctx.fillStyle=bar;
+    ctx.fillRect(355,y-16,600*row.p,8);
+    ctx.fillStyle='rgba(239,232,220,.72)';
+    ctx.fillText(`${row.ok}/${row.total}`,985,y);
+    y+=48;
+  }
+
+  ctx.fillStyle='rgba(239,232,220,.42)';
+  ctx.font='700 18px "IBM Plex Mono", monospace';
+  ctx.fillText(url.replace(/^https?:\/\//,''),92,1400);
+  ctx.fillStyle='#d07255';
+  ctx.fillText(`${state.correct}/${state.quiz.length} CORRECT`,870,1400);
+  return canvasBlob(canvas);
+}
+function downloadBlob(blob,filename){
+  const a=document.createElement('a');
+  const href=URL.createObjectURL(blob);
+  a.href=href;
+  a.download=filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(href),1000);
+}
+async function shareResultCard(preferFacebook=false){
+  const blob=await generateResultCardBlob();
+  const file=new File([blob],'lexicon-result.png',{type:'image/png'});
   const text=shareText();
   const url=shareUrl();
-  if(navigator.share){
-    try{ await navigator.share({title:'Lexicon Vocabulary Estimate',text,url}); return; }catch(e){}
+  if(navigator.canShare?.({files:[file]})&&navigator.share){
+    try{
+      await navigator.share({title:'Lexicon Vocabulary Estimate',text,files:[file],url});
+      $('share-copy').textContent=preferFacebook?'Result card ready to share. Choose Facebook if it appears in your share sheet.':'Result card shared.';
+      return;
+    }catch(e){}
   }
+  downloadBlob(blob,'lexicon-result.png');
+  try{ await navigator.clipboard?.writeText(`${text} ${url}`); }catch(e){}
+  if(preferFacebook){
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`,'_blank','noopener,noreferrer');
+    $('share-copy').textContent='Result PNG downloaded and text copied. Facebook web share may only attach the page link, so upload the PNG to include the card.';
+  }else{
+    $('share-copy').textContent='Result PNG downloaded and result text copied.';
+  }
+}
+async function shareResult(){
+  await shareResultCard(false);
+}
+async function shareFacebook(){
+  await shareResultCard(true);
+}
+async function copyResult(){
+  const text=shareText();
+  const url=shareUrl();
   try{ await navigator.clipboard?.writeText(`${text} ${url}`); }catch(e){}
   $('share-copy').textContent='Result copied to clipboard.';
 }
-async function shareFacebook(){
-  const url=encodeURIComponent(shareUrl());
-  const result=shareText();
-  try{ await navigator.clipboard?.writeText(`${result} ${decodeURIComponent(url)}`); }catch(e){}
-  const quote=encodeURIComponent(result);
-  window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${quote}`,'_blank','noopener,noreferrer');
-  $('share-copy').textContent='Result copied. Facebook may only show the page link; paste the copied result into your post if needed.';
-}
 $('share-native').onclick=shareResult;
 $('share-facebook').onclick=shareFacebook;
-$('share-copy-btn').onclick=shareResult;
+$('share-copy-btn').onclick=copyResult;
 document.querySelectorAll('.mode-btn').forEach(btn=>btn.onclick=()=>setMode(Number(btn.dataset.mode)));
 $('theme').onclick=()=>{
   const root=document.documentElement;
