@@ -85,6 +85,36 @@
     text-align:right;
   }
 
+  .intro{
+    display:flex;
+    gap:24px;
+    align-items:baseline;
+    flex-wrap:wrap;
+    margin-bottom:22px;
+    padding-bottom:20px;
+    border-bottom:1px solid var(--line);
+  }
+  .intro-label{
+    font-family:var(--mono);
+    font-size:10.5px;
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    color:var(--text-faint);
+    white-space:nowrap;
+    padding-top:2px;
+  }
+  .intro p{
+    margin:0;
+    max-width:760px;
+    font-size:13px;
+    line-height:1.7;
+    color:var(--text-dim);
+  }
+  .intro p em{
+    font-style:normal;
+    color:var(--text);
+  }
+
   .sound-toggle{
     margin-top:8px;
     background:none;
@@ -373,6 +403,11 @@
       <button id="soundToggle" class="sound-toggle">SOUND: ON</button>
     </div>
   </header>
+
+  <div class="intro">
+    <span class="intro-label">Nucleosynthesis</span>
+    <p>This is a periodic table of the elements — but every atom on it has an origin story. <em>Hydrogen and helium</em> formed within minutes of the Big Bang. Nearly everything heavier was forged later, inside stars: ordinary fusion built up <em>carbon through iron</em> across a star's lifetime, while the most violent events in the universe — <em>supernovae and colliding neutron stars</em> — scattered the rest, gold and platinum and uranium among them, across the galaxy in brief, extreme bursts. Each element here is a fossil of a different generation of stars.</p>
+  </div>
 
   <div class="board-viewport" id="boardViewport">
     <div class="board" id="board"></div>
