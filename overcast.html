@@ -721,13 +721,15 @@ function liveTileHtml(){
 function wireForecastStrip(strip){
   strip.addEventListener('pointerover',event=>{
     const tile=event.target.closest('.fperiod');
-    if(!tile || !strip.contains(tile) || tile===strip.dataset.hoverTile) return;
+    if(!tile || !strip.contains(tile)) return;
+    const key=tile.dataset.forecastIndex||tile.dataset.liveNow||'tile';
+    if(strip.dataset.hoverTile===key || tile.contains(event.relatedTarget)) return;
     const now=Date.now();
     if(now-lastHoverSoundAt>90){
       playUiSound('hover');
       lastHoverSoundAt=now;
     }
-    strip.dataset.hoverTile=tile.dataset.forecastIndex||tile.dataset.liveNow||'tile';
+    strip.dataset.hoverTile=key;
   });
   strip.addEventListener('pointerout',event=>{
     if(!strip.contains(event.relatedTarget)) delete strip.dataset.hoverTile;
