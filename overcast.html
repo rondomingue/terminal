@@ -208,7 +208,7 @@
   /* map */
   .map-frame{width:100%;aspect-ratio:16/13;border:1px solid var(--line);overflow:hidden;background:var(--panel-2);position:relative;z-index:1}
   .map-frame-tall{aspect-ratio:4/5}
-  #map{width:100%;height:100%}
+  #map{width:100%;height:100%;position:relative;z-index:1}
   .map-legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:12px;position:relative;z-index:1}
   .map-legend .lg-item{display:flex;align-items:center;gap:6px;font-family:var(--sans);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);font-weight:600}
   .map-legend .lg-icon{flex:none;display:flex;line-height:0}
@@ -1169,6 +1169,32 @@ function renderMapLegend(){
   ).join('');
 }
 
+function softenSatelliteSeams(map){
+  const softened=new Set();
+  const apply=()=>{
+    let layers=[];
+    try{
+      const style=map.getStyle();
+      layers=(style&&style.layers?style.layers:[]).filter(layer=>layer.type==='raster');
+    }catch(e){
+      return;
+    }
+    layers.forEach(layer=>{
+      if(softened.has(layer.id)) return;
+      try{
+        map.setPaintProperty(layer.id,'raster-saturation',-0.18);
+        map.setPaintProperty(layer.id,'raster-contrast',-0.22);
+        map.setPaintProperty(layer.id,'raster-brightness-min',0.025);
+        map.setPaintProperty(layer.id,'raster-brightness-max',0.94);
+        map.setPaintProperty(layer.id,'raster-fade-duration',600);
+        softened.add(layer.id);
+      }catch(e){}
+    });
+  };
+  map.on('styledata',apply);
+  map.once('load',apply);
+}
+
 async function initMap(){
   try{
     mapboxgl.accessToken=MAPBOX_TOKEN;
@@ -1182,6 +1208,7 @@ async function initMap(){
     map.addControl(new mapboxgl.AttributionControl({compact:true}));
     map.addControl(new mapboxgl.NavigationControl({showCompass:false}),'top-right');
     map.scrollZoom.disable();
+    softenSatelliteSeams(map);
 
     map.on('load',()=>{
       const bounds=new mapboxgl.LngLatBounds();
