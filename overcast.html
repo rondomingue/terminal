@@ -109,9 +109,13 @@
     opacity:.75;
   }
   .topbar-row{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:18px}
+  .brand-wrap{display:flex;flex-direction:column;gap:4px}
   .brand{font-family:var(--sans);font-size:12px;letter-spacing:.34em;text-transform:uppercase;color:var(--muted);font-weight:600;display:flex;align-items:center;gap:8px}
   .brand .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);animation:pulse 2.4s ease-in-out infinite}
   .brand b{font-weight:700;color:var(--cyan);letter-spacing:.1em}
+  .byline{font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);padding-left:15px}
+  .byline a{color:var(--ink-2);text-decoration:none}
+  .byline a:hover{color:var(--cyan)}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
   .masthead{font-family:var(--sans);font-size:clamp(20px,2.6vw,32px);line-height:1;font-weight:600;letter-spacing:.02em;color:var(--ink);text-transform:uppercase;text-align:center}
   .masthead small{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--muted);font-weight:400;margin-top:5px;text-transform:none}
@@ -345,7 +349,10 @@
   <header class="topbar">
     <div class="hud-corners"></div>
     <div class="topbar-row">
-      <div class="brand"><span class="dot"></span><b>OVER CAST</b> // TACTICAL CONDITIONS</div>
+      <div class="brand-wrap">
+        <div class="brand"><span class="dot"></span><b>OVER CAST</b> // TACTICAL CONDITIONS</div>
+        <div class="byline">BY <a href="https://rondomingue.com" target="_blank" rel="noopener">RONDOMINGUE.COM</a></div>
+      </div>
       <div class="masthead">Grand Isle<small id="coords">29.2358&deg; N · 89.9873&deg; W</small></div>
       <div class="tools">
         <span class="clock" id="clock">—</span>
