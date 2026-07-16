@@ -232,31 +232,52 @@ const BUILT_IN = [
   { id:'cross',  name:'cross',  vb:24, d:['M12 2v20M2 12h20'] },
   { id:'lock',   name:'lock',   vb:24, d:['M5 11h14v11H5Z','M8 11V7a4 4 0 0 1 8 0v4'] },
   { id:'chip',   name:'chip',   vb:24, d:['M7 7h10v10H7Z','M3 10h4M3 14h4M17 10h4M17 14h4M10 3v4M14 3v4M10 17v4M14 17v4'] },
+  // filled marks: `filled:true` renders as solid fill (fill-rule carves the voids)
+  { id:'monolith', name:'monolith', vb:160.05, filled:true,
+    d:['M0,0v160.05h160.05V0H0ZM119.29,80.03L42.26,3h77.03v77.03ZM80.03,119.29H3V42.26l77.03,77.03Z'] },
 ];
 
 /* ---------- symbol store (curation) ---------- */
-const LS = 'specforge.symbols.v1';
+const LS = 'specforge.symbols.v2';
 let SYMBOLS = [];
+
+/* Normalise both authoring shape ({vb, d:[...], filled}) and persisted shape
+   ({vbox, paths:[{d,filled,rule}]}) into one internal form. */
+function normalize(s) {
+  if (s.paths && s.vbox) return { id:s.id, name:s.name, vbox:s.vbox, paths:s.paths };
+  const vb = typeof s.vb === 'number' ? { x:0, y:0, w:s.vb, h:s.vb } : s.vbox;
+  return { id:s.id, name:s.name, vbox:vb,
+           paths:(s.d || []).map(d => ({ d, filled: !!s.filled, rule: s.rule || 'nonzero' })) };
+}
 function loadSymbols(){
   let saved = {};
   try { saved = JSON.parse(localStorage.getItem(LS) || '{}'); } catch(e){}
-  const custom = saved.custom || [];
+  const custom = (saved.custom || []).map(normalize);
   const off = new Set(saved.off || []);
-  SYMBOLS = [...BUILT_IN, ...custom].map(s => ({ ...s, on: !off.has(s.id), custom: !!custom.find(c => c.id === s.id) }));
+  SYMBOLS = [...BUILT_IN.map(normalize), ...custom]
+    .map(s => ({ ...s, on: !off.has(s.id), custom: custom.some(c => c.id === s.id) }));
 }
 function saveSymbols(){
   localStorage.setItem(LS, JSON.stringify({
-    custom: SYMBOLS.filter(s => s.custom).map(({id,name,vb,d}) => ({id,name,vb,d})),
+    custom: SYMBOLS.filter(s => s.custom).map(({id,name,vbox,paths}) => ({id,name,vbox,paths})),
     off: SYMBOLS.filter(s => !s.on).map(s => s.id),
   }));
 }
-const activeSymbols = () => { const on = SYMBOLS.filter(s => s.on); return on.length ? on : BUILT_IN; };
+const activeSymbols = () => { const on = SYMBOLS.filter(s => s.on); return on.length ? on : BUILT_IN.map(normalize); };
 
-/* symbol -> svg group, scaled to `size` px at (x,y) */
+/* symbol -> svg group, scaled to `size` px at (x,y).
+   Stroke width is divided by the scale so every symbol keeps the same
+   optical line weight regardless of its source viewBox. */
+function symPaths(sym, ink, sw, k) {
+  return sym.paths.map(p => p.filled
+    ? `<path d="${p.d}" fill="${ink}" fill-rule="${p.rule || 'nonzero'}"/>`
+    : `<path d="${p.d}" fill="none" stroke="${ink}" stroke-width="${(sw / k).toFixed(2)}" stroke-linecap="round" stroke-linejoin="round"/>`
+  ).join('');
+}
 function symSvg(sym, x, y, size, ink, sw = 1.4) {
-  const k = size / sym.vb;
-  const paths = sym.d.map(d => `<path d="${d}" fill="none" stroke="${ink}" stroke-width="${(sw/k).toFixed(2)}" stroke-linecap="round" stroke-linejoin="round"/>`).join('');
-  return `<g transform="translate(${x} ${y}) scale(${k.toFixed(4)})">${paths}</g>`;
+  const { x:vx, y:vy, w:vw, h:vh } = sym.vbox;
+  const k = size / Math.max(vw, vh);
+  return `<g transform="translate(${x} ${y}) scale(${k.toFixed(5)}) translate(${-vx} ${-vy})">${symPaths(sym, ink, sw, k)}</g>`;
 }
 
 /* ---------- rough (hand-drawn) primitives ---------- */
@@ -559,11 +580,14 @@ $('dlpng').onclick = async () => {
 
 /* ---------- symbol panel ---------- */
 function renderSymbols() {
-  $('symgrid').innerHTML = SYMBOLS.map(s =>
-    `<div class="sym" data-id="${s.id}" data-on="${s.on ? 1 : 0}" title="${s.name}">
-       <svg viewBox="0 0 ${s.vb} ${s.vb}">${s.d.map(d => `<path d="${d}" fill="none" stroke="#e6ebf2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`).join('')}</svg>
+  $('symgrid').innerHTML = SYMBOLS.map(s => {
+    const { x, y, w, h } = s.vbox;
+    const k = 24 / Math.max(w, h);              // keep preview line weight consistent
+    return `<div class="sym" data-id="${s.id}" data-on="${s.on ? 1 : 0}" title="${s.name}">
+       <svg viewBox="${x} ${y} ${w} ${h}">${symPaths(s, '#e6ebf2', 1.5, k)}</svg>
        ${s.custom ? '<div class="x" data-del="1">×</div>' : ''}
-     </div>`).join('');
+     </div>`;
+  }).join('');
 }
 $('symgrid').onclick = e => {
   const cell = e.target.closest('.sym'); if (!cell) return;
@@ -589,25 +613,57 @@ function shapeToPath(el) {
   return null;
 }
 
+/* Parse pasted SVG. Mounts it off-screen so getComputedStyle resolves fills
+   defined via <style> classes (how Illustrator exports them) rather than
+   inline attributes — otherwise filled marks import as empty outlines. */
+function parsePasted(raw) {
+  const doc = new DOMParser().parseFromString(raw, 'image/svg+xml');
+  if (doc.querySelector('parsererror')) throw new Error("Couldn't parse that as SVG.");
+  const src = doc.querySelector('svg');
+  if (!src) throw new Error('No <svg> element found.');
+
+  const host = document.createElement('div');
+  host.setAttribute('style', 'position:absolute;left:-9999px;top:0;width:0;height:0;overflow:hidden');
+  const node = document.importNode(src, true);
+  host.appendChild(node);
+  document.body.appendChild(host);
+
+  let paths;
+  try {
+    paths = [...node.querySelectorAll('path,line,rect,circle,ellipse,polygon,polyline')].map(el => {
+      const d = shapeToPath(el);
+      if (!d) return null;
+      const tag = el.tagName.toLowerCase();
+      const cs = getComputedStyle(el);
+      // open shapes are never fills, whatever the computed value says
+      let filled = !(tag === 'line' || tag === 'polyline');
+      if (filled) { const f = cs.fill; filled = !!f && f !== 'none' && f !== 'rgba(0, 0, 0, 0)'; }
+      return { d, filled, rule: cs.fillRule || 'nonzero' };
+    }).filter(Boolean);
+  } finally { host.remove(); }
+
+  if (!paths.length) throw new Error('No drawable shapes found in that SVG.');
+
+  const vb = (src.getAttribute('viewBox') || '').trim().split(/[\s,]+/).map(Number);
+  const vbox = (vb.length === 4 && vb[2] > 0)
+    ? { x: vb[0], y: vb[1], w: vb[2], h: vb[3] }
+    : { x: 0, y: 0, w: parseFloat(src.getAttribute('width')) || 24, h: parseFloat(src.getAttribute('height')) || 24 };
+  return { vbox, paths };
+}
+
 $('symadd').onclick = () => {
   const raw = $('sympaste').value.trim();
   if (!raw) return alert('Paste some SVG markup first.');
-  const doc = new DOMParser().parseFromString(raw, 'image/svg+xml');
-  const svg = doc.querySelector('svg');
-  if (!svg || doc.querySelector('parsererror')) return alert("Couldn't parse that as SVG.");
-  const ds = [...svg.querySelectorAll('path,line,rect,circle,ellipse,polygon,polyline')].map(shapeToPath).filter(Boolean);
-  if (!ds.length) return alert('No drawable shapes found in that SVG.');
-  const vbAttr = (svg.getAttribute('viewBox') || '').split(/[\s,]+/).map(Number);
-  const vb = (vbAttr.length === 4 && vbAttr[2]) ? Math.max(vbAttr[2], vbAttr[3])
-           : Math.max(parseFloat(svg.getAttribute('width')) || 24, parseFloat(svg.getAttribute('height')) || 24);
+  let parsed;
+  try { parsed = parsePasted(raw); } catch (e) { return alert(e.message); }
   const name = ($('symname').value.trim() || 'custom');
-  SYMBOLS.push({ id: 'c_' + Date.now().toString(36), name, vb, d: ds, on: true, custom: true });
+  SYMBOLS.push({ id: 'c_' + Date.now().toString(36), name, ...parsed, on: true, custom: true });
   saveSymbols(); renderSymbols();
   $('sympaste').value = ''; $('symname').value = '';
 };
 
 $('symexport').onclick = async () => {
-  const json = JSON.stringify(SYMBOLS.filter(s => s.custom).map(({ id, name, vb, d }) => ({ id, name, vb, d })), null, 2);
+  const json = JSON.stringify(SYMBOLS.filter(s => s.custom).map(({ id, name, vbox, paths }) => ({ id, name, vbox, paths })), null, 2);
   try { await navigator.clipboard.writeText(json); alert('Custom symbol JSON copied.\nPaste into BUILT_IN in this file to keep them permanently.'); }
   catch (e) { console.log(json); alert('Clipboard blocked — JSON logged to console.'); }
 };
