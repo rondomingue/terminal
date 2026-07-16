@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPEC//FORGE — cyberpunk asset generator</title>
+<style>
+  :root{
+    --bg:#0e1116; --panel:#151a21; --line:#242c37; --line-soft:#1c232c;
+    --ink:#e6ebf2; --dim:#8b97a8; --faint:#5a6675;
+    --accent:#5ec8f5; --accent-b:#4ee0c1;
+    --mono: ui-monospace, Menlo, Consolas, monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:var(--mono);font-size:12px;-webkit-font-smoothing:antialiased}
+  .app{display:grid;grid-template-columns:300px 1fr;min-height:100vh}
+
+  /* ---------- control rail ---------- */
+  .rail{background:var(--panel);border-right:1px solid var(--line);padding:18px;overflow-y:auto;max-height:100vh}
+  .brand{font-size:15px;font-weight:700;letter-spacing:-0.02em;margin-bottom:2px}
+  .brand span{color:var(--accent-b)}
+  .tag{font-size:9.5px;color:var(--faint);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:20px}
+  .grp{margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid var(--line-soft)}
+  .grp:last-child{border:0}
+  .lbl{font-size:9.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;display:block}
+  select,input[type=text],textarea{
+    width:100%;background:var(--bg);color:var(--ink);border:1px solid var(--line);
+    border-radius:3px;padding:7px 8px;font-family:var(--mono);font-size:11px;
+  }
+  textarea{resize:vertical;min-height:70px;line-height:1.5}
+  select:focus,input:focus,textarea:focus{outline:none;border-color:var(--accent)}
+  .row{display:flex;gap:6px}
+  .row>*{flex:1}
+  button{
+    background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:3px;
+    padding:8px 10px;font-family:var(--mono);font-size:10.5px;letter-spacing:0.06em;cursor:pointer;
+    text-transform:uppercase;transition:border-color .15s,background .15s,color .15s;
+  }
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  button.primary{background:var(--accent);border-color:var(--accent);color:#07222e;font-weight:700}
+  button.primary:hover{background:var(--accent-b);border-color:var(--accent-b);color:#04231c}
+  .hint{font-size:9.5px;color:var(--faint);line-height:1.6;margin-top:8px}
+
+  /* ---------- symbol library ---------- */
+  .symgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:9px}
+  .sym{
+    position:relative;aspect-ratio:1;border:1px solid var(--line);border-radius:3px;
+    display:grid;place-items:center;cursor:pointer;background:var(--bg);
+  }
+  .sym svg{width:64%;height:64%}
+  .sym[data-on="0"]{opacity:.25}
+  .sym:hover{border-color:var(--accent)}
+  .sym .x{
+    position:absolute;top:-5px;right:-5px;width:14px;height:14px;border-radius:50%;
+    background:#c0392b;color:#fff;font-size:9px;line-height:14px;text-align:center;display:none;
+  }
+  .sym:hover .x{display:block}
+
+  /* ---------- stage ---------- */
+  .stage{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;gap:14px;overflow:auto}
+  #out{max-width:100%;max-height:74vh;box-shadow:0 18px 60px rgba(0,0,0,.55)}
+  #out svg{display:block;max-width:100%;height:auto}
+  .meta{font-size:10px;color:var(--faint);letter-spacing:0.08em}
+  .meta b{color:var(--dim);font-weight:400}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="rail">
+    <div class="brand">SPEC<span>//</span>FORGE</div>
+    <div class="tag">procedural asset generator</div>
+
+    <div class="grp">
+      <label class="lbl">Format</label>
+      <select id="format">
+        <option value="poster">Poster · 1080 × 1080</option>
+        <option value="wide">Wide · 1600 × 900</option>
+        <option value="tight">Tight card · auto</option>
+        <option value="sheet">Contact sheet · 4 × 5</option>
+      </select>
+    </div>
+
+    <div class="grp">
+      <label class="lbl">Palette</label>
+      <select id="theme">
+        <option value="random">Random</option>
+      </select>
+    </div>
+
+    <div class="grp">
+      <label class="lbl">Layout</label>
+      <select id="arch">
+        <option value="random">Random</option>
+        <option value="brief">Brief — title + pills</option>
+        <option value="spec">Spec — data table</option>
+        <option value="code">Code — JP + subs</option>
+        <option value="barcode">Barcode label</option>
+        <option value="chart">Signal chart</option>
+      </select>
+    </div>
+
+    <div class="grp">
+      <label class="lbl">Seed</label>
+      <div class="row" style="margin-bottom:6px">
+        <input type="text" id="seed" value="0079">
+        <button id="lock" title="Lock seed" style="flex:0 0 40px">🔓</button>
+      </div>
+      <button class="primary" id="gen" style="width:100%">⟳ Generate</button>
+    </div>
+
+    <div class="grp">
+      <label class="lbl">Export</label>
+      <div class="row">
+        <button id="dlsvg">↓ SVG</button>
+        <button id="dlpng">↓ PNG 2×</button>
+      </div>
+      <div class="hint">SVG keeps live, editable text. PNG rasterises at 2× for pixel-perfect sharing.</div>
+    </div>
+
+    <div class="grp">
+      <label class="lbl">Symbols — click to toggle</label>
+      <div class="symgrid" id="symgrid"></div>
+      <label class="lbl" style="margin-top:12px">Add your own vector</label>
+      <input type="text" id="symname" placeholder="name" style="margin-bottom:5px">
+      <textarea id="sympaste" placeholder="Paste raw &lt;svg&gt;…&lt;/svg&gt; here"></textarea>
+      <div class="row" style="margin-top:5px">
+        <button id="symadd">+ Add</button>
+        <button id="symexport">Export</button>
+      </div>
+      <div class="hint">Accepts path / rect / circle / line / polyline / polygon. Saved to this browser; Export copies JSON to paste into the file permanently.</div>
+    </div>
+  </aside>
+
+  <main class="stage">
+    <div id="out"></div>
+    <div class="meta" id="meta"></div>
+  </main>
+</div>
+
+<script>
+/* ============================================================
+   SPEC//FORGE — procedural technical-label generator
+   Everything is deterministic from a seed, so any asset you like
+   can be reproduced exactly by re-entering its seed.
+   ============================================================ */
+
+/* ---------- seeded RNG (mulberry32) ---------- */
+function makeRng(seed){
+  let a = seed >>> 0;
+  const r = () => {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+  r.pick   = arr => arr[Math.floor(r() * arr.length)];
+  r.int    = (lo, hi) => lo + Math.floor(r() * (hi - lo + 1));
+  r.chance = p => r() < p;
+  r.some   = (arr, n) => { const c = arr.slice(); const o = [];
+    while (o.length < n && c.length) o.push(c.splice(Math.floor(r() * c.length), 1)[0]);
+    return o; };
+  return r;
+}
+const hashSeed = s => { let h = 2166136261;
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return h >>> 0; };
+
+/* ---------- fonts ----------
+   System-only stacks on purpose: an SVG rasterised into a canvas cannot
+   fetch webfonts, so anything but local fonts would make the PNG differ
+   from the preview. These render identically in preview, SVG and PNG. */
+const F_MONO = 'ui-monospace, Menlo, Consolas, monospace';
+const F_DISP = 'Helvetica, Arial, sans-serif';
+const F_CJK  = 'system-ui, sans-serif';
+
+/* ---------- palettes ---------- */
+const THEMES = [
+  { id:'bone',   name:'Bone',    bg:'#EAE4D4', ink:'#2B2721', accent:'#2B2721' },
+  { id:'ember',  name:'Ember',   bg:'#E8703A', ink:'#FFF6EE', accent:'#FFF6EE' },
+  { id:'ash',    name:'Ash',     bg:'#CFCED3', ink:'#1E1E22', accent:'#1E1E22' },
+  { id:'carbon', name:'Carbon',  bg:'#14181D', ink:'#DDE5EE', accent:'#5EC8F5' },
+  { id:'acid',   name:'Acid',    bg:'#D9E021', ink:'#1A1B0A', accent:'#1A1B0A' },
+  { id:'blood',  name:'Blood',   bg:'#E8E6E1', ink:'#1C1C1C', accent:'#D5202B' },
+];
+
+/* ---------- word bank ---------- */
+const W = {
+  co: ['ATLAS LABS','APEX SYSTEMS','DELTA WORKS','COBALT INDUSTRIES','VECTOR ENGINEERING',
+       'SUMMIT INDUSTRIES','NOVA INDUSTRIES','NUCLEUS LABS','CARGO ENGINEERING','AXIOM INDUSTRIES',
+       'MERIDIAN SYSTEMS','APEX LABS','VECTOR STUDIO','MERIDIAN OFFICE','SUMMIT DIVISION','ORBIT WORKS'],
+  jp: ['検証','制御','起動','接続','同期','電源','記録','解析','信号','稿','方式','充電','起動接続',
+       ' 制御起動','接続充電','精検証','解析アクセス','記録稿','電源稿','方式信号'],
+  status: ['ACCESS GRANTED','ACCESS LOCKED','ACCESS PENDING','INPUT VERIFIED / OUTPUT OK',
+           'STATUS > ONLINE','STATUS > OFFLINE','STATUS > STANDBY','OFFLINE // PORT 859','ONLINE // PORT 849'],
+  title: ['DATA SYSTEMS','VECTOR PATH','CONTROL UNIT','CORE','FIELD STATION','DIGITAL FARM',
+          'LOT 19','SPEC UNIT','TEST DATA','SIGNAL BAY','CARGO NODE','DEEP INDEX'],
+  code: ['0079','0XB1','V5','V1','CFG 14','LOT 19','REV 7','0X4F','88','MK II'],
+  tag: ['REV Q','REV E','REV V','REV W','REV S','TOOLS','BUILD 601','BUILD 889','BUILD 902',
+        'Y 2025','Y 2027','V2.9','V3.9','V2.7','V3.1','TXT2IMG'],
+  key: ['CFG D7','LOT DD','LOT F7','SPEC 26','REV DG','UNIT 5C','TEST 9A','CFG 91','LOT B1','SPEC 53','UNIT 40'],
+  val: ['FREQ 303HZ','LOSS 6.2%','TEMP 18°C','LAT 60MS','VOLT 3.5V','POWER 96%','LOAD 8%',
+        'FREQ 426HZ','TEMP 83°C','LOSS 9.8%','LAT 47MS','POWER 44%'],
+};
+const subLine = r => r.pick([
+  () => `LOG_${r.int(100000,999999)}.TXT`,
+  () => `SN ${rs(r,4)}-${r.int(1000,9999)}-${rs(r,3)}`,
+  () => `MOD ${rs(r,1)}${r.int(10,99)} / PORT ${r.int(10,99)}`,
+  () => `DATA.${r.int(100,999)}.XML`,
+  () => `FREQ ${r.int(90,480)}HZ`,
+  () => `POWER ${r.int(10,99)}%`,
+  () => `BAY ${r.int(1,9)} ${rs(r,1)}${r.int(10,99)}`,
+  () => `CODE 0X${rs(r,4)}`,
+  () => `LAT ${r.int(20,99)}MS`,
+  () => `DIV ${r.int(1,9)}`,
+])();
+const rs = (r,n) => Array.from({length:n},()=>'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789'[r.int(0,33)]).join('');
+
+/* ---------- built-in symbol library ---------- */
+const BUILT_IN = [
+  { id:'sun',    name:'sun',    vb:24, d:['M12 7.5a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9Z','M12 1v3.5M12 19.5V23M1 12h3.5M19.5 12H23M4.2 4.2l2.5 2.5M17.3 17.3l2.5 2.5M19.8 4.2l-2.5 2.5M6.7 17.3l-2.5 2.5'] },
+  { id:'target', name:'target', vb:24, d:['M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 0 0 0-17Z','M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z','M12 0v4M12 20v4M0 12h4M20 12h4'] },
+  { id:'xbox',   name:'x-box',  vb:24, d:['M3 3h18v18H3Z','M3 3l18 18M21 3L3 21'] },
+  { id:'bolt',   name:'bolt',   vb:24, d:['M13.5 2 4 13.5h6L9.5 22 20 10h-6.5L13.5 2Z'] },
+  { id:'data',   name:'data',   vb:24, d:['M12 3c4.4 0 8 1.3 8 3s-3.6 3-8 3-8-1.3-8-3 3.6-3 8-3Z','M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6','M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3'] },
+  { id:'diamond',name:'diamond',vb:24, d:['M12 2 22 12 12 22 2 12 12 2Z','M12 8l4 4-4 4-4-4 4-4Z'] },
+  { id:'dot',    name:'dot',    vb:24, d:['M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 0 0 0-17Z','M12 10.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z'] },
+  { id:'arrow',  name:'arrow',  vb:24, d:['M2 12h20','M14 5l7 7-7 7'] },
+  { id:'star',   name:'asterisk',vb:24,d:['M12 1v22M2.5 6.5l19 11M21.5 6.5l-19 11'] },
+  { id:'hex',    name:'hex',    vb:24, d:['M12 2 21 7v10l-9 5-9-5V7l9-5Z'] },
+  { id:'grid',   name:'grid',   vb:24, d:['M4 4h6v6H4ZM14 4h6v6h-6ZM4 14h6v6H4ZM14 14h6v6h-6Z'] },
+  { id:'wave',   name:'wave',   vb:24, d:['M1 12c3-8 5 8 8 0s5 8 8 0 5 8 6 0'] },
+  { id:'cross',  name:'cross',  vb:24, d:['M12 2v20M2 12h20'] },
+  { id:'lock',   name:'lock',   vb:24, d:['M5 11h14v11H5Z','M8 11V7a4 4 0 0 1 8 0v4'] },
+  { id:'chip',   name:'chip',   vb:24, d:['M7 7h10v10H7Z','M3 10h4M3 14h4M17 10h4M17 14h4M10 3v4M14 3v4M10 17v4M14 17v4'] },
+];
+
+/* ---------- symbol store (curation) ---------- */
+const LS = 'specforge.symbols.v1';
+let SYMBOLS = [];
+function loadSymbols(){
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem(LS) || '{}'); } catch(e){}
+  const custom = saved.custom || [];
+  const off = new Set(saved.off || []);
+  SYMBOLS = [...BUILT_IN, ...custom].map(s => ({ ...s, on: !off.has(s.id), custom: !!custom.find(c => c.id === s.id) }));
+}
+function saveSymbols(){
+  localStorage.setItem(LS, JSON.stringify({
+    custom: SYMBOLS.filter(s => s.custom).map(({id,name,vb,d}) => ({id,name,vb,d})),
+    off: SYMBOLS.filter(s => !s.on).map(s => s.id),
+  }));
+}
+const activeSymbols = () => { const on = SYMBOLS.filter(s => s.on); return on.length ? on : BUILT_IN; };
+
+/* symbol -> svg group, scaled to `size` px at (x,y) */
+function symSvg(sym, x, y, size, ink, sw = 1.4) {
+  const k = size / sym.vb;
+  const paths = sym.d.map(d => `<path d="${d}" fill="none" stroke="${ink}" stroke-width="${(sw/k).toFixed(2)}" stroke-linecap="round" stroke-linejoin="round"/>`).join('');
+  return `<g transform="translate(${x} ${y}) scale(${k.toFixed(4)})">${paths}</g>`;
+}
+
+/* ---------- rough (hand-drawn) primitives ---------- */
+function rline(r, x1, y1, x2, y2, amp = 0.55) {
+  const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy) || 1;
+  const steps = Math.max(2, Math.round(len / 22));
+  const nx = -dy / len, ny = dx / len;
+  let d = `M${x1.toFixed(1)} ${y1.toFixed(1)}`;
+  for (let i = 1; i <= steps; i++) {
+    const t = i / steps;
+    const k = (i === steps) ? 0.25 : 1;            // settle onto the endpoint
+    const o = (r() - 0.5) * 2 * amp * k;
+    d += ` L${(x1 + dx * t + nx * o).toFixed(1)} ${(y1 + dy * t + ny * o).toFixed(1)}`;
+  }
+  return d;
+}
+const rrect = (r, x, y, w, h, amp = 0.55) =>
+  [rline(r,x,y,x+w,y,amp), rline(r,x+w,y,x+w,y+h,amp), rline(r,x+w,y+h,x,y+h,amp), rline(r,x,y+h,x,y,amp)].join(' ');
+
+/* ---------- text measuring ---------- */
+const _m = document.createElement('canvas').getContext('2d');
+function textW(str, size, family, weight = 400, track = 0) {
+  _m.font = `${weight} ${size}px ${family}`;
+  return _m.measureText(str).width + track * Math.max(0, String(str).length - 1);
+}
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const T = (x, y, s, o = {}) => {
+  const { size = 9, fam = F_MONO, w = 400, fill = '#000', track = 0, anchor = 'start' } = o;
+  return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" font-family="${fam}" font-size="${size}" font-weight="${w}" fill="${fill}"` +
+    (track ? ` letter-spacing="${track}"` : '') + (anchor !== 'start' ? ` text-anchor="${anchor}"` : '') + `>${esc(s)}</text>`;
+};
+
+/* ============================================================
+   MODULES — each returns { svg, h }
+   ============================================================ */
+function modHeader(r, x, y, w, t) {
+  const s = [];
+  const sym = r.pick(activeSymbols());
+  s.push(symSvg(sym, x, y - 8, 11, t.ink, 1.5));
+  let cx = x + 15;
+  const co = `©${r.pick(W.co)}`;
+  s.push(T(cx, y, co, { size: 8.5, fill: t.ink, track: 0.4 }));
+  cx += textW(co, 8.5, F_MONO, 400, 0.4) + 7;
+  if (r.chance(0.4)) s.push(T(cx, y, r.pick(W.jp), { size: 8.5, fam: F_CJK, fill: t.ink }));
+
+  // right-hand tag: filled chip or hairline chip
+  const tag = r.pick(W.tag);
+  const tw = textW(tag, 7.5, F_MONO, 400, 0.6) + 10;
+  const tx = x + w - tw, ty = y - 8;
+  if (r.chance(0.5)) {
+    s.push(`<rect x="${tx.toFixed(1)}" y="${ty.toFixed(1)}" width="${tw.toFixed(1)}" height="11" fill="${t.ink}"/>`);
+    s.push(T(tx + tw / 2, y, tag, { size: 7.5, fill: t.bg, track: 0.6, anchor: 'middle' }));
+  } else {
+    s.push(`<path d="${rrect(r, tx, ty, tw, 11, 0.35)}" fill="none" stroke="${t.ink}" stroke-width="0.9"/>`);
+    s.push(T(tx + tw / 2, y, tag, { size: 7.5, fill: t.ink, track: 0.6, anchor: 'middle' }));
+  }
+  return { svg: s.join(''), h: 16 };
+}
+
+function modDim(r, x, y, w, t, label) {
+  const s = [`<path d="${rline(r, x, y, x + w, y, 0.4)}" fill="none" stroke="${t.ink}" stroke-width="0.9"/>`];
+  s.push(`<path d="M${x} ${y-3.5}V${y+3.5}M${x+w} ${y-3.5}V${y+3.5}" stroke="${t.ink}" stroke-width="0.9"/>`);
+  if (label) {
+    const lw = textW(label, 7.5, F_MONO) + 10;
+    s.push(`<rect x="${(x + w/2 - lw/2).toFixed(1)}" y="${(y-5).toFixed(1)}" width="${lw.toFixed(1)}" height="10" fill="${t.bg}"/>`);
+    s.push(T(x + w/2, y + 2.5, label, { size: 7.5, fill: t.ink, anchor: 'middle' }));
+  }
+  return { svg: s.join(''), h: 10 };
+}
+
+function modStatus(r, x, y, w, t) {
+  const str = r.pick(W.status);
+  // wide tracking, but never wider than the column
+  const track = Math.min(7, Math.max(1.5, (w * 0.82 - textW(str, 8, F_MONO)) / Math.max(1, str.length - 1)));
+  return { svg: T(x, y, str, { size: 8, fill: t.ink, track, fill: t.ink }), h: 12 };
+}
+
+function modTitle(r, x, y, w, t, txt) {
+  const str = txt || (r.chance(0.3) ? r.pick(W.code) : r.pick(W.title));
+  let size = 34;
+  while (textW(str, size, F_DISP, 700) > w && size > 12) size -= 1;   // never overflow the card
+  return { svg: T(x, y + size * 0.78, str, { size, fam: F_DISP, w: 700, fill: t.ink, track: -0.4 }), h: size * 0.78 + 8 };
+}
+
+function modJP(r, x, y, w, t, big) {
+  const size = big ? 22 : 13;
+  return { svg: T(x, y + size * 0.85, r.pick(W.jp), { size, fam: F_CJK, w: big ? 700 : 400, fill: t.ink }), h: size + 6 };
+}
+
+function modPills(r, x, y, w, t) {
+  const s = [];
+  let cx = x;
+  for (const p of r.some(W.tag, r.int(2, 3))) {
+    const pw = textW(p, 7.5, F_MONO, 400, 0.5) + 16;
+    if (cx + pw > x + w) break;
+    s.push(`<rect x="${cx.toFixed(1)}" y="${y.toFixed(1)}" width="${pw.toFixed(1)}" height="15" rx="7.5" fill="none" stroke="${t.ink}" stroke-width="0.9"/>`);
+    s.push(T(cx + pw / 2, y + 10.5, p, { size: 7.5, fill: t.ink, track: 0.5, anchor: 'middle' }));
+    cx += pw + 6;
+    if (cx + 8 < x + w) { s.push(T(cx - 3.5, y + 10.5, '/', { size: 7.5, fill: t.ink, anchor: 'middle' })); cx += 4; }
+  }
+  return { svg: s.join(''), h: 21 };
+}
+
+function modSubs(r, x, y, w, t, n) {
+  const s = [];
+  for (let i = 0; i < n; i++) s.push(T(x, y + i * 11.5, subLine(r), { size: 8, fill: t.ink }));
+  return { svg: s.join(''), h: n * 11.5 + 2 };
+}
+
+function modTable(r, x, y, w, t, rows) {
+  const s = [];
+  const rh = 13, cw = w * 0.5;
+  s.push(`<path d="${rrect(r, x, y, w, rows * rh, 0.4)}" fill="none" stroke="${t.ink}" stroke-width="0.9"/>`);
+  s.push(`<path d="${rline(r, x + cw, y, x + cw, y + rows * rh, 0.4)}" fill="none" stroke="${t.ink}" stroke-width="0.9"/>`);
+  for (let i = 0; i < rows; i++) {
+    const ry = y + i * rh;
+    if (i) s.push(`<path d="${rline(r, x, ry, x + w, ry, 0.35)}" fill="none" stroke="${t.ink}" stroke-width="0.7"/>`);
+    s.push(T(x + 5, ry + 9, r.pick(W.key), { size: 7, fill: t.ink }));
+    s.push(T(x + cw + 5, ry + 9, r.pick(W.val), { size: 7, fill: t.ink }));
+  }
+  return { svg: s.join(''), h: rows * rh + 6 };
+}
+
+function modBarcode(r, x, y, w, t) {
+  const s = [];
+  let cx = x;
+  while (cx < x + w - 2) {
+    const bw = r.chance(0.25) ? 2.6 : (r.chance(0.5) ? 1.5 : 0.9);
+    if (r.chance(0.62)) s.push(`<rect x="${cx.toFixed(1)}" y="${y.toFixed(1)}" width="${bw}" height="34" fill="${t.ink}"/>`);
+    cx += bw + r.pick([0.9, 1.4, 2.1]);
+  }
+  s.push(T(x, y + 45, `${r.int(1000,9999)} ${r.int(10000,99999)}`, { size: 8, fill: t.ink, track: 1 }));
+  return { svg: s.join(''), h: 52 };
+}
+
+function modSpark(r, x, y, w, t) {
+  const s = [];
+  const h = 56, n = r.int(9, 16);
+  s.push(`<path d="M${x} ${y+h*0.5}H${x+w}" stroke="${t.ink}" stroke-width="0.6" stroke-dasharray="2 3" opacity="0.5"/>`);
+  const pts = Array.from({ length: n }, (_, i) => [x + (w / (n - 1)) * i, y + h * (0.18 + r() * 0.64)]);
+  s.push(`<path d="M${pts.map(p => `${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join('L')}" fill="none" stroke="${t.ink}" stroke-width="1.1"/>`);
+  const p2 = Array.from({ length: n }, (_, i) => [x + (w / (n - 1)) * i, y + h * (0.18 + r() * 0.64)]);
+  s.push(`<path d="M${p2.map(p => `${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join('L')}" fill="none" stroke="${t.ink}" stroke-width="0.7" stroke-dasharray="3 2" opacity="0.65"/>`);
+  pts.forEach(p => s.push(`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="1.1" fill="${t.ink}"/>`));
+  return { svg: s.join(''), h: h + 8 };
+}
+
+/* ============================================================
+   CARD — compose modules by archetype, height driven by content
+   ============================================================ */
+function buildCard(r, cw, t, archetype) {
+  const P = 24, x = P, w = cw - P * 2;
+  let y = P + 8;
+  const s = [];
+  const add = m => { s.push(m.svg); y += m.h; };
+
+  add(modHeader(r, x, y, w, t));
+  y += 4;
+
+  switch (archetype) {
+    case 'brief':
+      add(modDim(r, x, y + 2, w, t, r.chance(0.4) ? `FREQ ${r.int(90,480)}HZ` : null)); y += 4;
+      add(modStatus(r, x, y, w, t));
+      add(modTitle(r, x, y, w, t));
+      add(modPills(r, x, y, w, t));
+      break;
+    case 'spec':
+      if (r.chance(0.7)) add(modJP(r, x, y, w, t, false));
+      add(modTitle(r, x, y, w, t)); y += 2;
+      add(modTable(r, x, y, w, t, r.int(3, 5)));
+      break;
+    case 'code':
+      add(modJP(r, x, y, w, t, true)); y += 2;
+      add(modDim(r, x, y + 2, w, t, null)); y += 6;
+      add(modSubs(r, x, y, w, t, r.int(2, 3)));
+      break;
+    case 'barcode':
+      add(modTitle(r, x, y, w, t, r.pick(W.code))); y += 2;
+      add(modBarcode(r, x, y, w, t)); y += 2;
+      add(modSubs(r, x, y, w, t, 2));
+      break;
+    case 'chart':
+      add(modJP(r, x, y, w, t, false));
+      add(modSpark(r, x, y, w, t)); y += 2;
+      add(modDim(r, x, y + 2, w, t, `LAT ${r.int(20,99)}MS`)); y += 6;
+      add(modSubs(r, x, y, w, t, 1));
+      break;
+  }
+
+  const ch = y + P;
+
+  // frame
+  const frame = r.pick(['box', 'box', 'brackets', 'none']);
+  let fs = '';
+  if (frame === 'box') {
+    fs = `<path d="${rrect(r, 6, 6, cw - 12, ch - 12, 0.6)}" fill="none" stroke="${t.ink}" stroke-width="1"/>`;
+  } else if (frame === 'brackets') {
+    const L = 26, o = 6, X2 = cw - o, Y2 = ch - o;
+    fs = `<path d="M${o} ${o+L}V${o}H${o+L} M${X2-L} ${o}H${X2}V${o+L} M${X2} ${Y2-L}V${Y2}H${X2-L} M${o+L} ${Y2}H${o}V${Y2-L}"
+           fill="none" stroke="${t.ink}" stroke-width="1.1"/>`;
+  }
+
+  // occasional corner glyph, bottom-right
+  let extra = '';
+  if (r.chance(0.35)) {
+    const sym = r.pick(activeSymbols());
+    extra = symSvg(sym, cw - P - 22, ch - P - 22, 22, t.ink, 1.2);
+  }
+  return { svg: fs + s.join('') + extra, w: cw, h: ch };
+}
+
+/* ---------- formats ---------- */
+const FORMATS = {
+  poster: { W: 1080, H: 1080, cardW: 760 },
+  wide:   { W: 1600, H: 900,  cardW: 980 },
+  tight:  { W: 0,    H: 0,    cardW: 720 },
+  sheet:  { W: 1400, H: 1750, cardW: 300 },
+};
+
+function renderAsset(seedStr, opts) {
+  const r = makeRng(hashSeed(seedStr));
+  const pickTheme = () => opts.theme === 'random' ? r.pick(THEMES) : THEMES.find(t => t.id === opts.theme);
+  const pickArch  = () => opts.arch === 'random' ? r.pick(['brief','spec','code','barcode','chart']) : opts.arch;
+  const f = FORMATS[opts.format];
+
+  if (opts.format === 'sheet') {
+    const t = pickTheme();
+    const cols = 4, rows = 5, gap = 26, pad = 40;
+    const cw = (f.W - pad * 2 - gap * (cols - 1)) / cols;
+    const cells = [];
+    let maxH = 0;
+    for (let i = 0; i < cols * rows; i++) {
+      const rr = makeRng(hashSeed(seedStr + '#' + i));
+      const c = buildCard(rr, cw, t, opts.arch === 'random' ? rr.pick(['brief','spec','code','barcode','chart']) : opts.arch);
+      cells.push(c); maxH = Math.max(maxH, c.h);
+    }
+    const H = pad * 2 + rows * maxH + gap * (rows - 1);
+    const body = cells.map((c, i) => {
+      const cx = pad + (i % cols) * (cw + gap), cy = pad + Math.floor(i / cols) * (maxH + gap);
+      return `<g transform="translate(${cx.toFixed(1)} ${cy.toFixed(1)})">${c.svg}</g>`;
+    }).join('');
+    const border = `<path d="${rrect(r, 20, 20, f.W - 40, H - 40, 0.7)}" fill="none" stroke="${t.ink}" stroke-width="1.2"/>`;
+    return { svg: wrap(f.W, H, t, border + body), W: f.W, H, theme: t, arch: 'sheet' };
+  }
+
+  const t = pickTheme(), arch = pickArch();
+  const card = buildCard(r, f.cardW, t, arch);
+  if (opts.format === 'tight') {
+    const m = 18;
+    return { svg: wrap(card.w + m * 2, card.h + m * 2, t, `<g transform="translate(${m} ${m})">${card.svg}</g>`),
+             W: card.w + m * 2, H: card.h + m * 2, theme: t, arch };
+  }
+  const ox = (f.W - card.w) / 2, oy = (f.H - card.h) / 2;
+  return { svg: wrap(f.W, f.H, t, `<g transform="translate(${ox.toFixed(1)} ${oy.toFixed(1)})">${card.svg}</g>`),
+           W: f.W, H: f.H, theme: t, arch };
+}
+
+const wrap = (W, H, t, body) =>
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">` +
+  `<title>SPEC//FORGE asset</title><rect width="${W}" height="${H}" fill="${t.bg}"/>${body}</svg>`;
+
+/* ============================================================
+   UI
+   ============================================================ */
+const $ = id => document.getElementById(id);
+let current = null, locked = false;
+
+function opts(){ return { format: $('format').value, theme: $('theme').value, arch: $('arch').value }; }
+
+function generate(newSeed = true) {
+  if (newSeed && !locked) $('seed').value = String(Math.floor(Math.random() * 1e6)).padStart(4, '0');
+  current = renderAsset($('seed').value || '0', opts());
+  $('out').innerHTML = current.svg;
+  $('meta').innerHTML = `<b>seed</b> ${$('seed').value} &nbsp;·&nbsp; <b>palette</b> ${current.theme.name} &nbsp;·&nbsp; <b>layout</b> ${current.arch} &nbsp;·&nbsp; <b>${current.W}×${current.H}</b>`;
+}
+
+function download(blob, name) {
+  const url = URL.createObjectURL(blob);
+  const a = Object.assign(document.createElement('a'), { href: url, download: name });
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+const fname = ext => `specforge_${$('seed').value}_${current.theme.id}_${current.arch}.${ext}`;
+
+$('dlsvg').onclick = () => download(new Blob([current.svg], { type: 'image/svg+xml;charset=utf-8' }), fname('svg'));
+
+$('dlpng').onclick = async () => {
+  const scale = 2;
+  const blob = new Blob([current.svg], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const img = new Image();
+  await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = url; });
+  const c = document.createElement('canvas');
+  c.width = current.W * scale; c.height = current.H * scale;
+  const g = c.getContext('2d');
+  g.drawImage(img, 0, 0, c.width, c.height);
+  URL.revokeObjectURL(url);
+  c.toBlob(b => download(b, fname('png')), 'image/png');
+};
+
+/* ---------- symbol panel ---------- */
+function renderSymbols() {
+  $('symgrid').innerHTML = SYMBOLS.map(s =>
+    `<div class="sym" data-id="${s.id}" data-on="${s.on ? 1 : 0}" title="${s.name}">
+       <svg viewBox="0 0 ${s.vb} ${s.vb}">${s.d.map(d => `<path d="${d}" fill="none" stroke="#e6ebf2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`).join('')}</svg>
+       ${s.custom ? '<div class="x" data-del="1">×</div>' : ''}
+     </div>`).join('');
+}
+$('symgrid').onclick = e => {
+  const cell = e.target.closest('.sym'); if (!cell) return;
+  const s = SYMBOLS.find(v => v.id === cell.dataset.id);
+  if (e.target.dataset.del) { SYMBOLS = SYMBOLS.filter(v => v.id !== s.id); }
+  else { s.on = !s.on; }
+  saveSymbols(); renderSymbols(); generate(false);
+};
+
+/* convert primitive shapes to path data so most icon sets just work */
+function shapeToPath(el) {
+  const n = el.tagName.toLowerCase(), a = k => parseFloat(el.getAttribute(k) || 0);
+  if (n === 'path')     return el.getAttribute('d');
+  if (n === 'line')     return `M${a('x1')} ${a('y1')}L${a('x2')} ${a('y2')}`;
+  if (n === 'rect')     { const x=a('x'),y=a('y'),w=a('width'),h=a('height'); return `M${x} ${y}h${w}v${h}h${-w}Z`; }
+  if (n === 'circle')   { const cx=a('cx'),cy=a('cy'),r=a('r'); return `M${cx-r} ${cy}a${r} ${r} 0 1 0 ${r*2} 0a${r} ${r} 0 1 0 ${-r*2} 0`; }
+  if (n === 'ellipse')  { const cx=a('cx'),cy=a('cy'),rx=a('rx'),ry=a('ry'); return `M${cx-rx} ${cy}a${rx} ${ry} 0 1 0 ${rx*2} 0a${rx} ${ry} 0 1 0 ${-rx*2} 0`; }
+  if (n === 'polygon' || n === 'polyline') {
+    const p = (el.getAttribute('points')||'').trim().split(/[\s,]+/).map(Number);
+    let d = ''; for (let i = 0; i < p.length; i += 2) d += (i ? 'L' : 'M') + p[i] + ' ' + p[i+1];
+    return d + (n === 'polygon' ? 'Z' : '');
+  }
+  return null;
+}
+
+$('symadd').onclick = () => {
+  const raw = $('sympaste').value.trim();
+  if (!raw) return alert('Paste some SVG markup first.');
+  const doc = new DOMParser().parseFromString(raw, 'image/svg+xml');
+  const svg = doc.querySelector('svg');
+  if (!svg || doc.querySelector('parsererror')) return alert("Couldn't parse that as SVG.");
+  const ds = [...svg.querySelectorAll('path,line,rect,circle,ellipse,polygon,polyline')].map(shapeToPath).filter(Boolean);
+  if (!ds.length) return alert('No drawable shapes found in that SVG.');
+  const vbAttr = (svg.getAttribute('viewBox') || '').split(/[\s,]+/).map(Number);
+  const vb = (vbAttr.length === 4 && vbAttr[2]) ? Math.max(vbAttr[2], vbAttr[3])
+           : Math.max(parseFloat(svg.getAttribute('width')) || 24, parseFloat(svg.getAttribute('height')) || 24);
+  const name = ($('symname').value.trim() || 'custom');
+  SYMBOLS.push({ id: 'c_' + Date.now().toString(36), name, vb, d: ds, on: true, custom: true });
+  saveSymbols(); renderSymbols();
+  $('sympaste').value = ''; $('symname').value = '';
+};
+
+$('symexport').onclick = async () => {
+  const json = JSON.stringify(SYMBOLS.filter(s => s.custom).map(({ id, name, vb, d }) => ({ id, name, vb, d })), null, 2);
+  try { await navigator.clipboard.writeText(json); alert('Custom symbol JSON copied.\nPaste into BUILT_IN in this file to keep them permanently.'); }
+  catch (e) { console.log(json); alert('Clipboard blocked — JSON logged to console.'); }
+};
+
+/* ---------- boot ---------- */
+THEMES.forEach(t => $('theme').append(new Option(t.name, t.id)));
+$('gen').onclick = () => generate(true);
+['format','theme','arch'].forEach(id => $(id).onchange = () => generate(false));
+$('seed').oninput = () => generate(false);
+$('lock').onclick = () => { locked = !locked; $('lock').textContent = locked ? '🔒' : '🔓'; };
+document.addEventListener('keydown', e => { if (e.code === 'Space' && e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'INPUT') { e.preventDefault(); generate(true); } });
+
+loadSymbols(); renderSymbols(); generate(false);
+</script>
+</body>
+</html>
