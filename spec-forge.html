@@ -152,7 +152,11 @@
         <input type="text" id="seed" value="0079">
         <button id="lock" title="Lock seed" style="flex:0 0 40px">🔓</button>
       </div>
-      <button class="primary" id="gen" style="width:100%">⟳ Generate</button>
+      <div class="row">
+        <button id="dice" title="Roll everything — format, palette, layout, seed (R)">🎲</button>
+        <button class="primary" id="gen" style="flex:1">⟳ Generate</button>
+      </div>
+      <div class="hint">Generate rerolls the seed. The dice rolls <em>everything</em>.</div>
     </div>
 
     <div class="grp">
@@ -167,14 +171,7 @@
     <div class="grp">
       <label class="lbl">Symbols — click to toggle</label>
       <div class="symgrid" id="symgrid"></div>
-      <label class="lbl" style="margin-top:12px">Add your own vector</label>
-      <input type="text" id="symname" placeholder="name" style="margin-bottom:5px">
-      <textarea id="sympaste" placeholder="Paste raw &lt;svg&gt;…&lt;/svg&gt; here"></textarea>
-      <div class="row" style="margin-top:5px">
-        <button id="symadd">+ Add</button>
-        <button id="symexport">Export</button>
-      </div>
-      <div class="hint">Accepts path / rect / circle / line / polyline / polygon. Saved to this browser; Export copies JSON to paste into the file permanently.</div>
+      <div class="hint">Curate the pool: switch a symbol off and it stops appearing. Add new vectors with <code>tools/svg2sym.mjs</code>.</div>
     </div>
   </aside>
 
@@ -904,6 +901,21 @@ function modBlock(r, x, y, w, t) {
   return { svg: symSvg(b, bx, y, size, t, 1.0), h: size + 8 };
 }
 
+/* Colour readout: swatch over hex + decimal triplets, straight out of the
+   reference posters ("8B DB 07 / 139 219 007"). */
+function modReadout(r, x, y, w, t) {
+  const cols = r.int(2, 3), gap = 62, s = [];
+  const useAccent = r.chance(0.5);
+  for (let i = 0; i < cols; i++) {
+    const cx = x + i * gap;
+    const rgb = [r.int(0, 255), r.int(0, 255), r.int(0, 255)];
+    s.push(`<rect x="${cx}" y="${y}" width="12" height="4" fill="${useAccent && i === 0 ? t.accent : t.ink}"/>`);
+    s.push(T(cx, y + 14, rgb.map(v => v.toString(16).toUpperCase().padStart(2, '0')).join(' '), { size: 6.5, fill: t.ink, track: 0.6 }));
+    s.push(T(cx, y + 23, rgb.map(v => pad(v, 3)).join(' '), { size: 6.5, fill: t.ink, track: 0.6 }));
+  }
+  return { svg: s.join(''), h: 30 };
+}
+
 function modSubs(r, x, y, w, t, n) {
   const s = [];
   for (let i = 0; i < n; i++) s.push(T(x, y + i * 11.5, subLine(r), { size: 8, fill: t.ink }));
@@ -990,6 +1002,7 @@ function buildCard(r, cw, t, archetype) {
       break;
   }
 
+  if (r.chance(0.3)) { y += 6; add(modReadout(r, x, y, w, t)); }
   if (activeRole('block').length && r.chance(0.4)) { y += 6; add(modBlock(r, x, y, w, t)); }
   // brand stamp, when any wide logotype is enabled
   if (activeMarks().length && r.chance(0.4)) { y += 6; add(modMark(r, x, y, w, t)); }
@@ -1063,6 +1076,15 @@ function renderAsset(seedStr, opts) {
 
   /* Tall strips (vertical kanji) are sized by HEIGHT and set in the poster
      margin beside the card — sizing them by width would blow up the layout. */
+  /* Repeated label running down the margin, as in the reference posters. */
+  if (r.chance(0.4)) {
+    const label = `[ ${rs(r, 4)} / ${r.pick(W.title)} ]`;
+    const step = 108, n = Math.ceil(f.H / step) + 1;
+    let strip = '';
+    for (let i = 0; i < n; i++) strip += T(i * step, 0, label, { size: 8, fill: t.accent, track: 1 });
+    body += `<g transform="translate(${f.W - 20} 26) rotate(90)">${strip}</g>`;
+  }
+
   const verts = activeRole('vert');
   if (verts.length && r.chance(0.5)) {
     const v = r.pick(verts);
