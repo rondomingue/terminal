@@ -706,6 +706,32 @@ function modSection(r, x, y, w, t) {
   };
 }
 
+/* Coordinate readout — X / Y / Z with signed floats, in a hairline box, as on
+   the Cyber Brutalism head. Right-aligned in the card so it reads as telemetry. */
+function modCoords(r, x, y, w, t) {
+  const axes = r.pick([['X', 'Y', 'Z'], ['LAT', 'LON', 'ALT'], ['RA', 'DEC', 'PLX']]);
+  const bw = Math.min(w, 128), bx = x + w - bw, rh = 13, bh = 3 * rh + 8;
+  const s = [`<path d="${rrect(r, bx, y, bw, bh, 0.4)}" fill="none" stroke="${t.ink}" stroke-width="0.8"/>`];
+  for (let i = 0; i < 3; i++) {
+    const ry = y + 6 + i * rh;
+    s.push(T(bx + 8, ry + 8, axes[i], { size: 7.5, fill: t.accent, track: 0.4 }));
+    s.push(T(bx + bw - 8, ry + 8, (r() * 180 - 90).toFixed(4), { size: 7.5, fill: t.ink, anchor: 'end', track: 0.3 }));
+  }
+  return { svg: s.join(''), h: bh + 4 };
+}
+
+/* Terminal line — > ACCESS GRANTED_ with a blinking-cursor block, the
+   Cyber Brutalism footer cue. */
+function modTerminal(r, x, y, w, t) {
+  const str = `> ${r.pick(['ACCESS GRANTED', 'SYNC COMPLETE', 'TRACE ACTIVE', 'UPLINK STABLE', 'SIGNAL ACQUIRED', 'BOOT OK', 'HANDSHAKE OK'])}`;
+  const tw = textW(str, 8.5, F_MONO, 400, 0.5);
+  return {
+    svg: T(x, y + 8, str, { size: 8.5, fill: t.accent, track: 0.5 }) +
+      `<rect x="${(x + tw + 4).toFixed(1)}" y="${y + 1}" width="6" height="10" fill="${t.accent}"/>`,
+    h: 14,
+  };
+}
+
 function modSubs(r, x, y, w, t, n) {
   const s = [];
   for (let i = 0; i < n; i++) s.push(T(x, y + i * 11.5, subLine(r), { size: 8, fill: t.ink }));
@@ -796,11 +822,13 @@ function buildCard(r, cw, t, archetype) {
   }
 
   if (r.chance(0.28)) { y += 6; add(modMeter(r, x, y, w, t)); }
+  if (r.chance(0.22)) { y += 6; add(modCoords(r, x, y, w, t)); }
   if (activeRole('panel').length && r.chance(0.35)) { y += 8; add(modPanel(r, x, y, w, t)); }
   if (r.chance(0.3)) { y += 6; add(modReadout(r, x, y, w, t)); }
   if (activeRole('block').length && r.chance(0.4)) { y += 6; add(modBlock(r, x, y, w, t)); }
   // brand stamp, when any wide logotype is enabled
   if (activeMarks().length && r.chance(0.4)) { y += 6; add(modMark(r, x, y, w, t)); }
+  if (r.chance(0.25)) { y += 8; add(modTerminal(r, x, y, w, t)); }   // footer cue
 
   // Occasional corner glyph, bottom-right. Reserve its own band so it never
   // lands on the last module — the source of the overlaps in the crops.
@@ -882,6 +910,19 @@ function renderAsset(seedStr, opts) {
   // as sagging, so sit it slightly high — standard poster practice.
   const oy = (f.H - card.h) * (f.H > f.W ? 0.42 : 0.5);
   let body = '';
+
+  /* Caution-tape bands — accent field with ink diagonal slashes, top and
+     bottom, as in the Cyber Brutalism footer. At the extreme edges (behind
+     everything), so they clear the corner crosshairs and the margin ticker. */
+  if (r.chance(0.24)) {
+    const bh = 11, band = (yy) => {
+      let sv = `<rect x="0" y="${yy}" width="${f.W}" height="${bh}" fill="${t.accent}"/>`;
+      for (let sx = -bh; sx < f.W; sx += 15)
+        sv += `<path d="M${sx.toFixed(1)} ${yy + bh} L${(sx + bh).toFixed(1)} ${yy} L${(sx + bh + 7).toFixed(1)} ${yy} L${(sx + 7).toFixed(1)} ${yy + bh} Z" fill="${t.ink}"/>`;
+      return `<g>${sv}</g>`;
+    };
+    body += band(0) + band(f.H - bh);
+  }
 
   /* Registration crosshairs — the small + marks pinned around the canvas in the
      Marathon / Cyber Brutalism references. Drawn UNDER the card so the artwork

@@ -111,8 +111,11 @@ function convert(file) {
 
     const d = toPath(tag, a);
     if (!d) continue;
-    // a moveto with no drawing command renders nothing — Illustrator leaves these behind
-    if (!/[LlHhVvCcSsQqTtAaZz]/.test(d)) { degenerate++; continue; }
+    // A lone moveto (M x y, nothing after) renders nothing — Illustrator leaves
+    // these behind. But "M x y x2 y2 ..." is an IMPLICIT lineto and does draw,
+    // so only drop paths that have no draw command AND no second point.
+    const numCount = (d.match(/-?[\d.]+/g) || []).length;
+    if (!/[LlHhVvCcSsQqTtAaZz]/.test(d) && numCount <= 2) { degenerate++; continue; }
 
     const fill = a.fill ?? st.fill;                       // undefined => SVG default black
     const stroke = a.stroke ?? st.stroke;
