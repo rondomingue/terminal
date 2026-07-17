@@ -41,6 +41,21 @@
   button.primary:hover{background:var(--accent-b);border-color:var(--accent-b);color:#04231c}
   .hint{font-size:9.5px;color:var(--faint);line-height:1.6;margin-top:8px}
 
+  /* ---------- palette swatches ---------- */
+  .palgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+  .pal{
+    position:relative;aspect-ratio:1;border:1px solid var(--line);border-radius:3px;
+    cursor:pointer;overflow:hidden;transition:border-color .15s;
+  }
+  .pal:hover{border-color:var(--accent)}
+  .pal[data-sel="1"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+  .pal .bars{position:absolute;left:0;right:0;bottom:0;height:38%;display:flex}
+  .pal .bars i{flex:1}
+  .pal.rnd{
+    display:grid;place-items:center;background:var(--bg);
+    font-size:8px;letter-spacing:.08em;color:var(--dim);
+  }
+
   /* ---------- symbol library ---------- */
   .symgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:9px}
   .sym{
@@ -82,9 +97,7 @@
 
     <div class="grp">
       <label class="lbl">Palette</label>
-      <select id="theme">
-        <option value="random">Random</option>
-      </select>
+      <div class="palgrid" id="palgrid"></div>
     </div>
 
     <div class="grp">
@@ -173,14 +186,27 @@ const F_MONO = 'ui-monospace, Menlo, Consolas, monospace';
 const F_DISP = 'Helvetica, Arial, sans-serif';
 const F_CJK  = 'system-ui, sans-serif';
 
-/* ---------- palettes ---------- */
+/* ---------- palettes ----------
+   bg / ink / accent. Where accent === ink the sheet reads strictly two-tone;
+   where it differs, the hot colour lands on the status line, tag chip, dim
+   label and corner glyph — the "one hot colour" move the references use. */
 const THEMES = [
+  // two-tone
   { id:'bone',   name:'Bone',    bg:'#EAE4D4', ink:'#2B2721', accent:'#2B2721' },
   { id:'ember',  name:'Ember',   bg:'#E8703A', ink:'#FFF6EE', accent:'#FFF6EE' },
   { id:'ash',    name:'Ash',     bg:'#CFCED3', ink:'#1E1E22', accent:'#1E1E22' },
-  { id:'carbon', name:'Carbon',  bg:'#14181D', ink:'#DDE5EE', accent:'#5EC8F5' },
   { id:'acid',   name:'Acid',    bg:'#D9E021', ink:'#1A1B0A', accent:'#1A1B0A' },
+  // accented
+  { id:'carbon', name:'Carbon',  bg:'#14181D', ink:'#DDE5EE', accent:'#5EC8F5' },
   { id:'blood',  name:'Blood',   bg:'#E8E6E1', ink:'#1C1C1C', accent:'#D5202B' },
+  { id:'peri',   name:'Peri',    bg:'#8D91C7', ink:'#22243A', accent:'#E8405C' },
+  { id:'vapour', name:'Vapour',  bg:'#EDEBE5', ink:'#262A45', accent:'#F03A20' },
+  { id:'apostle',name:'Apostle', bg:'#D6D2E6', ink:'#0E0E12', accent:'#5B1FC7' },
+  { id:'signal', name:'Signal',  bg:'#DCDCDA', ink:'#1C1C1C', accent:'#E8202A' },
+  { id:'coolant',name:'Coolant', bg:'#1B2430', ink:'#DCE8F0', accent:'#6FD6E8' },
+  { id:'neon',   name:'Neon',    bg:'#14121C', ink:'#EDE8F5', accent:'#F050A0' },
+  { id:'iota',   name:'Iota',    bg:'#242438', ink:'#E6E4F0', accent:'#3FD8A8' },
+  { id:'mono',   name:'Mono',    bg:'#F2F2F0', ink:'#111111', accent:'#111111' },
 ];
 
 /* ---------- word bank ---------- */
@@ -740,8 +766,8 @@ function modHeader(r, x, y, w, t) {
   const tag = r.pick(W.tag);
   const tw = textW(tag, 7.5, F_MONO, 400, 0.6) + 10;
   const tx = x + w - tw, ty = y - 8;
-  if (r.chance(0.5)) {
-    s.push(`<rect x="${tx.toFixed(1)}" y="${ty.toFixed(1)}" width="${tw.toFixed(1)}" height="11" fill="${t.ink}"/>`);
+  if (r.chance(0.5)) {   // solid chip carries the accent
+    s.push(`<rect x="${tx.toFixed(1)}" y="${ty.toFixed(1)}" width="${tw.toFixed(1)}" height="11" fill="${t.accent}"/>`);
     s.push(T(tx + tw / 2, y, tag, { size: 7.5, fill: t.bg, track: 0.6, anchor: 'middle' }));
   } else {
     s.push(`<path d="${rrect(r, tx, ty, tw, 11, 0.35)}" fill="none" stroke="${t.ink}" stroke-width="0.9"/>`);
@@ -756,7 +782,7 @@ function modDim(r, x, y, w, t, label) {
   if (label) {
     const lw = textW(label, 7.5, F_MONO) + 10;
     s.push(`<rect x="${(x + w/2 - lw/2).toFixed(1)}" y="${(y-5).toFixed(1)}" width="${lw.toFixed(1)}" height="10" fill="${t.bg}"/>`);
-    s.push(T(x + w/2, y + 2.5, label, { size: 7.5, fill: t.ink, anchor: 'middle' }));
+    s.push(T(x + w/2, y + 2.5, label, { size: 7.5, fill: t.accent, anchor: 'middle' }));
   }
   return { svg: s.join(''), h: 10 };
 }
@@ -765,7 +791,7 @@ function modStatus(r, x, y, w, t) {
   const str = r.pick(W.status);
   // wide tracking, but never wider than the column
   const track = Math.min(7, Math.max(1.5, (w * 0.82 - textW(str, 8, F_MONO)) / Math.max(1, str.length - 1)));
-  return { svg: T(x, y, str, { size: 8, fill: t.ink, track, fill: t.ink }), h: 12 };
+  return { svg: T(x, y, str, { size: 8, fill: r.chance(0.6) ? t.accent : t.ink, track }), h: 12 };
 }
 
 function modTitle(r, x, y, w, t, txt) {
@@ -924,7 +950,8 @@ function buildCard(r, cw, t, archetype) {
   let extra = '';
   if (r.chance(0.35)) {
     const sym = r.pick(activeIcons());
-    extra = symSvg(sym, cw - P - 22, ch - P - 22, 22, t, 1.2);
+    const ct = r.chance(0.45) ? { ...t, ink: t.accent } : t;   // glyph sometimes takes the accent
+    extra = symSvg(sym, cw - P - 22, ch - P - 22, 22, ct, 1.2);
   }
   return { svg: fs + s.join('') + extra, w: cw, h: ch };
 }
@@ -998,8 +1025,24 @@ const wrap = (W, H, t, body) =>
    ============================================================ */
 const $ = id => document.getElementById(id);
 let current = null, locked = false;
+const state = { theme: 'random' };
 
-function opts(){ return { format: $('format').value, theme: $('theme').value, arch: $('arch').value }; }
+function opts(){ return { format: $('format').value, theme: state.theme, arch: $('arch').value }; }
+
+function renderPalettes() {
+  $('palgrid').innerHTML = [
+    `<div class="pal rnd" data-id="random" data-sel="${state.theme === 'random' ? 1 : 0}" title="Random">RND</div>`,
+    ...THEMES.map(t => `<div class="pal" data-id="${t.id}" data-sel="${state.theme === t.id ? 1 : 0}" title="${t.name}" style="background:${t.bg}">
+        <div class="bars"><i style="background:${t.ink}"></i><i style="background:${t.accent}"></i></div>
+      </div>`),
+  ].join('');
+}
+document.addEventListener('click', e => {
+  const c = e.target.closest('#palgrid .pal');
+  if (!c) return;
+  state.theme = c.dataset.id;
+  renderPalettes(); generate(false);
+});
 
 function generate(newSeed = true) {
   if (newSeed && !locked) $('seed').value = String(Math.floor(Math.random() * 1e6)).padStart(4, '0');
@@ -1154,14 +1197,13 @@ $('symexport').onclick = async () => {
 };
 
 /* ---------- boot ---------- */
-THEMES.forEach(t => $('theme').append(new Option(t.name, t.id)));
 $('gen').onclick = () => generate(true);
-['format','theme','arch'].forEach(id => $(id).onchange = () => generate(false));
+['format','arch'].forEach(id => $(id).onchange = () => generate(false));
 $('seed').oninput = () => generate(false);
 $('lock').onclick = () => { locked = !locked; $('lock').textContent = locked ? '🔒' : '🔓'; };
 document.addEventListener('keydown', e => { if (e.code === 'Space' && e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'INPUT') { e.preventDefault(); generate(true); } });
 
-loadSymbols(); renderSymbols(); generate(false);
+loadSymbols(); renderSymbols(); renderPalettes(); generate(false);
 </script>
 </body>
 </html>
