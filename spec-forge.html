@@ -1072,7 +1072,10 @@ document.addEventListener('keydown', e => {
 (async function boot() {
   setDiceFace(5); renderLock(); PAL_ROWS = PAL_ORDER(); renderPalettes(); loadWords(); renderWords();
   try {
-    const res = await fetch('spec-forge-symbols.json');
+    // no-cache = revalidate every load (304 when unchanged, so it stays cheap).
+    // Plain fetch let the browser serve a stale library after the JSON changed,
+    // since busting the HTML's URL does nothing for this separate request.
+    const res = await fetch('spec-forge-symbols.json', { cache: 'no-cache' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     LIBRARY = await res.json();
   } catch (e) {
