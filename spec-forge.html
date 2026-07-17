@@ -235,19 +235,61 @@ const BUILT_IN = [
   // filled marks: `filled:true` renders as solid fill (fill-rule carves the voids)
   { id:'monolith', name:'monolith', vb:160.05, filled:true,
     d:['M0,0v160.05h160.05V0H0ZM119.29,80.03L42.26,3h77.03v77.03ZM80.03,119.29H3V42.26l77.03,77.03Z'] },
+  { id:'rotor', name:'rotor', vbox:{x:0,y:0,w:176.86,h:162.08}, paths:[
+    { filled:true, d:'M34.24,84.37h0c0-1.9.5-3.77,1.45-5.42l22.69-39.3c.95-1.65,2.32-3.02,3.97-3.97h0c9.6-5.54,20.34,5.21,14.8,14.81l-22.69,39.3c-5.54,9.6-20.22,5.67-20.22-5.42Z' },
+    { filled:true, d:'M117.99,126.47h0c-1.65.95-3.51,1.45-5.41,1.45h-45.26c-1.9,0-3.77-.5-5.42-1.45h0c-9.61-5.54-5.67-20.23,5.42-20.23h45.26c11.09,0,15.02,14.69,5.41,20.23Z' },
+    { filled:true, d:'M118.46,39.65l22.7,39.33c.95,1.65,1.45,3.52,1.45,5.42h0c0,11.09-14.68,15.02-20.22,5.42l-22.7-39.33c-5.54-9.6,5.2-20.35,14.8-14.81h0c1.65.95,3.02,2.32,3.97,3.97Z' },
+  ]},
+  { id:'sparks', name:'sparks', vb:402.1, filled:true, d:[
+    'M201.05,100.52c-55.51,0-100.52-45.02-100.52-100.52,0,55.51-44.99,100.52-100.52,100.52,55.51,0,100.52,45,100.52,100.52,0-55.51,45.02-100.52,100.52-100.52Z',
+    'M402.1,100.52c-55.51,0-100.52-45.02-100.52-100.52,0,55.51-44.99,100.52-100.52,100.52,55.51,0,100.52,45,100.52,100.52,0-55.51,45.02-100.52,100.52-100.52Z',
+    'M100.52,201.05c0,55.51-44.99,100.52-100.52,100.52,55.51,0,100.52,45,100.52,100.52,0-55.51,45.02-100.52,100.52-100.52-55.51,0-100.52-45.02-100.52-100.52Z',
+    'M301.57,201.05c0,55.51-44.99,100.52-100.52,100.52,55.51,0,100.52,45,100.52,100.52,0-55.51,45.02-100.52,100.52-100.52-55.51,0-100.52-45.02-100.52-100.52Z',
+  ]},
+  { id:'ribbon', name:'ribbon', vbox:{x:0,y:0,w:834.25,h:739.91}, filled:true, d:[
+    'M583.21,0c-21.61,0-41.78,10.8-53.77,28.78l-137.55,206.33c-11.99,17.98-32.16,28.78-53.77,28.78h-113.13c-21.61,0-41.78,10.8-53.77,28.78L0,549.5h60.62c21.61,0,41.78-10.8,53.77-28.78l137.55-206.33c11.99-17.98,32.16-28.78,53.77-28.78h113.13c21.61,0,41.78-10.8,53.77-28.78L643.83,0h-60.62Z',
+    'M678.42,95.21c-21.61,0-41.78,10.8-53.77,28.78l-137.55,206.32c-11.99,17.98-32.16,28.78-53.77,28.78h-113.13c-21.61,0-41.78,10.8-53.77,28.78l-171.23,256.84h60.62c21.61,0,41.78-10.8,53.77-28.78l137.55-206.33c11.99-17.98,32.16-28.78,53.77-28.78h113.13c21.61,0,41.78-10.8,53.77-28.78l171.23-256.84h-60.62Z',
+    'M773.63,190.41c-21.61,0-41.78,10.8-53.77,28.78l-137.55,206.33c-11.99,17.98-32.16,28.78-53.77,28.78h-113.13c-21.61,0-41.78,10.8-53.77,28.78l-171.23,256.84h60.62c21.61,0,41.78-10.8,53.77-28.78l137.55-206.33c11.99-17.98,32.16-28.78,53.77-28.78h113.13c21.61,0,41.78-10.8,53.77-28.78l171.23-256.84h-60.62Z',
+  ]},
+  /* Wide logotypes — auto-classified role:'mark', so they're used as a brand
+     stamp sized to the column instead of being crushed into an icon slot. */
+  { id:'logotype', name:'logotype', vbox:{x:0,y:0,w:609.26,h:191.79}, filled:true, d:[
+    'M101.68,6.61v13.23h82.67v15.71H0v-15.71h82.67V0h18.19c5.5,1.11,5.79,3.31.83,6.61ZM161.2,189.31h-15.71l-3.31-15.71h12.4c2.2,0,3.31-1.1,3.31-3.31v-52.91H27.28v74.4H10.75v-90.11h163.68v74.4c0,8.81-4.42,13.23-13.23,13.23ZM38.85,90.11v-43.81h107.47v43.81H38.85ZM64.48,169.47v9.09h-14.05v-51.25h84.32v42.16h-70.27ZM132.27,59.52H52.91v17.36h79.36v-17.36ZM64.48,156.24h56.21v-15.71h-56.21v15.71Z',
+    'M378.62,19.01h-66.13v13.23h82.67v39.68h-16.53v-29.76h-66.13v47.12h-16.53v-47.12h-63.65v33.07h-16.53v-42.99h80.19v-13.23h-66.13V5.79h148.8v13.23ZM401.77,160.38c-.56,20.38-9.65,30.59-27.28,30.59h-64.48c-9.92,0-14.88-4.69-14.88-14.05v-15.71h-42.99v14.05h-14.05v-81.01h134.75v66.96h-61.17v7.44c0,4.4,1.93,6.61,5.79,6.61h54.56c7.16,0,11.02-6.06,11.57-18.19l18.19,3.31ZM242.22,62.83v-9.92h45.47v9.92h-45.47ZM287.68,82.67h-45.47v-9.92h45.47v9.92ZM252.14,120.69h42.99v-13.23h-42.99v13.23ZM252.14,147.98h42.99v-14.05h-42.99v14.05ZM311.66,120.69h47.12v-13.23h-47.12v13.23ZM311.66,147.98h47.12v-14.05h-47.12v14.05ZM321.58,62.83v-9.92h47.95v9.92h-47.95ZM321.58,82.67v-9.92h47.95v9.92h-47.95Z',
+    'M438.97,14.05h161.2v15.71h-144.67v92.59c0,25.91-6.61,46.29-19.84,61.17l-12.4-13.23c10.46-11.02,15.71-28.11,15.71-51.25V14.05ZM539.82,42.99c4.41,1.65,4.13,3.31-.83,4.96v38.03h55.39v15.71h-55.39v65.31h70.27v15.71h-151.28v-15.71h64.48v-65.31h-49.6v-15.71h49.6v-42.99h17.36Z',
+  ]},
+  /* Same logotype, knockout variant: fill takes the page colour and the
+     outline takes the ink, so it reads as an outline on any palette. */
+  { id:'logotype-out', name:'logotype outline', vbox:{x:0,y:0,w:610.26,h:192.79}, paths:[
+    { filled:true, tone:'bg', stroked:true, d:'M102.18,7.11v13.23h82.67v15.71H.5v-15.71h82.67V.5h18.19c5.5,1.11,5.79,3.31.83,6.61ZM161.7,189.81h-15.71l-3.31-15.71h12.4c2.2,0,3.31-1.1,3.31-3.31v-52.91H27.78v74.4H11.25v-90.11h163.68v74.4c0,8.81-4.42,13.23-13.23,13.23ZM39.35,90.61v-43.81h107.47v43.81H39.35ZM64.98,169.97v9.09h-14.05v-51.25h84.32v42.16h-70.27ZM132.77,60.02H53.41v17.36h79.36v-17.36ZM64.98,156.74h56.21v-15.71h-56.21v15.71Z' },
+    { filled:true, tone:'bg', stroked:true, d:'M379.12,19.51h-66.13v13.23h82.67v39.68h-16.53v-29.76h-66.13v47.12h-16.53v-47.12h-63.65v33.07h-16.53v-42.99h80.19v-13.23h-66.13V6.29h148.8v13.23ZM402.27,160.88c-.56,20.38-9.65,30.59-27.28,30.59h-64.48c-9.92,0-14.88-4.69-14.88-14.05v-15.71h-42.99v14.05h-14.05v-81.01h134.75v66.96h-61.17v7.44c0,4.4,1.93,6.61,5.79,6.61h54.56c7.16,0,11.02-6.06,11.57-18.19l18.19,3.31ZM242.72,63.33v-9.92h45.47v9.92h-45.47ZM288.18,83.17h-45.47v-9.92h45.47v9.92ZM252.64,121.19h42.99v-13.23h-42.99v13.23ZM252.64,148.48h42.99v-14.05h-42.99v14.05ZM312.16,121.19h47.12v-13.23h-47.12v13.23ZM312.16,148.48h47.12v-14.05h-47.12v14.05ZM322.08,63.33v-9.92h47.95v9.92h-47.95ZM322.08,83.17v-9.92h47.95v9.92h-47.95Z' },
+    { filled:true, tone:'bg', stroked:true, d:'M439.47,14.55h161.2v15.71h-144.67v92.59c0,25.91-6.61,46.29-19.84,61.17l-12.4-13.23c10.46-11.02,15.71-28.11,15.71-51.25V14.55ZM540.32,43.49c4.41,1.65,4.13,3.31-.83,4.96v38.03h55.39v15.71h-55.39v65.31h70.27v15.71h-151.28v-15.71h64.48v-65.31h-49.6v-15.71h49.6v-42.99h17.36Z' },
+  ]},
 ];
 
 /* ---------- symbol store (curation) ---------- */
 const LS = 'specforge.symbols.v2';
 let SYMBOLS = [];
 
-/* Normalise both authoring shape ({vb, d:[...], filled}) and persisted shape
-   ({vbox, paths:[{d,filled,rule}]}) into one internal form. */
+/* A symbol is an `icon` (square-ish, fits the header/corner slots) or a
+   `mark` (a wide logotype, which would be illegible crushed into a 11px
+   slot — so it gets used as a brand stamp sized to the column instead). */
+const roleFor = vb => { const a = vb.w / vb.h; return (a > 1.8 || a < 0.55) ? 'mark' : 'icon'; };
+
+/* Normalise every authoring/persisted shape into one internal form:
+   { vbox, paths:[{d, filled, stroked, tone, rule}] } */
 function normalize(s) {
-  if (s.paths && s.vbox) return { id:s.id, name:s.name, vbox:s.vbox, paths:s.paths };
-  const vb = typeof s.vb === 'number' ? { x:0, y:0, w:s.vb, h:s.vb } : s.vbox;
-  return { id:s.id, name:s.name, vbox:vb,
-           paths:(s.d || []).map(d => ({ d, filled: !!s.filled, rule: s.rule || 'nonzero' })) };
+  const vbox = s.vbox || (typeof s.vb === 'number' ? { x:0, y:0, w:s.vb, h:s.vb } : { x:0, y:0, w:24, h:24 });
+  const mk = p => ({
+    d: p.d,
+    filled: !!p.filled,
+    stroked: p.stroked !== undefined ? !!p.stroked : !p.filled,  // outline icons stroke by default
+    tone: p.tone || 'ink',
+    rule: p.rule || 'nonzero',
+  });
+  const paths = s.paths ? s.paths.map(mk)
+    : (s.d || []).map(d => mk({ d, filled: !!s.filled, rule: s.rule }));
+  return { id:s.id, name:s.name, vbox, paths, role: s.role || roleFor(vbox) };
 }
 function loadSymbols(){
   let saved = {};
@@ -259,25 +301,41 @@ function loadSymbols(){
 }
 function saveSymbols(){
   localStorage.setItem(LS, JSON.stringify({
-    custom: SYMBOLS.filter(s => s.custom).map(({id,name,vbox,paths}) => ({id,name,vbox,paths})),
+    custom: SYMBOLS.filter(s => s.custom).map(({id,name,vbox,paths,role}) => ({id,name,vbox,paths,role})),
     off: SYMBOLS.filter(s => !s.on).map(s => s.id),
   }));
 }
-const activeSymbols = () => { const on = SYMBOLS.filter(s => s.on); return on.length ? on : BUILT_IN.map(normalize); };
+const pool = role => {
+  const on = SYMBOLS.filter(s => s.on && s.role === role);
+  return on.length ? on : BUILT_IN.map(normalize).filter(s => s.role === role);
+};
+const activeIcons = () => pool('icon');
+const activeMarks = () => SYMBOLS.filter(s => s.on && s.role === 'mark');
 
-/* symbol -> svg group, scaled to `size` px at (x,y).
-   Stroke width is divided by the scale so every symbol keeps the same
-   optical line weight regardless of its source viewBox. */
-function symPaths(sym, ink, sw, k) {
-  return sym.paths.map(p => p.filled
-    ? `<path d="${p.d}" fill="${ink}" fill-rule="${p.rule || 'nonzero'}"/>`
-    : `<path d="${p.d}" fill="none" stroke="${ink}" stroke-width="${(sw / k).toFixed(2)}" stroke-linecap="round" stroke-linejoin="round"/>`
-  ).join('');
+/* symbol -> svg group. Stroke width is divided by the scale so every symbol
+   keeps the same optical line weight whatever its source viewBox.
+   tone:'bg' fills with the page colour — that's how a knockout/outline
+   variant stays readable on any palette. */
+function symPaths(sym, ink, bg, sw, k) {
+  return sym.paths.map(p => {
+    const fill = p.filled ? (p.tone === 'bg' ? bg : ink) : 'none';
+    const fr = p.filled && p.rule !== 'nonzero' ? ` fill-rule="${p.rule}"` : (p.filled ? ` fill-rule="${p.rule}"` : '');
+    const st = p.stroked
+      ? ` stroke="${ink}" stroke-width="${(sw / k).toFixed(2)}" stroke-linecap="round" stroke-linejoin="round"` : '';
+    return `<path d="${p.d}" fill="${fill}"${fr}${st}/>`;
+  }).join('');
 }
-function symSvg(sym, x, y, size, ink, sw = 1.4) {
-  const { x:vx, y:vy, w:vw, h:vh } = sym.vbox;
-  const k = size / Math.max(vw, vh);
-  return `<g transform="translate(${x} ${y}) scale(${k.toFixed(5)}) translate(${-vx} ${-vy})">${symPaths(sym, ink, sw, k)}</g>`;
+const symWrap = (sym, x, y, k, t, sw) => {
+  const { x:vx, y:vy } = sym.vbox;
+  return `<g transform="translate(${x} ${y}) scale(${k.toFixed(5)}) translate(${-vx} ${-vy})">${symPaths(sym, t.ink, t.bg, sw, k)}</g>`;
+};
+/* fit inside a size×size box (icons) */
+function symSvg(sym, x, y, size, t, sw = 1.4) {
+  return symWrap(sym, x, y, size / Math.max(sym.vbox.w, sym.vbox.h), t, sw);
+}
+/* fit to an exact width (marks / logotypes) */
+function symSvgW(sym, x, y, width, t, sw = 1.2) {
+  return symWrap(sym, x, y, width / sym.vbox.w, t, sw);
 }
 
 /* ---------- rough (hand-drawn) primitives ---------- */
@@ -315,8 +373,8 @@ const T = (x, y, s, o = {}) => {
    ============================================================ */
 function modHeader(r, x, y, w, t) {
   const s = [];
-  const sym = r.pick(activeSymbols());
-  s.push(symSvg(sym, x, y - 8, 11, t.ink, 1.5));
+  const sym = r.pick(activeIcons());
+  s.push(symSvg(sym, x, y - 8, 11, t, 1.5));
   let cx = x + 15;
   const co = `©${r.pick(W.co)}`;
   s.push(T(cx, y, co, { size: 8.5, fill: t.ink, track: 0.4 }));
@@ -379,6 +437,18 @@ function modPills(r, x, y, w, t) {
     if (cx + 8 < x + w) { s.push(T(cx - 3.5, y + 10.5, '/', { size: 7.5, fill: t.ink, anchor: 'middle' })); cx += 4; }
   }
   return { svg: s.join(''), h: 21 };
+}
+
+/* Brand stamp — a wide logotype sized to the column, so it stays legible
+   instead of being crushed into an icon slot. */
+function modMark(r, x, y, w, t) {
+  const marks = activeMarks();
+  if (!marks.length) return { svg: '', h: 0 };
+  const m = r.pick(marks);
+  const mw = w * (0.34 + r() * 0.26);
+  const mh = m.vbox.h * (mw / m.vbox.w);
+  const mx = r.chance(0.25) ? x + w - mw : x;          // usually left, sometimes right-aligned
+  return { svg: symSvgW(m, mx, y, mw, t, 1.1), h: mh + 8 };
 }
 
 function modSubs(r, x, y, w, t, n) {
@@ -467,6 +537,9 @@ function buildCard(r, cw, t, archetype) {
       break;
   }
 
+  // brand stamp, when any wide logotype is enabled
+  if (activeMarks().length && r.chance(0.4)) { y += 6; add(modMark(r, x, y, w, t)); }
+
   const ch = y + P;
 
   // frame
@@ -483,8 +556,8 @@ function buildCard(r, cw, t, archetype) {
   // occasional corner glyph, bottom-right
   let extra = '';
   if (r.chance(0.35)) {
-    const sym = r.pick(activeSymbols());
-    extra = symSvg(sym, cw - P - 22, ch - P - 22, 22, t.ink, 1.2);
+    const sym = r.pick(activeIcons());
+    extra = symSvg(sym, cw - P - 22, ch - P - 22, 22, t, 1.2);
   }
   return { svg: fs + s.join('') + extra, w: cw, h: ch };
 }
@@ -583,8 +656,8 @@ function renderSymbols() {
   $('symgrid').innerHTML = SYMBOLS.map(s => {
     const { x, y, w, h } = s.vbox;
     const k = 24 / Math.max(w, h);              // keep preview line weight consistent
-    return `<div class="sym" data-id="${s.id}" data-on="${s.on ? 1 : 0}" title="${s.name}">
-       <svg viewBox="${x} ${y} ${w} ${h}">${symPaths(s, '#e6ebf2', 1.5, k)}</svg>
+    return `<div class="sym" data-id="${s.id}" data-on="${s.on ? 1 : 0}" title="${s.name}${s.role === 'mark' ? ' (wordmark)' : ''}">
+       <svg viewBox="${x} ${y} ${w} ${h}" preserveAspectRatio="xMidYMid meet">${symPaths(s, '#e6ebf2', '#0e1116', 1.5, k)}</svg>
        ${s.custom ? '<div class="x" data-del="1">×</div>' : ''}
      </div>`;
   }).join('');
@@ -628,27 +701,41 @@ function parsePasted(raw) {
   host.appendChild(node);
   document.body.appendChild(host);
 
-  let paths;
-  try {
-    paths = [...node.querySelectorAll('path,line,rect,circle,ellipse,polygon,polyline')].map(el => {
-      const d = shapeToPath(el);
-      if (!d) return null;
-      const tag = el.tagName.toLowerCase();
-      const cs = getComputedStyle(el);
-      // open shapes are never fills, whatever the computed value says
-      let filled = !(tag === 'line' || tag === 'polyline');
-      if (filled) { const f = cs.fill; filled = !!f && f !== 'none' && f !== 'rgba(0, 0, 0, 0)'; }
-      return { d, filled, rule: cs.fillRule || 'nonzero' };
-    }).filter(Boolean);
-  } finally { host.remove(); }
-
-  if (!paths.length) throw new Error('No drawable shapes found in that SVG.');
-
   const vb = (src.getAttribute('viewBox') || '').trim().split(/[\s,]+/).map(Number);
   const vbox = (vb.length === 4 && vb[2] > 0)
     ? { x: vb[0], y: vb[1], w: vb[2], h: vb[3] }
     : { x: 0, y: 0, w: parseFloat(src.getAttribute('width')) || 24, h: parseFloat(src.getAttribute('height')) || 24 };
-  return { vbox, paths };
+
+  // A rect matching the artboard bounds is Illustrator's frame, not artwork.
+  const isArtboard = el => {
+    if (el.tagName.toLowerCase() !== 'rect') return false;
+    const n = k => parseFloat(el.getAttribute(k) || 0);
+    const tol = Math.max(2, vbox.w * 0.02);
+    const near = (a, b) => Math.abs(a - b) <= tol;
+    return near(n('width'), vbox.w) && near(n('height'), vbox.h) && near(n('x'), vbox.x) && near(n('y'), vbox.y);
+  };
+  const lum = c => { const m = c.match(/[\d.]+/g); return m ? (0.2126*m[0] + 0.7152*m[1] + 0.0722*m[2]) / 255 : 0; };
+
+  let paths, dropped = 0;
+  try {
+    paths = [...node.querySelectorAll('path,line,rect,circle,ellipse,polygon,polyline')].map(el => {
+      if (isArtboard(el)) { dropped++; return null; }
+      const d = shapeToPath(el);
+      if (!d) return null;
+      const tag = el.tagName.toLowerCase();
+      const cs = getComputedStyle(el);
+      const isSet = v => !!v && v !== 'none' && v !== 'rgba(0, 0, 0, 0)';
+      // open shapes are never fills, whatever the computed value says
+      let filled = !(tag === 'line' || tag === 'polyline') && isSet(cs.fill);
+      const stroked = isSet(cs.stroke);
+      // a light fill is a knockout: it should take the page colour, not the ink
+      const tone = filled && lum(cs.fill) > 0.72 ? 'bg' : 'ink';
+      return { d, filled, stroked, tone, rule: cs.fillRule || 'nonzero' };
+    }).filter(Boolean);
+  } finally { host.remove(); }
+
+  if (!paths.length) throw new Error('No drawable shapes found in that SVG.');
+  return { vbox, paths, dropped };
 }
 
 $('symadd').onclick = () => {
@@ -656,10 +743,17 @@ $('symadd').onclick = () => {
   if (!raw) return alert('Paste some SVG markup first.');
   let parsed;
   try { parsed = parsePasted(raw); } catch (e) { return alert(e.message); }
+  const { dropped, ...shape } = parsed;
   const name = ($('symname').value.trim() || 'custom');
-  SYMBOLS.push({ id: 'c_' + Date.now().toString(36), name, ...parsed, on: true, custom: true });
+  const sym = { ...normalize({ id: 'c_' + Date.now().toString(36), name, ...shape }), on: true, custom: true };
+  SYMBOLS.push(sym);
   saveSymbols(); renderSymbols();
   $('sympaste').value = ''; $('symname').value = '';
+  if (dropped || sym.role === 'mark') {
+    alert(`Added “${name}”.` +
+      (dropped ? `\n· dropped ${dropped} artboard frame rect` : '') +
+      (sym.role === 'mark' ? `\n· wide aspect → used as a wordmark stamp, not an icon` : ''));
+  }
 };
 
 $('symexport').onclick = async () => {
