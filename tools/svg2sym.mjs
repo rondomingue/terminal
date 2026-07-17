@@ -81,7 +81,7 @@ function convert(file) {
   // opacity and transform are inherited from ancestor <g>s — track a stack
   const stack = [{ op: 1, tf: [] }];
   const paths = [];
-  let dropped = 0;
+  let dropped = 0, degenerate = 0;
 
   for (const m of svg.matchAll(/<(\/?)([\w:-]+)((?:"[^"]*"|[^>"])*?)(\/?)>/g)) {
     const [, close, tag, attrsRaw, selfClose] = m;
@@ -110,6 +110,8 @@ function convert(file) {
 
     const d = toPath(tag, a);
     if (!d) continue;
+    // a moveto with no drawing command renders nothing — Illustrator leaves these behind
+    if (!/[LlHhVvCcSsQqTtAaZz]/.test(d)) { degenerate++; continue; }
 
     const fill = a.fill ?? st.fill;                       // undefined => SVG default black
     const stroke = a.stroke ?? st.stroke;
@@ -128,7 +130,7 @@ function convert(file) {
       tf: tfs.join(' '),
     });
   }
-  return { vbox, paths, dropped };
+  return { vbox, paths, dropped, degenerate };
 }
 
 /* ---- emit compact JS (drop defaults to keep the file readable) ---- */
@@ -155,9 +157,12 @@ for (const arg of args) {
   const id = arg.slice(0, i), file = arg.slice(i + 1);
   const s = convert(file);
   const a = (s.vbox.w / s.vbox.h);
-  const role = a > 1.8 ? 'mark' : a < 0.55 ? 'vert' : s.paths.length > 24 ? 'block' : 'icon';
+  const role = a > 1.8 ? (s.paths.length > 24 ? 'panel' : 'mark')
+             : a < 0.55 ? 'vert'
+             : s.paths.length > 24 ? 'block' : 'icon';
   console.log(`${id.padEnd(14)} ${String(s.paths.length).padStart(4)} paths  aspect ${a.toFixed(2).padStart(5)}  -> ${role}` +
     (s.dropped ? `  (dropped ${s.dropped} artboard rect)` : '') +
+    (s.degenerate ? `  (dropped ${s.degenerate} empty path)` : '') +
     (s.paths.some(p => p.op !== 1) ? `  [opacity layers]` : '') +
     (s.paths.some(p => p.tf) ? `  [transforms]` : ''));
   out.push(emit(id, id.replace(/-/g, ' '), s));
