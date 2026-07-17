@@ -112,10 +112,13 @@
     <div class="grp">
       <label class="lbl">Format</label>
       <select id="format">
-        <option value="poster">Poster · 1080 × 1080</option>
-        <option value="wide">Wide · 1600 × 900</option>
+        <option value="poster">Poster · A-series 1:√2 ↑</option>
+        <option value="a_land">Poster · A-series 1:√2 →</option>
+        <option value="onesheet">One-sheet · 27×40</option>
+        <option value="square">Square · 1080</option>
+        <option value="wide">Wide · 16:9</option>
         <option value="tight">Tight card · auto</option>
-        <option value="sheet">Contact sheet · 4 × 5</option>
+        <option value="sheet">Contact sheet · 4×5</option>
       </select>
     </div>
 
@@ -1029,12 +1032,19 @@ function buildCard(r, cw, t, archetype) {
   return { svg: fs + s.join('') + extra, w: cw, h: ch };
 }
 
-/* ---------- formats ---------- */
+/* ---------- formats ----------
+   `poster` is ISO 216 A-series, 1:√2 — the ratio an actual printed poster
+   uses (A2/A3 etc), and the ratio the reference posters are set in. At 1000
+   wide it scales cleanly to any A size; PNG @2x gives 2000×2828. */
+const A_LONG = Math.round(1000 * Math.SQRT2);   // 1414
 const FORMATS = {
-  poster: { W: 1080, H: 1080, cardW: 760 },
-  wide:   { W: 1600, H: 900,  cardW: 980 },
-  tight:  { W: 0,    H: 0,    cardW: 720 },
-  sheet:  { W: 1400, H: 1750, cardW: 300 },
+  poster: { W: 1000,   H: A_LONG, cardW: 700 },   // A-series portrait
+  a_land: { W: A_LONG, H: 1000,   cardW: 900 },   // A-series landscape
+  onesheet:{ W: 1000,  H: 1481,   cardW: 700 },   // US one-sheet 27×40
+  square: { W: 1080,   H: 1080,   cardW: 760 },   // social tile
+  wide:   { W: 1600,   H: 900,    cardW: 980 },   // 16:9
+  tight:  { W: 0,      H: 0,      cardW: 720 },   // card only
+  sheet:  { W: 1400,   H: 1750,   cardW: 300 },   // contact sheet
 };
 
 function renderAsset(seedStr, opts) {
@@ -1070,7 +1080,10 @@ function renderAsset(seedStr, opts) {
     return { svg: wrap(card.w + m * 2, card.h + m * 2, t, `<g transform="translate(${m} ${m})">${card.svg}</g>`),
              W: card.w + m * 2, H: card.h + m * 2, theme: t, arch };
   }
-  const ox = (f.W - card.w) / 2, oy = (f.H - card.h) / 2;
+  const ox = (f.W - card.w) / 2;
+  // optical centring: on a tall sheet, a mathematically centred block reads
+  // as sagging, so sit it slightly high — standard poster practice.
+  const oy = (f.H - card.h) * (f.H > f.W ? 0.42 : 0.5);
   let body = `<g transform="translate(${ox.toFixed(1)} ${oy.toFixed(1)})">${card.svg}</g>`;
 
   /* Tall strips (vertical kanji) are sized by HEIGHT and set in the poster
@@ -1217,7 +1230,7 @@ $('symgrid').onclick = e => {
    see what it landed on and iterate. Honours a locked seed. */
 const rnd = a => a[Math.floor(Math.random() * a.length)];
 function roll() {
-  $('format').value = rnd(['poster', 'wide', 'tight', 'sheet']);
+  $('format').value = rnd(['poster', 'poster', 'a_land', 'onesheet', 'square', 'wide', 'tight', 'sheet']);
   $('arch').value   = rnd(['brief', 'spec', 'code', 'barcode', 'chart']);
   state.theme       = rnd(THEMES).id;
   renderPalettes();
