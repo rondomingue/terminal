@@ -71,50 +71,37 @@
   }
   .word button:hover{color:#c0392b}
 
-  /* ---------- palette wheel ----------
-     Fixed height whatever the palette count — nodes sit at their real hue
-     (angle) and chroma (radius), so the picker is also a map. */
-  .wheel{
-    position:relative;width:100%;max-width:206px;aspect-ratio:1;margin:2px auto 0;
-    border-radius:50%;
-    /* stops anchored every 30deg at their true hue, so wheel angle == hue and a
-       node sits on the colour it represents */
-    background:
-      radial-gradient(circle at 50% 50%, #fff 4%, rgba(255,255,255,0) 66%),
-      conic-gradient(from 0deg,
-        hsl(0 90% 55%)   0deg,   hsl(30 90% 55%)  30deg,  hsl(60 90% 55%)  60deg,
-        hsl(90 90% 55%)  90deg,  hsl(120 90% 55%) 120deg, hsl(150 90% 55%) 150deg,
-        hsl(180 90% 55%) 180deg, hsl(210 90% 55%) 210deg, hsl(240 90% 55%) 240deg,
-        hsl(270 90% 55%) 270deg, hsl(300 90% 55%) 300deg, hsl(330 90% 55%) 330deg,
-        hsl(360 90% 55%) 360deg);
-    box-shadow:inset 0 0 0 1px rgba(255,255,255,.14), 0 6px 22px rgba(0,0,0,.45);
+  /* ---------- palette picker ----------
+     ~32px collapsed; the list overlays rather than pushing the rail, so any
+     number of palettes costs no vertical space at rest. */
+  .pick{position:relative}
+  .pick-btn{
+    width:100%;display:flex;align-items:center;gap:8px;
+    text-align:left;text-transform:none;letter-spacing:0;padding:6px 8px;
   }
-  .wheel::after{                        /* sink it slightly into the dark UI */
-    content:'';position:absolute;inset:0;border-radius:50%;
-    background:radial-gradient(circle at 50% 50%, rgba(14,17,22,0) 62%, rgba(14,17,22,.5) 100%);
-    pointer-events:none;
+  .sw{display:flex;gap:2px;flex:0 0 auto}
+  .sw i{width:8px;height:15px;border-radius:1.5px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.16)}
+  .sw.rnd i{background:conic-gradient(from 0deg,#f44,#fd0,#4d4,#4af,#a4f,#f44)}
+  .pick-name{flex:1;font-size:11px;color:var(--ink)}
+  .pick-caret{color:var(--faint);font-size:8px;transition:transform .15s}
+  .pick.open .pick-caret{transform:rotate(180deg)}
+  .pick-list{
+    position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:60;display:none;
+    max-height:264px;overflow-y:auto;padding:4px;
+    background:var(--panel);border:1px solid var(--line);border-radius:4px;
+    box-shadow:0 18px 46px rgba(0,0,0,.65);
   }
-  #spokes{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
-  #wnodes{position:absolute;inset:0;z-index:2}
-  .wnode{
-    position:absolute;width:15px;height:15px;border-radius:50%;padding:0;z-index:2;
-    transform:translate(-50%,-50%);border:1.5px solid rgba(255,255,255,.92);
-    box-shadow:0 1px 5px rgba(0,0,0,.5);cursor:pointer;transition:width .12s,height .12s;
+  .pick.open .pick-list{display:block}
+  .pick-row{
+    display:flex;align-items:center;gap:8px;width:100%;
+    padding:5px 6px;border:0;border-radius:3px;background:transparent;cursor:pointer;
+    font-family:var(--mono);font-size:11px;text-transform:none;letter-spacing:0;color:var(--dim);
   }
-  .wnode:hover{width:19px;height:19px}
-  .wnode[data-sel="1"]{
-    width:20px;height:20px;
-    box-shadow:0 0 0 2.5px var(--panel), 0 0 0 4px #fff, 0 1px 6px rgba(0,0,0,.6);
+  .pick-row:hover{background:var(--bg);color:var(--ink)}
+  .pick-row[data-sel="1"]{color:var(--accent)}
+  .pick-sep{
+    margin:6px 6px 4px;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);
   }
-  .wnode.rnd{
-    background:var(--panel);border-style:dashed;border-color:rgba(255,255,255,.7);
-    display:grid;place-items:center;font-size:6.5px;color:var(--dim);letter-spacing:.04em;
-  }
-  .palnow{
-    display:flex;align-items:center;gap:7px;margin-top:10px;
-    font-size:10px;color:var(--dim);letter-spacing:.06em;
-  }
-  .palnow i{width:12px;height:12px;border-radius:2px;border:1px solid rgba(255,255,255,.18)}
 
   /* ---------- symbol library ---------- */
   .symgrid{display:grid;grid-template-columns:repeat(8,1fr);gap:6px}
@@ -215,11 +202,14 @@
 
     <div class="grp">
       <label class="lbl">Palette</label>
-      <div class="wheel" id="wheel">
-        <svg id="spokes" viewBox="0 0 100 100" aria-hidden="true"></svg>
-        <div id="wnodes"></div>
+      <div class="pick" id="palpick">
+        <button class="pick-btn" id="palbtn" aria-haspopup="listbox" aria-expanded="false">
+          <span class="sw" id="palsw"></span>
+          <span class="pick-name" id="palname"></span>
+          <span class="pick-caret">▼</span>
+        </button>
+        <div class="pick-list" id="pallist" role="listbox"></div>
       </div>
-      <div class="palnow" id="palnow"></div>
     </div>
 
     <div class="grp">
@@ -903,66 +893,55 @@ const hueOf = h => {
    put Ember (orange bg, off-white accent) in the whites. */
 const identityOf = t => [t.bg, t.ink, t.accent].reduce((a, c) => chromaOf(c) > chromaOf(a) ? c : a);
 
-let WHEEL = [];
-function layoutWheel() {
-  const nodes = THEMES.map(t => {
-    const color = identityOf(t), ch = chromaOf(color);
-    return { t, color, ch, neutral: ch < 0.12, hue: hueOf(color) };
+/* Ordered by hue so the list reads as a spectrum — you still find "the green
+   one" by looking, without spending 200px on a wheel to do it. */
+const PAL_ORDER = () => {
+  const rows = THEMES.map(t => {
+    const c = identityOf(t), ch = chromaOf(c);
+    return { t, color: c, neutral: ch < 0.12, hue: hueOf(c) };
   });
-  // greys have no meaningful hue, so they get an inner ring instead of a pile-up
-  const neutrals = nodes.filter(n => n.neutral);
-  neutrals.forEach((n, i) => {
-    const a = (i / Math.max(1, neutrals.length)) * Math.PI * 2 - Math.PI / 2;
-    n.x = 0.5 + Math.cos(a) * 0.14; n.y = 0.5 + Math.sin(a) * 0.14;
-  });
-  nodes.filter(n => !n.neutral).forEach(n => {
-    const a = (n.hue - 90) * Math.PI / 180;
-    const r = 0.17 + Math.min(1, n.ch) * 0.28;
-    n.x = 0.5 + Math.cos(a) * r; n.y = 0.5 + Math.sin(a) * r;
-  });
-  // Five palettes carry a red accent within ~15° of each other and would stack.
-  // Relax them apart; they stay in their hue region, just readable.
-  const MIN = 0.108;
-  for (let it = 0; it < 240; it++) {
-    for (let i = 0; i < nodes.length; i++) for (let j = i + 1; j < nodes.length; j++) {
-      const A = nodes[i], B = nodes[j];
-      const dx = B.x - A.x, dy = B.y - A.y, d = Math.hypot(dx, dy) || 1e-4;
-      if (d < MIN) { const p = (MIN - d) / 2 / d; A.x -= dx * p; A.y -= dy * p; B.x += dx * p; B.y += dy * p; }
-    }
-    nodes.forEach(n => {   // stay on the wheel, and clear of the RND node at dead centre
-      const dx = n.x - 0.5, dy = n.y - 0.5, d = Math.hypot(dx, dy) || 1e-4;
-      const c = Math.min(Math.max(d, 0.115), 0.442);
-      n.x = 0.5 + dx / d * c; n.y = 0.5 + dy / d * c;
-    });
-  }
-  return nodes;
-}
+  return [
+    ...rows.filter(r => r.neutral),
+    ...rows.filter(r => !r.neutral).sort((a, b) => a.hue - b.hue),
+  ];
+};
+const swatch = (t, cls = '') => t
+  ? `<span class="sw ${cls}"><i style="background:${t.bg}"></i><i style="background:${t.ink}"></i><i style="background:${t.accent}"></i></span>`
+  : `<span class="sw rnd"><i></i></span>`;
 
+let PAL_ROWS = [];
 function renderPalettes() {
   const sel = state.theme;
-  $('wnodes').innerHTML = [
-    `<button class="wnode rnd" data-id="random" data-sel="${sel === 'random' ? 1 : 0}"
-       style="left:50%;top:50%" title="Random — a different palette every roll">RND</button>`,
-    ...WHEEL.map(n => `<button class="wnode" data-id="${n.t.id}" data-sel="${sel === n.t.id ? 1 : 0}"
-       style="left:${(n.x * 100).toFixed(2)}%;top:${(n.y * 100).toFixed(2)}%;background:${n.color}"
-       title="${n.t.name}" aria-label="${n.t.name}"></button>`),
-  ].join('');
-
-  const n = WHEEL.find(v => v.t.id === sel);
-  $('spokes').innerHTML = n
-    ? `<line x1="50" y1="50" x2="${(n.x * 100).toFixed(2)}" y2="${(n.y * 100).toFixed(2)}"
-         stroke="rgba(255,255,255,.9)" stroke-width="1.1" stroke-linecap="round"/>` : '';
-
   const t = THEMES.find(v => v.id === sel);
-  $('palnow').innerHTML = t
-    ? `<i style="background:${t.bg}"></i><i style="background:${t.ink}"></i><i style="background:${t.accent}"></i><span>${t.name}</span>`
-    : `<i style="background:conic-gradient(#f33,#fd0,#3d3,#3af,#a3f,#f33)"></i><span>Random</span>`;
+  $('palsw').outerHTML = swatch(t).replace('class="sw', 'id="palsw" class="sw');
+  $('palname').textContent = t ? t.name : 'Random';
+
+  let firstChromatic = true;
+  $('pallist').innerHTML = [
+    `<button class="pick-row" role="option" data-id="random" data-sel="${sel === 'random' ? 1 : 0}">
+       ${swatch(null)}<span>Random — a new palette each roll</span></button>`,
+    `<div class="pick-sep">Neutral</div>`,
+    ...PAL_ROWS.map(r => {
+      let sep = '';
+      if (!r.neutral && firstChromatic) { sep = `<div class="pick-sep">By hue</div>`; firstChromatic = false; }
+      return sep + `<button class="pick-row" role="option" data-id="${r.t.id}" data-sel="${sel === r.t.id ? 1 : 0}">
+        ${swatch(r.t)}<span>${r.t.name}</span></button>`;
+    }),
+  ].join('');
 }
+const palOpen = o => {
+  $('palpick').classList.toggle('open', o);
+  $('palbtn').setAttribute('aria-expanded', o ? 'true' : 'false');
+};
 document.addEventListener('click', e => {
-  const c = e.target.closest('#wnodes .wnode');
-  if (!c) return;
-  state.theme = c.dataset.id;
-  renderPalettes(); generate(false);
+  if (e.target.closest('#palbtn')) { palOpen(!$('palpick').classList.contains('open')); return; }
+  const row = e.target.closest('#pallist .pick-row');
+  if (row) {
+    state.theme = row.dataset.id;
+    palOpen(false); renderPalettes(); generate(false);
+    return;
+  }
+  if (!e.target.closest('#palpick')) palOpen(false);   // click-away closes
 });
 
 function generate(newSeed = true) {
@@ -1091,7 +1070,7 @@ document.addEventListener('keydown', e => {
 });
 
 (async function boot() {
-  setDiceFace(5); renderLock(); WHEEL = layoutWheel(); renderPalettes(); loadWords(); renderWords();
+  setDiceFace(5); renderLock(); PAL_ROWS = PAL_ORDER(); renderPalettes(); loadWords(); renderWords();
   try {
     const res = await fetch('spec-forge-symbols.json');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
