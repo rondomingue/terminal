@@ -333,7 +333,6 @@ const THEMES = [
   { id:'iota',   name:'Iota',    bg:'#242438', ink:'#E6E4F0', accent:'#3FD8A8' },
   { id:'mono',   name:'Mono',    bg:'#F2F2F0', ink:'#111111', accent:'#111111' },
   // from the reference posters
-  { id:'antireal',name:'Antireal',bg:'#161A24', ink:'#D8E0EA', accent:'#E01B22' },
   { id:'accel',  name:'Accel',   bg:'#F04A16', ink:'#FFFFFF', accent:'#E81C10' },
   { id:'derez',  name:'Derez',   bg:'#E2E2E4', ink:'#101010', accent:'#8CE016' },
   { id:'ghost',  name:'Ghost',   bg:'#0A0C0A', ink:'#C6D2C6', accent:'#22E020' },
@@ -348,7 +347,7 @@ const W = {
   co: ['HELION DYNAMICS','TYCHO SYSTEMS','OFFWORLD LOGISTICS','NEXUS CYBERNETICS','DURAND HEAVY',
        'GRID CONTROL','MERIDIAN GENETICS','KOWLOON OPTICS','CHIBA HEAVY IND','ORBITAL ZAIBATSU',
        'ONI SECURITY','VOIGHT SYSTEMS','ROSSUM ROBOTICS','HYPERION LABS','LETHE MEMORY',
-       'ANTIREAL','SOLARIS FREIGHT','ECHO DIVISION','HALCYON NEURAL','DEIMOS SALVAGE'],
+       'SOLARIS FREIGHT','ECHO DIVISION','HALCYON NEURAL','DEIMOS SALVAGE','LETHE SALVAGE'],
   jp: ['電脳','人工知能','記憶','亡霊','電脳空間','義体','強化','暴走','監視','都市',
        '電子頭脳','網','複製','人造','記録','解析','制御','起動','電源','信号'],
   status: ['IDENTITY CONFIRMED','TRACE ACTIVE','MEMORY INTACT','INCEPT DATE LOGGED',
@@ -357,7 +356,7 @@ const W = {
            'GHOST DETECTED','CARRIER LOST','DEREZ IMMINENT','EMPATHY TEST INCONCLUSIVE',
            'ACCESS GRANTED','ACCESS LOCKED','NO OPERATOR PRESENT','LAST LOG UNREADABLE'],
   title: ['OFF-WORLD','DEREZ','GHOST LINE','NEURAL DUST','BLACK ICE','DEEP GRID','PATTERN BUFFER',
-          'WORLDLINE','ANTIREAL','ACCELERATOR','EPSILON','COLD BOOT','MEMORY LEAK','NIGHT MARKET',
+          'WORLDLINE','ACCELERATOR','EPSILON','COLD BOOT','MEMORY LEAK','NIGHT MARKET','DEAD SECTOR',
           'TERMINAL 07','IDENTITY DISC','DATA HAVEN','DEAD CHANNEL','THE SPRAWL','CHROME'],
   code: ['0X4B','006B','MK VI','V5','CFG 14','REV 7','0X946B','TIER 0','SEC 7','NEXUS','1993','88'],
   tag: ['REV Q','REV V','REV W','TOOLS','BUILD 601','Y 2049','V2.9','V3.9','V2.7','TXT2IMG',
@@ -889,7 +888,7 @@ const hueOf = h => {
   return (x * 60 + 360) % 360;
 };
 /* A palette's identity is its most chromatic colour — Ember's and Acid's is the
-   background, Antireal's is the accent. Placing everything by `accent` would
+   background, Signal's is the accent. Placing everything by `accent` would
    put Ember (orange bg, off-white accent) in the whites. */
 const identityOf = t => [t.bg, t.ink, t.accent].reduce((a, c) => chromaOf(c) > chromaOf(a) ? c : a);
 
