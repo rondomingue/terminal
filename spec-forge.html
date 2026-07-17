@@ -41,6 +41,20 @@
   button.primary:hover{background:var(--accent-b);border-color:var(--accent-b);color:#04231c}
   .hint{font-size:9.5px;color:var(--faint);line-height:1.6;margin-top:8px}
 
+  /* ---------- recurring words ---------- */
+  .words{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+  .word{
+    display:flex;align-items:center;gap:6px;background:var(--bg);
+    border:1px solid var(--line);border-radius:3px;padding:4px 5px 4px 8px;
+    font-size:10px;letter-spacing:.04em;color:var(--ink);
+  }
+  .word b{font-weight:400;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .word button{
+    border:0;background:transparent;color:var(--faint);padding:0 2px;
+    font-size:12px;line-height:1;cursor:pointer;
+  }
+  .word button:hover{color:#c0392b}
+
   /* ---------- palette swatches ---------- */
   .palgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
   .pal{
@@ -110,6 +124,16 @@
         <option value="barcode">Barcode label</option>
         <option value="chart">Signal chart</option>
       </select>
+    </div>
+
+    <div class="grp">
+      <label class="lbl">Recurring words</label>
+      <div class="words" id="wordlist"></div>
+      <div class="row" id="wordadd">
+        <input type="text" id="wordinput" placeholder="e.g. OVERCAST" maxlength="28">
+        <button id="wordbtn" style="flex:0 0 40px" title="Add word">+</button>
+      </div>
+      <div class="hint" id="wordhint">Your words become the headline on most assets. Up to 5.</div>
     </div>
 
     <div class="grp">
@@ -227,6 +251,14 @@ const W = {
   val: ['FREQ 303HZ','LOSS 6.2%','TEMP 18°C','LAT 60MS','VOLT 3.5V','POWER 96%','LOAD 8%',
         'FREQ 426HZ','TEMP 83°C','LOSS 9.8%','LAT 47MS','POWER 44%'],
 };
+/* User-supplied words (max 5). They take the headline slot most of the time,
+   so they recur across a set without every card reading identically. */
+const MAX_WORDS = 5;
+const USER = { words: [] };
+const pickTitle = r =>
+  (USER.words.length && r.chance(0.7)) ? r.pick(USER.words)
+    : r.chance(0.3) ? r.pick(W.code) : r.pick(W.title);
+
 const subLine = r => r.pick([
   () => `LOG_${r.int(100000,999999)}.TXT`,
   () => `SN ${rs(r,4)}-${r.int(1000,9999)}-${rs(r,3)}`,
@@ -795,7 +827,7 @@ function modStatus(r, x, y, w, t) {
 }
 
 function modTitle(r, x, y, w, t, txt) {
-  const str = txt || (r.chance(0.3) ? r.pick(W.code) : r.pick(W.title));
+  const str = txt || pickTitle(r);
   let size = 34;
   while (textW(str, size, F_DISP, 700) > w && size > 12) size -= 1;   // never overflow the card
   return { svg: T(x, y + size * 0.78, str, { size, fam: F_DISP, w: 700, fill: t.ink, track: -0.4 }), h: size * 0.78 + 8 };
@@ -917,7 +949,7 @@ function buildCard(r, cw, t, archetype) {
       add(modSubs(r, x, y, w, t, r.int(2, 3)));
       break;
     case 'barcode':
-      add(modTitle(r, x, y, w, t, r.pick(W.code))); y += 2;
+      add(modTitle(r, x, y, w, t, USER.words.length && r.chance(0.5) ? r.pick(USER.words) : r.pick(W.code))); y += 2;
       add(modBarcode(r, x, y, w, t)); y += 2;
       add(modSubs(r, x, y, w, t, 2));
       break;
@@ -1028,6 +1060,43 @@ let current = null, locked = false;
 const state = { theme: 'random' };
 
 function opts(){ return { format: $('format').value, theme: state.theme, arch: $('arch').value }; }
+
+/* ---------- recurring words ---------- */
+const LSW = 'specforge.words.v1';
+function loadWords() {
+  try { USER.words = (JSON.parse(localStorage.getItem(LSW) || '[]') || []).slice(0, MAX_WORDS); }
+  catch (e) { USER.words = []; }
+}
+const saveWords = () => localStorage.setItem(LSW, JSON.stringify(USER.words));
+
+function renderWords() {
+  $('wordlist').innerHTML = USER.words
+    .map((w, i) => `<span class="word"><b>${esc(w)}</b><button data-wi="${i}" title="Remove">&times;</button></span>`).join('');
+  const full = USER.words.length >= MAX_WORDS;
+  $('wordadd').style.display = full ? 'none' : 'flex';       // one field only, until it's full
+  $('wordhint').textContent = full
+    ? `5 of 5 — remove one to add another.`
+    : USER.words.length
+      ? `${USER.words.length} of ${MAX_WORDS}. Add another, or leave it here.`
+      : `Your words become the headline on most assets. Up to ${MAX_WORDS}.`;
+}
+function addWord() {
+  const v = $('wordinput').value.trim().toUpperCase();       // headline bank is all caps
+  if (!v) return;
+  if (USER.words.length >= MAX_WORDS) return;
+  if (USER.words.includes(v)) { $('wordinput').value = ''; return; }
+  USER.words.push(v);
+  $('wordinput').value = '';
+  saveWords(); renderWords(); generate(false);
+}
+$('wordbtn').onclick = addWord;
+$('wordinput').onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); addWord(); } };
+$('wordlist').onclick = e => {
+  const b = e.target.closest('[data-wi]');
+  if (!b) return;
+  USER.words.splice(+b.dataset.wi, 1);
+  saveWords(); renderWords(); generate(false);
+};
 
 function renderPalettes() {
   $('palgrid').innerHTML = [
@@ -1203,7 +1272,7 @@ $('seed').oninput = () => generate(false);
 $('lock').onclick = () => { locked = !locked; $('lock').textContent = locked ? '🔒' : '🔓'; };
 document.addEventListener('keydown', e => { if (e.code === 'Space' && e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'INPUT') { e.preventDefault(); generate(true); } });
 
-loadSymbols(); renderSymbols(); renderPalettes(); generate(false);
+loadSymbols(); renderSymbols(); renderPalettes(); loadWords(); renderWords(); generate(false);
 </script>
 </body>
 </html>
