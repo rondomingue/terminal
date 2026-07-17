@@ -243,23 +243,30 @@ const THEMES = [
   { id:'mono',   name:'Mono',    bg:'#F2F2F0', ink:'#111111', accent:'#111111' },
 ];
 
-/* ---------- word bank ---------- */
+/* ---------- word bank ----------
+   Register: Marathon terminals, Tron's grid, Blade Runner's off-world trade.
+   Deliberately evocative-but-original — no lifted trademarks or mottos. */
 const W = {
-  co: ['ATLAS LABS','APEX SYSTEMS','DELTA WORKS','COBALT INDUSTRIES','VECTOR ENGINEERING',
-       'SUMMIT INDUSTRIES','NOVA INDUSTRIES','NUCLEUS LABS','CARGO ENGINEERING','AXIOM INDUSTRIES',
-       'MERIDIAN SYSTEMS','APEX LABS','VECTOR STUDIO','MERIDIAN OFFICE','SUMMIT DIVISION','ORBIT WORKS'],
-  jp: ['検証','制御','起動','接続','同期','電源','記録','解析','信号','稿','方式','充電','起動接続',
-       ' 制御起動','接続充電','精検証','解析アクセス','記録稿','電源稿','方式信号'],
-  status: ['ACCESS GRANTED','ACCESS LOCKED','ACCESS PENDING','INPUT VERIFIED / OUTPUT OK',
-           'STATUS > ONLINE','STATUS > OFFLINE','STATUS > STANDBY','OFFLINE // PORT 859','ONLINE // PORT 849'],
-  title: ['DATA SYSTEMS','VECTOR PATH','CONTROL UNIT','CORE','FIELD STATION','DIGITAL FARM',
-          'LOT 19','SPEC UNIT','TEST DATA','SIGNAL BAY','CARGO NODE','DEEP INDEX'],
-  code: ['0079','0XB1','V5','V1','CFG 14','LOT 19','REV 7','0X4F','88','MK II'],
-  tag: ['REV Q','REV E','REV V','REV W','REV S','TOOLS','BUILD 601','BUILD 889','BUILD 902',
-        'Y 2025','Y 2027','V2.9','V3.9','V2.7','V3.1','TXT2IMG'],
-  key: ['CFG D7','LOT DD','LOT F7','SPEC 26','REV DG','UNIT 5C','TEST 9A','CFG 91','LOT B1','SPEC 53','UNIT 40'],
+  co: ['HELION DYNAMICS','TYCHO SYSTEMS','OFFWORLD LOGISTICS','NEXUS CYBERNETICS','DURAND HEAVY',
+       'GRID CONTROL','MERIDIAN GENETICS','KOWLOON OPTICS','CHIBA HEAVY IND','ORBITAL ZAIBATSU',
+       'ONI SECURITY','VOIGHT SYSTEMS','ROSSUM ROBOTICS','HYPERION LABS','LETHE MEMORY',
+       'ANTIREAL','SOLARIS FREIGHT','ECHO DIVISION','HALCYON NEURAL','DEIMOS SALVAGE'],
+  jp: ['電脳','人工知能','記憶','亡霊','電脳空間','義体','強化','暴走','監視','都市',
+       '電子頭脳','網','複製','人造','記録','解析','制御','起動','電源','信号'],
+  status: ['IDENTITY CONFIRMED','TRACE ACTIVE','MEMORY INTACT','INCEPT DATE LOGGED',
+           'RETIREMENT PENDING','SIGNAL ACQUIRED','UPLINK STABLE','GRID SYNCHRONISED',
+           'PATTERN BUFFER FULL','NEURAL LINK OPEN','AUTHORISATION DENIED','TERMINAL ACTIVE',
+           'GHOST DETECTED','CARRIER LOST','DEREZ IMMINENT','EMPATHY TEST INCONCLUSIVE',
+           'ACCESS GRANTED','ACCESS LOCKED','NO OPERATOR PRESENT','LAST LOG UNREADABLE'],
+  title: ['OFF-WORLD','DEREZ','GHOST LINE','NEURAL DUST','BLACK ICE','DEEP GRID','PATTERN BUFFER',
+          'WORLDLINE','ANTIREAL','ACCELERATOR','EPSILON','COLD BOOT','MEMORY LEAK','NIGHT MARKET',
+          'TERMINAL 07','IDENTITY DISC','DATA HAVEN','DEAD CHANNEL','THE SPRAWL','CHROME'],
+  code: ['0X4B','006B','MK VI','V5','CFG 14','REV 7','0X946B','TIER 0','SEC 7','NEXUS','1993','88'],
+  tag: ['REV Q','REV V','REV W','TOOLS','BUILD 601','Y 2049','V2.9','V3.9','V2.7','TXT2IMG',
+        'MK VI','TIER 0','ICE 9','SEC 7','CLASS A','NEXUS','DEREZ','1993','ECHO','NULL'],
+  key: ['TRACE 26','GHOST DD','ICE F7','NEURAL 5C','BUFFER 9A','GRID 91','UPLINK B1','CORE 53','SECTOR 40'],
   val: ['FREQ 303HZ','LOSS 6.2%','TEMP 18°C','LAT 60MS','VOLT 3.5V','POWER 96%','LOAD 8%',
-        'FREQ 426HZ','TEMP 83°C','LOSS 9.8%','LAT 47MS','POWER 44%'],
+        'FREQ 426HZ','TEMP 83°C','DECAY 9.8%','PING 47MS','CHARGE 44%','DEPTH 12','ENTROPY 0.71'],
 };
 /* User-supplied words (max 5). They take the headline slot most of the time,
    so they recur across a set without every card reading identically. */
