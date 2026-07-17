@@ -446,6 +446,7 @@ function roleFor(vb, pathCount = 1) {
 
 /* Normalise every authoring/persisted shape into one internal form:
    { vbox, paths:[{d, filled, stroked, tone, rule}] } */
+const HBAR_IDS = new Set(['scale-strip', 'measure-strip']);
 function normalize(s) {
   const vbox = s.vbox || (typeof s.vb === 'number' ? { x:0, y:0, w:s.vb, h:s.vb } : { x:0, y:0, w:24, h:24 });
   const mk = p => ({
@@ -459,7 +460,12 @@ function normalize(s) {
   });
   const paths = s.paths ? s.paths.map(mk)
     : (s.d || []).map(d => mk({ d, filled: !!s.filled, rule: s.rule }));
-  return { id:s.id, name:s.name, vbox, paths, role: s.role || roleFor(vbox, paths.length) };
+  // Ladder/instrument strips are authored tall (like kanji) but read fine
+  // horizontally, so they're forced to `hbar` and laid along a margin instead
+  // of down the side. Done by id here so it survives converter re-runs (the
+  // JSON carries no role). Kanji stays `vert` — it must read top-to-bottom.
+  const role = s.role || (HBAR_IDS.has(s.id) ? 'hbar' : roleFor(vbox, paths.length));
+  return { id:s.id, name:s.name, vbox, paths, role };
 }
 function loadSymbols(){
   let saved = {};
@@ -785,6 +791,17 @@ function buildCard(r, cw, t, archetype) {
   // brand stamp, when any wide logotype is enabled
   if (activeMarks().length && r.chance(0.4)) { y += 6; add(modMark(r, x, y, w, t)); }
 
+  // Occasional corner glyph, bottom-right. Reserve its own band so it never
+  // lands on the last module — the source of the overlaps in the crops.
+  let extra = '';
+  if (r.chance(0.35)) {
+    y += 12;
+    const sym = r.pick(activeIcons());
+    const ct = r.chance(0.45) ? { ...t, ink: t.accent } : t;   // glyph sometimes takes the accent
+    extra = symSvg(sym, x + w - 22, y, 22, ct, 1.2);
+    y += 22;
+  }
+
   const ch = y + P;
 
   // frame
@@ -798,13 +815,6 @@ function buildCard(r, cw, t, archetype) {
            fill="none" stroke="${t.ink}" stroke-width="1.1"/>`;
   }
 
-  // occasional corner glyph, bottom-right
-  let extra = '';
-  if (r.chance(0.35)) {
-    const sym = r.pick(activeIcons());
-    const ct = r.chance(0.45) ? { ...t, ink: t.accent } : t;   // glyph sometimes takes the accent
-    extra = symSvg(sym, cw - P - 22, ch - P - 22, 22, ct, 1.2);
-  }
   return { svg: fs + s.join('') + extra, w: cw, h: ch };
 }
 
@@ -879,28 +889,57 @@ function renderAsset(seedStr, opts) {
 
   body += `<g transform="translate(${ox.toFixed(1)} ${oy.toFixed(1)})">${card.svg}</g>`;
 
-  /* Tall strips (vertical kanji) are sized by HEIGHT and set in the poster
-     margin beside the card — sizing them by width would blow up the layout. */
-  /* Repeated label running down the margin, as in the reference posters. */
+  /* Side margins are shared by the repeated ticker label and the vertical
+     kanji strip. Track which sides are taken so nothing stacks on the same
+     one — that was the second overlap source in the crops. */
+  const sideUsed = { left: false, right: false };
+
+  /* Repeated label running down a margin, as in the reference posters. */
   if (r.chance(0.4)) {
+    const onRight = r.chance(0.6);
     const label = `[ ${rh(r, 4)} / ${r.pick(W.title)} ]`;
     const step = 108, n = Math.ceil(f.H / step) + 1;
     let strip = '';
     for (let i = 0; i < n; i++) strip += T(i * step, 0, label, { size: 8, fill: t.accent, track: 1 });
-    body += `<g transform="translate(${f.W - 20} 26) rotate(90)">${strip}</g>`;
+    const lx = onRight ? f.W - 20 : 20;
+    body += `<g transform="translate(${lx} 26) rotate(90)">${strip}</g>`;
+    sideUsed[onRight ? 'right' : 'left'] = true;
   }
 
+  /* Vertical kanji strip, sized by HEIGHT, on a free side. */
   const verts = activeRole('vert');
   if (verts.length && r.chance(0.5)) {
     const v = r.pick(verts);
     const vh = f.H * (0.3 + r() * 0.16);
-    const k = vh / v.vbox.h;
-    const vw = v.vbox.w * k;
-    const gap = 34;
-    const right = r.chance(0.5);
+    const k = vh / v.vbox.h, vw = v.vbox.w * k, gap = 34;
+    // prefer a side the ticker didn't take
+    const right = sideUsed.left && !sideUsed.right ? true
+                : sideUsed.right && !sideUsed.left ? false
+                : r.chance(0.5);
     const vx = right ? ox + card.w + gap : ox - gap - vw;
-    if (vx > 8 && vx + vw < f.W - 8) body += symWrap(v, vx, (f.H - vh) / 2, k, t, 1.0);
+    if (!sideUsed[right ? 'right' : 'left'] && vx > 8 && vx + vw < f.W - 8) {
+      body += symWrap(v, vx, (f.H - vh) / 2, k, t, 1.0);
+      sideUsed[right ? 'right' : 'left'] = true;
+    }
   }
+
+  /* Ladder/instrument strips run HORIZONTALLY in the top or bottom margin
+     (rotated -90 from their tall source). Sized by thickness so a wide ladder
+     doesn't become a giant band. Confined to the margin so it can't hit the card. */
+  const hbars = activeRole('hbar');
+  if (hbars.length && r.chance(0.5)) {
+    const hb = r.pick(hbars);
+    const th = r.int(24, 38), k = th / hb.vbox.w, len = hb.vbox.h * k;
+    if (len < f.W * 0.85) {
+      const topMargin = oy > 90, bottom = topMargin ? r.chance(0.5) : true;
+      const bandY = bottom ? oy + card.h + (f.H - (oy + card.h)) * 0.5 : oy * 0.5;
+      const px = ox + r.pick([0, card.w - len, (card.w - len) / 2]);
+      const gx = Math.max(20, Math.min(px, f.W - len - 20));
+      // rotate -90: source height -> +x (length), source width -> -y (thickness up)
+      body += `<g transform="translate(${gx.toFixed(1)} ${(bandY + th / 2).toFixed(1)}) rotate(-90) scale(${k.toFixed(4)}) translate(${-hb.vbox.x} ${-hb.vbox.y})">${symPaths(hb, t.ink, t.bg, 1.0, k)}</g>`;
+    }
+  }
+
   return { svg: wrap(f.W, f.H, t, body), W: f.W, H: f.H, theme: t, arch };
 }
 
@@ -1086,7 +1125,8 @@ const ROLE_INFO = [
   ['block', 'Blocks',    'QR codes, dials — given their own ~60px slot'],
   ['mark',  'Wordmarks', 'wide logotypes, sized to a third of the column'],
   ['panel', 'Panels',    'wide detailed art — charts, HUD strips, full column width'],
-  ['vert',  'Strips',    'tall marks, set down the poster margin'],
+  ['vert',  'Strips',    'tall marks (kanji), set down the poster margin'],
+  ['hbar',  'Bars',      'instrument strips, laid horizontally along a margin'],
 ];
 const symCell = s => {
   const { x, y, w, h } = s.vbox;
