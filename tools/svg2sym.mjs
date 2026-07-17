@@ -1,16 +1,17 @@
 #!/usr/bin/env node
-/* Convert Illustrator SVG exports into SPEC//FORGE symbol entries and inject
-   them into spec-forge.html between the generated markers.
+/* Convert Illustrator SVG exports into SPEC//FORGE symbols and merge them into
+   spec-forge-symbols.json.
    Handles what these exports actually use: <style> class fills, class and
-   group opacity, transforms, and rect/polygon/line primitives.
+   group opacity, transforms, and rect/polygon/line primitives. Drops artboard
+   frames and degenerate paths.
+
+   Merges by id, so updating one symbol doesn't require re-passing the rest.
 
    usage: node tools/svg2sym.mjs <id>=<file.svg> [...] */
 import fs from 'node:fs';
 import path from 'node:path';
 
-const TARGET = path.join(import.meta.dirname, '..', 'spec-forge.html');
-const START = '/* ==== generated:symbols:start ==== */';
-const END   = '/* ==== generated:symbols:end ==== */';
+const LIB = path.join(import.meta.dirname, '..', 'spec-forge-symbols.json');
 
 const num = v => parseFloat(v || 0);
 
@@ -133,30 +134,31 @@ function convert(file) {
   return { vbox, paths, dropped, degenerate };
 }
 
-/* ---- emit compact JS (drop defaults to keep the file readable) ---- */
-const emit = (id, name, s) => {
-  const body = s.paths.map(p => {
-    const bits = [`d:${JSON.stringify(p.d)}`];
-    if (p.filled) bits.push('filled:1');
-    if (p.stroked) bits.push('stroked:1');
-    if (p.tone !== 'ink') bits.push(`tone:'${p.tone}'`);
-    if (p.rule !== 'nonzero') bits.push(`rule:'${p.rule}'`);
-    if (p.op !== 1) bits.push(`op:${p.op}`);
-    if (p.tf) bits.push(`tf:${JSON.stringify(p.tf)}`);
-    return `    {${bits.join(',')}}`;
-  }).join(',\n');
-  return `  { id:'${id}', name:'${name}', vbox:{x:${s.vbox.x},y:${s.vbox.y},w:${s.vbox.w},h:${s.vbox.h}}, paths:[\n${body}\n  ]},`;
+/* ---- strip defaults so the JSON stays readable ---- */
+const slim = p => {
+  const o = { d: p.d };
+  if (p.filled) o.filled = 1;
+  if (p.stroked) o.stroked = 1;
+  if (p.tone !== 'ink') o.tone = p.tone;
+  if (p.rule !== 'nonzero') o.rule = p.rule;
+  if (p.op !== 1) o.op = p.op;
+  if (p.tf) o.tf = p.tf;
+  return o;
 };
 
 const args = process.argv.slice(2);
 if (!args.length) { console.error('usage: node tools/svg2sym.mjs <id>=<file.svg> ...'); process.exit(1); }
 
-const out = [];
+/* Merge into the existing library rather than replacing it — updating one
+   symbol shouldn't require re-passing every other SVG. */
+let lib = [];
+if (fs.existsSync(LIB)) lib = JSON.parse(fs.readFileSync(LIB, 'utf8'));
+
 for (const arg of args) {
   const i = arg.indexOf('=');
   const id = arg.slice(0, i), file = arg.slice(i + 1);
   const s = convert(file);
-  const a = (s.vbox.w / s.vbox.h);
+  const a = s.vbox.w / s.vbox.h;
   const role = a > 1.8 ? (s.paths.length > 24 ? 'panel' : 'mark')
              : a < 0.55 ? 'vert'
              : s.paths.length > 24 ? 'block' : 'icon';
@@ -165,12 +167,12 @@ for (const arg of args) {
     (s.degenerate ? `  (dropped ${s.degenerate} empty path)` : '') +
     (s.paths.some(p => p.op !== 1) ? `  [opacity layers]` : '') +
     (s.paths.some(p => p.tf) ? `  [transforms]` : ''));
-  out.push(emit(id, id.replace(/-/g, ' '), s));
+
+  const entry = { id, name: id.replace(/-/g, ' '), vbox: s.vbox, paths: s.paths.map(slim) };
+  const at = lib.findIndex(e => e.id === id);
+  if (at >= 0) { lib[at] = entry; console.log(`${''.padEnd(14)} ↳ replaced existing`); }
+  else lib.push(entry);
 }
 
-const html = fs.readFileSync(TARGET, 'utf8');
-const block = `${START}\nconst IMPORTED = [\n${out.join('\n')}\n];\n${END}`;
-if (!html.includes(START)) { console.error('markers not found in spec-forge.html'); process.exit(1); }
-const next = html.replace(new RegExp(`${START.replace(/[*/]/g, '\\$&')}[\\s\\S]*?${END.replace(/[*/]/g, '\\$&')}`), () => block);
-fs.writeFileSync(TARGET, next);
-console.log(`\ninjected ${out.length} symbols into ${path.basename(TARGET)} (${(block.length / 1024).toFixed(1)} KB)`);
+fs.writeFileSync(LIB, JSON.stringify(lib, null, 1) + '\n');
+console.log(`\n${lib.length} symbols in ${path.basename(LIB)} (${(fs.statSync(LIB).size / 1024).toFixed(1)} KB)`);
