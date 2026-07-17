@@ -71,20 +71,50 @@
   }
   .word button:hover{color:#c0392b}
 
-  /* ---------- palette swatches ---------- */
-  .palgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
-  .pal{
-    position:relative;aspect-ratio:1;border:1px solid var(--line);border-radius:3px;
-    cursor:pointer;overflow:hidden;transition:border-color .15s;
+  /* ---------- palette wheel ----------
+     Fixed height whatever the palette count — nodes sit at their real hue
+     (angle) and chroma (radius), so the picker is also a map. */
+  .wheel{
+    position:relative;width:100%;max-width:206px;aspect-ratio:1;margin:2px auto 0;
+    border-radius:50%;
+    /* stops anchored every 30deg at their true hue, so wheel angle == hue and a
+       node sits on the colour it represents */
+    background:
+      radial-gradient(circle at 50% 50%, #fff 4%, rgba(255,255,255,0) 66%),
+      conic-gradient(from 0deg,
+        hsl(0 90% 55%)   0deg,   hsl(30 90% 55%)  30deg,  hsl(60 90% 55%)  60deg,
+        hsl(90 90% 55%)  90deg,  hsl(120 90% 55%) 120deg, hsl(150 90% 55%) 150deg,
+        hsl(180 90% 55%) 180deg, hsl(210 90% 55%) 210deg, hsl(240 90% 55%) 240deg,
+        hsl(270 90% 55%) 270deg, hsl(300 90% 55%) 300deg, hsl(330 90% 55%) 330deg,
+        hsl(360 90% 55%) 360deg);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.14), 0 6px 22px rgba(0,0,0,.45);
   }
-  .pal:hover{border-color:var(--accent)}
-  .pal[data-sel="1"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
-  .pal .bars{position:absolute;left:0;right:0;bottom:0;height:38%;display:flex}
-  .pal .bars i{flex:1}
-  .pal.rnd{
-    display:grid;place-items:center;background:var(--bg);
-    font-size:8px;letter-spacing:.08em;color:var(--dim);
+  .wheel::after{                        /* sink it slightly into the dark UI */
+    content:'';position:absolute;inset:0;border-radius:50%;
+    background:radial-gradient(circle at 50% 50%, rgba(14,17,22,0) 62%, rgba(14,17,22,.5) 100%);
+    pointer-events:none;
   }
+  #spokes{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+  #wnodes{position:absolute;inset:0;z-index:2}
+  .wnode{
+    position:absolute;width:15px;height:15px;border-radius:50%;padding:0;z-index:2;
+    transform:translate(-50%,-50%);border:1.5px solid rgba(255,255,255,.92);
+    box-shadow:0 1px 5px rgba(0,0,0,.5);cursor:pointer;transition:width .12s,height .12s;
+  }
+  .wnode:hover{width:19px;height:19px}
+  .wnode[data-sel="1"]{
+    width:20px;height:20px;
+    box-shadow:0 0 0 2.5px var(--panel), 0 0 0 4px #fff, 0 1px 6px rgba(0,0,0,.6);
+  }
+  .wnode.rnd{
+    background:var(--panel);border-style:dashed;border-color:rgba(255,255,255,.7);
+    display:grid;place-items:center;font-size:6.5px;color:var(--dim);letter-spacing:.04em;
+  }
+  .palnow{
+    display:flex;align-items:center;gap:7px;margin-top:10px;
+    font-size:10px;color:var(--dim);letter-spacing:.06em;
+  }
+  .palnow i{width:12px;height:12px;border-radius:2px;border:1px solid rgba(255,255,255,.18)}
 
   /* ---------- symbol library ---------- */
   .symgrid{display:grid;grid-template-columns:repeat(8,1fr);gap:6px}
@@ -185,7 +215,11 @@
 
     <div class="grp">
       <label class="lbl">Palette</label>
-      <div class="palgrid" id="palgrid"></div>
+      <div class="wheel" id="wheel">
+        <svg id="spokes" viewBox="0 0 100 100" aria-hidden="true"></svg>
+        <div id="wnodes"></div>
+      </div>
+      <div class="palnow" id="palnow"></div>
     </div>
 
     <div class="grp">
@@ -852,16 +886,80 @@ $('wordlist').onclick = e => {
   saveWords(); renderWords(); generate(false);
 };
 
+/* ---------- palette wheel ---------- */
+const hex2rgb = h => { const n = parseInt(h.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
+/* True chroma (max-min), not HSL saturation: HSL calls #1A1B0A "47% saturated"
+   when it is essentially black, which would fling near-blacks to the rim. */
+const chromaOf = h => { const [r, g, b] = hex2rgb(h); return (Math.max(r, g, b) - Math.min(r, g, b)) / 255; };
+const hueOf = h => {
+  const [r, g, b] = hex2rgb(h).map(v => v / 255);
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
+  if (!d) return 0;
+  const x = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  return (x * 60 + 360) % 360;
+};
+/* A palette's identity is its most chromatic colour — Ember's and Acid's is the
+   background, Antireal's is the accent. Placing everything by `accent` would
+   put Ember (orange bg, off-white accent) in the whites. */
+const identityOf = t => [t.bg, t.ink, t.accent].reduce((a, c) => chromaOf(c) > chromaOf(a) ? c : a);
+
+let WHEEL = [];
+function layoutWheel() {
+  const nodes = THEMES.map(t => {
+    const color = identityOf(t), ch = chromaOf(color);
+    return { t, color, ch, neutral: ch < 0.12, hue: hueOf(color) };
+  });
+  // greys have no meaningful hue, so they get an inner ring instead of a pile-up
+  const neutrals = nodes.filter(n => n.neutral);
+  neutrals.forEach((n, i) => {
+    const a = (i / Math.max(1, neutrals.length)) * Math.PI * 2 - Math.PI / 2;
+    n.x = 0.5 + Math.cos(a) * 0.14; n.y = 0.5 + Math.sin(a) * 0.14;
+  });
+  nodes.filter(n => !n.neutral).forEach(n => {
+    const a = (n.hue - 90) * Math.PI / 180;
+    const r = 0.17 + Math.min(1, n.ch) * 0.28;
+    n.x = 0.5 + Math.cos(a) * r; n.y = 0.5 + Math.sin(a) * r;
+  });
+  // Five palettes carry a red accent within ~15° of each other and would stack.
+  // Relax them apart; they stay in their hue region, just readable.
+  const MIN = 0.108;
+  for (let it = 0; it < 240; it++) {
+    for (let i = 0; i < nodes.length; i++) for (let j = i + 1; j < nodes.length; j++) {
+      const A = nodes[i], B = nodes[j];
+      const dx = B.x - A.x, dy = B.y - A.y, d = Math.hypot(dx, dy) || 1e-4;
+      if (d < MIN) { const p = (MIN - d) / 2 / d; A.x -= dx * p; A.y -= dy * p; B.x += dx * p; B.y += dy * p; }
+    }
+    nodes.forEach(n => {   // stay on the wheel, and clear of the RND node at dead centre
+      const dx = n.x - 0.5, dy = n.y - 0.5, d = Math.hypot(dx, dy) || 1e-4;
+      const c = Math.min(Math.max(d, 0.115), 0.442);
+      n.x = 0.5 + dx / d * c; n.y = 0.5 + dy / d * c;
+    });
+  }
+  return nodes;
+}
+
 function renderPalettes() {
-  $('palgrid').innerHTML = [
-    `<div class="pal rnd" data-id="random" data-sel="${state.theme === 'random' ? 1 : 0}" title="Random">RND</div>`,
-    ...THEMES.map(t => `<div class="pal" data-id="${t.id}" data-sel="${state.theme === t.id ? 1 : 0}" title="${t.name}" style="background:${t.bg}">
-        <div class="bars"><i style="background:${t.ink}"></i><i style="background:${t.accent}"></i></div>
-      </div>`),
+  const sel = state.theme;
+  $('wnodes').innerHTML = [
+    `<button class="wnode rnd" data-id="random" data-sel="${sel === 'random' ? 1 : 0}"
+       style="left:50%;top:50%" title="Random — a different palette every roll">RND</button>`,
+    ...WHEEL.map(n => `<button class="wnode" data-id="${n.t.id}" data-sel="${sel === n.t.id ? 1 : 0}"
+       style="left:${(n.x * 100).toFixed(2)}%;top:${(n.y * 100).toFixed(2)}%;background:${n.color}"
+       title="${n.t.name}" aria-label="${n.t.name}"></button>`),
   ].join('');
+
+  const n = WHEEL.find(v => v.t.id === sel);
+  $('spokes').innerHTML = n
+    ? `<line x1="50" y1="50" x2="${(n.x * 100).toFixed(2)}" y2="${(n.y * 100).toFixed(2)}"
+         stroke="rgba(255,255,255,.9)" stroke-width="1.1" stroke-linecap="round"/>` : '';
+
+  const t = THEMES.find(v => v.id === sel);
+  $('palnow').innerHTML = t
+    ? `<i style="background:${t.bg}"></i><i style="background:${t.ink}"></i><i style="background:${t.accent}"></i><span>${t.name}</span>`
+    : `<i style="background:conic-gradient(#f33,#fd0,#3d3,#3af,#a3f,#f33)"></i><span>Random</span>`;
 }
 document.addEventListener('click', e => {
-  const c = e.target.closest('#palgrid .pal');
+  const c = e.target.closest('#wnodes .wnode');
   if (!c) return;
   state.theme = c.dataset.id;
   renderPalettes(); generate(false);
@@ -993,7 +1091,7 @@ document.addEventListener('keydown', e => {
 });
 
 (async function boot() {
-  setDiceFace(5); renderLock(); renderPalettes(); loadWords(); renderWords();
+  setDiceFace(5); renderLock(); WHEEL = layoutWheel(); renderPalettes(); loadWords(); renderWords();
   try {
     const res = await fetch('spec-forge-symbols.json');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
