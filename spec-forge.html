@@ -241,6 +241,13 @@ const THEMES = [
   { id:'neon',   name:'Neon',    bg:'#14121C', ink:'#EDE8F5', accent:'#F050A0' },
   { id:'iota',   name:'Iota',    bg:'#242438', ink:'#E6E4F0', accent:'#3FD8A8' },
   { id:'mono',   name:'Mono',    bg:'#F2F2F0', ink:'#111111', accent:'#111111' },
+  // from the reference posters
+  { id:'antireal',name:'Antireal',bg:'#161A24', ink:'#D8E0EA', accent:'#E01B22' },
+  { id:'accel',  name:'Accel',   bg:'#F04A16', ink:'#FFFFFF', accent:'#E81C10' },
+  { id:'derez',  name:'Derez',   bg:'#E2E2E4', ink:'#101010', accent:'#8CE016' },
+  { id:'ghost',  name:'Ghost',   bg:'#0A0C0A', ink:'#C6D2C6', accent:'#22E020' },
+  { id:'kiss',   name:'Kiss',    bg:'#F0F0F2', ink:'#23232A', accent:'#F5006A' },
+  { id:'tron',   name:'Tron',    bg:'#06090F', ink:'#BFD8E8', accent:'#3FE0FF' },
 ];
 
 /* ---------- word bank ----------
@@ -276,17 +283,22 @@ const pickTitle = r =>
   (USER.words.length && r.chance(0.7)) ? r.pick(USER.words)
     : r.chance(0.3) ? r.pick(W.code) : r.pick(W.title);
 
+const pad = (n, w) => String(n).padStart(w, '0');
 const subLine = r => r.pick([
+  () => `[ ${r.pick(W.title)} ]`,
+  () => `${pad(r.int(1,28),2)} → ${pad(r.int(1,12),2)} → ${pad(r.int(19,49),2)}`,
+  () => `+${r.int(1,9)}B ETA WORLDLINE`,
+  () => `TRACE 0X${rs(r,4)}`,
+  () => `INCEPT ${pad(r.int(1,28),2)}.${pad(r.int(1,12),2)}.${r.int(2019,2049)}`,
   () => `LOG_${r.int(100000,999999)}.TXT`,
   () => `SN ${rs(r,4)}-${r.int(1000,9999)}-${rs(r,3)}`,
-  () => `MOD ${rs(r,1)}${r.int(10,99)} / PORT ${r.int(10,99)}`,
-  () => `DATA.${r.int(100,999)}.XML`,
-  () => `FREQ ${r.int(90,480)}HZ`,
-  () => `POWER ${r.int(10,99)}%`,
-  () => `BAY ${r.int(1,9)} ${rs(r,1)}${r.int(10,99)}`,
-  () => `CODE 0X${rs(r,4)}`,
-  () => `LAT ${r.int(20,99)}MS`,
-  () => `DIV ${r.int(1,9)}`,
+  () => `MIME-TYPE: IMAGE/SVG`,
+  () => `NODE ${rs(r,1)}${r.int(10,99)} // SECTOR ${r.int(1,9)}`,
+  () => `GHOST 0X${rs(r,4)}`,
+  () => `DEREZ IN ${pad(r.int(1,59),2)}`,
+  () => `UPLINK ${r.int(20,99)}MS`,
+  () => `ICE LVL ${r.int(1,9)}`,
+  () => `BUFFER ${r.int(10,99)}%`,
 ])();
 const rs = (r,n) => Array.from({length:n},()=>'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789'[r.int(0,33)]).join('');
 
