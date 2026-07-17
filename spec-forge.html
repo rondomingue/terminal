@@ -168,6 +168,17 @@
   #out svg{display:block;max-width:100%;height:auto}
   .meta{font-size:10px;color:var(--faint);letter-spacing:0.08em}
   .meta b{color:var(--dim);font-weight:400}
+
+  /* ---------- responsive ----------
+     Below 720px the two-column grid stacks: the rail sits on top at full
+     width (so Seed / Layout are the first things in reach) and the stage
+     follows. The rail drops its 100vh cap so it flows with the page. */
+  @media (max-width: 720px){
+    .app{grid-template-columns:1fr}
+    .rail{max-height:none;overflow-y:visible;border-right:0;border-bottom:1px solid var(--line)}
+    .stage{padding:18px;min-height:70vh}
+    #out{max-height:none}
+  }
 </style>
 </head>
 <body>
@@ -203,6 +214,18 @@
     </div>
 
     <div class="grp">
+      <label class="lbl">Layout</label>
+      <select id="arch">
+        <option value="random">Random</option>
+        <option value="brief">Brief — title + pills</option>
+        <option value="spec">Spec — data table</option>
+        <option value="code">Code — JP + subs</option>
+        <option value="barcode">Barcode label</option>
+        <option value="chart">Signal chart</option>
+      </select>
+    </div>
+
+    <div class="grp">
       <label class="lbl">Format</label>
       <select id="format">
         <option value="poster">Poster · A-series 1:√2 ↑</option>
@@ -231,18 +254,6 @@
       <label class="lbl">Grain <b id="grainval">0%</b></label>
       <input type="range" id="grain" min="0" max="100" step="1" value="0" aria-label="Grain strength">
       <div class="hint">Print-style noise over the whole asset. Survives SVG and PNG.</div>
-    </div>
-
-    <div class="grp">
-      <label class="lbl">Layout</label>
-      <select id="arch">
-        <option value="random">Random</option>
-        <option value="brief">Brief — title + pills</option>
-        <option value="spec">Spec — data table</option>
-        <option value="code">Code — JP + subs</option>
-        <option value="barcode">Barcode label</option>
-        <option value="chart">Signal chart</option>
-      </select>
     </div>
 
     <div class="grp">
