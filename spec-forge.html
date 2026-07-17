@@ -81,19 +81,48 @@
   }
 
   /* ---------- symbol library ---------- */
-  .symgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:9px}
+  .symgrid{display:grid;grid-template-columns:repeat(8,1fr);gap:6px}
   .sym{
     position:relative;aspect-ratio:1;border:1px solid var(--line);border-radius:3px;
     display:grid;place-items:center;cursor:pointer;background:var(--bg);
+    transition:border-color .12s,opacity .12s;
   }
   .sym svg{width:64%;height:64%}
-  .sym[data-on="0"]{opacity:.25}
+  .sym[data-on="0"]{opacity:.2}
   .sym:hover{border-color:var(--accent)}
-  .sym .x{
-    position:absolute;top:-5px;right:-5px;width:14px;height:14px;border-radius:50%;
-    background:#c0392b;color:#fff;font-size:9px;line-height:14px;text-align:center;display:none;
+  .symrole{
+    display:flex;align-items:baseline;gap:8px;margin:16px 0 7px;
+    font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);
   }
-  .sym:hover .x{display:block}
+  .symrole:first-child{margin-top:0}
+  .symrole em{font-style:normal;letter-spacing:0;text-transform:none;color:var(--faint);font-size:9.5px}
+
+  /* ---------- modal ---------- */
+  .backdrop{
+    position:fixed;inset:0;z-index:200;display:none;
+    background:rgba(4,7,11,.72);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);
+  }
+  .backdrop.open{display:grid;place-items:center;padding:24px}
+  .modal{
+    width:min(620px,94vw);max-height:86vh;display:flex;flex-direction:column;
+    background:var(--panel);border:1px solid var(--line);border-radius:5px;
+    box-shadow:0 30px 90px rgba(0,0,0,.6);
+  }
+  .modal-head{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:14px 16px;border-bottom:1px solid var(--line);
+  }
+  .modal-head b{font-size:12px;font-weight:700;letter-spacing:-.01em}
+  .modal-head span{font-size:9.5px;color:var(--faint);letter-spacing:.06em}
+  .modal-x{background:transparent;border:0;color:var(--dim);font-size:20px;line-height:1;padding:2px 4px;cursor:pointer}
+  .modal-x:hover{color:var(--ink)}
+  .modal-body{padding:16px;overflow-y:auto}
+  .modal-foot{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    padding:12px 16px;border-top:1px solid var(--line);
+  }
+  #symopen{width:100%;text-align:left;display:flex;justify-content:space-between;align-items:center}
+  #symopen b{font-weight:400;color:var(--faint);letter-spacing:0;text-transform:none}
 
   /* ---------- stage ---------- */
   .stage{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;gap:14px;overflow:auto}
@@ -172,9 +201,8 @@
     </div>
 
     <div class="grp">
-      <label class="lbl">Symbols — click to toggle</label>
-      <div class="symgrid" id="symgrid"></div>
-      <div class="hint">Curate the pool: switch a symbol off and it stops appearing. Add new vectors with <code>tools/svg2sym.mjs</code>.</div>
+      <label class="lbl">Symbols</label>
+      <button id="symopen">◈ Symbol library <b id="symcount"></b></button>
     </div>
   </aside>
 
@@ -182,6 +210,26 @@
     <div id="out"></div>
     <div class="meta" id="meta"></div>
   </main>
+</div>
+
+<div class="backdrop" id="symmodal" role="dialog" aria-modal="true" aria-labelledby="symmodal-title" hidden>
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <b id="symmodal-title">Symbol library</b>
+        <span> · click to toggle — a symbol that's off never appears</span>
+      </div>
+      <button class="modal-x" id="symclose" aria-label="Close">&times;</button>
+    </div>
+    <div class="modal-body" id="symbody"></div>
+    <div class="modal-foot">
+      <span class="hint" style="margin:0">Add new vectors with <code>tools/svg2sym.mjs</code>.</span>
+      <div class="row" style="flex:0 0 auto">
+        <button id="symall">All on</button>
+        <button id="symdone" class="primary">Done</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -1208,21 +1256,48 @@ $('dlpng').onclick = async () => {
 };
 
 /* ---------- symbol panel ---------- */
+/* Grouped by role, so it's visible which slot each symbol actually feeds. */
+const ROLE_INFO = [
+  ['icon',  'Icons',     'header + corner glyphs'],
+  ['block', 'Blocks',    'QR codes, dials — given their own ~60px slot'],
+  ['mark',  'Wordmarks', 'wide logotypes, sized to the column'],
+  ['vert',  'Strips',    'tall marks, set down the poster margin'],
+];
+const symCell = s => {
+  const { x, y, w, h } = s.vbox;
+  const k = 24 / Math.max(w, h);                // keep preview line weight consistent
+  return `<div class="sym" data-id="${s.id}" data-on="${s.on ? 1 : 0}" title="${s.name}">
+     <svg viewBox="${x} ${y} ${w} ${h}" preserveAspectRatio="xMidYMid meet">${symPaths(s, '#e6ebf2', '#0e1116', 1.5, k)}</svg>
+   </div>`;
+};
 function renderSymbols() {
-  $('symgrid').innerHTML = SYMBOLS.map(s => {
-    const { x, y, w, h } = s.vbox;
-    const k = 24 / Math.max(w, h);              // keep preview line weight consistent
-    return `<div class="sym" data-id="${s.id}" data-on="${s.on ? 1 : 0}" title="${s.name}${s.role === 'mark' ? ' (wordmark)' : ''}">
-       <svg viewBox="${x} ${y} ${w} ${h}" preserveAspectRatio="xMidYMid meet">${symPaths(s, '#e6ebf2', '#0e1116', 1.5, k)}</svg>
-     </div>`;
+  $('symbody').innerHTML = ROLE_INFO.map(([role, label, blurb]) => {
+    const items = SYMBOLS.filter(s => s.role === role);
+    if (!items.length) return '';
+    const on = items.filter(s => s.on).length;
+    return `<div class="symrole">${label} <em>${blurb} · ${on}/${items.length}</em></div>
+            <div class="symgrid">${items.map(symCell).join('')}</div>`;
   }).join('');
+  const on = SYMBOLS.filter(s => s.on).length;
+  $('symcount').textContent = `${on} / ${SYMBOLS.length} on`;
 }
-$('symgrid').onclick = e => {
+$('symbody').onclick = e => {
   const cell = e.target.closest('.sym'); if (!cell) return;
   const s = SYMBOLS.find(v => v.id === cell.dataset.id);
   s.on = !s.on;
   saveSymbols(); renderSymbols(); generate(false);
 };
+
+const symModal = (open) => {
+  $('symmodal').classList.toggle('open', open);
+  $('symmodal').hidden = !open;
+  if (open) $('symclose').focus();
+};
+$('symopen').onclick  = () => symModal(true);
+$('symclose').onclick = () => symModal(false);
+$('symdone').onclick  = () => symModal(false);
+$('symmodal').onclick = e => { if (e.target === $('symmodal')) symModal(false); };  // backdrop only
+$('symall').onclick = () => { SYMBOLS.forEach(s => s.on = true); saveSymbols(); renderSymbols(); generate(false); };
 
 /* ---------- boot ---------- */
 /* Dice: for when you don't know what you want. Generate only rerolls the
@@ -1244,7 +1319,9 @@ $('gen').onclick = () => generate(true);
 $('seed').oninput = () => generate(false);
 $('lock').onclick = () => { locked = !locked; $('lock').textContent = locked ? '🔒' : '🔓'; };
 document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && $('symmodal').classList.contains('open')) { symModal(false); return; }
   if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
+  if ($('symmodal').classList.contains('open')) return;   // shortcuts don't fire behind the modal
   if (e.code === 'Space') { e.preventDefault(); generate(true); }
   if (e.code === 'KeyR')  { e.preventDefault(); roll(); }
 });
