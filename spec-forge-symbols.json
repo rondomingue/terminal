@@ -5944,5 +5944,105 @@
     "filled": 1
    }
   ]
+ },
+ {
+  "id": "reg-mark",
+  "name": "reg mark",
+  "vbox": {
+   "x": 0,
+   "y": 0,
+   "w": 24,
+   "h": 24
+  },
+  "paths": [
+   {
+    "d": "M8,12a4,4 0 1,0 8,0a4,4 0 1,0 -8,0",
+    "stroked": 1
+   },
+   {
+    "d": "M12 1V7M12 17V23M1 12H7M17 12H23",
+    "stroked": 1
+   }
+  ]
+ },
+ {
+  "id": "toggle",
+  "name": "toggle",
+  "vbox": {
+   "x": 0,
+   "y": 0,
+   "w": 36,
+   "h": 22
+  },
+  "paths": [
+   {
+    "d": "M3,2h30v18h-30Z",
+    "stroked": 1
+   },
+   {
+    "d": "M18.5,11a5.5,5.5 0 1,0 11,0a5.5,5.5 0 1,0 -11,0",
+    "filled": 1
+   }
+  ]
+ },
+ {
+  "id": "corner-tab",
+  "name": "corner tab",
+  "vbox": {
+   "x": 0,
+   "y": 0,
+   "w": 24,
+   "h": 24
+  },
+  "paths": [
+   {
+    "d": "M3,3h18v18h-18Z",
+    "stroked": 1
+   },
+   {
+    "d": "M3 3H12L3 12Z",
+    "filled": 1
+   }
+  ]
+ },
+ {
+  "id": "caution",
+  "name": "caution",
+  "vbox": {
+   "x": 0,
+   "y": 0,
+   "w": 24,
+   "h": 24
+  },
+  "paths": [
+   {
+    "d": "M12 3 22 20H2Z",
+    "stroked": 1
+   },
+   {
+    "d": "M12 9V14.5",
+    "stroked": 1
+   },
+   {
+    "d": "M10.9,17.2a1.1,1.1 0 1,0 2.2,0a1.1,1.1 0 1,0 -2.2,0",
+    "filled": 1
+   }
+  ]
+ },
+ {
+  "id": "brackets",
+  "name": "brackets",
+  "vbox": {
+   "x": 0,
+   "y": 0,
+   "w": 24,
+   "h": 24
+  },
+  "paths": [
+   {
+    "d": "M3 8V3H8M16 3H21V8M21 16V21H16M8 21H3V16",
+    "stroked": 1
+   }
+  ]
  }
 ]

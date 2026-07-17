@@ -359,6 +359,10 @@ const THEMES = [
   { id:'ghost',  name:'Ghost',   bg:'#0A0C0A', ink:'#C6D2C6', accent:'#22E020' },
   { id:'kiss',   name:'Kiss',    bg:'#F0F0F2', ink:'#23232A', accent:'#F5006A' },
   { id:'tron',   name:'Tron',    bg:'#06090F', ink:'#BFD8E8', accent:'#3FE0FF' },
+  // from the new references
+  { id:'relay',  name:'Relay',   bg:'#0A0C07', ink:'#C8F03A', accent:'#4A9EFF' },  // lime on black + blue links
+  { id:'frame',  name:'Frame',   bg:'#DCE4DB', ink:'#2C3A30', accent:'#3B7A52' },  // sage GUI sheet
+  { id:'patent', name:'Patent',  bg:'#EFEEE9', ink:'#161616', accent:'#F2661C' },  // orange HUD collage
 ];
 
 /* ---------- word bank ----------
@@ -652,6 +656,39 @@ function modReadout(r, x, y, w, t) {
   return { svg: s.join(''), h: 30 };
 }
 
+/* Status meters — LABEL  ▓▓▓▓▓░░░  73%. Straight from the Cyber Brutalism /
+   HUD references: a segmented bar with the last few cells empty, value at the
+   right, the fill in the accent. */
+function modMeter(r, x, y, w, t) {
+  const s = [], rh = 15, rows = r.int(2, 4);
+  const cells = 14, gap = 2, barX = x + w * 0.34, barW = w * 0.5;
+  const cw = (barW - gap * (cells - 1)) / cells;
+  for (let i = 0; i < rows; i++) {
+    const ry = y + i * rh, pct = r.int(18, 99), on = Math.round(cells * pct / 100);
+    s.push(T(x, ry + 8, r.pick(W.key), { size: 7, fill: t.ink, track: 0.4 }));
+    for (let c = 0; c < cells; c++) {
+      const on2 = c < on;
+      s.push(`<rect x="${(barX + c * (cw + gap)).toFixed(1)}" y="${ry + 2}" width="${cw.toFixed(1)}" height="7" ` +
+        (on2 ? `fill="${t.accent}"/>` : `fill="none" stroke="${t.ink}" stroke-width="0.6" opacity="0.55"/>`));
+    }
+    s.push(T(x + w, ry + 8, pct + '%', { size: 7, fill: t.ink, anchor: 'end', track: 0.4 }));
+  }
+  return { svg: s.join(''), h: rows * rh + 4 };
+}
+
+/* Bracketed section marker — // SECTOR_07, /02 CORE, the reference posters'
+   navigation cue. Hairline rule to the right edge. */
+function modSection(r, x, y, w, t) {
+  const label = r.chance(0.5) ? `// ${r.pick(W.title).replace(/\s+/g, '_')}`
+                              : `/${pad(r.int(1, 9), 2)}  ${r.pick(W.title)}`;
+  const lw = textW(label, 8, F_MONO, 400, 0.6) + 12;
+  return {
+    svg: T(x, y + 8, label, { size: 8, fill: t.accent, track: 0.6 }) +
+      `<path d="${rline(r, x + lw, y + 5, x + w, y + 5, 0.3)}" fill="none" stroke="${t.ink}" stroke-width="0.6" opacity="0.5"/>`,
+    h: 15,
+  };
+}
+
 function modSubs(r, x, y, w, t, n) {
   const s = [];
   for (let i = 0; i < n; i++) s.push(T(x, y + i * 11.5, subLine(r), { size: 8, fill: t.ink }));
@@ -707,6 +744,7 @@ function buildCard(r, cw, t, archetype) {
 
   add(modHeader(r, x, y, w, t));
   y += 4;
+  if (r.chance(0.4)) { add(modSection(r, x, y, w, t)); y += 4; }
 
   switch (archetype) {
     case 'brief':
@@ -732,12 +770,15 @@ function buildCard(r, cw, t, archetype) {
       break;
     case 'chart':
       add(modJP(r, x, y, w, t, false));
-      add(modSpark(r, x, y, w, t)); y += 2;
+      if (r.chance(0.5)) { add(modMeter(r, x, y, w, t)); y += 4; }   // status panel
+      else add(modSpark(r, x, y, w, t));
+      y += 2;
       add(modDim(r, x, y + 2, w, t, `LAT ${r.int(20,99)}MS`)); y += 6;
       add(modSubs(r, x, y, w, t, 1));
       break;
   }
 
+  if (r.chance(0.28)) { y += 6; add(modMeter(r, x, y, w, t)); }
   if (activeRole('panel').length && r.chance(0.35)) { y += 8; add(modPanel(r, x, y, w, t)); }
   if (r.chance(0.3)) { y += 6; add(modReadout(r, x, y, w, t)); }
   if (activeRole('block').length && r.chance(0.4)) { y += 6; add(modBlock(r, x, y, w, t)); }
@@ -819,7 +860,24 @@ function renderAsset(seedStr, opts) {
   // optical centring: on a tall sheet, a mathematically centred block reads
   // as sagging, so sit it slightly high — standard poster practice.
   const oy = (f.H - card.h) * (f.H > f.W ? 0.42 : 0.5);
-  let body = `<g transform="translate(${ox.toFixed(1)} ${oy.toFixed(1)})">${card.svg}</g>`;
+  let body = '';
+
+  /* Registration crosshairs — the small + marks pinned around the canvas in the
+     Marathon / Cyber Brutalism references. Drawn UNDER the card so the artwork
+     always sits on top, at four margin corners plus a light seeded scatter. */
+  if (r.chance(0.62)) {
+    const m = 34, plus = (px, py, s2, op = 1) =>
+      `<path d="M${(px - s2).toFixed(1)} ${py.toFixed(1)}H${(px + s2).toFixed(1)}M${px.toFixed(1)} ${(py - s2).toFixed(1)}V${(py + s2).toFixed(1)}" stroke="${t.ink}" stroke-width="1" opacity="${op}"/>`;
+    body += plus(m, m, 7) + plus(f.W - m, m, 7) + plus(m, f.H - m, 7) + plus(f.W - m, f.H - m, 7);
+    for (let i = 0, n = r.int(3, 7); i < n; i++) {
+      const px = r.int(20, f.W - 20), py = r.int(20, f.H - 20);
+      // keep the scatter out of the card's footprint
+      if (px > ox - 12 && px < ox + card.w + 12 && py > oy - 12 && py < oy + card.h + 12) continue;
+      body += plus(px, py, r.pick([3, 4, 5]), 0.5);
+    }
+  }
+
+  body += `<g transform="translate(${ox.toFixed(1)} ${oy.toFixed(1)})">${card.svg}</g>`;
 
   /* Tall strips (vertical kanji) are sized by HEIGHT and set in the poster
      margin beside the card — sizing them by width would blow up the layout. */
