@@ -41,6 +41,16 @@
   button.primary:hover{background:var(--accent-b);border-color:var(--accent-b);color:#04231c}
   .hint{font-size:9.5px;color:var(--faint);line-height:1.6;margin-top:8px}
 
+  /* ---------- dice ---------- */
+  #dice{flex:0 0 44px;font-size:15px;padding:8px 0}
+  #dice.rolling{animation:roll .45s cubic-bezier(.3,1.4,.5,1)}
+  @keyframes roll{
+    0%  {transform:rotate(0)      scale(1)}
+    55% {transform:rotate(200deg) scale(1.18)}
+    100%{transform:rotate(360deg) scale(1)}
+  }
+  @media (prefers-reduced-motion: reduce){ #dice.rolling{animation:none} }
+
   /* ---------- recurring words ---------- */
   .words{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
   .word{
