@@ -41,8 +41,14 @@
   button.primary:hover{background:var(--accent-b);border-color:var(--accent-b);color:#04231c}
   .hint{font-size:9.5px;color:var(--faint);line-height:1.6;margin-top:8px}
 
+  /* ---------- vector control icons ---------- */
+  #dice,#lock{flex:0 0 42px;display:grid;place-items:center;padding:6px 0}
+  #dice svg,#lock svg{width:17px;height:17px;display:block}
+  .ico-stroke{fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+  .ico-fill{fill:currentColor}
+  #lock[data-locked="1"]{border-color:var(--accent);color:var(--accent)}
+
   /* ---------- dice ---------- */
-  #dice{flex:0 0 44px;font-size:15px;padding:8px 0}
   #dice.rolling{animation:roll .45s cubic-bezier(.3,1.4,.5,1)}
   @keyframes roll{
     0%  {transform:rotate(0)      scale(1)}
@@ -139,6 +145,29 @@
     <div class="tag">procedural asset generator</div>
 
     <div class="grp">
+      <label class="lbl">Seed</label>
+      <div class="row" style="margin-bottom:6px">
+        <input type="text" id="seed" value="0079">
+        <button id="lock" data-locked="0" title="Lock the seed" aria-label="Lock seed">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect class="ico-stroke" x="4.75" y="10.75" width="14.5" height="9.5" rx="1.5"/>
+            <path class="ico-stroke" id="shackle" d=""/>
+          </svg>
+        </button>
+      </div>
+      <div class="row">
+        <button id="dice" title="Roll everything — format, palette, layout, seed (R)" aria-label="Roll everything">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect class="ico-stroke" x="3.75" y="3.75" width="16.5" height="16.5" rx="3.25"/>
+            <g class="ico-fill" id="pips"></g>
+          </svg>
+        </button>
+        <button class="primary" id="gen" style="flex:1">⟳ Generate</button>
+      </div>
+      <div class="hint">Generate rerolls the seed. The dice rolls <em>everything</em>.</div>
+    </div>
+
+    <div class="grp">
       <label class="lbl">Format</label>
       <select id="format">
         <option value="poster">Poster · A-series 1:√2 ↑</option>
@@ -176,19 +205,6 @@
         <button id="wordbtn" style="flex:0 0 40px" title="Add word">+</button>
       </div>
       <div class="hint" id="wordhint">Your words become the headline on most assets. Up to 5.</div>
-    </div>
-
-    <div class="grp">
-      <label class="lbl">Seed</label>
-      <div class="row" style="margin-bottom:6px">
-        <input type="text" id="seed" value="0079">
-        <button id="lock" title="Lock seed" style="flex:0 0 40px">🔓</button>
-      </div>
-      <div class="row">
-        <button id="dice" title="Roll everything — format, palette, layout, seed (R)">🎲</button>
-        <button class="primary" id="gen" style="flex:1">⟳ Generate</button>
-      </div>
-      <div class="hint">Generate rerolls the seed. The dice rolls <em>everything</em>.</div>
     </div>
 
     <div class="grp">
@@ -1560,11 +1576,33 @@ $('symall').onclick = () => { SYMBOLS.forEach(s => s.on = true); saveSymbols(); 
    seed; this commits to concrete format/palette/layout choices so you can
    see what it landed on and iterate. Honours a locked seed. */
 const rnd = a => a[Math.floor(Math.random() * a.length)];
+
+/* The die is drawn, not typed — pips on a 3×3 grid, so it can land on a
+   real face each roll instead of being a static glyph. */
+const PIPS = {
+  1: [[12,12]],
+  2: [[8,8],[16,16]],
+  3: [[8,8],[12,12],[16,16]],
+  4: [[8,8],[16,8],[8,16],[16,16]],
+  5: [[8,8],[16,8],[12,12],[8,16],[16,16]],
+  6: [[8,7.5],[8,12],[8,16.5],[16,7.5],[16,12],[16,16.5]],
+};
+const setDiceFace = n => {
+  $('pips').innerHTML = PIPS[n].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.45"/>`).join('');
+};
+const renderLock = () => {
+  $('lock').dataset.locked = locked ? '1' : '0';
+  $('lock').title = locked ? 'Seed locked — the dice will keep it' : 'Lock the seed';
+  // closed shackle returns to the body; open one stays lifted
+  $('shackle').setAttribute('d', locked ? 'M8 10.75V7a4 4 0 0 1 8 0v3.75' : 'M8 10.75V7a4 4 0 0 1 8 0');
+};
+
 function roll() {
   $('format').value = rnd(['poster', 'poster', 'a_land', 'onesheet', 'square', 'wide', 'tight', 'sheet']);
   $('arch').value   = rnd(['brief', 'spec', 'code', 'barcode', 'chart']);
   state.theme       = rnd(THEMES).id;
   renderPalettes();
+  setDiceFace(1 + Math.floor(Math.random() * 6));
   const d = $('dice');
   d.classList.remove('rolling'); void d.offsetWidth; d.classList.add('rolling');
   generate(true);
@@ -1573,7 +1611,7 @@ $('dice').onclick = roll;
 $('gen').onclick = () => generate(true);
 ['format','arch'].forEach(id => $(id).onchange = () => generate(false));
 $('seed').oninput = () => generate(false);
-$('lock').onclick = () => { locked = !locked; $('lock').textContent = locked ? '🔒' : '🔓'; };
+$('lock').onclick = () => { locked = !locked; renderLock(); };
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && $('symmodal').classList.contains('open')) { symModal(false); return; }
   if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
@@ -1582,6 +1620,7 @@ document.addEventListener('keydown', e => {
   if (e.code === 'KeyR')  { e.preventDefault(); roll(); }
 });
 
+setDiceFace(5); renderLock();
 loadSymbols(); renderSymbols(); renderPalettes(); loadWords(); renderWords(); generate(false);
 </script>
 </body>
