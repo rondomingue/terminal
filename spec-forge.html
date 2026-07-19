@@ -222,6 +222,11 @@
         <option value="code">Code — JP + subs</option>
         <option value="barcode">Barcode label</option>
         <option value="chart">Signal chart</option>
+        <option value="hud">HUD stack</option>
+        <option value="terminal">Terminal dump</option>
+        <option value="matrix">Matrix grid</option>
+        <option value="circuit">Circuit schematic</option>
+        <option value="diagnostic">Diagnostic panel</option>
       </select>
     </div>
 
@@ -235,6 +240,8 @@
         <option value="wide">Wide · 16:9</option>
         <option value="tight">Tight card · auto</option>
         <option value="sheet">Contact sheet · 4×5</option>
+        <option value="sheet_square_5">Square contact sheet · 5×5</option>
+        <option value="sheet_square_10">Square contact sheet · 10×10</option>
       </select>
     </div>
 
@@ -776,6 +783,50 @@ function modSpark(r, x, y, w, t) {
   return { svg: s.join(''), h: h + 8 };
 }
 
+function modHexDump(r, x, y, w, t, rows = 7) {
+  const s = [];
+  const chars = '0123456789ABCDEF';
+  for (let i = 0; i < rows; i++) {
+    const addr = `0X${rh(r, 4)}`;
+    const bytes = Array.from({ length: r.int(5, 8) }, () => rh(r, 2)).join(' ');
+    const flag = r.pick(['ACK', 'RST', 'SYN', 'ICE', 'MEM', 'IO']);
+    s.push(T(x, y + i * 12, `${addr}  ${bytes}`, { size: 8, fill: t.ink, track: 0.25 }));
+    s.push(T(x + w, y + i * 12, `${flag}_${chars[r.int(0, 15)]}`, { size: 8, fill: i % 3 === 0 ? t.accent : t.ink, anchor: 'end', track: 0.4 }));
+  }
+  return { svg: s.join(''), h: rows * 12 + 4 };
+}
+
+function modMatrix(r, x, y, w, t) {
+  const s = [];
+  const cols = r.int(5, 7), rows = r.int(4, 6), gap = 4;
+  const cell = Math.min(24, (w - gap * (cols - 1)) / cols);
+  const bw = cols * cell + gap * (cols - 1), ox = x + (w - bw) / 2;
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      const cx = ox + col * (cell + gap), cy = y + row * (cell + gap);
+      const on = r.chance(0.58);
+      s.push(`<rect x="${cx.toFixed(1)}" y="${cy.toFixed(1)}" width="${cell.toFixed(1)}" height="${cell.toFixed(1)}" fill="${on ? t.accent : 'none'}" stroke="${t.ink}" stroke-width="0.75" opacity="${on ? 1 : 0.5}"/>`);
+      if (r.chance(0.34)) s.push(`<path d="M${cx+4} ${cy+cell/2}H${cx+cell-4}M${cx+cell/2} ${cy+4}V${cy+cell-4}" stroke="${on ? t.bg : t.ink}" stroke-width="0.7" opacity="0.7"/>`);
+    }
+  }
+  return { svg: s.join(''), h: rows * cell + gap * (rows - 1) + 10 };
+}
+
+function modCircuit(r, x, y, w, t) {
+  const s = [];
+  const h = 92, lanes = r.int(5, 7);
+  s.push(`<path d="${rrect(r, x, y, w, h, 0.35)}" fill="none" stroke="${t.ink}" stroke-width="0.75" opacity="0.75"/>`);
+  for (let i = 0; i < lanes; i++) {
+    const yy = y + 12 + i * ((h - 24) / Math.max(1, lanes - 1));
+    const mid = x + r.int(Math.round(w * 0.25), Math.round(w * 0.72));
+    const end = x + w - r.int(8, 34);
+    s.push(`<path d="M${x+8} ${yy.toFixed(1)}H${mid.toFixed(1)}V${(yy + r.pick([-14, -8, 8, 14])).toFixed(1)}H${end.toFixed(1)}" fill="none" stroke="${i % 2 ? t.ink : t.accent}" stroke-width="1"/>`);
+    s.push(`<circle cx="${mid.toFixed(1)}" cy="${yy.toFixed(1)}" r="2.2" fill="${t.ink}"/>`);
+    if (r.chance(0.48)) s.push(`<rect x="${(end - 5).toFixed(1)}" y="${(yy - 5).toFixed(1)}" width="10" height="10" fill="none" stroke="${t.ink}" stroke-width="0.8"/>`);
+  }
+  return { svg: s.join(''), h: h + 10 };
+}
+
 /* ============================================================
    CARD — compose modules by archetype, height driven by content
    ============================================================ */
@@ -818,6 +869,33 @@ function buildCard(r, cw, t, archetype) {
       y += 2;
       add(modDim(r, x, y + 2, w, t, `LAT ${r.int(20,99)}MS`)); y += 6;
       add(modSubs(r, x, y, w, t, 1));
+      break;
+    case 'hud':
+      add(modStatus(r, x, y, w, t));
+      add(modMeter(r, x, y, w, t)); y += 4;
+      add(modCoords(r, x, y, w, t)); y += 4;
+      if (activeRole('panel').length) add(modPanel(r, x, y, w, t));
+      break;
+    case 'terminal':
+      add(modTerminal(r, x, y, w, t)); y += 5;
+      add(modHexDump(r, x, y, w, t, r.int(6, 9))); y += 3;
+      add(modSubs(r, x, y, w, t, 2));
+      break;
+    case 'matrix':
+      add(modTitle(r, x, y, w, t)); y += 2;
+      add(modMatrix(r, x, y, w, t));
+      add(modSubs(r, x, y, w, t, 1));
+      break;
+    case 'circuit':
+      add(modJP(r, x, y, w, t, false));
+      add(modCircuit(r, x, y, w, t)); y += 2;
+      add(modReadout(r, x, y, w, t));
+      break;
+    case 'diagnostic':
+      add(modStatus(r, x, y, w, t)); y += 2;
+      add(modTable(r, x, y, w, t, r.int(4, 6))); y += 4;
+      add(modMeter(r, x, y, w, t)); y += 2;
+      add(modTerminal(r, x, y, w, t));
       break;
   }
 
@@ -869,33 +947,42 @@ const FORMATS = {
   square: { W: 1080,   H: 1080,   cardW: 760 },   // social tile
   wide:   { W: 1600,   H: 900,    cardW: 980 },   // 16:9
   tight:  { W: 0,      H: 0,      cardW: 720 },   // card only
-  sheet:  { W: 1400,   H: 1750,   cardW: 300 },   // contact sheet
+  sheet:  { W: 1400,   H: 1750,   cardW: 300, cols: 4, rows: 5, gap: 26, pad: 40 },   // contact sheet
+  sheet_square_5:  { W: 1600, H: 1600, cardW: 300, cols: 5, rows: 5, gap: 20, pad: 42, squareCells: true },
+  sheet_square_10: { W: 2400, H: 2400, cardW: 240, cols: 10, rows: 10, gap: 12, pad: 48, squareCells: true },
 };
+const ARCHES = ['brief', 'spec', 'code', 'barcode', 'chart', 'hud', 'terminal', 'matrix', 'circuit', 'diagnostic'];
 
 function renderAsset(seedStr, opts) {
   const r = makeRng(hashSeed(seedStr));
   const pickTheme = () => opts.theme === 'random' ? r.pick(THEMES) : THEMES.find(t => t.id === opts.theme);
-  const pickArch  = () => opts.arch === 'random' ? r.pick(['brief','spec','code','barcode','chart']) : opts.arch;
+  const pickArch  = () => opts.arch === 'random' ? r.pick(ARCHES) : opts.arch;
   const f = FORMATS[opts.format];
 
-  if (opts.format === 'sheet') {
+  if (f.cols && f.rows) {
     const t = pickTheme();
-    const cols = 4, rows = 5, gap = 26, pad = 40;
+    const { cols, rows, gap, pad } = f;
     const cw = (f.W - pad * 2 - gap * (cols - 1)) / cols;
+    const cellH = f.squareCells ? (f.H - pad * 2 - gap * (rows - 1)) / rows : 0;
     const cells = [];
     let maxH = 0;
     for (let i = 0; i < cols * rows; i++) {
       const rr = makeRng(hashSeed(seedStr + '#' + i));
-      const c = buildCard(rr, cw, t, opts.arch === 'random' ? rr.pick(['brief','spec','code','barcode','chart']) : opts.arch);
+      const c = buildCard(rr, f.cardW || cw, t, opts.arch === 'random' ? rr.pick(ARCHES) : opts.arch);
       cells.push(c); maxH = Math.max(maxH, c.h);
     }
-    const H = pad * 2 + rows * maxH + gap * (rows - 1);
+    const H = f.squareCells ? f.H : pad * 2 + rows * maxH + gap * (rows - 1);
     const body = cells.map((c, i) => {
-      const cx = pad + (i % cols) * (cw + gap), cy = pad + Math.floor(i / cols) * (maxH + gap);
-      return `<g transform="translate(${cx.toFixed(1)} ${cy.toFixed(1)})">${c.svg}</g>`;
+      const baseX = pad + (i % cols) * (cw + gap);
+      const baseY = pad + Math.floor(i / cols) * ((f.squareCells ? cellH : maxH) + gap);
+      if (!f.squareCells) return `<g transform="translate(${baseX.toFixed(1)} ${baseY.toFixed(1)})">${c.svg}</g>`;
+      const scale = Math.min(cw / c.w, cellH / c.h);
+      const cx = baseX + (cw - c.w * scale) / 2;
+      const cy = baseY + (cellH - c.h * scale) / 2;
+      return `<g transform="translate(${cx.toFixed(1)} ${cy.toFixed(1)}) scale(${scale.toFixed(5)})">${c.svg}</g>`;
     }).join('');
     const border = `<path d="${rrect(r, 20, 20, f.W - 40, H - 40, 0.7)}" fill="none" stroke="${t.ink}" stroke-width="1.2"/>`;
-    return { svg: wrap(f.W, H, t, border + body), W: f.W, H, theme: t, arch: 'sheet' };
+    return { svg: wrap(f.W, H, t, border + body), W: f.W, H, theme: t, arch: `${cols}x${rows} sheet` };
   }
 
   const t = pickTheme(), arch = pickArch();
@@ -1243,8 +1330,8 @@ const renderLock = () => {
 };
 
 function roll() {
-  $('format').value = rnd(['poster', 'poster', 'a_land', 'onesheet', 'square', 'wide', 'tight', 'sheet']);
-  $('arch').value   = rnd(['brief', 'spec', 'code', 'barcode', 'chart']);
+  $('format').value = rnd(['poster', 'poster', 'a_land', 'onesheet', 'square', 'wide', 'tight', 'sheet', 'sheet_square_5', 'sheet_square_10']);
+  $('arch').value   = rnd(ARCHES);
   state.theme       = rnd(THEMES).id;
   renderPalettes();
   setDiceFace(1 + Math.floor(Math.random() * 6));

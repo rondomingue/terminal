@@ -5964,5 +5964,274 @@
     "tone": "bg"
    }
   ]
+ },
+ {
+  "id": "cyber-eye",
+  "name": "cyber eye",
+  "vbox": {
+   "x": 0,
+   "y": 0,
+   "w": 24,
+   "h": 24
+  },
+  "paths": [
+   {
+    "d": "M2.5 12C5.3 7.8 8.5 5.8 12 5.8S18.7 7.8 21.5 12C18.7 16.2 15.5 18.2 12 18.2S5.3 16.2 2.5 12Z",
+    "stroked": 1
+   },
+   {
+    "d": "M8.8 12a3.2 3.2 0 1 0 6.4 0 3.2 3.2 0 0 0-6.4 0Z",
+    "stroked": 1
+   },
+   {
+    "d": "M11.2 12a0.8 0.8 0 1 0 1.6 0 0.8 0.8 0 0 0-1.6 0ZM4 6H7M17 6H20M4 18H7M17 18H20",
+    "filled": 1
+   }
+  ]
+ },
+ {
+  "id": "neural-port",
+  "name": "neural port",
+  "vbox": {
+   "x": 0,
+   "y": 0,
+   "w": 24,
+   "h": 24
+  },
+  "paths": [
+   {
+    "d": "M7 4H17L20 7V17L17 20H7L4 17V7Z",
+    "stroked": 1
+   },
+   {
+    "d": "M9 9H15V15H9Z",
+    "stroked": 1
+   },
+   {
+    "d": "M12 2V4M12 20V22M2 12H4M20 12H22M6 6 3.8 3.8M18 6 20.2 3.8M6 18 3.8 20.2M18 18 20.2 20.2",
+    "stroked": 1
+   }
+  ]
+ },
+ {
+  "id": "firewall",
+  "name": "firewall",
+  "vbox": {
+   "x": 0,
+   "y": 0,
+   "w": 24,
+   "h": 24
+  },
+  "paths": [
+   {
+    "d": "M4 5H20V19H4Z",
+    "stroked": 1
+   },
+   {
+    "d": "M4 10H20M4 15H20M9 5V10M15 5V10M7 10V15M13 10V15M18 10V15M10 15V19M16 15V19",
+    "stroked": 1
+   }
+  ]
+ },
+ {
+  "id": "ghost-chip",
+  "name": "ghost chip",
+  "vbox": {
+   "x": 0,
+   "y": 0,
+   "w": 24,
+   "h": 24
+  },
+  "paths": [
+   {
+    "d": "M7 6H17V16L14 19 12 16.8 10 19 7 16Z",
+    "filled": 1
+   },
+   {
+    "d": "M10 10H10.1M14 10H14.1M9 3V6M12 3V6M15 3V6M4 9H7M4 13H7M17 9H20M17 13H20",
+    "stroked": 1,
+    "tone": "bg"
+   }
+  ]
+ },
+ {
+  "id": "terminal-caret",
+  "name": "terminal caret",
+  "vbox": {
+   "x": 0,
+   "y": 0,
+   "w": 24,
+   "h": 24
+  },
+  "paths": [
+   {
+    "d": "M3 5H21V19H3Z",
+    "stroked": 1
+   },
+   {
+    "d": "M7 9 10 12 7 15M12 15H17",
+    "stroked": 1
+   }
+  ]
+ },
+ {
+  "id": "data-spike",
+  "name": "data spike",
+  "vbox": {
+   "x": 0,
+   "y": 0,
+   "w": 24,
+   "h": 24
+  },
+  "paths": [
+   {
+    "d": "M12 2 18 21H6Z",
+    "stroked": 1
+   },
+   {
+    "d": "M12 6V18M9.5 14H14.5M10.5 10H13.5",
+    "stroked": 1
+   }
+  ]
+ },
+ {
+  "id": "scan-frame",
+  "name": "scan frame",
+  "vbox": {
+   "x": 0,
+   "y": 0,
+   "w": 24,
+   "h": 24
+  },
+  "paths": [
+   {
+    "d": "M4 9V4H9M15 4H20V9M20 15V20H15M9 20H4V15M6 12H18",
+    "stroked": 1
+   },
+   {
+    "d": "M10 10H14V14H10Z",
+    "filled": 1
+   }
+  ]
+ },
+ {
+  "id": "implant-key",
+  "name": "implant key",
+  "vbox": {
+   "x": 0,
+   "y": 0,
+   "w": 24,
+   "h": 24
+  },
+  "paths": [
+   {
+    "d": "M4 12a4 4 0 1 0 8 0 4 4 0 0 0-8 0Z",
+    "stroked": 1
+   },
+   {
+    "d": "M12 12H22M17 12V16M20 12V15M7 12H7.1",
+    "stroked": 1
+   }
+  ]
+ },
+ {
+  "id": "drone-node",
+  "name": "drone node",
+  "vbox": {
+   "x": 0,
+   "y": 0,
+   "w": 24,
+   "h": 24
+  },
+  "paths": [
+   {
+    "d": "M8 8H16V16H8Z",
+    "stroked": 1
+   },
+   {
+    "d": "M4 4H8V8H4ZM16 4H20V8H16ZM4 16H8V20H4ZM16 16H20V20H16Z",
+    "stroked": 1
+   },
+   {
+    "d": "M8 8 4 4M16 8 20 4M8 16 4 20M16 16 20 20",
+    "stroked": 1
+   }
+  ]
+ },
+ {
+  "id": "memory-stack",
+  "name": "memory stack",
+  "role": "block",
+  "vbox": {
+   "x": 0,
+   "y": 0,
+   "w": 24,
+   "h": 24
+  },
+  "paths": [
+   {
+    "d": "M5 5H19V9H5ZM5 10H19V14H5ZM5 15H19V19H5Z",
+    "stroked": 1
+   },
+   {
+    "d": "M8 7H8.1M11 7H11.1M8 12H8.1M11 12H11.1M8 17H8.1M11 17H11.1",
+    "stroked": 1
+   }
+  ]
+ },
+ {
+  "id": "circuit-panel",
+  "name": "circuit panel",
+  "role": "panel",
+  "vbox": {
+   "x": 0,
+   "y": 0,
+   "w": 96,
+   "h": 32
+  },
+  "paths": [
+   {
+    "d": "M2 2H94V30H2Z",
+    "stroked": 1
+   },
+   {
+    "d": "M8 8H22V24H8ZM74 8H88V24H74ZM34 6H52V14H34ZM38 20H58V26H38",
+    "stroked": 1
+   },
+   {
+    "d": "M22 16H34M52 10H66V16H74M58 23H66V16M16 8V4M16 28V24M81 8V4M81 28V24",
+    "stroked": 1
+   },
+   {
+    "d": "M64 14a2 2 0 1 0 4 0 2 2 0 0 0-4 0ZM28 16a2 2 0 1 0 4 0 2 2 0 0 0-4 0",
+    "filled": 1
+   }
+  ]
+ },
+ {
+  "id": "signal-panel",
+  "name": "signal panel",
+  "role": "panel",
+  "vbox": {
+   "x": 0,
+   "y": 0,
+   "w": 108,
+   "h": 30
+  },
+  "paths": [
+   {
+    "d": "M2 15H106",
+    "stroked": 1
+   },
+   {
+    "d": "M6 15C12 4 18 26 24 15S36 4 42 15 54 26 60 15 72 4 78 15 90 26 102 15",
+    "stroked": 1
+   },
+   {
+    "d": "M10 6V24M30 6V24M50 6V24M70 6V24M90 6V24",
+    "stroked": 1,
+    "op": 0.45
+   }
+  ]
  }
 ]

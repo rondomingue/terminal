@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fractal Blossom</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#17161c;
+    --paper:#f6efe4;
+    --sakura:#e8a9be;
+    --magnolia:#f3d9c4;
+    --gold:#c9a24b;
+    --text-dim:#c9c2d1;
+    --panel-bg:rgba(20,18,26,0.58);
+    --panel-line:rgba(246,239,228,0.14);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;overflow:hidden;background:#dfe6ee;}
+  body{font-family:'Inter',sans-serif;color:var(--paper);}
+
+  #stage{position:fixed;inset:0;width:100vw;height:100vh;cursor:default;}
+  #svgCanvas{width:100%;height:100%;display:block;}
+
+  .panel{
+    position:fixed;
+    background:var(--panel-bg);
+    backdrop-filter:blur(16px) saturate(140%);
+    -webkit-backdrop-filter:blur(16px) saturate(140%);
+    border:1px solid var(--panel-line);
+    border-radius:16px;
+    box-shadow:0 14px 40px rgba(0,0,0,0.28);
+    transition:opacity .3s ease, transform .3s ease;
+  }
+  .panel.hidden{opacity:0;pointer-events:none;transform:translateY(-6px);}
+
+  #titleCard{top:20px;left:20px;padding:14px 18px;display:flex;flex-direction:column;gap:4px;}
+  h1{font-family:'Fraunces',serif;font-weight:600;font-style:italic;font-size:21px;margin:0;letter-spacing:0.2px;color:var(--paper);}
+  .meta{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);display:flex;gap:8px;align-items:center;}
+  .meta input{width:64px;background:transparent;border:1px solid var(--panel-line);color:var(--gold);font-family:inherit;font-size:11px;padding:3px 6px;border-radius:5px;}
+
+  #controls{top:20px;right:20px;width:270px;padding:16px 20px 20px;max-height:calc(100vh - 40px);overflow-y:auto;}
+  .panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
+  .panel-title{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);}
+  .icon-btn{background:transparent;border:none;color:var(--text-dim);cursor:pointer;font-size:15px;padding:2px 6px;line-height:1;}
+  .icon-btn:hover{color:var(--gold);}
+  #controlsBody{display:flex;flex-direction:column;gap:17px;overflow:hidden;max-height:1400px;opacity:1;transition:max-height .35s ease, opacity .25s ease;}
+  #controlsBody.collapsed{max-height:0;opacity:0;}
+
+  .group{display:flex;flex-direction:column;gap:8px;}
+  .label{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-dim);}
+  .species-row{display:flex;flex-wrap:wrap;gap:6px;}
+  .species-btn{flex:1 1 30%;padding:8px 4px;background:rgba(255,255,255,0.04);border:1px solid var(--panel-line);color:var(--text-dim);border-radius:8px;font-family:'Inter',sans-serif;font-size:12px;cursor:pointer;transition:border-color .15s,color .15s;}
+  .species-btn.active{border-color:var(--sakura);color:var(--paper);}
+
+  input[type=range]{-webkit-appearance:none;width:100%;height:2px;background:var(--panel-line);border-radius:2px;outline:none;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--sakura);cursor:pointer;border:2px solid var(--ink);}
+  .row-between{display:flex;justify-content:space-between;font-size:11px;color:var(--text-dim);font-family:'JetBrains Mono',monospace;}
+
+  .switch-row{display:flex;align-items:center;justify-content:space-between;font-size:12.5px;color:var(--paper);}
+  .switch{position:relative;width:34px;height:19px;flex:none;}
+  .switch input{opacity:0;width:0;height:0;}
+  .switch .track{position:absolute;inset:0;background:var(--panel-line);border-radius:20px;transition:background .2s;cursor:pointer;}
+  .switch .thumb{position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;background:var(--text-dim);transition:transform .2s,background .2s;}
+  .switch input:checked + .track{background:rgba(232,169,190,0.5);}
+  .switch input:checked + .track .thumb{transform:translateX(15px);background:var(--sakura);}
+
+  button.action{padding:10px 12px;border-radius:8px;border:none;font-family:'Inter',sans-serif;font-size:12.5px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:transform .1s,filter .15s;width:100%;}
+  button.action:active{transform:scale(0.97);}
+  .btn-primary{background:linear-gradient(135deg,var(--sakura),var(--magnolia));color:#241823;}
+  .btn-primary:hover{filter:brightness(1.06);}
+  .btn-ghost{background:rgba(255,255,255,0.04);border:1px solid var(--panel-line);color:var(--paper);}
+  .btn-ghost:hover{border-color:var(--gold);color:var(--gold);}
+  .dl-row{display:flex;gap:8px;}
+  .dl-row button{flex:1;}
+
+  .readout{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);line-height:1.7;background:rgba(255,255,255,0.03);border:1px solid var(--panel-line);border-radius:8px;padding:11px 12px;}
+  .readout span{color:var(--paper);}
+  .hint{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dim);opacity:0.75;line-height:1.5;}
+
+  #toggleUI{position:fixed;bottom:20px;right:20px;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;z-index:10;}
+
+  #exhibitionBadge{
+    position:fixed; top:20px; left:50%; transform:translateX(-50%);
+    padding:6px 14px; border-radius:20px;
+    font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:0.08em;
+    color:var(--text-dim); opacity:0; pointer-events:none;
+    transition:opacity .4s ease;
+  }
+  #exhibitionBadge.show{opacity:1;}
+
+  @media (max-width:720px){
+    #controls{top:auto;bottom:20px;left:20px;right:20px;width:auto;max-height:50vh;}
+    #titleCard{padding:11px 15px;}
+    h1{font-size:18px;}
+  }
+</style>
+</head>
+<body>
+
+<div id="stage">
+  <svg id="svgCanvas" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"></svg>
+</div>
+
+<div class="panel" id="exhibitionBadge">exhibition mode — click or press Esc to exit</div>
+
+<div class="panel" id="titleCard">
+  <h1>Fractal Blossom</h1>
+  <div class="meta">seed <input id="seedInput" type="text" value="0"></div>
+</div>
+
+<div class="panel" id="controls">
+  <div class="panel-header">
+    <span class="panel-title">Controls</span>
+    <button class="icon-btn" id="collapseBtn">–</button>
+  </div>
+  <div id="controlsBody">
+    <div class="group">
+      <div class="label">Species</div>
+      <div class="species-row">
+        <button class="species-btn active" data-species="sakura">Sakura</button>
+        <button class="species-btn" data-species="magnolia">Magnolia</button>
+        <button class="species-btn" data-species="ume">Plum</button>
+        <button class="species-btn" data-species="tsubaki">Camellia</button>
+        <button class="species-btn" data-species="momo">Peach</button>
+        <button class="species-btn" data-species="wild">Wild</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="row-between"><span>Grove size</span><span id="groveVal">6</span></div>
+      <input type="range" id="groveSlider" min="3" max="9" step="1" value="6">
+    </div>
+
+    <div class="group">
+      <div class="row-between"><span>Branch depth</span><span id="depthVal">5</span></div>
+      <input type="range" id="depthSlider" min="3" max="6" step="1" value="5">
+    </div>
+
+    <div class="group">
+      <div class="row-between"><span>Cluster density</span><span id="densityVal">2</span></div>
+      <input type="range" id="densitySlider" min="1" max="3" step="1" value="2">
+    </div>
+
+    <button class="action btn-primary" id="genBtn">⟳ Generate</button>
+    <button class="action btn-ghost" id="replayBtn">▸ Replay draw</button>
+
+    <div class="dl-row">
+      <button class="action btn-ghost" id="dlSvg">↓ SVG</button>
+      <button class="action btn-ghost" id="dlPng">↓ PNG</button>
+    </div>
+
+    <div class="group">
+      <div class="label">Exhibition</div>
+      <div class="switch-row">
+        <span>Auto-play, cycles species</span>
+        <label class="switch"><input type="checkbox" id="exhibitionToggle"><span class="track"><span class="thumb"></span></span></label>
+      </div>
+      <div class="hint">each bloom finishes drawing, holds, then the next grows — UI fades out after a moment</div>
+    </div>
+
+    <div class="group">
+      <div class="label">Parameters</div>
+      <div class="readout" id="paramsReadout"></div>
+    </div>
+  </div>
+</div>
+
+<div class="panel btn-ghost" id="toggleUI" title="Hide/show UI (H)">👁</div>
+
+<script>
+(function(){
+  function mulberry32(a){
+    return function(){
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  const svgNS = "http://www.w3.org/2000/svg";
+  const svg = document.getElementById('svgCanvas');
+  const paramsReadout = document.getElementById('paramsReadout');
+  const seedInput = document.getElementById('seedInput');
+  const depthSlider = document.getElementById('depthSlider');
+  const densitySlider = document.getElementById('densitySlider');
+  const groveSlider = document.getElementById('groveSlider');
+  const depthVal = document.getElementById('depthVal');
+  const densityVal = document.getElementById('densityVal');
+  const groveVal = document.getElementById('groveVal');
+  const exhibitionToggle = document.getElementById('exhibitionToggle');
+  const exhibitionBadge = document.getElementById('exhibitionBadge');
+  const titleCard = document.getElementById('titleCard');
+  const controls = document.getElementById('controls');
+
+  const VB = 1000;
+  const SCALE = 3.15;
+  const SPECIES_LIST = ['sakura','magnolia','ume','tsubaki','momo','wild'];
+
+  let species = 'sakura';
+  let currentSeed = Math.floor(Math.random()*99999);
+  let drawElements = [];
+  let gardenDrawEnd = 0;
+  let uiHidden = false;
+
+  let exhibitionOn = false;
+  let exhibitionSpeciesIdx = 0;
+  let exhibitionTimer = null;
+  let exhibitionHideTimer = null;
+
+  function setUIHidden(v){
+    uiHidden = v;
+    titleCard.classList.toggle('hidden', v);
+    controls.classList.toggle('hidden', v);
+  }
+  function toggleGlobalUI(){ setUIHidden(!uiHidden); }
+
+  function updateSpeciesButtons(){
+    document.querySelectorAll('.species-btn').forEach(b=>b.classList.toggle('active', b.dataset.species===species));
+  }
+
+  document.querySelectorAll('.species-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      species = btn.dataset.species;
+      updateSpeciesButtons();
+      generate(Math.floor(Math.random()*99999));
+    });
+  });
+
+  depthSlider.addEventListener('input', ()=>depthVal.textContent = depthSlider.value);
+  densitySlider.addEventListener('input', ()=>densityVal.textContent = densitySlider.value);
+  groveSlider.addEventListener('input', ()=>groveVal.textContent = groveSlider.value);
+  [depthSlider, densitySlider, groveSlider].forEach(s=> s.addEventListener('change', ()=>generate(currentSeed)));
+
+  document.getElementById('genBtn').addEventListener('click', ()=>generate(Math.floor(Math.random()*99999)));
+  document.getElementById('replayBtn').addEventListener('click', playDraw);
+  document.getElementById('dlSvg').addEventListener('click', downloadSVG);
+  document.getElementById('dlPng').addEventListener('click', downloadPNG);
+  document.getElementById('toggleUI').addEventListener('click', toggleGlobalUI);
+
+  seedInput.addEventListener('keydown', (e)=>{
+    if(e.key==='Enter'){
+      const n = parseInt(seedInput.value.replace(/[^0-9]/g,''),10);
+      if(!isNaN(n)) generate(n);
+    }
+  });
+
+  // ---------- exhibition / ambient mode ----------
+  exhibitionToggle.addEventListener('change', ()=>{
+    if(exhibitionToggle.checked) startExhibition(); else stopExhibition();
+  });
+  function startExhibition(){
+    exhibitionOn = true;
+    exhibitionBadge.classList.add('show');
+    const idx = SPECIES_LIST.indexOf(species);
+    exhibitionSpeciesIdx = idx>=0 ? idx : 0;
+    scheduleNextExhibition();
+    clearTimeout(exhibitionHideTimer);
+    exhibitionHideTimer = setTimeout(()=>{ if(exhibitionOn) setUIHidden(true); }, 2200);
+  }
+  function stopExhibition(){
+    exhibitionOn = false;
+    exhibitionToggle.checked = false;
+    exhibitionBadge.classList.remove('show');
+    clearTimeout(exhibitionTimer);
+    clearTimeout(exhibitionHideTimer);
+    setUIHidden(false);
+  }
+  function scheduleNextExhibition(){
+    clearTimeout(exhibitionTimer);
+    if(!exhibitionOn) return;
+    const waitMs = gardenDrawEnd + 4200;
+    exhibitionTimer = setTimeout(()=>{
+      if(!exhibitionOn) return;
+      exhibitionSpeciesIdx = (exhibitionSpeciesIdx+1) % SPECIES_LIST.length;
+      species = SPECIES_LIST[exhibitionSpeciesIdx];
+      updateSpeciesButtons();
+      generate(Math.floor(Math.random()*99999));
+      scheduleNextExhibition();
+    }, waitMs);
+  }
+  document.getElementById('stage').addEventListener('click', ()=>{ if(exhibitionOn) stopExhibition(); });
+  document.addEventListener('keydown', (e)=>{
+    if(document.activeElement===seedInput) return;
+    if(e.key==='Escape' && exhibitionOn){ stopExhibition(); return; }
+    if(e.key==='h'||e.key==='H') toggleGlobalUI();
+  });
+
+  document.getElementById('collapseBtn').addEventListener('click', ()=>{
+    const body = document.getElementById('controlsBody');
+    const collapsed = body.classList.toggle('collapsed');
+    document.getElementById('collapseBtn').textContent = collapsed ? '+' : '–';
+  });
+
+  function lerp(a,b,t){return a+(b-a)*t;}
+
+  // ---------- species parameter sets (base units, scaled later) ----------
+  function getSpeciesParams(rng, sp){
+    if(sp==='sakura'){
+      return {
+        maxDepth: parseInt(depthSlider.value,10),
+        startLength: 44, startWidth: 3.2, lengthRatio: 0.74, bowFactor:0.13,
+        angleSpread: 44, tripleChance: 0.35,
+        clusterMax: parseInt(densitySlider.value,10)+1,
+        earlyTermChance: 0.16,
+        petalCountFn: ()=>5,
+        petalLenFn: (r)=> 11+r()*7,
+        petalWidthFn: (r)=> 9+r()*5,
+        petalShape:'notch', ruffleAmt:0.14, doubleChance:0.22,
+        hueFn: (r)=> 330 + r()*16,
+        satRange:[55,75], lightRange:[74,88],
+        branchColor: '#7a5b44', branchColorVar: 10,
+        stamens: true
+      };
+    } else if(sp==='magnolia'){
+      const white = rng() < 0.45;
+      return {
+        maxDepth: Math.max(3, parseInt(depthSlider.value,10)-1),
+        startLength: 56, startWidth: 5.0, lengthRatio: 0.7, bowFactor:0.11,
+        angleSpread: 34, tripleChance: 0.12,
+        clusterMax: 1,
+        earlyTermChance: 0.3,
+        petalCountFn: (r)=> 6+Math.floor(r()*4),
+        petalLenFn: (r)=> 29+r()*16,
+        petalWidthFn: (r)=> 13+r()*8,
+        petalShape:'point', ruffleAmt:0.08, doubleChance:0.08,
+        hueFn: (r)=> 300 + r()*46,
+        satRange: white ? [8,20] : [42,62],
+        lightRange: white ? [90,97] : [70,84],
+        branchColor: '#5b4433', branchColorVar: 8,
+        stamens: 'small'
+      };
+    } else if(sp==='ume'){
+      const crimson = rng() < 0.6;
+      return {
+        maxDepth: parseInt(depthSlider.value,10),
+        startLength: 42, startWidth: 3.4, lengthRatio: 0.72, bowFactor:0.17,
+        angleSpread: 50, tripleChance: 0.4,
+        clusterMax: parseInt(densitySlider.value,10)+1,
+        earlyTermChance: 0.18,
+        petalCountFn: ()=>5,
+        petalLenFn: (r)=> 9+r()*5,
+        petalWidthFn: (r)=> 8+r()*4,
+        petalShape:'round', ruffleAmt:0.16, doubleChance:0.18,
+        hueFn: (r)=> crimson ? 350+r()*20 : 340+r()*10,
+        satRange: crimson ? [60,80] : [5,15],
+        lightRange: crimson ? [42,58] : [92,97],
+        branchColor: '#4a3527', branchColorVar: 14,
+        stamens: true
+      };
+    } else if(sp==='tsubaki'){
+      const roll = rng();
+      const mode = roll<0.34 ? 'red' : (roll<0.67 ? 'pink' : 'white');
+      const hueBase = mode==='red' ? 355 : (mode==='pink' ? 340 : 335);
+      const satR = mode==='red' ? [60,78] : (mode==='pink' ? [55,70] : [6,14]);
+      const lightR = mode==='red' ? [42,55] : (mode==='pink' ? [62,75] : [93,97]);
+      return {
+        maxDepth: Math.max(3, parseInt(depthSlider.value,10)-1),
+        startLength: 50, startWidth: 4.6, lengthRatio: 0.72, bowFactor:0.09,
+        angleSpread: 32, tripleChance: 0.15,
+        clusterMax: 1,
+        earlyTermChance: 0.28,
+        petalCountFn: (r)=> 8+Math.floor(r()*5),
+        petalLenFn: (r)=> 18+r()*10,
+        petalWidthFn: (r)=> 14+r()*8,
+        petalShape:'round', ruffleAmt:0.4, doubleChance:0.45,
+        hueFn: (r)=> hueBase + (r()-0.5)*10,
+        satRange:satR, lightRange:lightR,
+        branchColor: '#3c2f22', branchColorVar: 8,
+        stamens: 'small'
+      };
+    } else if(sp==='momo'){
+      return {
+        maxDepth: parseInt(depthSlider.value,10),
+        startLength: 45, startWidth: 3.3, lengthRatio: 0.75, bowFactor:0.11,
+        angleSpread: 40, tripleChance: 0.3,
+        clusterMax: parseInt(densitySlider.value,10)+2,
+        earlyTermChance: 0.14,
+        petalCountFn: ()=>5,
+        petalLenFn: (r)=> 13+r()*7,
+        petalWidthFn: (r)=> 11+r()*6,
+        petalShape:'point', ruffleAmt:0.2, doubleChance:0.18,
+        hueFn: (r)=> 320 + r()*20,
+        satRange:[60,80], lightRange:[62,76],
+        branchColor: '#6b4a36', branchColorVar: 10,
+        stamens: true
+      };
+    } else {
+      const t = rng();
+      const shapes = ['notch','point','round'];
+      const shape = shapes[Math.floor(rng()*shapes.length)];
+      return {
+        maxDepth: parseInt(depthSlider.value,10),
+        startLength: 44+t*16, startWidth: 3.2+t*2,
+        lengthRatio: 0.68+rng()*0.1, bowFactor: 0.08+rng()*0.12,
+        angleSpread: 28+rng()*30, tripleChance: 0.1+rng()*0.35,
+        clusterMax: parseInt(densitySlider.value,10)+Math.floor(rng()*2),
+        earlyTermChance: 0.15+rng()*0.2,
+        petalCountFn: (r)=> 4+Math.floor(r()*6),
+        petalLenFn: (r)=> 12+r()*30,
+        petalWidthFn: (r)=> 8+r()*16,
+        petalShape: shape, ruffleAmt: 0.05+rng()*0.5, doubleChance: 0.15+rng()*0.3,
+        hueFn: (r)=> 280+r()*90,
+        satRange:[20+rng()*40, 55+rng()*25],
+        lightRange:[74+rng()*12, 86+rng()*10],
+        branchColor: rng()<0.5?'#7a5b44':'#5b4433', branchColorVar: 10,
+        stamens: rng()<0.6
+      };
+    }
+  }
+
+  // ---------- tree builder ----------
+  // bow direction now follows each fork's own turn (continuing the sweep it just made)
+  // instead of an independent random sign per segment, which was making branches zigzag.
+  function buildTree(rng, p, startX, startY, startAngle, orderStart){
+    const branches = [];
+    const blossoms = [];
+    let order = orderStart;
+
+    function grow(x,y,angle,length,width,depth,parentAngle){
+      const myOrder = order++;
+      const a = angle*Math.PI/180;
+      const x2 = x + Math.cos(a)*length;
+      const y2 = y + Math.sin(a)*length;
+
+      const turn = angle - parentAngle;
+      const turnSign = Math.abs(turn) < 0.5 ? (rng()<0.5?-1:1) : Math.sign(turn);
+      const bow = turnSign * rng() * length * (p.bowFactor||0.13) * 0.85;
+      const perp = (angle+90)*Math.PI/180;
+      const cx = (x+x2)/2 + Math.cos(perp)*bow;
+      const cy = (y+y2)/2 + Math.sin(perp)*bow;
+      branches.push({x1:x,y1:y,x2,y2,cx,cy,width,order:myOrder});
+
+      const forceTerminal = depth<=0;
+      const earlyTerminal = depth < (p.maxDepth-1) && depth>0 && rng() < p.earlyTermChance;
+
+      if(forceTerminal || earlyTerminal){
+        const clusterSize = 1 + Math.floor(rng()*p.clusterMax);
+        for(let i=0;i<clusterSize;i++){
+          const pedOrder = order++;
+          const spreadAngle = angle + (rng()-0.5)*56;
+          const stemLen = 4+rng()*7;
+          const pa = spreadAngle*Math.PI/180;
+          const bx = x2 + Math.cos(pa)*stemLen;
+          const by = y2 + Math.sin(pa)*stemLen;
+          branches.push({x1:x2,y1:y2,x2:bx,y2:by,cx:(x2+bx)/2,cy:(y2+by)/2,width:Math.max(0.6,width*0.4),order:pedOrder});
+          const flOrder = order++;
+          blossoms.push({
+            x:bx, y:by,
+            angle: spreadAngle + (rng()-0.5)*50,
+            petalCount: p.petalCountFn(rng),
+            petalLen: p.petalLenFn(rng),
+            petalWidth: p.petalWidthFn(rng),
+            shape: p.petalShape,
+            ruffle: p.ruffleAmt*(0.75+rng()*0.5),
+            double: rng() < p.doubleChance,
+            hue: p.hueFn(rng),
+            sat: p.satRange[0] + rng()*(p.satRange[1]-p.satRange[0]),
+            light: p.lightRange[0] + rng()*(p.lightRange[1]-p.lightRange[0]),
+            scale: 0.85+rng()*0.3,
+            stamens: p.stamens,
+            order: flOrder
+          });
+        }
+        return;
+      }
+
+      const nBranches = 2 + (rng()<p.tripleChance?1:0);
+      const children = [];
+      for(let i=0;i<nBranches;i++){
+        const childAngle = angle + (i-(nBranches-1)/2)*(p.angleSpread/Math.max(1,nBranches-1)) + (rng()-0.5)*8;
+        const childLength = length*(p.lengthRatio + (rng()-0.5)*0.1);
+        const childWidth = width*0.72;
+        children.push({childAngle, childLength, childWidth});
+      }
+      let kept = 0;
+      children.forEach((c,i)=>{
+        if(rng() < 0.12 && kept>0 && i<children.length-1) return;
+        kept++;
+        grow(x2,y2,c.childAngle,c.childLength,c.childWidth,depth-1,angle);
+      });
+    }
+
+    grow(startX, startY, startAngle, p.startLength, p.startWidth, p.maxDepth, startAngle);
+    return {branches, blossoms, nextOrder: order};
+  }
+
+  // ---------- petal path: control-point jitter drives shape + ruffle variety ----------
+  function petalPath(L, W, shape, rng, ruffleAmt){
+    const r = ()=> (rng()-0.5);
+    const bulgeL = W*0.6*(1+r()*ruffleAmt);
+    const bulgeR = W*0.6*(1+r()*ruffleAmt);
+    const bulgeL2 = W*0.64*(1+r()*ruffleAmt*0.7);
+    const bulgeR2 = W*0.64*(1+r()*ruffleAmt*0.7);
+    const yMidL = -L*(0.56+r()*0.08);
+    const yMidR = -L*(0.56+r()*0.08);
+    const baseY = -L*(0.19+r()*0.05);
+
+    if(shape==='notch'){
+      const tipSpread = W*(0.13+rng()*0.07);
+      const dipY = -L*(0.78+rng()*0.06);
+      return `M0,0 C${(-bulgeL).toFixed(2)},${baseY.toFixed(2)} ${(-bulgeL2).toFixed(2)},${yMidL.toFixed(2)} ${(-tipSpread).toFixed(2)},${(-L*0.92).toFixed(2)} Q0,${dipY.toFixed(2)} ${tipSpread.toFixed(2)},${(-L*0.92).toFixed(2)} C${bulgeR2.toFixed(2)},${yMidR.toFixed(2)} ${bulgeR.toFixed(2)},${baseY.toFixed(2)} 0,0 Z`;
+    }
+    if(shape==='point'){
+      return `M0,0 C${(-bulgeL).toFixed(2)},${baseY.toFixed(2)} ${(-bulgeL2*0.55).toFixed(2)},${(-L*0.88).toFixed(2)} 0,${(-L*1.03).toFixed(2)} C${(bulgeR2*0.55).toFixed(2)},${(-L*0.88).toFixed(2)} ${bulgeR.toFixed(2)},${baseY.toFixed(2)} 0,0 Z`;
+    }
+    return `M0,0 C${(-bulgeL).toFixed(2)},${baseY.toFixed(2)} ${(-bulgeL2).toFixed(2)},${yMidL.toFixed(2)} 0,${(-L).toFixed(2)} C${bulgeR2.toFixed(2)},${yMidR.toFixed(2)} ${bulgeR.toFixed(2)},${baseY.toFixed(2)} 0,0 Z`;
+  }
+  function petalMidrib(L){
+    return `M0,-1 C${(-1).toFixed(2)},${(-L*0.35).toFixed(2)} ${(1).toFixed(2)},${(-L*0.65).toFixed(2)} 0,${(-L*0.88).toFixed(2)}`;
+  }
+
+  function el(tag, attrs){
+    const e = document.createElementNS(svgNS, tag);
+    for(const k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+
+  function renderPetalRing(g, fl, tree, opts){
+    const fillColor = `hsl(${opts.hue.toFixed(0)}, ${opts.sat.toFixed(0)}%, ${opts.light.toFixed(0)}%)`;
+    const highlightColor = `hsl(${opts.hue.toFixed(0)}, ${Math.min(100,opts.sat+15).toFixed(0)}%, ${Math.min(98,opts.light+10).toFixed(0)}%)`;
+    const strokeColor = `hsl(${opts.hue.toFixed(0)}, 40%, 26%)`;
+
+    for(let i=0;i<opts.count;i++){
+      const pAngle = (360/opts.count)*i + opts.angleOffset + (tree.rng()-0.5)*8;
+      const jScale = (0.9+tree.rng()*0.2)*opts.scale;
+      const curl = (tree.rng()-0.5)*16;
+      const pg = el('g',{transform:`rotate(${pAngle.toFixed(1)}) scale(${jScale.toFixed(3)}) skewX(${curl.toFixed(1)})`});
+      const path = el('path',{
+        d: petalPath(fl.petalLen, fl.petalWidth, fl.shape, tree.rng, fl.ruffle),
+        fill: fillColor, 'fill-opacity': 0,
+        stroke: strokeColor, 'stroke-width': 0.5, 'stroke-opacity':0.4
+      });
+      pg.appendChild(path);
+      const delay = tree.delayBase + fl.order*tree.stagger + opts.delayOffset + i*40;
+      drawElements.push({el:path, kind:'stroke', delay, dur:280});
+      drawElements.push({el:path, kind:'fill', delay:delay+220, dur:380, target:opts.fillTarget});
+
+      if(tree.detail==='high'){
+        const hi = el('path',{
+          d: petalPath(fl.petalLen*0.62, fl.petalWidth*0.5, fl.shape, tree.rng, fl.ruffle*0.6),
+          transform:`translate(0,${(-fl.petalLen*0.18).toFixed(2)})`,
+          fill: highlightColor, 'fill-opacity':0, stroke:'none'
+        });
+        pg.appendChild(hi);
+        drawElements.push({el:hi, kind:'fill', delay:delay+320, dur:400, target:opts.fillTarget*0.55});
+
+        const mid = el('path',{d: petalMidrib(fl.petalLen), fill:'none', stroke:strokeColor, 'stroke-width':0.35, opacity:0});
+        pg.appendChild(mid);
+        drawElements.push({el:mid, kind:'fillopacity', delay:delay+260, dur:300, target:0.35});
+      }
+      g.appendChild(pg);
+    }
+  }
+
+  // ---------- render a garden of trees ----------
+  function render(garden){
+    svg.innerHTML = '';
+    drawElements = [];
+
+    const defs = el('defs',{});
+    const sky = el('linearGradient',{id:'sky', x1:'0%',y1:'0%', x2:'20%',y2:'100%'});
+    sky.appendChild(el('stop',{offset:'0%','stop-color':'#dfe6ee'}));
+    sky.appendChild(el('stop',{offset:'45%','stop-color':'#f3d9d6'}));
+    sky.appendChild(el('stop',{offset:'100%','stop-color':'#f7e8ce'}));
+    defs.appendChild(sky);
+    const glow = el('radialGradient',{id:'glow', cx:'62%', cy:'28%', r:'45%'});
+    glow.appendChild(el('stop',{offset:'0%','stop-color':'#fff3d6','stop-opacity':'0.9'}));
+    glow.appendChild(el('stop',{offset:'100%','stop-color':'#fff3d6','stop-opacity':'0'}));
+    defs.appendChild(glow);
+    svg.appendChild(defs);
+
+    svg.appendChild(el('rect',{x:0,y:0,width:VB,height:VB,fill:'url(#sky)'}));
+    svg.appendChild(el('circle',{cx:VB*0.62,cy:VB*0.28,r:VB*0.42,fill:'url(#glow)'}));
+
+    garden.forEach(tree=>{
+      const wrap = el('g',{opacity:tree.opacity.toFixed(2)});
+      if(tree.blur>0.05) wrap.setAttribute('style', `filter:blur(${tree.blur.toFixed(2)}px)`);
+      svg.appendChild(wrap);
+
+      const branchLayer = el('g',{fill:'none','stroke-linecap':'round'});
+      wrap.appendChild(branchLayer);
+      tree.branches.forEach(b=>{
+        const path = el('path',{
+          d:`M${b.x1.toFixed(2)},${b.y1.toFixed(2)} Q${b.cx.toFixed(2)},${b.cy.toFixed(2)} ${b.x2.toFixed(2)},${b.y2.toFixed(2)}`,
+          stroke:tree.p.branchColor,
+          'stroke-width':b.width.toFixed(2),
+          opacity:0.85
+        });
+        branchLayer.appendChild(path);
+        drawElements.push({el:path, kind:'stroke', delay:tree.delayBase+b.order*tree.stagger, dur:220+Math.min(300,b.width*30)});
+      });
+
+      const blossomLayer = el('g',{});
+      wrap.appendChild(blossomLayer);
+      tree.blossoms.forEach(fl=>{
+        const g = el('g',{transform:`translate(${fl.x.toFixed(2)},${fl.y.toFixed(2)}) rotate(${fl.angle.toFixed(1)}) scale(${fl.scale.toFixed(2)})`});
+        blossomLayer.appendChild(g);
+
+        renderPetalRing(g, fl, tree, {
+          count: fl.petalCount, scale:1, angleOffset:0,
+          hue:fl.hue, sat:fl.sat, light:fl.light,
+          delayOffset:0, fillTarget:0.58
+        });
+
+        if(fl.double){
+          const innerCount = Math.max(3, fl.petalCount-1);
+          renderPetalRing(g, fl, tree, {
+            count: innerCount, scale:0.55, angleOffset:(360/fl.petalCount)/2,
+            hue:fl.hue, sat:Math.min(100,fl.sat+10), light:Math.max(0,fl.light-9),
+            delayOffset: fl.petalCount*40+180, fillTarget:0.66
+          });
+        }
+
+        if(fl.stamens){
+          const count = fl.stamens==='small' ? 5 : Math.floor(fl.petalCount*1.3);
+          const sLen = fl.petalLen * (fl.stamens==='small' ? 0.18 : 0.32);
+          const sg = el('g',{});
+          g.appendChild(sg);
+          for(let i=0;i<count;i++){
+            const sa = (360/count)*i + tree.rng()*20;
+            const rad = sa*Math.PI/180;
+            const sx = Math.sin(rad)*sLen*-1, sy = -Math.cos(rad)*sLen;
+            const line = el('path',{d:`M0,0 L${sx.toFixed(2)},${sy.toFixed(2)}`, stroke:'#c9a24b','stroke-width':0.4,opacity:0});
+            sg.appendChild(line);
+            const dot = el('circle',{cx:sx.toFixed(2),cy:sy.toFixed(2),r:0.9,fill:'#d9b24d',opacity:0});
+            sg.appendChild(dot);
+            const delay = tree.delayBase + fl.order*tree.stagger + (fl.double?fl.petalCount*40+260:260) + i*20;
+            drawElements.push({el:line,kind:'fillopacity',delay,dur:250,target:0.75});
+            drawElements.push({el:dot,kind:'fillopacity',delay:delay+80,dur:250,target:0.9});
+          }
+        }
+      });
+    });
+
+    gardenDrawEnd = drawElements.reduce((m,d)=>Math.max(m,d.delay+d.dur),0);
+    animate(drawElements);
+  }
+
+  // ---------- animation ----------
+  function animate(elements){
+    elements.forEach(de=>{
+      de.el.style.transition = 'none';
+      if(de.kind==='stroke'){
+        const len = de.el.getTotalLength();
+        de.len = len;
+        de.el.style.strokeDasharray = len;
+        de.el.style.strokeDashoffset = len;
+      } else if(de.kind==='fill'){
+        de.el.style.fillOpacity = 0;
+      } else if(de.kind==='fillopacity'){
+        de.el.style.opacity = 0;
+      }
+    });
+    requestAnimationFrame(()=>{
+      requestAnimationFrame(()=>{
+        elements.forEach(de=>{
+          if(de.kind==='stroke'){
+            de.el.style.transition = `stroke-dashoffset ${de.dur}ms ease-out ${de.delay}ms`;
+            de.el.style.strokeDashoffset = '0';
+          } else if(de.kind==='fill'){
+            de.el.style.transition = `fill-opacity ${de.dur}ms ease-out ${de.delay}ms`;
+            de.el.style.fillOpacity = de.target;
+          } else if(de.kind==='fillopacity'){
+            de.el.style.transition = `opacity ${de.dur}ms ease-out ${de.delay}ms`;
+            de.el.style.opacity = de.target;
+          }
+        });
+      });
+    });
+  }
+  function playDraw(){ animate(drawElements); }
+
+  function skipToEnd(){
+    drawElements.forEach(de=>{
+      de.el.style.transition = 'none';
+      if(de.kind==='stroke') de.el.style.strokeDashoffset = '0';
+      else if(de.kind==='fill') de.el.style.fillOpacity = de.target;
+      else if(de.kind==='fillopacity') de.el.style.opacity = de.target;
+    });
+  }
+
+  // ---------- garden assembly ----------
+  function buildGarden(seed){
+    const rng = mulberry32(seed);
+    const groundCount = parseInt(groveSlider.value,10);
+    const trees = [];
+
+    const depths = [];
+    for(let i=0;i<groundCount;i++) depths.push(rng());
+    depths.sort((a,b)=>a-b);
+
+    for(let i=0;i<groundCount;i++){
+      const depthT = depths[i];
+      const spread = 820/Math.max(1,groundCount-1);
+      const startX = 90 + i*spread + (rng()-0.5)*60;
+      const startY = 985 + (rng()-0.5)*20;
+      const startAngle = -90 + (rng()-0.5)*10;
+      const treeScale = lerp(0.5,1.25,depthT) + (rng()-0.5)*0.08;
+
+      const p = getSpeciesParams(rng, species);
+      if(depthT < 0.5){ p.maxDepth = Math.max(3,p.maxDepth-1); p.clusterMax = Math.max(1,p.clusterMax-1); }
+      p.startLength *= SCALE*treeScale; p.startWidth *= SCALE*treeScale;
+      const oLen = p.petalLenFn, oWid = p.petalWidthFn;
+      p.petalLenFn = (r)=> oLen(r)*SCALE*treeScale;
+      p.petalWidthFn = (r)=> oWid(r)*SCALE*treeScale;
+
+      const built = buildTree(rng, p, startX, startY, startAngle, 0);
+      trees.push({
+        branches:built.branches, blossoms:built.blossoms, p,
+        opacity: lerp(0.6,1,depthT), blur: lerp(2.4,0,depthT),
+        detail: depthT>0.45?'high':'low',
+        delayBase: i*140, stagger: Math.max(16, Math.min(55, 3200/built.nextOrder)),
+        rng
+      });
+    }
+
+    [{x:20+rng()*40,angleBase:52},{x:980-rng()*40,angleBase:128}].forEach((corner,idx)=>{
+      const p = getSpeciesParams(rng, species);
+      const treeScale = 0.8+rng()*0.35;
+      p.startLength *= SCALE*treeScale*1.15; p.startWidth *= SCALE*treeScale;
+      const oLen = p.petalLenFn, oWid = p.petalWidthFn;
+      p.petalLenFn = (r)=> oLen(r)*SCALE*treeScale;
+      p.petalWidthFn = (r)=> oWid(r)*SCALE*treeScale;
+      const startY = -10+rng()*20;
+      const startAngle = corner.angleBase + (rng()-0.5)*16;
+      const built = buildTree(rng, p, corner.x, startY, startAngle, 0);
+      trees.push({
+        branches:built.branches, blossoms:built.blossoms, p,
+        opacity: 0.98, blur: 0, detail:'high',
+        delayBase: (groundCount+idx)*140, stagger: Math.max(16, Math.min(55, 3200/built.nextOrder)),
+        rng
+      });
+    });
+
+    return trees;
+  }
+
+  function generate(seed){
+    currentSeed = seed;
+    seedInput.value = seed;
+    const garden = buildGarden(seed);
+    render(garden);
+
+    const totalBranches = garden.reduce((s,t)=>s+t.branches.length,0);
+    const totalBlossoms = garden.reduce((s,t)=>s+t.blossoms.length,0);
+    paramsReadout.innerHTML =
+      `species  <span>${species}</span><br>` +
+      `trees    <span>${garden.length}</span><br>` +
+      `branches <span>${totalBranches}</span><br>` +
+      `blossoms <span>${totalBlossoms}</span>`;
+
+    if(exhibitionOn) scheduleNextExhibition();
+  }
+
+  // ---------- export ----------
+  function exportString(scale){
+    skipToEnd();
+    const clone = svg.cloneNode(true);
+    clone.setAttribute('width', VB*scale);
+    clone.setAttribute('height', VB*scale);
+    clone.setAttribute('xmlns', svgNS);
+    return new XMLSerializer().serializeToString(clone);
+  }
+
+  function triggerDownload(blob, filename){
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 2000);
+  }
+
+  function downloadSVG(){
+    const str = '<?xml version="1.0" encoding="UTF-8"?>\n' + exportString(1.6);
+    triggerDownload(new Blob([str],{type:'image/svg+xml'}), `fractal-blossom-${currentSeed}.svg`);
+  }
+
+  function downloadPNG(){
+    const str = exportString(1.6);
+    const svgBlob = new Blob([str],{type:'image/svg+xml'});
+    const url = URL.createObjectURL(svgBlob);
+    const img = new Image();
+    img.onload = ()=>{
+      const size = VB*1.6;
+      const canvas = document.createElement('canvas');
+      canvas.width = size; canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img,0,0,size,size);
+      URL.revokeObjectURL(url);
+      canvas.toBlob(blob=>{ triggerDownload(blob, `fractal-blossom-${currentSeed}.png`); }, 'image/png');
+    };
+    img.onerror = ()=>{ URL.revokeObjectURL(url); };
+    img.src = url;
+  }
+
+  generate(currentSeed);
+})();
+</script>
+</body>
+</html>
