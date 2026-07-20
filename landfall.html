@@ -273,6 +273,14 @@
   #mapboot.off{display:none;}
   #gulf-fallback{position:absolute;inset:0;z-index:1;display:none;background:var(--bg);}
   #gulf-fallback svg{width:100%;height:100%;display:block;}
+  #forecast-svg-overlay{position:absolute;inset:0;z-index:4;pointer-events:none;overflow:visible;}
+  #forecast-svg-overlay .fc-corridor{fill:none;stroke:#d35d50;stroke-width:22;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:.14;filter:blur(1.2px);}
+  #forecast-svg-overlay .fc-shadow{fill:none;stroke:#000;stroke-width:11;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:.52;filter:blur(2px);}
+  #forecast-svg-overlay .fc-line{fill:none;stroke:#e46656;stroke-width:4.8;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:13 8;}
+  #forecast-svg-overlay .fc-ring{fill:rgba(5,8,16,.72);stroke:#e46656;stroke-width:2;}
+  #forecast-svg-overlay .fc-dot{fill:#f2b394;}
+  #forecast-svg-overlay .fc-text{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.08em;fill:rgba(230,236,250,.88);paint-order:stroke;stroke:rgba(3,7,14,.95);stroke-width:3px;}
+  #forecast-svg-overlay .fc-label{font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.16em;fill:rgba(246,180,148,.9);paint-order:stroke;stroke:rgba(3,7,14,.95);stroke-width:3px;}
   .gf-land{fill:#06101f;stroke:rgba(203,213,242,.28);stroke-width:0.8;}
   .gf-grat{fill:none;stroke:rgba(120,160,255,.10);stroke-width:0.5;}
   .gf-port circle{fill-opacity:.16;stroke-width:1.3;}
@@ -650,6 +658,7 @@
         <div id="gulf-fallback" role="img" aria-label="Vector chart of the Gulf of Mexico, shown because the live map could not load">
           <svg viewBox="0 0 900 620" preserveAspectRatio="xMidYMid meet" id="gulf-svg"></svg>
         </div>
+        <svg id="forecast-svg-overlay" viewBox="0 0 1000 650" preserveAspectRatio="none" aria-hidden="true"></svg>
         <div id="chart-furniture">
           <svg id="compass-rose" viewBox="0 0 60 60" aria-hidden="true">
             <title>Compass rose</title>
@@ -1019,6 +1028,7 @@
     </div>`).join('');
   updateStormFocus(null);
   applyForecastStatus();
+  renderForecastSvgOverlay();
   if($('focus-clear')) $('focus-clear').addEventListener('click',clearAllAndReset);
 
   const historyPanel=$('storm-table-panel');
@@ -1066,6 +1076,7 @@
     const mb=$('mapbox-map'); if(mb) mb.style.display='none';
     const gf=$('gulf-fallback'); if(gf) gf.style.display='block';
     renderGulfFallback();
+    renderForecastSvgOverlay();
     renderScaleBar(GULF.scaleBar100NM, 100);
   }
   const MAP_PITCH=58;
@@ -1487,6 +1498,7 @@
     ensureSSTLayer();
     buildToggles();
     STORMS.forEach(s=>setTrackVisible(s.id,shown[s.id]));
+    renderForecastSvgOverlay();
     addActiveForecastTrack();
     try{ map.fitBounds(forecastBounds(ACTIVE_FORECAST),{padding:90,maxZoom:5.95,duration:700,pitch:MAP_PITCH,bearing:MAP_BEARING}); }catch(e){}
   });
@@ -1556,6 +1568,47 @@
       $('hd-status-sub').textContent=ACTIVE_FORECAST.name+' / '+ACTIVE_FORECAST.alias;
       const card=$('hd-status-card'); if(card) card.style.color='var(--cat4)';
     }
+  }
+
+  function renderForecastSvgOverlay(){
+    const svg=$('forecast-svg-overlay');
+    if(!svg) return;
+    const bounds={west:-99.5,east:-80,south:18,north:32.2};
+    const W=1000,H=650;
+    const project=p=>{
+      const x=((p.lon-bounds.west)/(bounds.east-bounds.west))*W;
+      const y=(1-((p.lat-bounds.south)/(bounds.north-bounds.south)))*H;
+      return {x,y};
+    };
+    const pts=ACTIVE_FORECAST.points.map(project);
+    if(!pts.length) return;
+    let d=`M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
+    for(let i=1;i<pts.length;i++){
+      const a=pts[i-1], b=pts[i];
+      const dx=b.x-a.x;
+      const c1x=a.x+dx*.42, c1y=a.y;
+      const c2x=b.x-dx*.42, c2y=b.y;
+      d+=` C ${c1x.toFixed(1)} ${c1y.toFixed(1)}, ${c2x.toFixed(1)} ${c2y.toFixed(1)}, ${b.x.toFixed(1)} ${b.y.toFixed(1)}`;
+    }
+    const labelPoint=pts[Math.min(4,pts.length-1)];
+    const pointMarkup=ACTIVE_FORECAST.points.map((p,i)=>{
+      const pt=pts[i];
+      const r=i===0?7:5.4;
+      const label=i===0?'NOW':p.label;
+      const dy=i%2===0?-14:22;
+      return `<g>
+        <circle class="fc-ring" cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="${r}"/>
+        <circle class="fc-dot" cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="${Math.max(2.2,r-3).toFixed(1)}"/>
+        <text class="fc-text" x="${(pt.x+9).toFixed(1)}" y="${(pt.y+dy).toFixed(1)}">${label} ${p.wind}KT</text>
+      </g>`;
+    }).join('');
+    svg.innerHTML=`
+      <path class="fc-corridor" d="${d}"/>
+      <path class="fc-shadow" d="${d}"/>
+      <path class="fc-line" d="${d}"/>
+      <text class="fc-label" x="${labelPoint.x.toFixed(1)}" y="${(labelPoint.y-30).toFixed(1)}">PROJECTED PATH</text>
+      ${pointMarkup}
+    `;
   }
 
   function bringForecastForward(){
