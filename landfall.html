@@ -256,6 +256,11 @@
   #map-label-top{position:absolute;top:8px;left:10px;z-index:4;
     font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.13em;color:var(--ink-dim);cursor:pointer;}
   #map-label-top .flag{color:var(--advisory);}
+  #forecast-map-key{position:absolute;top:36px;left:10px;z-index:5;
+    display:flex;align-items:center;gap:8px;padding:5px 10px;border:1px solid rgba(200,79,56,.36);
+    background:rgba(5,8,16,.62);border-radius:999px;box-shadow:0 8px 20px rgba(0,0,0,.28);
+    font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.12em;color:rgba(222,228,245,.86);}
+  #forecast-map-key::before{content:'';width:30px;height:0;border-top:3px solid #e46656;box-shadow:0 0 0 1px rgba(0,0,0,.34);}
   #map-meta-right{position:absolute;top:38px;right:12px;z-index:4;
     font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--ink-faint);}
   #map-credit{position:absolute;bottom:8px;right:10px;z-index:4;
@@ -663,6 +668,7 @@
         </div>
         <div id="map-overlay"></div>
         <div id="map-label-top"><span class="flag">[</span> GULF SECTOR // TRACK CHART <span class="flag">]</span></div>
+        <div id="forecast-map-key">PROJECTED PATH</div>
         <div id="map-meta-right">18°N–32°N / 99°W–80°W</div>
         <div id="map-credit">MAP © MAPBOX © OSM · RADAR © RAINVIEWER</div>
         <div id="advisory-clock" aria-label="Coordinated Universal Time and countdown to next NHC advisory">
@@ -1553,7 +1559,7 @@
   }
 
   function bringForecastForward(){
-    ['active-forecast-shadow','active-forecast-line','active-forecast-halo','active-forecast-ring','active-forecast-dot','active-forecast-label'].forEach(id=>{
+    ['active-forecast-corridor','active-forecast-shadow','active-forecast-line','active-forecast-path-label','active-forecast-halo','active-forecast-ring','active-forecast-dot','active-forecast-label'].forEach(id=>{
       try{ if(map.getLayer(id)) map.moveLayer(id); }catch(e){}
     });
     bringApproxUserLocationForward();
@@ -1584,19 +1590,26 @@
     } else {
       map.addSource('active-forecast-track',{type:'geojson',data:lineData});
       map.addSource('active-forecast-points',{type:'geojson',data:pointData});
+      map.addLayer({id:'active-forecast-corridor',type:'line',source:'active-forecast-track',
+        layout:{'line-cap':'round','line-join':'round'},
+        paint:{'line-color':'#d35d50','line-width':22,'line-opacity':0.12,'line-blur':3.5}});
       map.addLayer({id:'active-forecast-shadow',type:'line',source:'active-forecast-track',
         layout:{'line-cap':'round','line-join':'round'},
-        paint:{'line-color':'#000','line-width':9,'line-opacity':0.42,'line-blur':4}});
+        paint:{'line-color':'#000','line-width':12,'line-opacity':0.5,'line-blur':4}});
       map.addLayer({id:'active-forecast-line',type:'line',source:'active-forecast-track',
         layout:{'line-cap':'round','line-join':'round'},
-        paint:{'line-color':'#d35d50','line-width':3.3,'line-opacity':0.9,'line-dasharray':[1.6,1.05]}});
+        paint:{'line-color':'#e46656','line-width':5,'line-opacity':0.98,'line-dasharray':[1.7,0.9]}});
+      map.addLayer({id:'active-forecast-path-label',type:'symbol',source:'active-forecast-track',
+        layout:{'symbol-placement':'line','symbol-spacing':360,'text-field':'PROJECTED PATH','text-font':['DIN Offc Pro Bold','Arial Unicode MS Bold'],
+          'text-size':10,'text-letter-spacing':0.12,'text-keep-upright':true},
+        paint:{'text-color':'rgba(246,180,148,0.9)','text-halo-color':'rgba(3,7,14,0.96)','text-halo-width':1.2}});
       map.addLayer({id:'active-forecast-halo',type:'circle',source:'active-forecast-points',
-        paint:{'circle-radius':['case',['get','current'],14,9],'circle-color':['get','color'],'circle-opacity':0.18,'circle-blur':0.65}});
+        paint:{'circle-radius':['case',['get','current'],16,10],'circle-color':['get','color'],'circle-opacity':0.2,'circle-blur':0.65}});
       map.addLayer({id:'active-forecast-ring',type:'circle',source:'active-forecast-points',
-        paint:{'circle-radius':['case',['get','current'],5.4,4.1],'circle-color':'rgba(5,8,16,0.55)',
-          'circle-stroke-width':['case',['get','current'],2,1.4],'circle-stroke-color':['get','color'],'circle-stroke-opacity':0.95}});
+        paint:{'circle-radius':['case',['get','current'],6,4.6],'circle-color':'rgba(5,8,16,0.68)',
+          'circle-stroke-width':['case',['get','current'],2.3,1.7],'circle-stroke-color':['get','color'],'circle-stroke-opacity':0.98}});
       map.addLayer({id:'active-forecast-dot',type:'circle',source:'active-forecast-points',
-        paint:{'circle-radius':['case',['get','current'],2.6,2.1],'circle-color':['get','color'],'circle-opacity':0.98}});
+        paint:{'circle-radius':['case',['get','current'],3,2.45],'circle-color':['get','color'],'circle-opacity':1}});
       map.addLayer({id:'active-forecast-label',type:'symbol',source:'active-forecast-points',
         layout:{'text-field':['get','text'],'text-font':['DIN Offc Pro Regular','Arial Unicode MS Regular'],
           'text-size':9,'text-anchor':'top','text-offset':[0,0.9],'text-letter-spacing':0.06,'text-allow-overlap':true},
