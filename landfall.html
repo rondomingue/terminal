@@ -344,6 +344,14 @@
   .focus-metrics span{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.08em;color:var(--ink-dim);border-left:1px solid rgba(150,175,220,.18);padding-left:11px;}
   .focus-metrics b{display:block;font-size:13px;color:var(--ink-faint);font-weight:500;margin-bottom:3px;}
   #storm-focus-card.has-selection .focus-metrics b{color:var(--white);}
+  #forecast-card{flex:0 0 auto;padding:28px 16px 16px;min-height:172px;border-color:rgba(200,79,56,.22);}
+  #forecast-card::before{background:linear-gradient(to right,rgba(216,32,47,.58),rgba(215,138,61,.24) 54%,transparent 82%);}
+  .forecast-title{font-family:'IBM Plex Mono',monospace;font-size:15px;letter-spacing:.08em;color:var(--white);line-height:1.35;margin-top:3px;}
+  .forecast-title span{display:block;font-size:8px;letter-spacing:.16em;color:var(--cat4);margin-top:4px;}
+  .forecast-copy{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.06em;color:var(--ink-dim);line-height:1.6;margin-top:10px;}
+  .forecast-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px;}
+  .forecast-stat{border-left:1px solid rgba(200,79,56,.32);padding-left:8px;font-family:'IBM Plex Mono',monospace;font-size:7px;letter-spacing:.08em;color:var(--ink-faint);}
+  .forecast-stat b{display:block;color:var(--white);font-size:12px;font-weight:500;margin-bottom:2px;}
 
   /* HISTORICAL STORM DROPDOWN */
   #history-toggle{position:absolute;inset:0;display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;
@@ -702,6 +710,18 @@
     </div>
 
     <div id="rail-right">
+      <div class="panel" id="forecast-card">
+        <div class="ghost-sheet"></div>
+        <div class="panel-label">[ FORECAST ] — ACTIVE TRACK</div>
+        <div class="forecast-title" id="forecast-title">TD TWO <span>BERTHA WATCH</span></div>
+        <div class="forecast-copy" id="forecast-copy">NHC ADV #5 PROJECTED TRACK THROUGH FRI 25/1200Z. FORECAST POINTS ARE DISPLAYED ON THE GULF CHART.</div>
+        <div class="forecast-strip">
+          <div class="forecast-stat"><b id="fc-wind">45KT</b>PEAK FCST</div>
+          <div class="forecast-stat"><b id="fc-pressure">1007</b>MB NOW</div>
+          <div class="forecast-stat"><b id="fc-motion">NW 3KT</b>MOTION</div>
+          <div class="forecast-stat"><b id="fc-points">8</b>POINTS</div>
+        </div>
+      </div>
       <div class="panel" id="advisory-card">
         <div class="ghost-sheet"></div>
         <div class="panel-label">[ ADVISORY ] — NHC STATUS</div>
@@ -879,9 +899,28 @@
             [-82.1,26.7,'c4'],[-81.5,27.5,'lf'],[-81.0,29.0,'c1'],[-81.0,30.0,'ts']]},
   ];
   const shown={};
-  const initialStorm=STORMS[Math.floor(Math.random()*STORMS.length)]||STORMS[0];
-  STORMS.forEach(s=>{shown[s.id]=s.id===initialStorm.id;});
-  let selectedStormId=initialStorm.id;
+  STORMS.forEach(s=>{shown[s.id]=false;});
+  let selectedStormId=null;
+  const ACTIVE_FORECAST={
+    id:'td-two-bertha-watch',
+    name:'TD TWO',
+    alias:'BERTHA WATCH',
+    advisory:'NHC Forecast Advisory #5',
+    issued:'1500 UTC MON JUL 20 2026',
+    motion:'NW 3KT',
+    pressure:1007,
+    points:[
+      {label:'NOW',time:'20/1500Z',lon:-85.6,lat:28.5,wind:30,status:'TD'},
+      {label:'9H',time:'21/0000Z',lon:-86.0,lat:28.6,wind:35,status:'TS'},
+      {label:'21H',time:'21/1200Z',lon:-86.5,lat:28.9,wind:40,status:'TS'},
+      {label:'33H',time:'22/0000Z',lon:-87.2,lat:29.2,wind:45,status:'TS'},
+      {label:'45H',time:'22/1200Z',lon:-88.2,lat:29.4,wind:45,status:'TS'},
+      {label:'57H',time:'23/0000Z',lon:-89.5,lat:29.5,wind:40,status:'TS'},
+      {label:'72H',time:'23/1200Z',lon:-90.8,lat:29.5,wind:35,status:'INLAND'},
+      {label:'96H',time:'24/1200Z',lon:-93.3,lat:29.4,wind:30,status:'OVER WATER'},
+      {label:'120H',time:'25/1200Z',lon:-96.0,lat:29.3,wind:25,status:'INLAND'}
+    ]
+  };
 
   function landfallCount(storm){ return storm.track.filter(p=>p[2]==='lf').length; }
   function stormBounds(storm){
@@ -972,7 +1011,8 @@
       <span>${s.track.length}</span>
       <span style="color:var(--ink-faint);font-size:8px;">${s.notes}</span>
     </div>`).join('');
-  updateStormFocus(initialStorm);
+  updateStormFocus(null);
+  applyForecastStatus();
   if($('focus-clear')) $('focus-clear').addEventListener('click',clearAllAndReset);
 
   const historyPanel=$('storm-table-panel');
@@ -1231,7 +1271,7 @@
     ['sst-current-heat','sst-current-field','sst-current-halo','sst-current-ring','sst-current-dot','sst-current-label'].forEach(id=>{
       try{ if(map.getLayer(id)) map.moveLayer(id); }catch(e){}
     });
-    bringApproxUserLocationForward();
+    bringForecastForward();
   }
 
   function setApproxUserLocation(lon,lat,accuracy){
@@ -1441,7 +1481,8 @@
     ensureSSTLayer();
     buildToggles();
     STORMS.forEach(s=>setTrackVisible(s.id,shown[s.id]));
-    try{ map.fitBounds(stormBounds(initialStorm),{padding:80,maxZoom:5.8,duration:700,pitch:MAP_PITCH,bearing:MAP_BEARING}); }catch(e){}
+    addActiveForecastTrack();
+    try{ map.fitBounds(forecastBounds(ACTIVE_FORECAST),{padding:90,maxZoom:5.95,duration:700,pitch:MAP_PITCH,bearing:MAP_BEARING}); }catch(e){}
   });
 
   // Cubic Bezier tracks from storm fixes. Neighboring fixes become handles so each leg curves naturally.
@@ -1472,6 +1513,96 @@
       out.push(...seg);
     }
     return out;
+  }
+
+  function forecastColor(wind){
+    if(wind>=64) return CAT_COLOR[1];
+    if(wind>=45) return '#d78a3d';
+    if(wind>=34) return '#c84f38';
+    return '#7ca8ba';
+  }
+
+  function forecastBounds(forecast){
+    const lons=forecast.points.map(p=>p.lon), lats=forecast.points.map(p=>p.lat);
+    return [[Math.max(-99.5,Math.min(...lons)-1.1),Math.max(18,Math.min(...lats)-1.1)],
+      [Math.min(-80,Math.max(...lons)+1.1),Math.min(32.2,Math.max(...lats)+1.1)]];
+  }
+
+  function applyForecastStatus(){
+    const peak=ACTIVE_FORECAST.points.reduce((m,p)=>Math.max(m,p.wind),0);
+    const now=ACTIVE_FORECAST.points[0];
+    if($('forecast-title')) $('forecast-title').innerHTML=`${ACTIVE_FORECAST.name} <span>${ACTIVE_FORECAST.alias}</span>`;
+    const lastPoint=ACTIVE_FORECAST.points[ACTIVE_FORECAST.points.length-1];
+    if($('forecast-copy')) $('forecast-copy').textContent=`${ACTIVE_FORECAST.advisory.toUpperCase()} // ISSUED ${ACTIVE_FORECAST.issued}. PROJECTED TRACK THROUGH ${lastPoint.time}.`;
+    if($('fc-wind')) $('fc-wind').textContent=peak+'KT';
+    if($('fc-pressure')) $('fc-pressure').textContent=ACTIVE_FORECAST.pressure;
+    if($('fc-motion')) $('fc-motion').textContent=ACTIVE_FORECAST.motion;
+    if($('fc-points')) $('fc-points').textContent=ACTIVE_FORECAST.points.length;
+    if($('active-count')){
+      $('active-count').textContent='1 ACTIVE';
+      $('active-count').className='value-xl active mono';
+    }
+    if($('adv-status-block')){
+      $('adv-status-block').innerHTML=`<div class="adv-active" style="color:var(--cat4);text-shadow:none;">1 ACTIVE SYSTEM</div><div class="adv-detail">${ACTIVE_FORECAST.name} — ${ACTIVE_FORECAST.alias}<br>${now.lat.toFixed(1)}°N ${Math.abs(now.lon).toFixed(1)}°W · ${now.wind}KT<br>${ACTIVE_FORECAST.advisory.toUpperCase()}</div>`;
+    }
+    if($('hd-status')){
+      $('hd-status').textContent='ACTIVE';
+      $('hd-status-sub').textContent=ACTIVE_FORECAST.name+' / '+ACTIVE_FORECAST.alias;
+      const card=$('hd-status-card'); if(card) card.style.color='var(--cat4)';
+    }
+  }
+
+  function bringForecastForward(){
+    ['active-forecast-shadow','active-forecast-line','active-forecast-halo','active-forecast-ring','active-forecast-dot','active-forecast-label'].forEach(id=>{
+      try{ if(map.getLayer(id)) map.moveLayer(id); }catch(e){}
+    });
+    bringApproxUserLocationForward();
+  }
+
+  function addActiveForecastTrack(){
+    if(!map||!map.isStyleLoaded()) return;
+    const coords=ACTIVE_FORECAST.points.map(p=>[p.lon,p.lat]);
+    const smooth=bezierPath(coords,22);
+    const lineData={type:'Feature',properties:{name:ACTIVE_FORECAST.name},geometry:{type:'LineString',coordinates:smooth}};
+    const pointData={type:'FeatureCollection',features:ACTIVE_FORECAST.points.map((p,i)=>({
+      type:'Feature',
+      properties:{
+        label:p.label,
+        text:`${p.label}\n${p.wind}KT`,
+        status:p.status,
+        time:p.time,
+        wind:p.wind,
+        color:forecastColor(p.wind),
+        current:i===0
+      },
+      geometry:{type:'Point',coordinates:[p.lon,p.lat]}
+    }))};
+
+    if(map.getSource('active-forecast-track')){
+      map.getSource('active-forecast-track').setData(lineData);
+      map.getSource('active-forecast-points').setData(pointData);
+    } else {
+      map.addSource('active-forecast-track',{type:'geojson',data:lineData});
+      map.addSource('active-forecast-points',{type:'geojson',data:pointData});
+      map.addLayer({id:'active-forecast-shadow',type:'line',source:'active-forecast-track',
+        layout:{'line-cap':'round','line-join':'round'},
+        paint:{'line-color':'#000','line-width':9,'line-opacity':0.42,'line-blur':4}});
+      map.addLayer({id:'active-forecast-line',type:'line',source:'active-forecast-track',
+        layout:{'line-cap':'round','line-join':'round'},
+        paint:{'line-color':'#d35d50','line-width':3.3,'line-opacity':0.9,'line-dasharray':[1.6,1.05]}});
+      map.addLayer({id:'active-forecast-halo',type:'circle',source:'active-forecast-points',
+        paint:{'circle-radius':['case',['get','current'],14,9],'circle-color':['get','color'],'circle-opacity':0.18,'circle-blur':0.65}});
+      map.addLayer({id:'active-forecast-ring',type:'circle',source:'active-forecast-points',
+        paint:{'circle-radius':['case',['get','current'],5.4,4.1],'circle-color':'rgba(5,8,16,0.55)',
+          'circle-stroke-width':['case',['get','current'],2,1.4],'circle-stroke-color':['get','color'],'circle-stroke-opacity':0.95}});
+      map.addLayer({id:'active-forecast-dot',type:'circle',source:'active-forecast-points',
+        paint:{'circle-radius':['case',['get','current'],2.6,2.1],'circle-color':['get','color'],'circle-opacity':0.98}});
+      map.addLayer({id:'active-forecast-label',type:'symbol',source:'active-forecast-points',
+        layout:{'text-field':['get','text'],'text-font':['DIN Offc Pro Regular','Arial Unicode MS Regular'],
+          'text-size':9,'text-anchor':'top','text-offset':[0,0.9],'text-letter-spacing':0.06,'text-allow-overlap':true},
+        paint:{'text-color':'rgba(222,228,245,0.88)','text-halo-color':'rgba(3,7,14,0.92)','text-halo-width':1.2}});
+    }
+    bringForecastForward();
   }
 
   function setTrackVisible(id,visible){
@@ -1808,7 +1939,7 @@
           const ti=items[0].querySelector('title');
           $('active-count').textContent=String(items.length);
           $('active-count').className='value-xl active mono';
-          $('adv-status-block').innerHTML=`<div class="adv-active" style="color:var(--cat4);text-shadow:0 0 8px rgba(200,79,56,.28)">${items.length} ACTIVE SYSTEM${items.length>1?'S':''}</div><div class="adv-detail">${ti?ti.textContent.slice(0,100):''}</div>`;
+          $('adv-status-block').innerHTML=`<div class="adv-active" style="color:var(--cat4);text-shadow:none;">${items.length} ACTIVE SYSTEM${items.length>1?'S':''}</div><div class="adv-detail">${ti?ti.textContent.slice(0,100):''}</div>`;
           if($('hd-status')){
             $('hd-status').textContent='ACTIVE';
             $('hd-status-sub').textContent=`${items.length} SYSTEM${items.length>1?'S':''}`;
