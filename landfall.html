@@ -1028,7 +1028,6 @@
     </div>`).join('');
   updateStormFocus(null);
   applyForecastStatus();
-  renderForecastSvgOverlay();
   if($('focus-clear')) $('focus-clear').addEventListener('click',clearAllAndReset);
 
   const historyPanel=$('storm-table-panel');
@@ -1576,53 +1575,55 @@
   }
 
   function renderForecastSvgOverlay(){
-    const svg=$('forecast-svg-overlay');
-    if(!svg) return;
-    const rect=svg.getBoundingClientRect();
-    const W=Math.max(1,Math.round(rect.width||1000));
-    const H=Math.max(1,Math.round(rect.height||650));
-    svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
-    const bounds={west:-99.5,east:-80,south:18,north:32.2};
-    const project=p=>{
-      if(mapOK&&!usingFallback&&map&&typeof map.project==='function'){
-        try{
-          const pt=map.project([p.lon,p.lat]);
-          return {x:pt.x,y:pt.y};
-        }catch(e){}
+    try{
+      const svg=$('forecast-svg-overlay');
+      if(!svg) return;
+      const rect=svg.getBoundingClientRect();
+      const W=Math.max(1,Math.round(rect.width||1000));
+      const H=Math.max(1,Math.round(rect.height||650));
+      svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+      const bounds={west:-99.5,east:-80,south:18,north:32.2};
+      const project=p=>{
+        if(mapOK&&!usingFallback&&map&&typeof map.project==='function'){
+          try{
+            const pt=map.project([p.lon,p.lat]);
+            return {x:pt.x,y:pt.y};
+          }catch(e){}
+        }
+        const x=((p.lon-bounds.west)/(bounds.east-bounds.west))*W;
+        const y=(1-((p.lat-bounds.south)/(bounds.north-bounds.south)))*H;
+        return {x,y};
+      };
+      const pts=ACTIVE_FORECAST.points.map(project);
+      if(!pts.length) return;
+      let d=`M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
+      for(let i=1;i<pts.length;i++){
+        const a=pts[i-1], b=pts[i];
+        const dx=b.x-a.x;
+        const c1x=a.x+dx*.42, c1y=a.y;
+        const c2x=b.x-dx*.42, c2y=b.y;
+        d+=` C ${c1x.toFixed(1)} ${c1y.toFixed(1)}, ${c2x.toFixed(1)} ${c2y.toFixed(1)}, ${b.x.toFixed(1)} ${b.y.toFixed(1)}`;
       }
-      const x=((p.lon-bounds.west)/(bounds.east-bounds.west))*W;
-      const y=(1-((p.lat-bounds.south)/(bounds.north-bounds.south)))*H;
-      return {x,y};
-    };
-    const pts=ACTIVE_FORECAST.points.map(project);
-    if(!pts.length) return;
-    let d=`M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
-    for(let i=1;i<pts.length;i++){
-      const a=pts[i-1], b=pts[i];
-      const dx=b.x-a.x;
-      const c1x=a.x+dx*.42, c1y=a.y;
-      const c2x=b.x-dx*.42, c2y=b.y;
-      d+=` C ${c1x.toFixed(1)} ${c1y.toFixed(1)}, ${c2x.toFixed(1)} ${c2y.toFixed(1)}, ${b.x.toFixed(1)} ${b.y.toFixed(1)}`;
-    }
-    const labelPoint=pts[Math.min(4,pts.length-1)];
-    const pointMarkup=ACTIVE_FORECAST.points.map((p,i)=>{
-      const pt=pts[i];
-      const r=i===0?7:5.4;
-      const label=i===0?'NOW':p.label;
-      const dy=i%2===0?-14:22;
-      return `<g>
-        <circle class="fc-ring" cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="${r}"/>
-        <circle class="fc-dot" cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="${Math.max(2.2,r-3).toFixed(1)}"/>
-        <text class="fc-text" x="${(pt.x+9).toFixed(1)}" y="${(pt.y+dy).toFixed(1)}">${label} ${p.wind}KT</text>
-      </g>`;
-    }).join('');
-    svg.innerHTML=`
-      <path class="fc-corridor" d="${d}"/>
-      <path class="fc-shadow" d="${d}"/>
-      <path class="fc-line" d="${d}"/>
-      <text class="fc-label" x="${labelPoint.x.toFixed(1)}" y="${(labelPoint.y-30).toFixed(1)}">PROJECTED PATH</text>
-      ${pointMarkup}
-    `;
+      const labelPoint=pts[Math.min(4,pts.length-1)];
+      const pointMarkup=ACTIVE_FORECAST.points.map((p,i)=>{
+        const pt=pts[i];
+        const r=i===0?7:5.4;
+        const label=i===0?'NOW':p.label;
+        const dy=i%2===0?-14:22;
+        return `<g>
+          <circle class="fc-ring" cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="${r}"/>
+          <circle class="fc-dot" cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="${Math.max(2.2,r-3).toFixed(1)}"/>
+          <text class="fc-text" x="${(pt.x+9).toFixed(1)}" y="${(pt.y+dy).toFixed(1)}">${label} ${p.wind}KT</text>
+        </g>`;
+      }).join('');
+      svg.innerHTML=`
+        <path class="fc-corridor" d="${d}"/>
+        <path class="fc-shadow" d="${d}"/>
+        <path class="fc-line" d="${d}"/>
+        <text class="fc-label" x="${labelPoint.x.toFixed(1)}" y="${(labelPoint.y-30).toFixed(1)}">PROJECTED PATH</text>
+        ${pointMarkup}
+      `;
+    }catch(e){}
   }
 
   function bringForecastForward(){
