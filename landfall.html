@@ -1155,6 +1155,11 @@
   map.on('zoom',updateLiveScaleBar);
   map.on('move',updateLiveScaleBar);
   map.on('load',updateLiveScaleBar);
+  map.on('move',renderForecastSvgOverlay);
+  map.on('zoom',renderForecastSvgOverlay);
+  map.on('pitch',renderForecastSvgOverlay);
+  map.on('rotate',renderForecastSvgOverlay);
+  window.addEventListener('resize',renderForecastSvgOverlay);
 
   // ---- Compass rose tick marks (every 30°, matching a chart compass rose) ----
   (function buildCompassTicks(){
@@ -1573,9 +1578,18 @@
   function renderForecastSvgOverlay(){
     const svg=$('forecast-svg-overlay');
     if(!svg) return;
+    const rect=svg.getBoundingClientRect();
+    const W=Math.max(1,Math.round(rect.width||1000));
+    const H=Math.max(1,Math.round(rect.height||650));
+    svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
     const bounds={west:-99.5,east:-80,south:18,north:32.2};
-    const W=1000,H=650;
     const project=p=>{
+      if(mapOK&&!usingFallback&&map&&typeof map.project==='function'){
+        try{
+          const pt=map.project([p.lon,p.lat]);
+          return {x:pt.x,y:pt.y};
+        }catch(e){}
+      }
       const x=((p.lon-bounds.west)/(bounds.east-bounds.west))*W;
       const y=(1-((p.lat-bounds.south)/(bounds.north-bounds.south)))*H;
       return {x,y};
