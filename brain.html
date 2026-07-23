@@ -27,7 +27,8 @@
     --cond:"Barlow Condensed","Arial Narrow",sans-serif;
   }
   *{box-sizing:border-box}
-  html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:var(--cond);overflow:hidden}
+  html{scroll-behavior:smooth}
+  html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:var(--cond);overflow-x:hidden}
   body{
     background:
       radial-gradient(ellipse at 53% 46%,rgba(78,120,175,.18),transparent 32rem),
@@ -57,7 +58,7 @@
   .noise{position:fixed;inset:0;z-index:39;pointer-events:none;opacity:.11;mix-blend-mode:screen;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.34'/%3E%3C/svg%3E")}
 
   .lab{
-    position:relative;z-index:2;height:100vh;padding:14px;
+    position:relative;z-index:2;height:100svh;min-height:640px;padding:14px;
     display:grid;grid-template-columns:minmax(270px,23vw) minmax(580px,1fr) minmax(290px,23vw);
     grid-template-rows:92px minmax(0,1fr) minmax(294px,25vh);gap:10px;
   }
@@ -192,8 +193,110 @@
   .event{display:grid;grid-template-columns:58px 1fr auto;gap:11px;padding:8px 0;border-top:1px solid var(--line);color:var(--muted);font-size:8px;line-height:1.35}
   .event b{color:var(--ink);font-weight:400}.event i{font-style:normal;color:var(--risk)}
 
+  /* ---------- scroll cue ---------- */
+  .scroll-cue{
+    position:fixed;z-index:38;left:50%;bottom:16px;transform:translateX(-50%);
+    display:flex;align-items:center;gap:9px;padding:7px 13px;cursor:pointer;
+    border:1px solid var(--line);background:rgba(3,5,6,.72);backdrop-filter:blur(6px);
+    color:var(--muted);font-family:var(--mono);font-size:7px;letter-spacing:.22em;text-transform:uppercase;
+    transition:opacity .4s ease,color .25s ease,border-color .25s ease;
+  }
+  .scroll-cue:hover{color:var(--ink);border-color:var(--line-strong)}
+  .scroll-cue i{display:block;width:1px;height:14px;background:linear-gradient(transparent,var(--risk));animation:cue 1.9s ease-in-out infinite}
+  .scroll-cue.gone{opacity:0;pointer-events:none}
+  @keyframes cue{0%,100%{transform:translateY(-3px);opacity:.35}50%{transform:translateY(3px);opacity:1}}
+
+  /* ---------- long-form dossier ---------- */
+  .dossier{position:relative;z-index:2;padding:0 14px 90px;display:grid;gap:10px}
+  .sheet{
+    position:relative;overflow:hidden;border:1px solid var(--line);padding:44px 26px 30px;
+    background:linear-gradient(180deg,rgba(255,255,255,.028),rgba(255,255,255,.006)),var(--panel);
+    box-shadow:0 24px 70px rgba(0,0,0,.5),inset 0 0 90px rgba(143,196,255,.02);
+  }
+  .sheet:before{content:"";position:absolute;left:0;right:0;top:0;height:1px;background:linear-gradient(90deg,transparent,var(--line-strong),transparent)}
+  .sheet-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:20px}
+  .sheet-head h2{margin:0;font-family:"din-2014",var(--cond);font-weight:200;font-size:clamp(26px,3.1vw,44px);line-height:.9;letter-spacing:.2em;text-transform:uppercase}
+  .sheet-head h2 span{color:var(--soft)}
+  .sheet-head .kicker{color:var(--muted);font-family:var(--mono);font-size:8px;letter-spacing:.16em;text-transform:uppercase;line-height:1.6;max-width:420px;text-align:right}
+  .prose{color:var(--soft);font-size:14px;line-height:1.62;letter-spacing:.02em;max-width:78ch}
+  .prose p{margin:0 0 12px}
+  .prose p:last-child{margin-bottom:0}
+  .prose strong{color:var(--ink);font-weight:500}
+  .prose em{font-style:normal;color:var(--risk)}
+
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(232px,1fr));gap:9px;margin-top:20px}
+  .card{position:relative;border:1px solid var(--line);background:rgba(255,255,255,.018);padding:15px 15px 16px;overflow:hidden}
+  .card:before{content:attr(data-code);position:absolute;right:8px;top:4px;color:rgba(238,245,243,.06);font-family:"din-2014",var(--cond);font-size:36px;font-weight:200;letter-spacing:.06em}
+  .card h3{position:relative;margin:0 0 8px;font-family:"din-2014",var(--cond);font-weight:200;font-size:15px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink)}
+  .card p{position:relative;margin:0;color:var(--muted);font-size:12.5px;line-height:1.55}
+  .card .tag{display:inline-block;margin-top:10px;color:var(--risk);font-family:var(--mono);font-size:7px;letter-spacing:.16em;text-transform:uppercase;border-top:1px solid rgba(227,210,173,.24);padding-top:6px}
+
+  .stage-track{display:grid;grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:0;margin-top:20px;border-top:1px solid var(--line)}
+  .stage{position:relative;border-left:1px solid var(--line);padding:18px 14px 16px}
+  .stage:first-child{border-left:0}
+  .stage:after{content:"";position:absolute;left:0;top:-1px;width:38%;height:1px;background:var(--risk);opacity:.55}
+  .stage b{display:block;color:var(--muted);font-family:var(--mono);font-size:7px;letter-spacing:.18em;text-transform:uppercase}
+  .stage h4{margin:8px 0 8px;font-family:"din-2014",var(--cond);font-weight:200;font-size:17px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink)}
+  .stage p{margin:0;color:var(--muted);font-size:12px;line-height:1.5}
+  .stage .yrs{display:block;margin-top:10px;color:var(--soft);font-family:var(--mono);font-size:7px;letter-spacing:.14em;text-transform:uppercase}
+
+  .table-wrap{margin-top:20px;overflow-x:auto;border:1px solid var(--line)}
+  table.spec{width:100%;min-width:640px;border-collapse:collapse;font-size:12.5px}
+  table.spec th{
+    text-align:left;padding:10px 13px;color:var(--muted);font-family:var(--mono);font-size:7px;
+    letter-spacing:.18em;text-transform:uppercase;background:rgba(255,255,255,.03);border-bottom:1px solid var(--line);white-space:nowrap;
+  }
+  table.spec td{padding:11px 13px;border-bottom:1px solid rgba(220,236,233,.07);color:var(--muted);line-height:1.5;vertical-align:top}
+  table.spec tr:last-child td{border-bottom:0}
+  table.spec td:first-child{color:var(--ink);font-family:"din-2014",var(--cond);font-size:14px;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap}
+  table.spec tbody tr:hover td{background:rgba(143,196,255,.035)}
+  table.spec .val{color:var(--risk);font-family:var(--mono);font-size:11px;letter-spacing:.06em;white-space:nowrap}
+
+  .split{display:grid;grid-template-columns:1.15fr .85fr;gap:26px;align-items:start}
+  .fact-list{display:grid;gap:0;border-top:1px solid var(--line)}
+  .fact{display:grid;grid-template-columns:1fr auto;gap:14px;padding:11px 0;border-bottom:1px solid rgba(220,236,233,.07);color:var(--muted);font-family:var(--mono);font-size:8px;letter-spacing:.1em;text-transform:uppercase;align-items:baseline}
+  .fact b{color:var(--ink);font-family:"din-2014",var(--cond);font-size:17px;font-weight:200;letter-spacing:.16em}
+  .fact.up b{color:var(--risk)}
+
+  .risk-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:9px;margin-top:20px}
+  .risk{border:1px solid var(--line);background:rgba(255,255,255,.016);padding:14px}
+  .risk .rh{display:flex;justify-content:space-between;align-items:baseline;gap:10px;color:var(--muted);font-family:var(--mono);font-size:7px;letter-spacing:.16em;text-transform:uppercase}
+  .risk .rh b{color:var(--ink);font-family:"din-2014",var(--cond);font-size:14px;font-weight:200;letter-spacing:.18em}
+  .risk .bar{height:3px;background:rgba(255,255,255,.07);margin:10px 0 9px}
+  .risk .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--soft),var(--blue),var(--risk));box-shadow:0 0 12px rgba(143,196,255,.2)}
+  .risk p{margin:0;color:var(--muted);font-size:12px;line-height:1.5}
+  .risk.mod .bar i{background:linear-gradient(90deg,var(--soft),var(--blue))}
+
+  .glossary{display:grid;grid-template-columns:repeat(auto-fit,minmax(268px,1fr));gap:0 26px;margin-top:8px}
+  .term{padding:12px 0;border-bottom:1px solid rgba(220,236,233,.08)}
+  .term b{display:block;color:var(--ink);font-family:"din-2014",var(--cond);font-size:14px;font-weight:200;letter-spacing:.2em;text-transform:uppercase;margin-bottom:5px}
+  .term span{display:block;color:var(--muted);font-size:12.5px;line-height:1.5}
+
+  .disclaimer{border-color:rgba(227,210,173,.26);background:linear-gradient(180deg,rgba(227,210,173,.05),rgba(4,7,8,.8))}
+  .disclaimer .prose{color:var(--soft)}
+  .sources{margin-top:18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;color:var(--muted);font-family:var(--mono);font-size:8px;letter-spacing:.1em;text-transform:uppercase;line-height:1.6}
+  .sources span{border-left:1px solid rgba(238,245,243,.18);padding-left:10px}
+  .sources b{display:block;color:var(--ink);font-family:"din-2014",var(--cond);font-size:12px;font-weight:200;letter-spacing:.2em}
+
+  .to-top{margin-top:26px;display:inline-flex;align-items:center;gap:9px;border:1px solid var(--line);background:rgba(0,0,0,.3);padding:9px 14px;cursor:pointer;color:var(--muted);font-family:var(--mono);font-size:7px;letter-spacing:.2em;text-transform:uppercase}
+  .to-top:hover{color:var(--ink);border-color:var(--line-strong)}
+
+  /* content is visible by default; the entrance animation only arms once JS
+     confirms IntersectionObserver actually fires, so nothing can stay hidden */
+  .armed .reveal{opacity:0;transform:translateY(16px);transition:opacity .7s cubic-bezier(.22,.61,.36,1),transform .7s cubic-bezier(.22,.61,.36,1)}
+  .armed .reveal.in{opacity:1;transform:none}
+  @media(prefers-reduced-motion:reduce){.armed .reveal{opacity:1;transform:none;transition:none}html{scroll-behavior:auto}}
+
+  @media(max-width:900px){
+    .split{grid-template-columns:1fr;gap:20px}
+    .sheet{padding:40px 16px 24px}
+    .sheet-head .kicker{text-align:left}
+    .stage-track{grid-template-columns:1fr}
+    .stage{border-left:0;border-top:1px solid var(--line)}
+    .stage:first-child{border-top:0}
+  }
+
   @media(max-width:1180px){
-    html,body{overflow:auto}
     .lab{height:auto;min-height:100vh;grid-template-columns:1fr;grid-template-rows:auto;padding:10px}
     .topbar,.film,.plate,.rail,.bottom{grid-column:1;grid-row:auto}
     .topbar{order:1}
@@ -220,7 +323,7 @@
 </head>
 <body>
 <div class="noise"></div>
-<main class="lab">
+<main class="lab" id="console">
   <header class="topbar">
     <div class="brand">
       <h1>NEURODEGENERATIVE</h1>
@@ -363,6 +466,297 @@
     </section>
   </section>
 </main>
+
+<button class="scroll-cue" id="scrollCue" aria-label="Scroll to the Alzheimer briefing"><i></i>scroll / alzheimer briefing<i></i></button>
+
+<div class="dossier" id="dossier">
+
+  <section class="sheet reveal" id="pathology">
+    <div class="label"><i>[</i> 01 / Pathology <i>]</i></div>
+    <div class="sheet-head">
+      <h2>WHAT THE DISEASE<br><span>DOES TO TISSUE</span></h2>
+      <p class="kicker">Alzheimer's disease is a progressive neurodegenerative process — molecular first, structural second, symptomatic last.</p>
+    </div>
+    <div class="split">
+      <div class="prose">
+        <p>Alzheimer's disease begins as a <strong>molecular problem</strong> and only later becomes something a scanner can see. Two proteins define it. <strong>Amyloid-beta</strong>, a fragment cleaved from a normal membrane protein, stops being cleared efficiently and aggregates into plaques in the space between neurons. <strong>Tau</strong>, a protein that normally stabilizes the internal transport scaffolding inside an axon, becomes abnormally phosphorylated, detaches, and twists into neurofibrillary tangles inside the cell.</p>
+        <p>Amyloid accumulation can begin <em>fifteen to twenty years</em> before the first memory complaint. Tau spread tracks much more closely with actual symptoms — where tangles go, function is lost. That gap between the two is why a person can carry substantial plaque burden and still test cognitively normal.</p>
+        <p>Downstream of both comes the damage that MRI eventually registers: synapses are lost first, then dendrites retract, then whole neurons die. Microglia — the brain's resident immune cells — mount a chronic inflammatory response that helps early and injures late. Volume disappears. The cortical ribbon thins. The ventricles, which are simply fluid-filled spaces, expand to fill the void left behind. <strong>Ventricular enlargement is not the disease; it is the shadow the disease casts.</strong></p>
+      </div>
+      <div>
+        <div class="fact-list">
+          <div class="fact up"><span>Preclinical phase before symptoms</span><b>15–20 YR</b></div>
+          <div class="fact"><span>Share of all dementia cases</span><b>60–70%</b></div>
+          <div class="fact up"><span>Hippocampal loss / year in AD</span><b>3–5%</b></div>
+          <div class="fact"><span>Normal aging comparison</span><b>0.5–1%</b></div>
+          <div class="fact up"><span>Cases worldwide (2023 est.)</span><b>55M+</b></div>
+          <div class="fact"><span>Risk doubling interval after 65</span><b>~5 YR</b></div>
+        </div>
+      </div>
+    </div>
+    <div class="cards">
+      <div class="card" data-code="Aβ">
+        <h3>Amyloid Plaques</h3>
+        <p>Extracellular deposits of misfolded amyloid-beta 42. Accumulate earliest, plateau before symptoms, and correlate poorly with day-to-day severity.</p>
+        <span class="tag">detected: PET / CSF Aβ42:40</span>
+      </div>
+      <div class="card" data-code="τ">
+        <h3>Tau Tangles</h3>
+        <p>Intracellular twisted filaments of hyperphosphorylated tau. Spread in a stereotyped anatomical order and track tightly with cognitive decline.</p>
+        <span class="tag">detected: tau PET / p-tau217</span>
+      </div>
+      <div class="card" data-code="SYN">
+        <h3>Synaptic Loss</h3>
+        <p>The strongest single correlate of cognitive impairment. Connections fail before cells die, which is why function drops ahead of visible volume loss.</p>
+        <span class="tag">proxy: FDG hypometabolism</span>
+      </div>
+      <div class="card" data-code="INF">
+        <h3>Neuroinflammation</h3>
+        <p>Chronically activated microglia and astrocytes. Initially clears debris; sustained, it accelerates synaptic pruning and neuronal injury.</p>
+        <span class="tag">marker: GFAP / TSPO</span>
+      </div>
+      <div class="card" data-code="VOL">
+        <h3>Atrophy</h3>
+        <p>Net tissue loss measured as reduced volume and cortical thinning. The structural endpoint — and the part this MRI console is built to read.</p>
+        <span class="tag">measured: T1 volumetry</span>
+      </div>
+      <div class="card" data-code="VAS">
+        <h3>Vascular Burden</h3>
+        <p>White-matter hyperintensities and small-vessel disease frequently co-occur, lowering the damage threshold at which symptoms appear.</p>
+        <span class="tag">measured: FLAIR / Fazekas</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="sheet reveal" id="regions">
+    <div class="label"><i>[</i> 02 / Anatomy <i>]</i></div>
+    <div class="sheet-head">
+      <h2>THE ROUTE<br><span>THROUGH THE BRAIN</span></h2>
+      <p class="kicker">Tau pathology does not appear randomly. It follows connected circuits in a repeatable order — the basis of Braak staging.</p>
+    </div>
+    <div class="prose">
+      <p>The reason Alzheimer's presents as a <strong>memory disorder first</strong> is purely anatomical. The pathology starts in the entorhinal cortex — the gateway that funnels sensory and associative information into the hippocampus — and then invades the hippocampus itself. That circuit is where new episodic memories are formed. Damage it, and the ability to lay down new memories fails long before older memories, language, or personality are touched.</p>
+      <p>From there the process moves outward along connected networks: lateral temporal cortex, posterior cingulate and precuneus, parietal association cortex, and finally frontal and primary sensory areas. Primary motor and visual cortex are spared until very late, which is why walking and seeing typically persist while orientation and judgment collapse.</p>
+    </div>
+    <div class="table-wrap">
+      <table class="spec">
+        <thead>
+          <tr><th>Region</th><th>Braak stage</th><th>Function it carries</th><th>What loss looks like clinically</th><th>MRI signature</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Entorhinal cortex</td><td class="val">I–II</td><td>Gateway between neocortex and hippocampus</td><td>Subtle lapses; often still called "normal aging"</td><td class="val">thinning −10 to −14%</td></tr>
+          <tr><td>Hippocampus</td><td class="val">II–III</td><td>Encoding and consolidation of new episodic memory</td><td>Repeating questions, misplacing objects, losing recent events</td><td class="val">volume &lt; 15th pct</td></tr>
+          <tr><td>Amygdala</td><td class="val">III</td><td>Emotional salience and memory tagging</td><td>Flattened affect, anxiety, changed emotional response</td><td class="val">volume −8 to −12%</td></tr>
+          <tr><td>Posterior cingulate</td><td class="val">III–IV</td><td>Default-mode hub; self-referential processing</td><td>Disorientation in familiar places</td><td class="val">FDG −14 to −20%</td></tr>
+          <tr><td>Lateral temporal</td><td class="val">IV</td><td>Semantic memory, word retrieval</td><td>Word-finding failure, naming errors</td><td class="val">thinning −6 to −10%</td></tr>
+          <tr><td>Parietal association</td><td class="val">V</td><td>Spatial reasoning, visuospatial integration</td><td>Getting lost driving; trouble dressing or using tools</td><td class="val">thinning −5 to −9%</td></tr>
+          <tr><td>Frontal cortex</td><td class="val">V–VI</td><td>Executive control, judgment, inhibition</td><td>Poor decisions, apathy, personality change</td><td class="val">late thinning</td></tr>
+          <tr><td>Primary sensorimotor</td><td class="val">VI</td><td>Movement and primary sensation</td><td>Spared until the final phase</td><td class="val">minimal change</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="sheet reveal" id="stages">
+    <div class="label"><i>[</i> 03 / Trajectory <i>]</i></div>
+    <div class="sheet-head">
+      <h2>CLINICAL<br><span>STAGE PROGRESSION</span></h2>
+      <p class="kicker">Ranges are population estimates. Individual trajectories vary widely with age, reserve, comorbidity, and co-pathology.</p>
+    </div>
+    <div class="stage-track">
+      <div class="stage">
+        <b>Stage 01 / CDR 0</b>
+        <h4>Preclinical</h4>
+        <p>Biomarkers are positive; cognition is normal. Detectable only by PET, CSF, or blood assay. No structural MRI finding is reliable yet.</p>
+        <span class="yrs">duration 10–20 years</span>
+      </div>
+      <div class="stage">
+        <b>Stage 02 / CDR 0.5</b>
+        <h4>MCI</h4>
+        <p>Measurable memory decline that does not yet compromise independence. Medial temporal atrophy becomes visible. Roughly 10–15% convert to dementia per year.</p>
+        <span class="yrs">duration 2–7 years</span>
+      </div>
+      <div class="stage">
+        <b>Stage 03 / CDR 1</b>
+        <h4>Mild Dementia</h4>
+        <p>Diagnosis is usually made here. Recent memory clearly impaired, word-finding fails, complex tasks — finances, navigation — slip. Hippocampal loss is unmistakable.</p>
+        <span class="yrs">duration 2–4 years</span>
+      </div>
+      <div class="stage">
+        <b>Stage 04 / CDR 2</b>
+        <h4>Moderate</h4>
+        <p>Help needed with daily activities. Disorientation to time and place, behavioral change, sleep disruption. Widespread cortical thinning and marked ventricular enlargement.</p>
+        <span class="yrs">duration 2–4 years</span>
+      </div>
+      <div class="stage">
+        <b>Stage 05 / CDR 3</b>
+        <h4>Severe</h4>
+        <p>Full-time care required. Language reduces to few words; mobility and swallowing decline. Global atrophy with substantial total brain volume loss.</p>
+        <span class="yrs">duration 1–3 years</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="sheet reveal" id="imaging">
+    <div class="label"><i>[</i> 04 / Imaging <i>]</i></div>
+    <div class="sheet-head">
+      <h2>WHAT AN MRI<br><span>ACTUALLY MEASURES</span></h2>
+      <p class="kicker">Structural MRI cannot see amyloid or tau. It sees the tissue those proteins have already cost.</p>
+    </div>
+    <div class="split">
+      <div class="prose">
+        <p>In an Alzheimer's workup, MRI does two jobs. The first is <strong>exclusion</strong>: ruling out tumor, chronic subdural hematoma, normal-pressure hydrocephalus, or extensive vascular damage that could explain the symptoms without neurodegeneration. The second is <strong>pattern support</strong> — confirming that the atrophy present matches the medial-temporal-first distribution characteristic of AD rather than the frontal pattern of FTD or the posterior-cortical pattern of a visual variant.</p>
+        <p>A volumetric T1 sequence at 1 mm isotropic resolution allows automated segmentation of the hippocampus and cortical thickness estimation across the whole surface. FLAIR is added to quantify white-matter hyperintensities. Both get compared against age- and sex-matched normative curves — an absolute hippocampal volume means nothing without a percentile.</p>
+        <p>The single most important caveat: <em>atrophy is a lagging indicator</em>. By the time the hippocampus is visibly small, the underlying process has been running for a decade or more. That is precisely why blood-based p-tau217 assays have become such a significant development — they move detection back toward the beginning of the curve.</p>
+      </div>
+      <div>
+        <div class="fact-list">
+          <div class="fact"><span>Structural T1 acquisition</span><b>3T / 1.0mm</b></div>
+          <div class="fact"><span>Cortical surface precision</span><b>0.7mm</b></div>
+          <div class="fact"><span>White-matter comparator</span><b>FLAIR</b></div>
+          <div class="fact"><span>Scheltens MTA scale range</span><b>0–4</b></div>
+          <div class="fact up"><span>MTA threshold, age &gt; 75</span><b>≥ 2</b></div>
+          <div class="fact"><span>Fazekas WMH grading</span><b>0–3</b></div>
+          <div class="fact"><span>Evans index cutoff</span><b>&gt; 0.30</b></div>
+          <div class="fact"><span>Typical follow-up interval</span><b>12 MO</b></div>
+        </div>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="spec">
+        <thead>
+          <tr><th>Measure</th><th>Sequence</th><th>What it quantifies</th><th>Typical AD finding</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Hippocampal volume</td><td>T1 volumetric</td><td>Absolute volume normalized to intracranial volume, expressed as a percentile</td><td class="val">&lt; 15th percentile</td></tr>
+          <tr><td>MTA score</td><td>Coronal T1</td><td>Visual rating of medial temporal atrophy — choroid fissure, temporal horn, hippocampal height</td><td class="val">grade 2–4</td></tr>
+          <tr><td>Cortical thickness</td><td>T1 surface model</td><td>Ribbon thickness across temporal, parietal, and cingulate regions</td><td class="val">−6 to −12%</td></tr>
+          <tr><td>Ventricular index</td><td>T1 / axial</td><td>Evans ratio: frontal horn width against maximal inner skull width</td><td class="val">1.3–1.6× normal</td></tr>
+          <tr><td>Hippocampal asymmetry</td><td>T1 volumetric</td><td>Left-versus-right difference; often left-predominant early in AD</td><td class="val">5–10%</td></tr>
+          <tr><td>WMH burden</td><td>FLAIR</td><td>Periventricular and deep white-matter signal change from small-vessel disease</td><td class="val">Fazekas 1–3</td></tr>
+          <tr><td>Microbleeds</td><td>SWI / GRE</td><td>Lobar hemosiderin deposits suggesting cerebral amyloid angiopathy</td><td class="val">screening required</td></tr>
+          <tr><td>Whole-brain change</td><td>Serial T1</td><td>Annualized atrophy rate between registered timepoints</td><td class="val">1–2% / year</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="sheet reveal" id="biomarkers">
+    <div class="label"><i>[</i> 05 / Biomarkers <i>]</i></div>
+    <div class="sheet-head">
+      <h2>THE A / T / N<br><span>FRAMEWORK</span></h2>
+      <p class="kicker">Modern diagnosis is biological, not purely clinical: amyloid status, tau status, and neurodegeneration are scored independently.</p>
+    </div>
+    <div class="prose">
+      <p>The A/T/N scheme separates three questions that used to be collapsed into one. <strong>A</strong> asks whether amyloid is present. <strong>T</strong> asks whether pathological tau is present. <strong>N</strong> asks how much neurodegeneration has already occurred. A person can be A+ T− N− and be biologically on the Alzheimer's continuum while cognitively intact; a person can be A− T− N+ and have neurodegeneration from an entirely different cause. Structural MRI — the layer this console models — contributes only to <em>N</em>.</p>
+    </div>
+    <div class="table-wrap">
+      <table class="spec">
+        <thead>
+          <tr><th>Axis</th><th>Modality</th><th>Marker</th><th>Interpretation</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>A — Amyloid</td><td>PET</td><td>Amyloid tracer retention (centiloid scale)</td><td>Positive typically &gt; 20–30 centiloids</td></tr>
+          <tr><td>A — Amyloid</td><td>CSF</td><td>Aβ42 / Aβ40 ratio</td><td>Reduced ratio indicates cortical deposition</td></tr>
+          <tr><td>A — Amyloid</td><td>Blood</td><td>Plasma Aβ42/40</td><td>Screening-grade; modest effect size</td></tr>
+          <tr><td>T — Tau</td><td>Blood</td><td>Plasma p-tau217</td><td>Highest-performing blood marker to date</td></tr>
+          <tr><td>T — Tau</td><td>PET</td><td>Tau tracer binding by Braak region</td><td>Distribution tracks symptom severity</td></tr>
+          <tr><td>N — Neurodegeneration</td><td>MRI</td><td>Hippocampal volume, cortical thickness</td><td>Structural loss; lagging but specific</td></tr>
+          <tr><td>N — Neurodegeneration</td><td>FDG-PET</td><td>Temporoparietal hypometabolism</td><td>Synaptic dysfunction ahead of atrophy</td></tr>
+          <tr><td>N — Neurodegeneration</td><td>Blood</td><td>Neurofilament light (NfL)</td><td>Non-specific axonal injury signal</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="sheet reveal" id="risk">
+    <div class="label"><i>[</i> 06 / Risk <i>]</i></div>
+    <div class="sheet-head">
+      <h2>RISK<br><span>ARCHITECTURE</span></h2>
+      <p class="kicker">Roughly 40–45% of dementia cases worldwide are attributable to modifiable factors — a population estimate, not an individual guarantee.</p>
+    </div>
+    <div class="prose">
+      <p><strong>Age is the dominant risk factor</strong>, and it is not modifiable: incidence roughly doubles every five years after 65. Genetics contribute on two levels. Rare autosomal-dominant mutations in <em>APP</em>, <em>PSEN1</em>, or <em>PSEN2</em> cause early-onset disease with near-complete penetrance but account for well under 1% of cases. The common variant is <em>APOE ε4</em>, which shifts risk substantially without determining outcome — many ε4 carriers never develop dementia, and many people with Alzheimer's carry no ε4 allele at all.</p>
+    </div>
+    <div class="risk-grid">
+      <div class="risk"><div class="rh"><b>Age</b><span>non-modifiable</span></div><div class="bar"><i style="width:96%"></i></div><p>Incidence doubles roughly every five years past 65. The single strongest predictor by a wide margin.</p></div>
+      <div class="risk"><div class="rh"><b>APOE ε4</b><span>non-modifiable</span></div><div class="bar"><i style="width:74%"></i></div><p>One copy raises risk ~2–3×; two copies substantially more, with earlier onset. Not deterministic.</p></div>
+      <div class="risk mod"><div class="rh"><b>Hearing Loss</b><span>modifiable</span></div><div class="bar"><i style="width:58%"></i></div><p>Untreated midlife hearing loss is the largest single modifiable contributor. Aids may attenuate risk.</p></div>
+      <div class="risk mod"><div class="rh"><b>Vascular Health</b><span>modifiable</span></div><div class="bar"><i style="width:64%"></i></div><p>Hypertension, diabetes, obesity, and smoking damage small vessels and lower the symptom threshold.</p></div>
+      <div class="risk mod"><div class="rh"><b>Education / Reserve</b><span>modifiable</span></div><div class="bar"><i style="width:52%"></i></div><p>Cognitive reserve delays symptom onset for a given pathology burden — it masks damage rather than preventing it.</p></div>
+      <div class="risk mod"><div class="rh"><b>Physical Activity</b><span>modifiable</span></div><div class="bar"><i style="width:49%"></i></div><p>Regular aerobic exercise is associated with lower incidence and slower hippocampal volume loss.</p></div>
+      <div class="risk mod"><div class="rh"><b>Sleep</b><span>modifiable</span></div><div class="bar"><i style="width:45%"></i></div><p>Deep sleep drives glymphatic clearance of amyloid. Chronic disruption impairs that removal.</p></div>
+      <div class="risk mod"><div class="rh"><b>Social Isolation</b><span>modifiable</span></div><div class="bar"><i style="width:42%"></i></div><p>Late-life isolation and depression both associate with elevated incidence and faster decline.</p></div>
+      <div class="risk mod"><div class="rh"><b>Head Injury</b><span>modifiable</span></div><div class="bar"><i style="width:38%"></i></div><p>Repeated traumatic brain injury increases later-life dementia risk across several pathologies.</p></div>
+    </div>
+  </section>
+
+  <section class="sheet reveal" id="differential">
+    <div class="label"><i>[</i> 07 / Differential <i>]</i></div>
+    <div class="sheet-head">
+      <h2>WHAT ELSE<br><span>LOOKS LIKE THIS</span></h2>
+      <p class="kicker">Atrophy is not self-identifying. Distribution, symptom sequence, and rate of onset separate the diagnoses.</p>
+    </div>
+    <div class="table-wrap">
+      <table class="spec">
+        <thead>
+          <tr><th>Condition</th><th>Atrophy pattern</th><th>Leading symptom</th><th>Distinguishing feature</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Alzheimer's</td><td>Medial temporal → temporoparietal</td><td>Episodic memory loss</td><td class="val">A+ / T+ biomarkers</td></tr>
+          <tr><td>Frontotemporal</td><td>Frontal and anterior temporal</td><td>Behavior or language change</td><td class="val">younger onset, memory spared</td></tr>
+          <tr><td>Lewy body</td><td>Relatively preserved medial temporal</td><td>Visual hallucinations, fluctuation</td><td class="val">parkinsonism, REM sleep disorder</td></tr>
+          <tr><td>Vascular</td><td>Infarcts, confluent WMH</td><td>Executive slowing</td><td class="val">stepwise decline, vascular history</td></tr>
+          <tr><td>Normal-pressure hydrocephalus</td><td>Ventricles out of proportion to sulci</td><td>Gait disturbance first</td><td class="val">potentially treatable by shunt</td></tr>
+          <tr><td>Depression / pseudodementia</td><td>None specific</td><td>Effortful, inconsistent recall</td><td class="val">reversible with treatment</td></tr>
+          <tr><td>Thyroid / B12 deficiency</td><td>None specific</td><td>Diffuse cognitive slowing</td><td class="val">reversible; always screened</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="sheet reveal" id="glossary">
+    <div class="label"><i>[</i> 08 / Glossary <i>]</i></div>
+    <div class="sheet-head">
+      <h2>TERMS USED<br><span>ON THIS CONSOLE</span></h2>
+      <p class="kicker">Every readout on the review panel above maps to one of these.</p>
+    </div>
+    <div class="glossary">
+      <div class="term"><b>Hippocampus</b><span>Seahorse-shaped structure in the medial temporal lobe responsible for forming new episodic memories. Among the earliest regions damaged in Alzheimer's.</span></div>
+      <div class="term"><b>Entorhinal Cortex</b><span>The interface between the hippocampus and the rest of the cortex. Tau pathology characteristically appears here first.</span></div>
+      <div class="term"><b>Posterior Cingulate</b><span>A central hub of the default-mode network. Shows reduced glucose metabolism very early, often before measurable atrophy.</span></div>
+      <div class="term"><b>MTA Score</b><span>Scheltens medial temporal atrophy scale, 0–4, rated visually on coronal T1. Thresholds are age-adjusted.</span></div>
+      <div class="term"><b>Evans Index</b><span>Ratio of maximal frontal horn width to maximal inner skull diameter. Above 0.30 indicates ventricular enlargement.</span></div>
+      <div class="term"><b>Fazekas Grade</b><span>0–3 rating of white-matter hyperintensity burden on FLAIR, reflecting small-vessel disease load.</span></div>
+      <div class="term"><b>CDR</b><span>Clinical Dementia Rating: 0 normal, 0.5 questionable/MCI, 1 mild, 2 moderate, 3 severe.</span></div>
+      <div class="term"><b>MMSE</b><span>Mini-Mental State Examination, 0–30. Below 24 commonly flags impairment, though education and language strongly affect it.</span></div>
+      <div class="term"><b>p-tau217</b><span>A phosphorylated tau species measurable in blood; currently the most accurate blood-based indicator of AD pathology.</span></div>
+      <div class="term"><b>Braak Staging</b><span>Six-stage neuropathological scheme describing the stereotyped anatomical spread of tau tangles.</span></div>
+      <div class="term"><b>Cognitive Reserve</b><span>Capacity to sustain pathology without proportional symptoms, built through education, occupation, and engagement.</span></div>
+      <div class="term"><b>ADNI / OASIS</b><span>Public longitudinal neuroimaging cohorts used as normative and comparison references in atrophy research.</span></div>
+    </div>
+  </section>
+
+  <section class="sheet disclaimer reveal" id="disclaimer">
+    <div class="label"><i>[</i> 09 / Notice <i>]</i></div>
+    <div class="sheet-head">
+      <h2>ORIENTATION MODEL<br><span>NOT A DIAGNOSIS</span></h2>
+      <p class="kicker">Every numeric readout on this page is demonstration data generated for the interface.</p>
+    </div>
+    <div class="prose">
+      <p>This console is a <strong>design and visualization exercise</strong>. The scan imagery, percentiles, confidence scores, and regional correlations are illustrative — they are not derived from a patient study and carry no clinical meaning. The explanatory text reflects general published understanding of Alzheimer's disease at a summary level and is not comprehensive.</p>
+      <p>Alzheimer's diagnosis requires clinical assessment, cognitive testing, laboratory screening, imaging interpreted by a radiologist, and increasingly biomarker confirmation — integrated by a physician. <strong>If you or someone you know is experiencing memory changes, speak to a doctor.</strong> Reversible causes are common and worth excluding early, and treatment options depend heavily on how early the process is identified.</p>
+    </div>
+    <div class="sources">
+      <span><b>ADNI</b>Alzheimer's Disease Neuroimaging Initiative</span>
+      <span><b>OASIS</b>Open Access Series of Imaging Studies</span>
+      <span><b>NIA-AA</b>research framework / A-T-N criteria</span>
+      <span><b>LANCET</b>commission on dementia prevention</span>
+    </div>
+    <button class="to-top" id="toTop">↑ return to scan console</button>
+  </section>
+
+</div>
 
 <script>
   const $ = id => document.getElementById(id);
@@ -832,10 +1226,14 @@
     ctx.restore();
   }
 
+  let consoleVisible = true;
+
   function loop(t){
-    drawScan(t);
-    drawWave(t);
-    drawConnectivity(t);
+    if(consoleVisible){
+      drawScan(t);
+      drawWave(t);
+      drawConnectivity(t);
+    }
     if(Math.floor(t/8000)!==loop.last){
       loop.last = Math.floor(t/8000);
       addLog("atrophy model packet " + String(40 + loop.last%29).padStart(3,"0") + " refreshed", "MODEL");
@@ -843,8 +1241,56 @@
     requestAnimationFrame(loop);
   }
 
+  function bindScrollLayer(){
+    const cue = $("scrollCue");
+    const dossier = $("dossier");
+    const consolePanel = $("console");
+
+    cue.addEventListener("click", () => {
+      dossier.scrollIntoView({behavior:"smooth", block:"start"});
+      addLog("alzheimer briefing opened", "READ");
+    });
+
+    $("toTop").addEventListener("click", () => {
+      consolePanel.scrollIntoView({behavior:"smooth", block:"start"});
+    });
+
+    const onScroll = () => {
+      cue.classList.toggle("gone", window.scrollY > 120);
+    };
+    window.addEventListener("scroll", onScroll, {passive:true});
+    onScroll();
+
+    if(!("IntersectionObserver" in window))return;
+
+    // probe first: if the observer never calls back, leave the sheets plainly visible
+    let probeFired = false;
+    const probe = new IntersectionObserver(() => {probeFired = true; probe.disconnect()}, {threshold:0});
+    probe.observe(document.body);
+
+    setTimeout(() => {
+      if(!probeFired)return;
+      document.documentElement.classList.add("armed");
+
+      const reveal = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if(entry.isIntersecting){
+            entry.target.classList.add("in");
+            reveal.unobserve(entry.target);
+          }
+        });
+      }, {rootMargin:"0px 0px -12% 0px", threshold:.08});
+      document.querySelectorAll(".reveal").forEach(el => reveal.observe(el));
+
+      new IntersectionObserver(entries => {
+        consoleVisible = entries[0].isIntersecting;
+      }, {threshold:0}).observe(consolePanel);
+    }, 300);
+  }
+
   renderControls();
   bindSoftSounds();
+  bindScrollLayer();
   setSite("hippocampal");
   makePanelsDraggable();
   window.addEventListener("resize", restorePanelPositions);
