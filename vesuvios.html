@@ -37,6 +37,7 @@
     --mono:'Space Mono',monospace;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
   html,body{background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;}
   body{
     font-family:var(--serif);font-size:19px;line-height:1.5;
@@ -81,8 +82,12 @@
   .proprietors b{color:var(--dim);font-weight:500;}
   .proprietors .sep{color:var(--line);}
   .estab{margin-top:18px;font-family:var(--engrave);font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--dim);}
+  .menu-jump{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;margin-top:34px;color:var(--gold-bright);border:1px solid rgba(216,189,120,.36);border-radius:50%;background:rgba(11,10,8,.24);text-decoration:none;animation:menu-bob 2.2s ease-in-out infinite;transition:background .2s ease,border-color .2s ease,transform .2s ease;}
+  .menu-jump:hover,.menu-jump:focus-visible{background:rgba(216,189,120,.1);border-color:rgba(216,189,120,.66);transform:translateY(2px);outline:none;}
+  .menu-jump svg{width:20px;height:20px;stroke:currentColor;stroke-width:1.7;}
+  @keyframes menu-bob{0%,100%{transform:translateY(0);}50%{transform:translateY(8px);}}
 
-  .sec{padding:50px 0;}
+  .sec{padding:50px 0;scroll-margin-top:72px;}
   .sec-head{display:flex;align-items:baseline;gap:18px;border-top:1px solid var(--line);padding-top:22px;margin-bottom:34px;}
   .sec-title{font-family:var(--display);font-weight:700;font-style:italic;font-size:clamp(27px,4vw,40px);color:var(--ivory);}
   .sec-note{margin-left:auto;font-family:var(--serif);font-style:italic;font-size:17px;color:var(--dim);}
@@ -96,8 +101,8 @@
     color:var(--red);border:1px solid rgba(126,38,28,.5);padding:2px 8px;vertical-align:middle;}
   .feature .badge.today{color:var(--green);border-color:rgba(135,149,106,.6);}
   .feature h3{font-family:var(--display);font-weight:600;font-style:italic;font-size:clamp(38px,4.8vw,58px);line-height:1;color:var(--ivory);margin:4px 0 18px;}
-  .feature p{font-size:21px;color:var(--dim);max-width:590px;font-style:italic;}
-  .feature .when{margin-top:20px;font-family:var(--engrave);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);}
+  .feature p{font-size:21px;color:var(--dim);max-width:590px;font-style:italic;text-wrap:pretty;}
+  .feature .when{margin-top:20px;font-family:var(--engrave);font-size:10px;letter-spacing:.14em;line-height:1.8;text-transform:uppercase;color:var(--gold);text-wrap:balance;}
   .feat-plate{position:relative;justify-self:stretch;width:100%;min-height:330px;overflow:hidden;background:var(--panel);}
   .feat-plate svg{display:none;}
 
@@ -126,7 +131,7 @@
   .item-name .tag{font-family:var(--engrave);font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--green);border:1px solid rgba(135,149,106,.5);padding:1px 6px;margin-left:7px;vertical-align:middle;}
   .item-dots{flex:1;min-width:24px;border-bottom:1px dotted rgba(216,189,120,.26);transform:translateY(-6px);}
   .item-price{font-family:var(--engrave);font-size:15px;color:var(--gold);}
-  .item-desc{font-size:17px;color:var(--dim);line-height:1.4;margin-top:4px;font-style:italic;}
+  .item-desc{font-size:17px;color:var(--dim);line-height:1.4;margin-top:4px;font-style:italic;text-wrap:pretty;}
 
   .plated-feature{text-align:center;border-top:1px solid var(--line);padding-top:34px;}
   .plated-feature .kicker{margin-bottom:12px;}
@@ -140,7 +145,7 @@
   .note-card{background:linear-gradient(180deg,var(--panel-2),var(--panel));padding:40px 42px;}
   .note-card .kicker{margin-bottom:16px;}
   .note-card h4{font-family:var(--display);font-weight:600;font-style:italic;font-size:28px;color:var(--ivory);margin-bottom:12px;}
-  .note-card p{font-size:18px;color:var(--dim);line-height:1.55;font-style:italic;margin-bottom:12px;}
+  .note-card p{font-size:18px;color:var(--dim);line-height:1.55;font-style:italic;margin-bottom:12px;text-wrap:pretty;}
   .note-card .fine{font-family:var(--engrave);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);line-height:1.9;font-style:normal;}
   .note-card .fine b{color:var(--dim);font-weight:500;}
 
@@ -191,6 +196,7 @@
     .wrap{padding:0 22px;}
     .hero{min-height:720px;padding:62px 0 56px;}
     .masthead-logo{width:min(520px,94vw);}
+    .menu-jump{margin-top:26px;}
     .proprietors{gap:8px 18px;}
     .proprietors .sep{display:none;}
     .sec-head{display:block;}
@@ -234,6 +240,9 @@
       <span><b>Charmaine Bucco</b> — Proprietress &amp; Maître d'</span>
     </div>
     <div class="estab">Established 1985 &nbsp;·&nbsp; North Caldwell, New Jersey</div>
+    <a class="menu-jump" href="#menu" aria-label="View the menu">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
   </div>
 </header>
 
@@ -246,7 +255,7 @@
         <div class="f-kicker kicker">La Domenica<span class="badge" id="special-badge">The Sunday Table</span></div>
         <h3>Sunday Gravy</h3>
         <p>One pot for the whole table. Braciole, sweet sausage, meatballs, and pork ribs stewed in San Marzano gravy from the morning on, finished over rigatoni and served family-style — with good bread to see the plate clean.</p>
-        <div class="when" id="special-when">Sundays from 2 o'clock · served until the pot is empty · $34 per guest</div>
+        <div class="when" id="special-when">Sundays from 2 o'clock · served until the pot is empty · $34&nbsp;per&nbsp;guest</div>
       </div>
       <div class="feat-plate">
         <svg viewBox="0 0 168 168" aria-hidden="true">
@@ -350,7 +359,7 @@
   </section>
 
   <!-- FULL MENU -->
-  <section class="sec">
+  <section class="sec" id="menu">
     <div class="sec-head">
       <span class="kicker">Il Menù</span>
       <span class="sec-title">The Bill of Fare</span>
@@ -361,7 +370,7 @@
         <div class="menu-group">
           <div class="mg-title">Antipasti</div>
           <div class="mg-sub">To Begin</div>
-          <div class="item"><div class="item-head"><span class="item-name">Antipasto della Casa</span><span class="item-dots"></span><span class="item-price">19</span></div><div class="item-desc">Cured meats, aged provolone, roasted peppers, marinated mushrooms, Gaeta olives.</div></div>
+          <div class="item"><div class="item-head"><span class="item-name">Antipasto della Casa</span><span class="item-dots"></span><span class="item-price">19</span></div><div class="item-desc">Cured meats, aged provolone, roasted peppers, marinated mushrooms, Gaeta&nbsp;olives.</div></div>
           <div class="item"><div class="item-head"><span class="item-name">Burrata con Pomodori</span><span class="item-dots"></span><span class="item-price">18</span></div><div class="item-desc">Creamy burrata, San Marzano tomatoes, torn basil, first-press oil.</div></div>
           <div class="item"><div class="item-head"><span class="item-name">Clams Oreganata</span><span class="item-dots"></span><span class="item-price">17</span></div><div class="item-desc">Littlenecks, garlic, oregano, toasted breadcrumb, lemon.</div></div>
           <div class="item"><div class="item-head"><span class="item-name">Calamari Fritti</span><span class="item-dots"></span><span class="item-price">16</span></div><div class="item-desc">Flash-fried, cherry-pepper aioli and a spicy marinara.</div></div>
@@ -414,18 +423,18 @@
     <div class="grid-2">
       <div class="note-card">
         <div class="kicker">Positions Available</div>
-        <h4>The Kitchen is Hiring</h4>
-        <p>Vesuvio's is seeking a <b style="color:var(--ivory)">line cook</b> and a <b style="color:var(--ivory)">kitchen assistant</b> to join a small, serious brigade. Neapolitan technique preferred; a willingness to learn it is enough.</p>
+        <h4>The House is Hiring</h4>
+        <p>Vesuvio's is seeking a <b style="color:var(--ivory)">line cook</b>, a <b style="color:var(--ivory)">kitchen assistant</b>, and a <b style="color:var(--ivory)">hostess</b> for the dining room. Neapolitan technique preferred in the kitchen; warmth, nerve, and a good reservation-book hand preferred up front.</p>
         <div class="fine">
           Full &amp; part-time · evenings<br>
-          Inquire in person with <b>Chef Bucco</b>, afternoons before service<br>
+          Inquire in person with <b>Chef Bucco</b> or <b>Mrs. Bucco</b>, afternoons before service<br>
           References appreciated
         </div>
       </div>
       <div class="note-card">
         <div class="kicker">The House</div>
         <h4>A Few Words on the Room</h4>
-        <p>The dining room and reservation book are kept by <b style="color:var(--ivory)">Mrs. Charmaine Bucco</b>. She will see to your table, your evening, and any occasion worth marking. Kindly telephone ahead — the room is small and it fills.</p>
+        <p>The dining room and reservation book are kept by <b style="color:var(--ivory)">Mrs. Charmaine Bucco</b>. She will see to your table, your evening, and any occasion worth marking. Kindly telephone ahead — the room is small and it&nbsp;fills.</p>
         <div class="fine">
           <b>Reservations</b> · by telephone; ask for Charmaine<br>
           Jackets appreciated · Valet Friday &amp; Saturday<br>
@@ -536,7 +545,7 @@
     if(dayIdx===0){
       const badge=document.getElementById('special-badge');
       badge.textContent='Served Today'; badge.classList.add('today');
-      document.getElementById('special-when').textContent='Today from 2 o’clock · served until the pot is empty · $34 per guest';
+      document.getElementById('special-when').textContent='Today from 2 o’clock · served until the pot is empty · $34&nbsp;per&nbsp;guest';
     }
 
     // highlight today's hours row
