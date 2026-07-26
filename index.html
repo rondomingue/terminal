@@ -255,6 +255,7 @@
   .iface-card.anim-13 { animation: fade-up 0.7s 2.9s ease forwards; }
   .iface-card.anim-14 { animation: fade-up 0.7s 3.05s ease forwards; }
   .iface-card.anim-15 { animation: fade-up 0.7s 3.2s ease forwards; }
+  .iface-card.anim-16 { animation: fade-up 0.7s 3.35s ease forwards; }
 
   /* Top accent line — color per card */
   .iface-card::before {
@@ -412,11 +413,11 @@
   <div class="top-right">
     <div class="top-status">
       <span class="status-dot"></span>
-      <span><strong id="live-count">15</strong> INTERFACES LIVE</span>
+      <span><strong id="live-count">16</strong> INTERFACES LIVE</span>
       <span class="top-divider"></span>
-      <span>VERSION <strong>02.07.14</strong></span>
+      <span>VERSION <strong>02.07.15</strong></span>
       <span class="top-divider"></span>
-      <time datetime="2026-07-25">UPDATED <strong>JULY 25, 2026</strong></time>
+      <time datetime="2026-07-26">UPDATED <strong>JULY 26, 2026</strong></time>
     </div>
     <a href="https://rondomingue.com" class="top-url">rondomingue.com</a>
   </div>
@@ -437,9 +438,9 @@
       A collection of functional real-time interfaces built as creative and technical experiments — pulling live data, rendering in the browser, shipping as single files.
     </p>
     <div class="hero-system-meta" aria-label="Index activity metadata">
-      <span>Version <b>02.07.14</b></span>
-      <span>Last updated <b>July 25, 2026</b></span>
-      <span><b>15</b> active interfaces</span>
+      <span>Version <b>02.07.15</b></span>
+      <span>Last updated <b>July 26, 2026</b></span>
+      <span><b>16</b> active interfaces</span>
     </div>
   </div>
 </section>
@@ -448,7 +449,7 @@
 <div class="content">
   <div class="section-header">
     <span class="section-label">Active Systems</span>
-    <span class="section-count">15 / ∞</span>
+    <span class="section-count">16 / ∞</span>
   </div>
 
   <div class="cards">
@@ -903,6 +904,37 @@
       </div>
     </a>
 
+    <!-- VESUVIO'S -->
+    <a href="/vesuvios.html" class="iface-card anim-16" style="--c:#d8bd78;"
+       onmouseenter="playHover()">
+      <div style="position:absolute;top:0;left:0;right:0;height:1px;z-index:3;background:linear-gradient(to right,rgba(216,189,120,0.7),rgba(126,38,28,0.36),transparent 70%);"></div>
+      <div class="card-preview" style="background:#0b0a08;">
+        <img src="images/index/Vesuvios.png" alt="Vesuvio’s fine dining restaurant interface" class="preview-drift" width="1920" height="1080" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;filter:brightness(0.94);"/>
+        <div class="card-preview-overlay" style="background:linear-gradient(135deg,rgba(216,189,120,0.10) 0%,transparent 60%);"></div>
+        <div class="card-launch">
+          <span>LAUNCH</span><span class="launch-arrow">↗</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-meta">
+          <span class="card-type">Restaurant / Fictional Brand</span>
+          <span class="card-status live"><span class="sd"></span>ACTIVE</span>
+        </div>
+        <h2 class="card-title">VESUVIO’S <em style="color:rgba(216,189,120,0.9)">//</em> RISTORANTE</h2>
+        <p class="card-desc">
+          A fine-dining fan homage for Vesuvio’s — candlelit dining-room hero, menu system, rotating Artie quotes, generated food photography, and North Caldwell restaurant lore.
+        </p>
+        <div class="card-tags">
+          <span class="tag">HTML/CSS</span>
+          <span class="tag">restaurant</span>
+          <span class="tag">imagegen</span>
+          <span class="tag">Sopranos</span>
+          <span class="tag">single file</span>
+        </div>
+      </div>
+    </a>
+
+
   </div>
 </div>
 
@@ -938,7 +970,7 @@
 
   // Glitch the eyebrow text
   const eyebrow = document.getElementById('hero-eyebrow-data');
-  const targets = ['LIVE SYSTEMS / DATA VISUALIZATION','ADS-B / NHC / NOAA / NWS','29.9934°N 90.2581°W // KMSY','LANDFALL // TROPICAL CYCLONE OPS','TRANSIT // NEAR-EARTH OBJECT TRACKING','LIVING BRAIN // OPEN NEUROSCIENCE','OUTBREAKS // EPIDEMIC INTELLIGENCE','EVERYMOMENTVOTES // CIVIC SYSTEMS','CAPITOL LEDGER // POLITICAL FINANCE','CARGO MERIDIAN // FREIGHT OPERATIONS','ELEMENTAL BLOCKS // NUCLEOSYNTHESIS','SPEC FORGE // PROCEDURAL ASSET SYSTEM','OVERCAST // GRAND ISLE CONDITIONS','IMAGINARY CIRCLES // ROTATION → QUANTUM','CINEMATIC FIELD GUIDE // LIGHTING REFERENCE'];
+  const targets = ['LIVE SYSTEMS / DATA VISUALIZATION','ADS-B / NHC / NOAA / NWS','29.9934°N 90.2581°W // KMSY','LANDFALL // TROPICAL CYCLONE OPS','TRANSIT // NEAR-EARTH OBJECT TRACKING','LIVING BRAIN // OPEN NEUROSCIENCE','OUTBREAKS // EPIDEMIC INTELLIGENCE','EVERYMOMENTVOTES // CIVIC SYSTEMS','CAPITOL LEDGER // POLITICAL FINANCE','CARGO MERIDIAN // FREIGHT OPERATIONS','ELEMENTAL BLOCKS // NUCLEOSYNTHESIS','SPEC FORGE // PROCEDURAL ASSET SYSTEM','OVERCAST // GRAND ISLE CONDITIONS','IMAGINARY CIRCLES // ROTATION → QUANTUM','CINEMATIC FIELD GUIDE // LIGHTING REFERENCE','VESUVIO’S // RISTORANTE'];
   const glitch = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789/\\|<>[]{}!@#$%^&*';
   let ei=0;
   function cycleEyebrow(){
