@@ -71,7 +71,7 @@
     filter:saturate(.86) contrast(1.05);transform:translate3d(0,var(--hero-drift),0) scale(1.08);transform-origin:center;z-index:0;will-change:transform;}
   .hero::after{content:'';position:absolute;left:0;right:0;bottom:0;height:28vh;background:linear-gradient(180deg,transparent,var(--bg));z-index:1;}
   .vesuvius{position:absolute;left:50%;bottom:6%;transform:translateX(-50%);width:min(720px,92%);opacity:.14;z-index:1;pointer-events:none;}
-  .hero .wrap{position:relative;z-index:2;transform:translate3d(0,calc(var(--hero-drift) * -0.18),0);will-change:transform;}
+  .hero .wrap{position:relative;z-index:2;transform:translate3d(0,calc(var(--hero-drift) * -0.24),0);will-change:transform;}
   .masthead-logo{display:block;width:min(620px,88vw);height:auto;margin:0 auto 18px;filter:drop-shadow(0 16px 34px rgba(0,0,0,.72));}
   .orn{display:flex;align-items:center;justify-content:center;gap:16px;margin:28px auto;max-width:360px;color:var(--gold);}
   .orn::before,.orn::after{content:'';height:1px;flex:1;background:linear-gradient(90deg,transparent,var(--line),transparent);}
@@ -572,11 +572,12 @@
   function updateParallax(){
     if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const y = window.scrollY || 0;
-    document.documentElement.style.setProperty('--hero-drift', Math.min(46, y * 0.08).toFixed(2) + 'px');
+    const hero = document.querySelector('.hero');
+    if(hero) hero.style.setProperty('--hero-drift', Math.min(72, y * 0.14).toFixed(2) + 'px');
     document.querySelectorAll('.plated-photo').forEach(el=>{
       const rect = el.getBoundingClientRect();
       const midpoint = rect.top + rect.height / 2 - window.innerHeight / 2;
-      const drift = Math.max(-28, Math.min(28, midpoint * -0.035));
+      const drift = Math.max(-38, Math.min(38, midpoint * -0.052));
       el.style.setProperty('--plate-drift', drift.toFixed(2) + 'px');
     });
   }
