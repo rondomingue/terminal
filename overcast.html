@@ -1177,9 +1177,18 @@ const FISHING_SPOTS=[
 ];
 
 function renderMapLegend(){
-  $('map-legend').innerHTML=Object.keys(PIN_CATS).map(cat=>
-    `<span class="lg-item"><span class="lg-icon">${catMarker(cat,18)}</span>${PIN_CATS[cat].label}</span>`
-  ).join('');
+  // One entry per distinct marker colour actually on the map: each headline
+  // species in its own fish colour, plus the red crab for crabbing spots.
+  const seen=new Set(), items=[];
+  FISHING_SPOTS.forEach(spot=>{
+    const crab=isCrabSpot(spot);
+    const color=spotColor(spot);
+    if(seen.has(color)) return; seen.add(color);
+    const label=crab?'Crabbing':primarySpecies(spot);
+    const icon=crab?crabMarker(color,22):fishMarker(color,26);
+    items.push(`<span class="lg-item"><span class="lg-icon">${icon}</span>${label}</span>`);
+  });
+  $('map-legend').innerHTML=items.join('');
 }
 
 function softenSatelliteSeams(map){
