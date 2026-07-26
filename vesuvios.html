@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vesuvio's — Ristorante · North Caldwell, New Jersey</title>
+<meta name="description" content="Vesuvio's Ristorante — traditional Neapolitan cooking. Arthur Bucco, Chef; Charmaine Bucco, Proprietress. A fan homage to the fictional restaurant from The Sopranos.">
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9CMETG9RBQ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-9CMETG9RBQ');
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Cinzel:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0a08;
+    --panel:#151210;
+    --panel-2:#1d1915;
+    --ivory:#f7f0e4;
+    --ink:#eee3d0;
+    --dim:#bda98b;
+    --faint:#7e705f;
+    --gold:#b89a57;
+    --gold-bright:#d8bd78;
+    --red:#7e261c;
+    --green:#87956a;
+    --line:rgba(216,189,120,0.23);
+    --line-soft:rgba(247,240,228,0.08);
+    --display:'Playfair Display',Georgia,serif;
+    --engrave:'Cinzel',Georgia,serif;
+    --serif:'Cormorant Garamond',Georgia,serif;
+    --mono:'Space Mono',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;}
+  body{
+    font-family:var(--serif);font-size:19px;line-height:1.5;
+    background:
+      radial-gradient(900px 580px at 50% -10%, rgba(216,189,120,0.08), transparent 62%),
+      linear-gradient(180deg,#0c0b09,#12100e 42%,#0a0908);
+    background-attachment:fixed;
+  }
+  .frame{position:fixed;top:68px;right:18px;bottom:18px;left:18px;border:1px solid rgba(216,189,120,0.18);pointer-events:none;z-index:60;}
+  .frame::before{content:'';position:absolute;inset:5px;border:1px solid rgba(247,240,228,0.05);}
+  @media(max-width:640px){ .frame{top:74px;right:8px;bottom:8px;left:8px;} }
+
+  .wrap{max-width:1120px;margin:0 auto;padding:0 32px;}
+  .kicker{font-family:var(--engrave);font-weight:500;font-size:10px;letter-spacing:.32em;text-transform:uppercase;color:var(--gold);}
+
+  .topbar{position:relative;z-index:4;border-bottom:1px solid var(--line-soft);background:rgba(11,10,8,.72);backdrop-filter:blur(14px);}
+  .topbar .wrap{display:flex;align-items:center;justify-content:space-between;gap:14px;height:50px;
+    font-family:var(--engrave);font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--faint);}
+  .topbar .brand{color:var(--dim);}
+  .status{display:flex;align-items:center;gap:9px;color:var(--dim);}
+  .status .dot{width:6px;height:6px;border-radius:50%;background:var(--faint);}
+  .status.open .dot{background:var(--green);box-shadow:0 0 8px rgba(135,149,106,.8);}
+  .status.closed .dot{background:var(--red);}
+  .clock{font-family:var(--mono);letter-spacing:.08em;color:var(--faint);}
+
+  .hero{position:relative;overflow:hidden;text-align:center;min-height:calc(100vh - 50px);display:flex;align-items:center;padding:86px 0 72px;}
+  .hero::before{content:'';position:absolute;inset:0;background:
+      linear-gradient(180deg,rgba(11,10,8,.50),rgba(11,10,8,.74) 50%,rgba(11,10,8,.96)),
+      radial-gradient(700px 520px at 50% 38%,rgba(0,0,0,.05),rgba(0,0,0,.54)),
+      url('images/vesuvios/dining-room.jpg') center center/cover no-repeat;
+    filter:saturate(.86) contrast(1.05);transform:scale(1.02);z-index:0;}
+  .hero::after{content:'';position:absolute;left:0;right:0;bottom:0;height:28vh;background:linear-gradient(180deg,transparent,var(--bg));z-index:1;}
+  .vesuvius{position:absolute;left:50%;bottom:6%;transform:translateX(-50%);width:min(720px,92%);opacity:.14;z-index:1;pointer-events:none;}
+  .hero .wrap{position:relative;z-index:2;}
+  .masthead-logo{display:block;width:min(620px,88vw);height:auto;margin:0 auto 18px;filter:drop-shadow(0 16px 34px rgba(0,0,0,.72));}
+  .orn{display:flex;align-items:center;justify-content:center;gap:16px;margin:28px auto;max-width:360px;color:var(--gold);}
+  .orn::before,.orn::after{content:'';height:1px;flex:1;background:linear-gradient(90deg,transparent,var(--line),transparent);}
+  .orn svg{width:18px;height:18px;opacity:.9;}
+  .hero-line{font-family:var(--serif);font-style:italic;font-size:clamp(22px,2.4vw,29px);color:#e4d5bd;max-width:650px;margin:0 auto;line-height:1.42;text-shadow:0 2px 18px rgba(0,0,0,.62);}
+  .proprietors{margin-top:30px;display:flex;flex-wrap:wrap;gap:8px 30px;justify-content:center;
+    font-family:var(--engrave);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);}
+  .proprietors b{color:var(--dim);font-weight:500;}
+  .proprietors .sep{color:var(--line);}
+  .estab{margin-top:18px;font-family:var(--engrave);font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--dim);}
+
+  .sec{padding:50px 0;}
+  .sec-head{display:flex;align-items:baseline;gap:18px;border-top:1px solid var(--line);padding-top:22px;margin-bottom:34px;}
+  .sec-title{font-family:var(--display);font-weight:700;font-style:italic;font-size:clamp(27px,4vw,40px);color:var(--ivory);}
+  .sec-note{margin-left:auto;font-family:var(--serif);font-style:italic;font-size:17px;color:var(--dim);}
+
+  .feature{position:relative;border:1px solid var(--line);background:linear-gradient(180deg,var(--panel-2),var(--panel));
+    padding:18px;display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,.9fr);gap:0;align-items:stretch;}
+  .feature::before{content:'';position:absolute;inset:6px;border:1px solid var(--line-soft);pointer-events:none;}
+  .feature-copy{padding:38px 42px 40px;align-self:center;}
+  .feature .f-kicker{margin-bottom:12px;}
+  .feature .badge{display:inline-block;margin-left:12px;font-family:var(--engrave);font-size:9px;letter-spacing:.2em;
+    color:var(--red);border:1px solid rgba(126,38,28,.5);padding:2px 8px;vertical-align:middle;}
+  .feature .badge.today{color:var(--green);border-color:rgba(135,149,106,.6);}
+  .feature h3{font-family:var(--display);font-weight:600;font-style:italic;font-size:clamp(38px,4.8vw,58px);line-height:1;color:var(--ivory);margin:4px 0 18px;}
+  .feature p{font-size:21px;color:var(--dim);max-width:590px;font-style:italic;}
+  .feature .when{margin-top:20px;font-family:var(--engrave);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);}
+  .feat-plate{position:relative;justify-self:stretch;width:100%;min-height:330px;overflow:hidden;background:var(--panel);}
+  .feat-plate svg{display:none;}
+
+  .early-bird{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;border-top:1px solid var(--line);border-bottom:1px solid var(--line-soft);padding:22px 0;margin-top:-18px;}
+  .early-bird h3{font-family:var(--display);font-size:31px;font-style:italic;font-weight:600;color:var(--ivory);line-height:1;margin-bottom:6px;}
+  .early-bird p{font-size:18px;color:var(--dim);font-style:italic;line-height:1.45;max-width:690px;}
+  .early-bird .offer{font-family:var(--engrave);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-bright);border:1px solid rgba(216,189,120,.34);padding:12px 14px;white-space:nowrap;}
+
+  .dishes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:22px;background:transparent;border:0;}
+  .dish{background:transparent;padding:0;text-align:left;transition:transform .25s ease;}
+  .dish:hover{transform:translateY(-2px);}
+  .dish-art{position:relative;width:100%;height:auto;aspect-ratio:1/1.08;margin:0 0 18px;overflow:hidden;background:var(--panel);border:1px solid var(--line-soft);}
+  .dish-art svg{display:block;width:100%;height:100%;}
+  .plate-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:0;box-shadow:none;}
+  .dish h4{font-family:var(--display);font-weight:600;font-style:italic;font-size:24px;color:var(--ivory);margin-bottom:6px;}
+  .dish .d-en{font-family:var(--engrave);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+  .dish p{font-size:17px;color:var(--dim);line-height:1.42;font-style:italic;}
+
+  .menu-cols{display:grid;grid-template-columns:1fr 1fr;gap:28px 72px;}
+  .menu-group{margin-bottom:38px;}
+  .mg-title{font-family:var(--display);font-weight:600;font-style:italic;font-size:29px;color:var(--gold-bright);margin-bottom:4px;}
+  .mg-sub{font-family:var(--engrave);font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:var(--faint);margin-bottom:20px;}
+  .item{margin-bottom:20px;}
+  .item-head{display:flex;align-items:baseline;gap:8px;}
+  .item-name{font-size:21px;color:var(--ivory);font-weight:600;white-space:normal;line-height:1.15;}
+  .item-name .tag{font-family:var(--engrave);font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--green);border:1px solid rgba(135,149,106,.5);padding:1px 6px;margin-left:7px;vertical-align:middle;}
+  .item-dots{flex:1;min-width:24px;border-bottom:1px dotted rgba(216,189,120,.26);transform:translateY(-6px);}
+  .item-price{font-family:var(--engrave);font-size:15px;color:var(--gold);}
+  .item-desc{font-size:17px;color:var(--dim);line-height:1.4;margin-top:4px;font-style:italic;}
+
+  .plated-feature{text-align:center;border-top:1px solid var(--line);padding-top:34px;}
+  .plated-feature .kicker{margin-bottom:12px;}
+  .plated-feature h3{font-family:var(--display);font-weight:600;font-style:italic;font-size:clamp(34px,5vw,56px);line-height:1;color:var(--ivory);margin-bottom:12px;}
+  .plated-feature p{font-size:21px;color:var(--dim);font-style:italic;max-width:780px;margin:0 auto 28px;line-height:1.45;}
+  .plated-photo{position:relative;max-width:920px;margin:0 auto;overflow:hidden;border:1px solid var(--line-soft);background:var(--panel);aspect-ratio:16/9;box-shadow:0 28px 80px -56px rgba(0,0,0,.9);}
+  .plated-photo::after{content:'';position:absolute;inset:8px;border:1px solid rgba(247,240,228,.08);pointer-events:none;}
+  .plated-photo img{width:100%;height:100%;object-fit:cover;display:block;}
+
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line-soft);border:1px solid var(--line-soft);}
+  .note-card{background:linear-gradient(180deg,var(--panel-2),var(--panel));padding:40px 42px;}
+  .note-card .kicker{margin-bottom:16px;}
+  .note-card h4{font-family:var(--display);font-weight:600;font-style:italic;font-size:28px;color:var(--ivory);margin-bottom:12px;}
+  .note-card p{font-size:18px;color:var(--dim);line-height:1.55;font-style:italic;margin-bottom:12px;}
+  .note-card .fine{font-family:var(--engrave);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);line-height:1.9;font-style:normal;}
+  .note-card .fine b{color:var(--dim);font-weight:500;}
+
+  .quote{padding:72px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:rgba(247,240,228,.025);}
+  .quote-card{display:grid;grid-template-columns:220px minmax(0,1fr);gap:44px;align-items:center;max-width:900px;margin:0 auto;}
+  .quote-photo{position:relative;aspect-ratio:3/4;overflow:hidden;border:1px solid var(--line);background:var(--panel);box-shadow:0 24px 60px -36px rgba(0,0,0,.9);}
+  .quote-photo::after{content:'';position:absolute;inset:8px;border:1px solid rgba(247,240,228,.08);pointer-events:none;}
+  .quote-photo img{width:100%;height:100%;object-fit:cover;object-position:center 18%;display:block;filter:grayscale(1) sepia(.12) contrast(1.08) brightness(.95);}
+  .quote-copy{text-align:left;}
+  .quote p{font-family:var(--display);font-style:italic;font-size:clamp(27px,3.8vw,42px);line-height:1.24;color:var(--ivory);margin:0 0 22px;transition:opacity .65s ease;}
+  .quote p.is-changing{opacity:0;}
+  .quote .sig{font-family:var(--display);font-style:italic;font-size:27px;color:var(--gold-bright);}
+  .quote .sig small{display:block;font-family:var(--engrave);font-style:normal;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--faint);margin-top:8px;}
+
+  .foot{padding:58px 0 72px;}
+  .foot-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:36px;padding-top:38px;}
+  .foot-col h5{font-family:var(--engrave);font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;}
+  .foot-col .row{display:flex;justify-content:space-between;gap:12px;font-size:17px;color:var(--dim);padding:5px 0;border-bottom:1px solid var(--line-soft);}
+  .foot-col .row b{color:var(--ivory);font-weight:500;}
+  .foot-col .row.today b{color:var(--green);}
+  .foot-col p{font-size:17px;color:var(--dim);line-height:1.6;font-style:italic;}
+  .foot-col .fine{font-family:var(--engrave);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);line-height:1.9;font-style:normal;margin-top:10px;}
+  .disclaimer{margin-top:44px;text-align:center;font-family:var(--engrave);font-size:9.5px;letter-spacing:.16em;line-height:2;color:var(--faint);text-transform:uppercase;}
+
+  @media (max-width:980px){
+    .dishes{grid-template-columns:repeat(2,minmax(0,1fr));}
+  }
+  @media (max-width:820px){
+    .hero{min-height:760px;}
+    .menu-cols,.grid-2{grid-template-columns:1fr;}
+    .dishes{grid-template-columns:1fr;}
+    .feature{grid-template-columns:1fr;text-align:center;}
+    .feature-copy{padding:30px 24px 34px;}
+    .feat-plate{order:-1;}
+    .early-bird{grid-template-columns:1fr;text-align:center;}
+    .early-bird p{margin:0 auto;}
+    .early-bird .offer{justify-self:center;}
+    .quote-card{grid-template-columns:1fr;gap:28px;text-align:center;}
+    .quote-photo{width:min(220px,68vw);margin:0 auto;}
+    .quote-copy{text-align:center;}
+    .foot-grid{grid-template-columns:1fr;gap:28px;}
+  }
+  @media (max-width:640px){
+    .topbar .wrap{height:auto;min-height:58px;flex-wrap:wrap;justify-content:center;padding:10px 22px;text-align:center;letter-spacing:.16em;}
+    .wrap{padding:0 22px;}
+    .hero{min-height:720px;padding:62px 0 56px;}
+    .masthead-logo{width:min(520px,94vw);}
+    .proprietors{gap:8px 18px;}
+    .proprietors .sep{display:none;}
+    .sec-head{display:block;}
+    .sec-title{display:block;margin-top:6px;}
+    .sec-note{display:block;margin:6px 0 0;}
+    .feat-plate{min-height:250px;}
+    .item-head{align-items:flex-end;}
+  }
+</style>
+</head>
+<body>
+<div class="frame"></div>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="wrap">
+    <span class="brand">Vesuvio's · Ristorante</span>
+    <div class="status closed" id="status"><span class="dot"></span><span id="status-text">Checking hours…</span></div>
+    <span class="clock" id="clock">--:-- --</span>
+  </div>
+</div>
+
+<!-- HERO -->
+<header class="hero">
+  <svg class="vesuvius" viewBox="0 0 860 260" fill="none" aria-hidden="true" preserveAspectRatio="xMidYMax meet">
+    <defs><linearGradient id="mtn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#33241a"/><stop offset="1" stop-color="#120c08"/></linearGradient></defs>
+    <path d="M0 260 L280 260 L400 78 Q425 46 450 78 L570 260 Z" fill="url(#mtn)"/>
+    <path d="M280 260 L400 78 Q425 46 450 78 L570 260" stroke="rgba(200,163,80,.24)" stroke-width="1"/>
+    <path d="M400 78 Q425 46 450 78 Q440 66 425 66 Q410 66 400 78 Z" fill="rgba(165,49,31,.45)"/>
+    <path d="M420 60 q-6 -20 3 -36 M434 58 q7 -24 -2 -42" stroke="rgba(200,163,80,.24)" stroke-width="1.6" fill="none"/>
+  </svg>
+  <div class="wrap">
+    <img class="masthead-logo" src="images/vesuvios/vesuvios-masthead.png" alt="Vesuvio's Cucina Napoletana, established 1985, North Caldwell, NJ">
+    <div class="orn">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 2 L14 10 L22 12 L14 14 L12 22 L10 14 L2 12 L10 10 Z" fill="var(--gold)" opacity=".85"/></svg>
+    </div>
+    <p class="hero-line">Traditional Neapolitan cooking, prepared as the family has always made it — braised slowly, seasoned with care, and served without hurry.</p>
+    <div class="proprietors">
+      <span><b>Arthur Bucco</b> — Chef</span>
+      <span class="sep">·</span>
+      <span><b>Charmaine Bucco</b> — Proprietress &amp; Maître d'</span>
+    </div>
+    <div class="estab">Established 1985 &nbsp;·&nbsp; North Caldwell, New Jersey</div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- LA DOMENICA -->
+  <section class="sec">
+    <div class="feature">
+      <div class="feature-copy">
+        <div class="f-kicker kicker">La Domenica<span class="badge" id="special-badge">The Sunday Table</span></div>
+        <h3>Sunday Gravy</h3>
+        <p>One pot for the whole table. Braciole, sweet sausage, meatballs, and pork ribs stewed in San Marzano gravy from the morning on, finished over rigatoni and served family-style — with good bread to see the plate clean.</p>
+        <div class="when" id="special-when">Sundays from 2 o'clock · served until the pot is empty · $34 per guest</div>
+      </div>
+      <div class="feat-plate">
+        <svg viewBox="0 0 168 168" aria-hidden="true">
+          <circle cx="84" cy="84" r="70" fill="#efe6d2"/><circle cx="84" cy="84" r="70" fill="none" stroke="rgba(0,0,0,.12)" stroke-width="2"/>
+          <circle cx="84" cy="84" r="52" fill="#a5311f"/>
+          <g fill="#82241a"><circle cx="68" cy="70" r="12"/><circle cx="100" cy="74" r="13"/><circle cx="80" cy="100" r="11"/></g>
+          <g fill="#e6c9a0"><rect x="56" y="82" width="18" height="10" rx="5" transform="rotate(20 65 87)"/><rect x="92" y="92" width="18" height="10" rx="5" transform="rotate(-16 101 97)"/></g>
+          <g fill="#5f8036"><path d="M74 60c7-4 13-2 13-2s-3 7-10 9-9-1-9-1 4-3 6-6z"/><path d="M104 94c6-5 12-4 12-4s-2 7-9 10-10 0-10 0 4-3 7-6z"/></g>
+        </svg>
+        <img class="plate-photo" src="images/vesuvios/sunday-gravy.jpg" alt="Sunday Gravy" loading="lazy" onerror="this.remove()">
+      </div>
+    </div>
+  </section>
+
+  <!-- EARLY BIRD -->
+  <section class="sec early-bird">
+    <div>
+      <div class="kicker">Before the Room Fills</div>
+      <h3>Early Bird at Vesuvio’s</h3>
+      <p>Tuesday through Thursday before 6 o’clock: two-for-one antipasti at the bar, a little house wine, and no salad wagon.</p>
+    </div>
+    <div class="offer">Two-for-one items · 5–6 PM</div>
+  </section>
+
+  <!-- SIGNATURE DISHES -->
+  <section class="sec">
+    <div class="sec-head">
+      <span class="kicker">Le Specialità</span>
+      <span class="sec-title">From the Kitchen</span>
+      <span class="sec-note">plated to order</span>
+    </div>
+    <div class="dishes">
+
+      <div class="dish">
+        <div class="dish-art">
+          <svg viewBox="0 0 150 150" aria-hidden="true">
+            <circle cx="75" cy="75" r="62" fill="#f0e7d3"/><circle cx="75" cy="75" r="62" fill="none" stroke="rgba(0,0,0,.1)" stroke-width="2"/>
+            <ellipse cx="75" cy="80" rx="48" ry="40" fill="#a5311f"/>
+            <g fill="#e8cfa6"><rect x="52" y="70" width="18" height="10" rx="5" transform="rotate(18 61 75)"/><rect x="80" y="80" width="18" height="10" rx="5" transform="rotate(-14 89 85)"/><rect x="66" y="92" width="18" height="10" rx="5" transform="rotate(6 75 97)"/></g>
+            <g fill="#f6e7c9" opacity=".85"><circle cx="62" cy="66" r="3.4"/><circle cx="92" cy="72" r="3"/><circle cx="76" cy="96" r="3.2"/></g>
+            <path d="M84 60c7-5 15-3 15-3s-4 8-11 10-9-2-9-2 3-3 5-5z" fill="#5f8036"/>
+          </svg>
+          <img class="plate-photo" src="images/vesuvios/baked-ziti.jpg" alt="Baked Ziti" loading="lazy" onerror="this.remove()">
+        </div>
+        <h4>Baked Ziti</h4>
+        <div class="d-en">The House Standard</div>
+        <p>Ziti, gravy, fresh mozzarella and ricotta, baked till the edges catch.</p>
+      </div>
+
+      <div class="dish">
+        <div class="dish-art">
+          <svg viewBox="0 0 150 150" aria-hidden="true">
+            <circle cx="75" cy="75" r="62" fill="#eee4cf"/><circle cx="75" cy="75" r="62" fill="none" stroke="rgba(0,0,0,.1)" stroke-width="2"/>
+            <g fill="none" stroke="#e9d6ac" stroke-width="6" stroke-linecap="round" opacity=".95"><path d="M40 72q18-20 44-14 22 6 26 28"/><path d="M42 84q20-16 44-10 20 6 24 24"/><path d="M46 62q16-14 40-10"/></g>
+            <g fill="#3a3026"><path d="M54 88c8 0 14 5 14 5s-6 5-14 5-14-5-14-5 6-5 14-5z"/><path d="M92 74c8 0 14 5 14 5s-6 5-14 5-14-5-14-5 6-5 14-5z"/></g>
+            <g fill="#5f8036"><circle cx="70" cy="60" r="2.4"/><circle cx="86" cy="92" r="2.4"/><circle cx="58" cy="74" r="2.2"/></g>
+          </svg>
+          <img class="plate-photo" src="images/vesuvios/linguine-vongole.jpg" alt="Linguine alle Vongole" loading="lazy" onerror="this.remove()">
+        </div>
+        <h4>Linguine alle Vongole</h4>
+        <div class="d-en">White Clam Sauce</div>
+        <p>Littleneck clams, garlic, white wine, chili flake, and good oil.</p>
+      </div>
+
+      <div class="dish">
+        <div class="dish-art">
+          <svg viewBox="0 0 150 150" aria-hidden="true">
+            <circle cx="75" cy="75" r="62" fill="#f0e7d3"/><circle cx="75" cy="75" r="62" fill="none" stroke="rgba(0,0,0,.1)" stroke-width="2"/>
+            <path d="M34 75q22-24 58-16 12 3 22 12-10 9-22 12-36 8-58-20z" fill="#b7c9d0"/>
+            <path d="M114 71l14-8q3 8 0 16z" fill="#b7c9d0"/>
+            <circle cx="48" cy="70" r="3" fill="#2a2a2a"/>
+            <g stroke="#9fb2b8" stroke-width="1.4" opacity=".7"><path d="M62 66v18"/><path d="M74 63v22"/><path d="M86 63v20"/></g>
+            <g fill="#e7c14a"><path d="M96 92a10 10 0 0 1 0 20 10 10 0 0 1 0-20" fill="#f2d873"/></g>
+            <path d="M50 96c8-6 18-4 18-4s-4 8-12 10-10-2-10-2z" fill="#5f8036"/>
+          </svg>
+          <img class="plate-photo" src="images/vesuvios/branzino.jpg" alt="Branzino al Forno" loading="lazy" onerror="this.remove()">
+        </div>
+        <h4>Branzino al Forno</h4>
+        <div class="d-en">Whole Roasted Sea Bass</div>
+        <p>Deboned tableside, lemon, herbs, olives, a little garlic.</p>
+      </div>
+
+      <div class="dish">
+        <div class="dish-art">
+          <svg viewBox="0 0 150 150" aria-hidden="true">
+            <circle cx="75" cy="75" r="62" fill="#efe6d2"/><circle cx="75" cy="75" r="62" fill="none" stroke="rgba(0,0,0,.1)" stroke-width="2"/>
+            <rect x="42" y="52" width="66" height="46" rx="4" fill="#e7d3b0"/>
+            <rect x="42" y="52" width="66" height="15" rx="4" fill="#6a4a34"/>
+            <rect x="42" y="74" width="66" height="10" fill="#efe1c4"/>
+            <rect x="42" y="52" width="66" height="46" rx="4" fill="none" stroke="rgba(90,60,30,.35)" stroke-width="1.5"/>
+            <g fill="#5a3a24" opacity=".5"><circle cx="54" cy="59" r="1.6"/><circle cx="70" cy="57" r="1.6"/><circle cx="88" cy="60" r="1.6"/><circle cx="98" cy="57" r="1.6"/></g>
+          </svg>
+          <img class="plate-photo" src="images/vesuvios/tiramisu.jpg" alt="Tiramisù" loading="lazy" onerror="this.remove()">
+        </div>
+        <h4>Tiramisù</h4>
+        <div class="d-en">Made In-House</div>
+        <p>Espresso-soaked savoiardi, mascarpone, a heavy dust of cocoa.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FULL MENU -->
+  <section class="sec">
+    <div class="sec-head">
+      <span class="kicker">Il Menù</span>
+      <span class="sec-title">The Bill of Fare</span>
+      <span class="sec-note">prices in dollars</span>
+    </div>
+    <div class="menu-cols">
+      <div>
+        <div class="menu-group">
+          <div class="mg-title">Antipasti</div>
+          <div class="mg-sub">To Begin</div>
+          <div class="item"><div class="item-head"><span class="item-name">Antipasto della Casa</span><span class="item-dots"></span><span class="item-price">19</span></div><div class="item-desc">Cured meats, aged provolone, roasted peppers, marinated mushrooms, Gaeta olives.</div></div>
+          <div class="item"><div class="item-head"><span class="item-name">Burrata con Pomodori</span><span class="item-dots"></span><span class="item-price">18</span></div><div class="item-desc">Creamy burrata, San Marzano tomatoes, torn basil, first-press oil.</div></div>
+          <div class="item"><div class="item-head"><span class="item-name">Clams Oreganata</span><span class="item-dots"></span><span class="item-price">17</span></div><div class="item-desc">Littlenecks, garlic, oregano, toasted breadcrumb, lemon.</div></div>
+          <div class="item"><div class="item-head"><span class="item-name">Calamari Fritti</span><span class="item-dots"></span><span class="item-price">16</span></div><div class="item-desc">Flash-fried, cherry-pepper aioli and a spicy marinara.</div></div>
+          <div class="item"><div class="item-head"><span class="item-name">Prosciutto e Melone</span><span class="item-dots"></span><span class="item-price">15</span></div><div class="item-desc">Prosciutto di Parma over cold summer cantaloupe.</div></div>
+        </div>
+        <div class="menu-group">
+          <div class="mg-title">Primi</div>
+          <div class="mg-sub">Pasta &amp; First Courses</div>
+          <div class="item"><div class="item-head"><span class="item-name">Baked Ziti</span><span class="item-dots"></span><span class="item-price">24</span></div><div class="item-desc">Gravy, fresh mozzarella and ricotta, baked till the edges catch.</div></div>
+          <div class="item"><div class="item-head"><span class="item-name">Rigatoni Sunday Gravy<span class="tag">Sun</span></span><span class="item-dots"></span><span class="item-price">34</span></div><div class="item-desc">Braciole, sausage, meatballs, and ribs stewed all day. Family-style.</div></div>
+          <div class="item"><div class="item-head"><span class="item-name">Linguine alle Vongole</span><span class="item-dots"></span><span class="item-price">29</span></div><div class="item-desc">Littleneck clams, garlic, white wine, a little heat.</div></div>
+          <div class="item"><div class="item-head"><span class="item-name">Pappardelle al Ragù di Coniglio</span><span class="item-dots"></span><span class="item-price">31</span></div><div class="item-desc">Slow-braised rabbit ragù — the Chef's own. Ask if it's on.</div></div>
+          <div class="item"><div class="item-head"><span class="item-name">Gnocchi al Pomodoro</span><span class="item-dots"></span><span class="item-price">23</span></div><div class="item-desc">Ricotta gnocchi, simple tomato-basil, grana padano.</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="menu-group">
+          <div class="mg-title">Secondi</div>
+          <div class="mg-sub">From the Grill &amp; Oven</div>
+          <div class="item"><div class="item-head"><span class="item-name">Veal Marsala</span><span class="item-dots"></span><span class="item-price">36</span></div><div class="item-desc">Milk-fed veal, wild mushrooms, sweet Marsala reduction.</div></div>
+          <div class="item"><div class="item-head"><span class="item-name">Chicken Scarpariello</span><span class="item-dots"></span><span class="item-price">29</span></div><div class="item-desc">Boneless chicken, sausage, cherry peppers, garlic, white wine.</div></div>
+          <div class="item"><div class="item-head"><span class="item-name">Branzino al Forno</span><span class="item-dots"></span><span class="item-price">38</span></div><div class="item-desc">Whole roasted sea bass, deboned tableside. Lemon and herbs.</div></div>
+          <div class="item"><div class="item-head"><span class="item-name">Ossobuco alla Milanese</span><span class="item-dots"></span><span class="item-price">42</span></div><div class="item-desc">Braised veal shank, saffron risotto, gremolata.</div></div>
+          <div class="item"><div class="item-head"><span class="item-name">Costoletta Milanese</span><span class="item-dots"></span><span class="item-price">44</span></div><div class="item-desc">Pounded veal chop, breaded thin, arugula and tomato.</div></div>
+        </div>
+        <div class="menu-group">
+          <div class="mg-title">Contorni &amp; Dolci</div>
+          <div class="mg-sub">Sides &amp; Sweets</div>
+          <div class="item"><div class="item-head"><span class="item-name">Broccoli Rabe · Escarole &amp; Beans</span><span class="item-dots"></span><span class="item-price">11</span></div><div class="item-desc">Garlic and oil, the way it should be.</div></div>
+          <div class="item"><div class="item-head"><span class="item-name">Tiramisù</span><span class="item-dots"></span><span class="item-price">13</span></div><div class="item-desc">Espresso-soaked savoiardi, mascarpone, cocoa.</div></div>
+          <div class="item"><div class="item-head"><span class="item-name">Cannoli Siciliani</span><span class="item-dots"></span><span class="item-price">12</span></div><div class="item-desc">Shells filled to order, sweet ricotta, candied orange.</div></div>
+          <div class="item"><div class="item-head"><span class="item-name">Affogato</span><span class="item-dots"></span><span class="item-price">10</span></div><div class="item-desc">Vanilla gelato drowned in a shot of espresso.</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHEF'S PLATE -->
+  <section class="sec plated-feature">
+    <div class="kicker">Il Piatto del Cuoco</div>
+    <h3>Agnolotti al Burro e Salvia</h3>
+    <p>Handmade pasta, brown butter, sage, Parmigiano, and a little restraint from&nbsp;the&nbsp;kitchen.</p>
+    <figure class="plated-photo">
+      <img src="images/vesuvios/chef-special-agnolotti.jpg" alt="Fine dining Italian agnolotti plated with brown butter and sage" loading="lazy">
+    </figure>
+  </section>
+
+  <!-- POSITIONS + RESERVATIONS NOTES -->
+  <section class="sec">
+    <div class="grid-2">
+      <div class="note-card">
+        <div class="kicker">Positions Available</div>
+        <h4>The Kitchen is Hiring</h4>
+        <p>Vesuvio's is seeking a <b style="color:var(--ivory)">line cook</b> and a <b style="color:var(--ivory)">kitchen assistant</b> to join a small, serious brigade. Neapolitan technique preferred; a willingness to learn it is enough.</p>
+        <div class="fine">
+          Full &amp; part-time · evenings<br>
+          Inquire in person with <b>Chef Bucco</b>, afternoons before service<br>
+          References appreciated
+        </div>
+      </div>
+      <div class="note-card">
+        <div class="kicker">The House</div>
+        <h4>A Few Words on the Room</h4>
+        <p>The dining room and reservation book are kept by <b style="color:var(--ivory)">Mrs. Charmaine Bucco</b>. She will see to your table, your evening, and any occasion worth marking. Kindly telephone ahead — the room is small and it fills.</p>
+        <div class="fine">
+          <b>Reservations</b> · by telephone; ask for Charmaine<br>
+          Jackets appreciated · Valet Friday &amp; Saturday<br>
+          Cards accepted: Visa · Mastercard · Discover — American Express not accepted at this time
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ARTIE QUOTE -->
+<section class="quote">
+  <div class="wrap">
+    <div class="quote-card">
+      <figure class="quote-photo">
+        <img src="images/vesuvios/artie-bucco.jpg" alt="Arthur Bucco, chef of Vesuvio's" loading="lazy">
+      </figure>
+      <div class="quote-copy">
+        <p id="artie-quote">“This is a fine dining establishment. I’ll give it back to the bank before I turn into a fucking IHOP!”</p>
+        <div class="sig">Arthur Bucco<small>Chef &amp; Proprietor</small></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-col" id="hours-col">
+        <h5>Hours</h5>
+        <div class="row" data-day="1"><span>Monday</span><b>Closed</b></div>
+        <div class="row" data-day="2"><span>Tuesday – Thursday</span><b>5:00 – 10:00 PM</b></div>
+        <div class="row" data-day="5"><span>Friday – Saturday</span><b>5:00 – 11:00 PM</b></div>
+        <div class="row" data-day="0"><span>Sunday</span><b>2:00 – 9:00 PM</b></div>
+      </div>
+      <div class="foot-col">
+        <h5>Reservations</h5>
+        <p>Received by Mrs. Bucco.<br>Kindly telephone; ask for Charmaine.</p>
+        <div class="fine"><b>(973) 555-0146</b><br>Large parties &amp; the back room by arrangement</div>
+      </div>
+      <div class="foot-col">
+        <h5>Location</h5>
+        <p>Bloomfield Avenue<br>North Caldwell, New Jersey</p>
+        <div class="fine">Valet Friday &amp; Saturday<br>Visa · Mastercard · Discover</div>
+      </div>
+    </div>
+    <div class="disclaimer">
+      Vesuvio's is a fan homage to the fictional restaurant from “The Sopranos.” Not affiliated with, endorsed by, or connected to HBO. No reservations are actually taken.
+    </div>
+  </div>
+</footer>
+
+<script>
+  const HOURS = { 0:[14,21], 1:null, 2:[17,22], 3:[17,22], 4:[17,22], 5:[17,23], 6:[17,23] };
+  const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const ARTIE_QUOTES = [
+    `This is a fine dining establishment. I’ll give it back to the bank before I turn into a fucking IHOP!`,
+    `Qu’est-ce que c’est, man? Message machine broken?`,
+    `A Martina. It’s like a martini, but it’s from Albania. Well, apparently they go down real easy.`,
+    `Two-fers. Wow. How ’bout an early bird special? Salad wagon?`,
+    `I guess because you know how to eat, you know how to run a restaurant.`,
+    `You want to help me so badly? Try paying your tab.`,
+    `Really? You know better than New Jersey’s ad? Artie Bucco, warm and convivial host?`,
+    `American Express? Funny, I had you two for cops.`,
+    `Wait, you think I’m ripping off my own customers?`,
+    `Benny, Mo, and Jack, how’s the bruschetta? You guys got a quorum? Lemme get you a table.`,
+    `My best customer, but he’s nailed to this fuckin’ spot: it’s either the wine or the view.`,
+    `If you hate it here so much, why don’t you go Don Giovanni.`,
+    `Oh, come on, he knows I’m breakin’ his balls.`,
+    `You don’t want to fuck with a chef, my friend.`,
+    `I loved her. I fuckin’ love her now.`,
+    `Paul Newman started his own salad dressing.`,
+    `That restaurant was like my child.`
+  ];
+  let artieQuoteIndex = 0;
+
+  function nyParts(){
+    const d = new Date();
+    const wd = new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',weekday:'long'}).format(d);
+    const hour = parseInt(new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',hour:'2-digit',hour12:false}).format(d),10)%24;
+    const min = parseInt(new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',minute:'2-digit'}).format(d),10);
+    const clock = new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',hour:'numeric',minute:'2-digit',hour12:true}).format(d);
+    return { dayIdx: DAYS.indexOf(wd), hour, min, clock };
+  }
+  function fmtHour(h){ const ap=h>=12?'PM':'AM'; let hh=h%12; if(hh===0)hh=12; return hh+':00 '+ap; }
+
+  function tick(){
+    const {dayIdx,hour,min,clock} = nyParts();
+    document.getElementById('clock').textContent = clock + ' ET';
+    const cur = hour + min/60;
+    const today = HOURS[dayIdx];
+    const el = document.getElementById('status');
+    const txt = document.getElementById('status-text');
+
+    let open=false, msg='';
+    if(today){
+      const [o,c]=today;
+      if(cur>=o && cur<c){ open=true; msg='Open · Closes '+fmtHour(c); }
+      else if(cur<o){ msg='Closed · Opens '+fmtHour(o)+' Today'; }
+      else { msg='Closed for the Evening'; }
+    } else { msg='Closed Mondays'; }
+    el.className='status '+(open?'open':'closed');
+    txt.textContent=msg;
+
+    // Sunday brings the gravy forward
+    if(dayIdx===0){
+      const badge=document.getElementById('special-badge');
+      badge.textContent='Served Today'; badge.classList.add('today');
+      document.getElementById('special-when').textContent='Today from 2 o’clock · served until the pot is empty · $34 per guest';
+    }
+
+    // highlight today's hours row
+    document.querySelectorAll('#hours-col .row').forEach(r=>r.classList.remove('today'));
+    let key=dayIdx; if(dayIdx>=2&&dayIdx<=4)key=2; if(dayIdx===6)key=5;
+    const row=document.querySelector('#hours-col .row[data-day="'+key+'"]');
+    if(row) row.classList.add('today');
+  }
+  function setArtieQuote(index){
+    const quote = document.getElementById('artie-quote');
+    if(!quote) return;
+    artieQuoteIndex = (index + ARTIE_QUOTES.length) % ARTIE_QUOTES.length;
+    quote.classList.add('is-changing');
+    window.setTimeout(()=>{
+      quote.textContent = '“' + ARTIE_QUOTES[artieQuoteIndex] + '”';
+      quote.classList.remove('is-changing');
+    }, 650);
+  }
+
+  tick(); setInterval(tick, 15000);
+  setInterval(()=>setArtieQuote(artieQuoteIndex + 1), 4000);
+</script>
+</body>
+</html>
