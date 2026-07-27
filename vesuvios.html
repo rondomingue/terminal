@@ -117,6 +117,8 @@
   .dish-art{position:relative;width:100%;height:auto;aspect-ratio:1/1.08;margin:0 0 18px;overflow:hidden;background:var(--panel);border:1px solid var(--line-soft);}
   .dish-art svg{display:block;width:100%;height:100%;}
   .plate-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:0;box-shadow:none;}
+  .plate-photo,.plated-photo img{cursor:zoom-in;}
+  .plate-photo:focus-visible,.plated-photo img:focus-visible{outline:1px solid var(--gold-bright);outline-offset:4px;}
   .dish h4{font-family:var(--display);font-weight:600;font-style:italic;font-size:24px;color:var(--ivory);margin-bottom:6px;}
   .dish .d-en{font-family:var(--engrave);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
   .dish p{font-size:17px;color:var(--dim);line-height:1.42;font-style:italic;}
@@ -147,6 +149,11 @@
   .modal-close{width:36px;height:36px;border:1px solid rgba(216,189,120,.32);background:transparent;color:var(--gold-bright);font-size:24px;line-height:1;cursor:pointer;}
   .modal-close:hover,.modal-close:focus-visible{border-color:rgba(216,189,120,.65);background:rgba(216,189,120,.08);outline:none;}
   .modal .item{position:relative;z-index:1;}
+  .image-modal .modal-panel{width:min(1080px,100%);padding:18px;background:#090806;overflow:visible;}
+  .image-modal .modal-close{position:absolute;top:18px;right:18px;z-index:3;background:rgba(9,8,6,.68);backdrop-filter:blur(8px);}
+  .image-modal figure{position:relative;z-index:1;margin:0;}
+  .image-modal img{display:block;width:100%;max-height:78vh;object-fit:contain;background:#050403;}
+  .image-modal figcaption{padding:14px 4px 2px;font-family:var(--display);font-style:italic;font-size:22px;color:var(--ivory);text-align:center;}
 
   .plated-feature{text-align:center;border-top:1px solid var(--line);padding-top:34px;}
   .plated-feature .kicker{margin-bottom:12px;}
@@ -503,6 +510,15 @@
     <div class="item"><div class="item-head"><span class="item-name">Espresso Corretto</span><span class="item-dots"></span><span class="item-price">11</span></div><div class="item-desc">A short espresso corrected with a little grappa after dinner.</div></div>
   </div>
 </div>
+<div class="modal image-modal" id="food-modal" role="dialog" aria-modal="true" aria-labelledby="food-modal-title" aria-hidden="true">
+  <div class="modal-panel" role="document">
+    <button class="modal-close" type="button" id="close-food" aria-label="Close image">×</button>
+    <figure>
+      <img id="food-modal-img" src="" alt="">
+      <figcaption id="food-modal-title"></figcaption>
+    </figure>
+  </div>
+</div>
 
 <!-- FOOTER -->
 <footer class="foot">
@@ -633,18 +649,62 @@
   const drinksModal = document.getElementById('drinks-modal');
   const openDrinks = document.getElementById('open-drinks');
   const closeDrinks = document.getElementById('close-drinks');
+  const foodModal = document.getElementById('food-modal');
+  const foodModalImg = document.getElementById('food-modal-img');
+  const foodModalTitle = document.getElementById('food-modal-title');
+  const closeFood = document.getElementById('close-food');
+  function syncModalScrollLock(){
+    const modalOpen = document.querySelector('.modal.is-open');
+    document.body.style.overflow = modalOpen ? 'hidden' : '';
+  }
   function setDrinksModal(open){
     if(!drinksModal) return;
     drinksModal.classList.toggle('is-open', open);
     drinksModal.setAttribute('aria-hidden', open ? 'false' : 'true');
-    document.body.style.overflow = open ? 'hidden' : '';
+    syncModalScrollLock();
     if(open && closeDrinks) closeDrinks.focus();
     if(!open && openDrinks) openDrinks.focus();
+  }
+  function setFoodModal(open, img){
+    if(!foodModal) return;
+    if(open && img){
+      foodModalImg.src = img.currentSrc || img.src;
+      foodModalImg.alt = img.alt || 'Vesuvio’s dish';
+      foodModalTitle.textContent = img.alt || 'Vesuvio’s dish';
+      foodModal.dataset.returnTo = img.dataset.foodIndex || '';
+    }
+    foodModal.classList.toggle('is-open', open);
+    foodModal.setAttribute('aria-hidden', open ? 'false' : 'true');
+    syncModalScrollLock();
+    if(open && closeFood) closeFood.focus();
+    if(!open){
+      const target = document.querySelector('[data-food-index="' + foodModal.dataset.returnTo + '"]');
+      if(target) target.focus();
+    }
   }
   if(openDrinks) openDrinks.addEventListener('click', ()=>setDrinksModal(true));
   if(closeDrinks) closeDrinks.addEventListener('click', ()=>setDrinksModal(false));
   if(drinksModal) drinksModal.addEventListener('click', event=>{ if(event.target === drinksModal) setDrinksModal(false); });
-  window.addEventListener('keydown', event=>{ if(event.key === 'Escape' && drinksModal && drinksModal.classList.contains('is-open')) setDrinksModal(false); });
+  document.querySelectorAll('.plate-photo,.plated-photo img').forEach((img,index)=>{
+    img.dataset.foodIndex = String(index);
+    img.setAttribute('tabindex','0');
+    img.setAttribute('role','button');
+    img.setAttribute('aria-label','View larger image of ' + (img.alt || 'this dish'));
+    img.addEventListener('click', ()=>setFoodModal(true, img));
+    img.addEventListener('keydown', event=>{
+      if(event.key === 'Enter' || event.key === ' '){
+        event.preventDefault();
+        setFoodModal(true, img);
+      }
+    });
+  });
+  if(closeFood) closeFood.addEventListener('click', ()=>setFoodModal(false));
+  if(foodModal) foodModal.addEventListener('click', event=>{ if(event.target === foodModal) setFoodModal(false); });
+  window.addEventListener('keydown', event=>{
+    if(event.key !== 'Escape') return;
+    if(foodModal && foodModal.classList.contains('is-open')) setFoodModal(false);
+    else if(drinksModal && drinksModal.classList.contains('is-open')) setDrinksModal(false);
+  });
 
   tick(); setInterval(tick, 15000);
   setInterval(()=>setArtieQuote(artieQuoteIndex + 1), 4000);
