@@ -153,7 +153,9 @@
   .image-modal .modal-close{position:absolute;top:18px;right:18px;z-index:3;background:rgba(9,8,6,.68);backdrop-filter:blur(8px);}
   .image-modal figure{position:relative;z-index:1;margin:0;}
   .image-modal img{display:block;width:100%;max-height:78vh;object-fit:contain;background:#050403;}
-  .image-modal figcaption{padding:14px 4px 2px;font-family:var(--display);font-style:italic;font-size:22px;color:var(--ivory);text-align:center;}
+  .image-modal figcaption{padding:22px 22px 6px;text-align:center;border-top:1px solid rgba(216,189,120,.16);}
+  .image-modal figcaption b{display:block;font-family:var(--display);font-style:italic;font-size:clamp(23px,3vw,34px);font-weight:600;line-height:1.05;color:var(--ivory);}
+  .image-modal figcaption span{display:block;max-width:680px;margin:9px auto 0;font-size:18px;line-height:1.38;color:var(--dim);font-style:italic;text-wrap:pretty;}
 
   .plated-feature{text-align:center;border-top:1px solid var(--line);padding-top:34px;}
   .plated-feature .kicker{margin-bottom:12px;}
@@ -515,7 +517,7 @@
     <button class="modal-close" type="button" id="close-food" aria-label="Close image">×</button>
     <figure>
       <img id="food-modal-img" src="" alt="">
-      <figcaption id="food-modal-title"></figcaption>
+      <figcaption><b id="food-modal-title"></b><span id="food-modal-desc"></span></figcaption>
     </figure>
   </div>
 </div>
@@ -652,6 +654,7 @@
   const foodModal = document.getElementById('food-modal');
   const foodModalImg = document.getElementById('food-modal-img');
   const foodModalTitle = document.getElementById('food-modal-title');
+  const foodModalDesc = document.getElementById('food-modal-desc');
   const closeFood = document.getElementById('close-food');
   function syncModalScrollLock(){
     const modalOpen = document.querySelector('.modal.is-open');
@@ -665,12 +668,31 @@
     if(open && closeDrinks) closeDrinks.focus();
     if(!open && openDrinks) openDrinks.focus();
   }
+  function getFoodDescription(img){
+    const dish = img.closest('.dish');
+    if(dish){
+      const desc = dish.querySelector('p');
+      if(desc) return desc.textContent.trim();
+    }
+    const feature = img.closest('.feature');
+    if(feature){
+      const desc = feature.querySelector('.feature-copy p');
+      if(desc) return desc.textContent.trim();
+    }
+    const plated = img.closest('.plated-feature');
+    if(plated){
+      const desc = plated.querySelector('p');
+      if(desc) return desc.textContent.trim();
+    }
+    return '';
+  }
   function setFoodModal(open, img){
     if(!foodModal) return;
     if(open && img){
       foodModalImg.src = img.currentSrc || img.src;
       foodModalImg.alt = img.alt || 'Vesuvio’s dish';
       foodModalTitle.textContent = img.alt || 'Vesuvio’s dish';
+      foodModalDesc.textContent = getFoodDescription(img);
       foodModal.dataset.returnTo = img.dataset.foodIndex || '';
     }
     foodModal.classList.toggle('is-open', open);
