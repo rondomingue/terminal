@@ -256,6 +256,7 @@
   .iface-card.anim-14 { animation: fade-up 0.7s 3.05s ease forwards; }
   .iface-card.anim-15 { animation: fade-up 0.7s 3.2s ease forwards; }
   .iface-card.anim-16 { animation: fade-up 0.7s 3.35s ease forwards; }
+  .iface-card.anim-17 { animation: fade-up 0.7s 3.5s ease forwards; }
 
   /* Top accent line — color per card */
   .iface-card::before {
@@ -413,7 +414,7 @@
   <div class="top-right">
     <div class="top-status">
       <span class="status-dot"></span>
-      <span><strong id="live-count">16</strong> INTERFACES LIVE</span>
+      <span><strong id="live-count">17</strong> INTERFACES LIVE</span>
       <span class="top-divider"></span>
       <span>VERSION <strong>02.07.15</strong></span>
       <span class="top-divider"></span>
@@ -440,7 +441,7 @@
     <div class="hero-system-meta" aria-label="Index activity metadata">
       <span>Version <b>02.07.15</b></span>
       <span>Last updated <b>July 26, 2026</b></span>
-      <span><b>16</b> active interfaces</span>
+      <span><b>17</b> active interfaces</span>
     </div>
   </div>
 </section>
@@ -449,7 +450,7 @@
 <div class="content">
   <div class="section-header">
     <span class="section-label">Active Systems</span>
-    <span class="section-count">16 / ∞</span>
+    <span class="section-count">17 / ∞</span>
   </div>
 
   <div class="cards">
@@ -635,7 +636,7 @@
     </a>
 
     <!-- OUTBREAKS -->
-    <a href="/outbreaks.html" class="iface-card anim-7" style="--c:#9e3b34;"
+    <a href="/disease/" class="iface-card anim-7" style="--c:#9e3b34;"
        onmouseenter="playHover()">
       <div style="position:absolute;top:0;left:0;right:0;height:1px;z-index:3;background:linear-gradient(to right,rgba(158,59,52,0.58),transparent 70%);"></div>
       <div class="card-preview" style="background:#f5efe4;">
@@ -934,6 +935,43 @@
       </div>
     </a>
 
+    <!-- MEASLES -->
+    <a href="/disease/measles.html" class="iface-card anim-17" style="--c:#ef4130;"
+       onmouseenter="playHover()">
+      <div style="position:absolute;top:0;left:0;right:0;height:1px;z-index:3;background:linear-gradient(to right,rgba(239,65,48,0.7),transparent 70%);"></div>
+      <div class="card-preview" style="background:#0a0607;position:relative;overflow:hidden;">
+        <div style="position:absolute;inset:0;background:
+              radial-gradient(circle at 74% 30%, rgba(239,65,48,0.42) 0%, transparent 55%),
+              radial-gradient(circle at 22% 78%, rgba(46,138,110,0.18) 0%, transparent 60%),
+              repeating-linear-gradient(0deg, rgba(255,255,255,0.03) 0 1px, transparent 1px 14px),
+              repeating-linear-gradient(90deg, rgba(255,255,255,0.03) 0 1px, transparent 1px 14px),
+              #0a0607;"></div>
+        <div style="position:absolute;left:18px;bottom:12px;font-family:'DIN Condensed','Bahnschrift','Arial Narrow',sans-serif;font-size:70px;line-height:.8;font-weight:700;letter-spacing:2px;color:rgba(239,65,48,0.92);text-shadow:0 0 26px rgba(239,65,48,0.45);">2,289</div>
+        <div style="position:absolute;left:20px;bottom:6px;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:rgba(208,216,238,0.6);">U.S. cases · 2025 · highest since 1992</div>
+        <div class="card-preview-overlay" style="background:linear-gradient(135deg,rgba(239,65,48,0.08) 0%,transparent 60%);"></div>
+        <div class="card-launch">
+          <span>LAUNCH</span><span class="launch-arrow">↗</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-meta">
+          <span class="card-type">Health / Vaccine-Preventable</span>
+          <span class="card-status live"><span class="sd"></span>ACTIVE</span>
+        </div>
+        <h2 class="card-title">MEA<em style="color:rgba(239,65,48,0.9)">SLES</em></h2>
+        <p class="card-desc">
+          The American resurgence — how a disease eliminated in 2000 came roaring back in 2025. Case-rise chart, a US outbreak map, and the vaccination gap driving it, with CDC and WHO sources.
+        </p>
+        <div class="card-tags">
+          <span class="tag">CDC</span>
+          <span class="tag">MMR</span>
+          <span class="tag">US map</span>
+          <span class="tag">vaccination</span>
+          <span class="tag">public health</span>
+        </div>
+      </div>
+    </a>
+
 
   </div>
 </div>
@@ -986,7 +1024,7 @@
 
   // Glitch the eyebrow text
   const eyebrow = document.getElementById('hero-eyebrow-data');
-  const targets = ['LIVE SYSTEMS / DATA VISUALIZATION','ADS-B / NHC / NOAA / NWS','29.9934°N 90.2581°W // KMSY','LANDFALL // TROPICAL CYCLONE OPS','TRANSIT // NEAR-EARTH OBJECT TRACKING','LIVING BRAIN // OPEN NEUROSCIENCE','OUTBREAKS // EPIDEMIC INTELLIGENCE','EVERYMOMENTVOTES // CIVIC SYSTEMS','CAPITOL LEDGER // POLITICAL FINANCE','CARGO MERIDIAN // FREIGHT OPERATIONS','ELEMENTAL BLOCKS // NUCLEOSYNTHESIS','SPEC FORGE // PROCEDURAL ASSET SYSTEM','OVERCAST // GRAND ISLE CONDITIONS','IMAGINARY CIRCLES // ROTATION → QUANTUM','CINEMATIC FIELD GUIDE // LIGHTING REFERENCE','VESUVIO’S // RISTORANTE'];
+  const targets = ['LIVE SYSTEMS / DATA VISUALIZATION','ADS-B / NHC / NOAA / NWS','29.9934°N 90.2581°W // KMSY','LANDFALL // TROPICAL CYCLONE OPS','TRANSIT // NEAR-EARTH OBJECT TRACKING','LIVING BRAIN // OPEN NEUROSCIENCE','OUTBREAKS // EPIDEMIC INTELLIGENCE','MEASLES // US RESURGENCE 2025','EVERYMOMENTVOTES // CIVIC SYSTEMS','CAPITOL LEDGER // POLITICAL FINANCE','CARGO MERIDIAN // FREIGHT OPERATIONS','ELEMENTAL BLOCKS // NUCLEOSYNTHESIS','SPEC FORGE // PROCEDURAL ASSET SYSTEM','OVERCAST // GRAND ISLE CONDITIONS','IMAGINARY CIRCLES // ROTATION → QUANTUM','CINEMATIC FIELD GUIDE // LIGHTING REFERENCE','VESUVIO’S // RISTORANTE'];
   const glitch = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789/\\|<>[]{}!@#$%^&*';
   let ei=0;
   function cycleEyebrow(){
