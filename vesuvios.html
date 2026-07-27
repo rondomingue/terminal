@@ -39,14 +39,14 @@
   *{box-sizing:border-box;margin:0;padding:0;}
   html{scroll-behavior:smooth;}
   html,body{background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;}
-  body{
+  body{position:relative;min-height:100vh;
     font-family:var(--serif);font-size:19px;line-height:1.5;
     background:
       radial-gradient(900px 580px at 50% -10%, rgba(216,189,120,0.08), transparent 62%),
       linear-gradient(180deg,#0c0b09,#12100e 42%,#0a0908);
     background-attachment:fixed;
   }
-  .frame{position:fixed;top:68px;right:18px;bottom:18px;left:18px;border:1px solid rgba(216,189,120,0.18);pointer-events:none;z-index:60;}
+  .frame{position:absolute;top:68px;right:18px;bottom:18px;left:18px;border:1px solid rgba(216,189,120,0.18);pointer-events:none;z-index:3;}
   .frame::before{content:'';position:absolute;inset:5px;border:1px solid rgba(247,240,228,0.05);}
   @media(max-width:640px){ .frame{top:74px;right:8px;bottom:8px;left:8px;} }
 
@@ -132,6 +132,21 @@
   .item-dots{flex:1;min-width:24px;border-bottom:1px dotted rgba(216,189,120,.26);transform:translateY(-6px);}
   .item-price{font-family:var(--engrave);font-size:15px;color:var(--gold);}
   .item-desc{font-size:17px;color:var(--dim);line-height:1.4;margin-top:4px;font-style:italic;text-wrap:pretty;}
+  .menu-action{display:flex;align-items:center;justify-content:space-between;gap:18px;border:1px solid var(--line);background:linear-gradient(180deg,rgba(216,189,120,.06),rgba(247,240,228,.025));padding:18px 20px;text-align:left;color:var(--ink);width:100%;font:inherit;cursor:pointer;transition:border-color .2s ease,background .2s ease,transform .2s ease;}
+  .menu-action:hover,.menu-action:focus-visible{border-color:rgba(216,189,120,.55);background:rgba(216,189,120,.08);transform:translateY(-1px);outline:none;}
+  .menu-action b{display:block;font-family:var(--display);font-size:25px;font-style:italic;font-weight:600;color:var(--ivory);line-height:1.1;}
+  .menu-action span{display:block;margin-top:4px;font-family:var(--engrave);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);}
+  .menu-action svg{width:22px;height:22px;flex:0 0 auto;stroke:var(--gold-bright);stroke-width:1.6;}
+  .modal{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:24px;background:rgba(5,4,3,.72);backdrop-filter:blur(10px);opacity:0;pointer-events:none;transition:opacity .22s ease;}
+  .modal.is-open{opacity:1;pointer-events:auto;}
+  .modal-panel{position:relative;width:min(720px,100%);max-height:min(760px,88vh);overflow:auto;border:1px solid var(--line);background:linear-gradient(180deg,#1a1612,#0f0d0b);box-shadow:0 34px 90px -42px rgba(0,0,0,.95);padding:34px 38px 36px;}
+  .modal-panel::before{content:'';position:absolute;inset:7px;border:1px solid rgba(247,240,228,.06);pointer-events:none;}
+  .modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:22px;margin-bottom:28px;position:relative;z-index:1;}
+  .modal-title{font-family:var(--display);font-size:40px;font-style:italic;font-weight:600;line-height:1;color:var(--ivory);}
+  .modal-sub{margin-top:7px;font-family:var(--engrave);font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:var(--faint);}
+  .modal-close{width:36px;height:36px;border:1px solid rgba(216,189,120,.32);background:transparent;color:var(--gold-bright);font-size:24px;line-height:1;cursor:pointer;}
+  .modal-close:hover,.modal-close:focus-visible{border-color:rgba(216,189,120,.65);background:rgba(216,189,120,.08);outline:none;}
+  .modal .item{position:relative;z-index:1;}
 
   .plated-feature{text-align:center;border-top:1px solid var(--line);padding-top:34px;}
   .plated-feature .kicker{margin-bottom:12px;}
@@ -409,6 +424,12 @@
           <div class="item"><div class="item-head"><span class="item-name">Cannoli Siciliani</span><span class="item-dots"></span><span class="item-price">12</span></div><div class="item-desc">Shells filled to order, sweet ricotta, candied orange.</div></div>
           <div class="item"><div class="item-head"><span class="item-name">Affogato</span><span class="item-dots"></span><span class="item-price">10</span></div><div class="item-desc">Vanilla gelato drowned in a shot of espresso.</div></div>
         </div>
+        <div class="menu-group">
+          <button class="menu-action" type="button" id="open-drinks" aria-haspopup="dialog" aria-controls="drinks-modal">
+            <span><b>Bevande</b><span>Cocktails, wine &amp; caffè</span></span>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 5l8 7-8 7" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
       </div>
     </div>
   </section>
@@ -464,6 +485,24 @@
     </div>
   </div>
 </section>
+
+
+<div class="modal" id="drinks-modal" role="dialog" aria-modal="true" aria-labelledby="drinks-title" aria-hidden="true">
+  <div class="modal-panel" role="document">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" id="drinks-title">Bevande</div>
+        <div class="modal-sub">Cocktails, Wine &amp; Caffè</div>
+      </div>
+      <button class="modal-close" type="button" id="close-drinks" aria-label="Close drinks menu">×</button>
+    </div>
+    <div class="item"><div class="item-head"><span class="item-name">A Martina<span class="tag">House</span></span><span class="item-dots"></span><span class="item-price">16</span></div><div class="item-desc">Vodka, dry vermouth, orange bitters, and a green olive. Like a martini, but from Albania; goes down real easy.</div></div>
+    <div class="item"><div class="item-head"><span class="item-name">Negroni Vesuviano</span><span class="item-dots"></span><span class="item-price">15</span></div><div class="item-desc">Gin, Campari, sweet vermouth, orange peel, stirred properly.</div></div>
+    <div class="item"><div class="item-head"><span class="item-name">Falanghina del Sannio</span><span class="item-dots"></span><span class="item-price">14</span></div><div class="item-desc">Bright Campanian white wine, poured cold with shellfish and pasta.</div></div>
+    <div class="item"><div class="item-head"><span class="item-name">Chianti Classico</span><span class="item-dots"></span><span class="item-price">15</span></div><div class="item-desc">Sangiovese, cherry, leather, enough backbone for Sunday gravy.</div></div>
+    <div class="item"><div class="item-head"><span class="item-name">Espresso Corretto</span><span class="item-dots"></span><span class="item-price">11</span></div><div class="item-desc">A short espresso corrected with a little grappa after dinner.</div></div>
+  </div>
+</div>
 
 <!-- FOOTER -->
 <footer class="foot">
@@ -590,6 +629,22 @@
   }
   window.addEventListener('scroll', queueParallax, {passive:true});
   window.addEventListener('resize', queueParallax);
+
+  const drinksModal = document.getElementById('drinks-modal');
+  const openDrinks = document.getElementById('open-drinks');
+  const closeDrinks = document.getElementById('close-drinks');
+  function setDrinksModal(open){
+    if(!drinksModal) return;
+    drinksModal.classList.toggle('is-open', open);
+    drinksModal.setAttribute('aria-hidden', open ? 'false' : 'true');
+    document.body.style.overflow = open ? 'hidden' : '';
+    if(open && closeDrinks) closeDrinks.focus();
+    if(!open && openDrinks) openDrinks.focus();
+  }
+  if(openDrinks) openDrinks.addEventListener('click', ()=>setDrinksModal(true));
+  if(closeDrinks) closeDrinks.addEventListener('click', ()=>setDrinksModal(false));
+  if(drinksModal) drinksModal.addEventListener('click', event=>{ if(event.target === drinksModal) setDrinksModal(false); });
+  window.addEventListener('keydown', event=>{ if(event.key === 'Escape' && drinksModal && drinksModal.classList.contains('is-open')) setDrinksModal(false); });
 
   tick(); setInterval(tick, 15000);
   setInterval(()=>setArtieQuote(artieQuoteIndex + 1), 4000);
