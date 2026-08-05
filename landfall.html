@@ -257,7 +257,7 @@
     font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.13em;color:var(--ink-dim);cursor:pointer;}
   #map-label-top .flag{color:var(--advisory);}
   #forecast-map-key{position:absolute;top:36px;left:10px;z-index:5;
-    display:flex;align-items:center;gap:8px;padding:5px 10px;border:1px solid rgba(200,79,56,.36);
+    display:none;align-items:center;gap:8px;padding:5px 10px;border:1px solid rgba(200,79,56,.36);
     background:rgba(5,8,16,.62);border-radius:999px;box-shadow:0 8px 20px rgba(0,0,0,.28);
     font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.12em;color:rgba(222,228,245,.86);}
   #forecast-map-key::before{content:'';width:30px;height:0;border-top:3px solid #e46656;box-shadow:0 0 0 1px rgba(0,0,0,.34);}
@@ -728,13 +728,13 @@
       <div class="panel" id="forecast-card">
         <div class="ghost-sheet"></div>
         <div class="panel-label">[ FORECAST ] — ACTIVE TRACK</div>
-        <div class="forecast-title" id="forecast-title">TD TWO <span>BERTHA WATCH</span></div>
-        <div class="forecast-copy" id="forecast-copy">NHC ADV #5 PROJECTED TRACK THROUGH FRI 25/1200Z. FORECAST POINTS ARE DISPLAYED ON THE GULF CHART.</div>
+        <div class="forecast-title" id="forecast-title">NO ACTIVE <span>SYSTEM</span></div>
+        <div class="forecast-copy" id="forecast-copy">NO TROPICAL SYSTEMS ARE CURRENTLY ACTIVE IN THE ATLANTIC BASIN. FORECAST TRACK WILL APPEAR HERE WHEN NHC ISSUES AN ADVISORY.</div>
         <div class="forecast-strip">
-          <div class="forecast-stat"><b id="fc-wind">45KT</b>PEAK FCST</div>
-          <div class="forecast-stat"><b id="fc-pressure">1007</b>MB NOW</div>
-          <div class="forecast-stat"><b id="fc-motion">NW 3KT</b>MOTION</div>
-          <div class="forecast-stat"><b id="fc-points">8</b>POINTS</div>
+          <div class="forecast-stat"><b id="fc-wind">—</b>PEAK FCST</div>
+          <div class="forecast-stat"><b id="fc-pressure">—</b>MB NOW</div>
+          <div class="forecast-stat"><b id="fc-motion">—</b>MOTION</div>
+          <div class="forecast-stat"><b id="fc-points">—</b>POINTS</div>
         </div>
       </div>
       <div class="panel" id="advisory-card">
@@ -916,6 +916,10 @@
   const shown={};
   STORMS.forEach(s=>{shown[s.id]=false;});
   let selectedStormId=null;
+  // Set to true when NHC has an active advisory to track. The forecast data/geometry
+  // below (esp. the Mapbox track angle) is tuned and correct — keep it, just gated off
+  // until there's a real active storm to project.
+  const HAS_ACTIVE_STORM=false;
   const ACTIVE_FORECAST={
     id:'td-two-bertha-watch',
     name:'TD TWO',
@@ -1027,7 +1031,7 @@
       <span style="color:var(--ink-faint);font-size:8px;">${s.notes}</span>
     </div>`).join('');
   updateStormFocus(null);
-  applyForecastStatus();
+  if(HAS_ACTIVE_STORM) applyForecastStatus();
   if($('focus-clear')) $('focus-clear').addEventListener('click',clearAllAndReset);
 
   const historyPanel=$('storm-table-panel');
@@ -1502,9 +1506,11 @@
     ensureSSTLayer();
     buildToggles();
     STORMS.forEach(s=>setTrackVisible(s.id,shown[s.id]));
-    renderForecastSvgOverlay();
-    addActiveForecastTrack();
-    try{ map.fitBounds(forecastBounds(ACTIVE_FORECAST),{padding:90,maxZoom:5.95,duration:700,pitch:MAP_PITCH,bearing:MAP_BEARING}); }catch(e){}
+    if(HAS_ACTIVE_STORM){
+      renderForecastSvgOverlay();
+      addActiveForecastTrack();
+      try{ map.fitBounds(forecastBounds(ACTIVE_FORECAST),{padding:90,maxZoom:5.95,duration:700,pitch:MAP_PITCH,bearing:MAP_BEARING}); }catch(e){}
+    }
   });
 
   // Cubic Bezier tracks from storm fixes. Neighboring fixes become handles so each leg curves naturally.
@@ -1551,6 +1557,8 @@
   }
 
   function applyForecastStatus(){
+    if(!HAS_ACTIVE_STORM) return;
+    if($('forecast-map-key')) $('forecast-map-key').style.display='flex';
     const peak=ACTIVE_FORECAST.points.reduce((m,p)=>Math.max(m,p.wind),0);
     const now=ACTIVE_FORECAST.points[0];
     if($('forecast-title')) $('forecast-title').innerHTML=`${ACTIVE_FORECAST.name} <span>${ACTIVE_FORECAST.alias}</span>`;
@@ -1575,6 +1583,7 @@
   }
 
   function renderForecastSvgOverlay(){
+    if(!HAS_ACTIVE_STORM) return;
     try{
       const svg=$('forecast-svg-overlay');
       if(!svg) return;
@@ -1634,6 +1643,7 @@
   }
 
   function addActiveForecastTrack(){
+    if(!HAS_ACTIVE_STORM) return;
     if(!map||!map.isStyleLoaded()) return;
     const coords=ACTIVE_FORECAST.points.map(p=>[p.lon,p.lat]);
     const smooth=bezierPath(coords,22);
