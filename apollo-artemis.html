@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TWIN ARCS — Apollo to Artemis</title>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9CMETG9RBQ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-9CMETG9RBQ');
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Manrope:wght@300;400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
@@ -124,6 +131,9 @@
   .legend{position:absolute;z-index:4;left:28px;bottom:23px;display:flex;gap:18px;font-size:7px;color:#6f7672}
   .legend span{display:flex;align-items:center;gap:6px}.legend i{width:7px;height:7px;border-radius:50%;background:var(--shared)}
   .legend .a i{background:var(--apollo)}.legend .r i{background:var(--artemis)}.legend .p i{background:transparent;border:1px dashed #777}
+  .credit{position:absolute;z-index:4;left:28px;bottom:9px;font-family:"DM Mono",monospace;font-size:6.5px;letter-spacing:.14em;text-transform:uppercase;color:#4a504c}
+  .credit a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(133,140,136,.3);transition:color .2s,border-color .2s}
+  .credit a:hover{color:var(--paper);border-color:rgba(231,230,222,.5)}
   .ledger{border-top:1px solid var(--line);padding:54px 32px 70px;background:linear-gradient(180deg,#070b0c,#050809)}
   .ledger-head{display:grid;grid-template-columns:1fr 2fr;gap:32px;margin-bottom:38px}
   .ledger h2{font-size:38px;font-weight:300;line-height:1.05;letter-spacing:-.04em;max-width:500px}
@@ -148,6 +158,7 @@
     <div class="control-dock"><div class="top-tools"><div class="stats"><div class="stat"><b id="event-count">67</b><span class="stat-label">Milestones</span></div><div class="stat"><b>67</b><span class="stat-label">Years</span></div><div class="stat"><b>06</b><span class="stat-label">Twin threads</span></div></div><nav class="filters" aria-label="Timeline filters"><button class="active" data-filter="all">All signals</button><button data-filter="apollo">Apollo</button><button data-filter="artemis">Artemis</button><button data-filter="paired">Twin links</button><button id="reset-view">Reset view</button></nav></div></div>
     <aside class="rail" aria-live="polite"><div class="rail-brand"><div class="brand"><div class="brand-mark" aria-hidden="true"></div><div><div class="kicker">A comparative lunar chronology</div><h1>Twin Arcs <span>Apollo ↔ Artemis</span></h1></div></div><p class="intro"><strong>Two names from one mythology.</strong> Two generations of machines, crews, tests and hard-won returns—separated by half a century, aligned by the Moon.</p></div><div class="section-label">Selected transmission</div><article class="detail"><div class="detail-kicker" id="detail-kicker">Apollo · 20 Jul 1969</div><h2 id="detail-title">First steps at Tranquility Base</h2><p id="detail-copy">Armstrong and Aldrin walk on the Moon while Collins remains in lunar orbit—the defining proof that an end-to-end crewed lunar landing could work.</p><div class="detail-meta"><div class="meta-row"><span>Vector</span><b id="detail-vector">Surface · crewed</b></div><div class="meta-row"><span>Mirror</span><b id="detail-mirror">Artemis IV · first new landing</b></div><div class="meta-row"><span>Interval</span><b id="detail-interval">≈ 59 years</b></div></div></article><div class="twin-note"><div class="section-label">The twin thesis</div><p><b>Apollo</b> proved humans could reach the Moon. <b>Artemis</b> is designed to turn episodic visits into a sustained, international campaign. Select any bright node to trace the rhyme.</p></div><details class="event-index" id="event-index"><summary id="event-index-summary">Mission index · 67</summary><div class="event-index-list" id="event-index-list"></div></details></aside>
     <div class="legend" aria-label="Legend"><span class="a"><i></i>Apollo</span><span class="r"><i></i>Artemis</span><span><i></i>Major milestone</span><span class="p"><i></i>Inner: months · tracks: years · outer: days</span></div>
+    <div class="credit">Created by <a href="https://rondomingue.com" target="_blank" rel="noopener">RONDOMINGUE.COM</a></div>
   </section>
 </main>
 <script>
