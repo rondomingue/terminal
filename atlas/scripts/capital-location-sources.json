@@ -1,0 +1,8 @@
+{
+  "dataset": "https://raw.githubusercontent.com/restcountries/restcountries/master/src/main/resources/countriesV3.1.json",
+  "overrides": {
+    "SWZ": "https://gazetteer.dainst.org/place/2769309",
+    "LKA": "https://www.geonames.org/1248991/colombo.html",
+    "ZAF": "https://www.geonames.org/advanced-search.html?country=ZA"
+  }
+}
