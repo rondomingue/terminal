@@ -53,3 +53,7 @@ Country profiles are inline sections, never modal dialogs. They expand only from
 Audible reward, rank-up and completion chimes are bundled as PCM WAV files in `dist/audio/`, generated with `python3 scripts/prepare-rewards.py`. Playback starts from user actions through HTML Audio with Web Audio fallback, resumes suspended or interrupted AudioContexts, and reports playback problems. Test reward turns sound on and previews the chime; the volume slider and mute setting are saved. Small interface taps stay softer than rewards.
 
 Midnight, Aurora, Copper and Parchment palettes recolor globe oceans, land, boundaries and atmosphere without moving the camera or changing quiz state. Your palette is saved on this device.
+
+## Compact play-first layout
+
+The title and rank share a compact row. Collection, challenge, map palette and sound are grouped into one toolbar above compact continent tabs. Volume and reward testing are in the collapsed Sound settings drawer. On phones, the toolbar wraps to two columns and continents scroll horizontally. The map is placed immediately below the expedition tabs.
