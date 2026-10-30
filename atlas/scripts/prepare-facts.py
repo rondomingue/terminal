@@ -10,7 +10,7 @@ def clean(s):
 def text(x):
  if isinstance(x,str):return clean(x)
  return clean(x.get('text','')) if isinstance(x,dict) else ''
-countries=json.loads((root/'dist/countries.json').read_text());facts={}
+countries=[c for c in json.loads((root/'dist/countries.json').read_text()) if not c.get('territory')];facts={}
 paths=json.loads((root/'scripts/factbook-map.json').read_text())
 for c in countries:
  if c['id']=='PSE':continue

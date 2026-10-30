@@ -29,3 +29,13 @@ The Mapbox public client token is intended for browser use. Deployment access re
 A correct answer automatically opens the country profile, with a silhouette and flag, capital, population, area, currency, location, climate, terrain, languages, religions and government type. Dated estimates and archival source context are retained. The card includes a Next country button and can be reopened after answering. Wrong answers and skips do not automatically open it. Country silhouettes are bundled SVGs generated with `python3 scripts/prepare-outlines.py` from the quiz geometry; they show simplified main territory and nearby islands, with distant dependencies sometimes omitted. No third-party image service is used for outlines.
 
 Globe position and zoom remain unchanged on correct answers, advancing to the next country, and completing an expedition. Misses and skips move to the correct country and highlight it in green. A Show correct location button repeats the reveal. Choosing a new expedition or using the recenter control resets the view.
+
+## Clean GitHub Pages URL, analytics and ranks
+
+The public GitHub Pages entry is `/atlas/` (no `/dist/` needed). Run `node scripts/prepare-entry.cjs` after editing `dist/index.html` to keep the top-level entry synchronized. It uses a relative base path to share all dist assets while retaining the clean URL.
+
+Google Analytics reuses the existing property `G-9CMETG9RBQ`, with page views, quiz starts, answers, completions and rank-earned events. No personal identifiers are added by Atlas.
+
+Ranks count unique correct places on this browser: Scout 0, Pioneer 10, Explorer 25, Voyager 50, Navigator 100, Pathfinder 150, Cartographer 195, Atlas Master 207. Repeats do not increase the unique-place count. Saved current-expedition correct answers seed rank progress on upgrade; old completed expeditions have no stored per-place history and cannot be reconstructed.
+
+The optional expanded collection includes 195 sovereign countries and 12 explicitly labeled territories: French Guiana, Greenland, Puerto Rico, Bermuda, Aruba, Curaçao, Cayman Islands, Falkland Islands, French Polynesia, New Caledonia, Gibraltar and Faroe Islands. Country-only mode preserves the original 195-country scope. French Guiana is split from France’s bundled Natural Earth geometry so it can be selected separately in territory games. To regenerate: prepare base data, prepare base facts, run `python3 scripts/prepare-territories.py`, then regenerate outlines and the clean entry.
