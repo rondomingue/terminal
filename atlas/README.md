@@ -45,3 +45,5 @@ The optional expanded collection includes 195 sovereign countries and 12 explici
 Correct answers use a brief green country-outline glow rather than automatically opening a dialog. Profiles remain available from the feedback link. The camera stays in place on correct answers and on Next. Missed answers still reveal the correct location. Soft, low-gain sine and triangle UI tones match the other interfaces; Sound on/off is saved, audio initializes only from user actions, and lack of Web Audio does not affect gameplay.
 
 Hard mode starts a separate expedition with selected-country names hidden until the answer is checked, and previously found countries return to their neutral color. A selection outline remains so you can verify your click. Hard-mode region bests are stored separately; unique-place ranks are shared. Flags only can be combined with hard mode.
+
+Country profiles are inline sections, never modal dialogs. They expand only from explicit profile links. Double-click zoom is disabled, and versioned script/style URLs refresh older cached game code.
