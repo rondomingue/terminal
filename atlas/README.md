@@ -57,3 +57,5 @@ Midnight, Aurora, Copper and Parchment palettes recolor globe oceans, land, boun
 ## Compact play-first layout
 
 The title and rank share a compact row. Collection, challenge, map palette and sound are grouped into one toolbar above compact continent tabs. Volume and reward testing are in the collapsed Sound settings drawer. On phones, the toolbar wraps to two columns and continents scroll horizontally. The map is placed immediately below the expedition tabs.
+
+The expanded collection now includes Kosovo (Europe) and Western Sahara (Africa), for 209 places. Both have status notes, flags, outlines and archived reference profiles. Western Sahara uses the SADR flag, clearly labeled; El Aaiún is labeled as an administrative centre, and Western Sahara is excluded from capitals quizzes because its national status/capital is contested. Regenerate these additions with `python3 scripts/prepare-disputed.py /path/to/restcountries.json /path/to/factbook`, then regenerate city choices and outlines.

@@ -31,4 +31,4 @@ for c in countries:
    commands.append('M'+'L'.join(f'{(x*cos-xmin)*scale+ox:.2f},{(-y-ymin)*scale+oy:.2f}' for x,y in r)+'Z')
  name=html.escape(c['name']);svg=f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 210" role="img"><title>{name} — simplified main outline</title><path d="{"".join(commands)}" fill="#a8d6b5" stroke="#d7f0df" stroke-width=".65" stroke-linejoin="round" fill-rule="evenodd"/></svg>'
  (out/(c['code']+'.svg')).write_text(svg)
-print('Generated silhouettes for all 195 countries.')
+print(f'Generated silhouettes for all {len(countries)} places.')
