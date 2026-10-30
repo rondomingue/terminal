@@ -1,0 +1,134 @@
+[
+  {
+    "id": 0,
+    "name": "East Antarctica",
+    "center": [
+      80,
+      -77
+    ],
+    "kind": "Region",
+    "fact": "The larger eastern part of the continent, separated from West Antarctica by the Transantarctic Mountains.",
+    "source": "https://www.bas.ac.uk/about/where-we-work/antarctica/"
+  },
+  {
+    "id": 1,
+    "name": "West Antarctica",
+    "center": [
+      -110,
+      -80
+    ],
+    "kind": "Region",
+    "fact": "Much of the bedrock beneath its ice lies below sea level. It includes the land facing the Amundsen and Bellingshausen seas.",
+    "source": "https://www.bas.ac.uk/about/where-we-work/antarctica/"
+  },
+  {
+    "id": 2,
+    "name": "Antarctic Peninsula",
+    "center": [
+      -64,
+      -67
+    ],
+    "kind": "Peninsula",
+    "fact": "This long, mountainous arm stretches north toward South America.",
+    "source": "https://www.bas.ac.uk/about/where-we-work/antarctica/"
+  },
+  {
+    "id": 3,
+    "name": "Transantarctic Mountains",
+    "center": [
+      160,
+      -83
+    ],
+    "kind": "Mountain range",
+    "fact": "This mountain system forms the great divide between East and West Antarctica.",
+    "source": "https://www.bas.ac.uk/about/where-we-work/antarctica/"
+  },
+  {
+    "id": 4,
+    "name": "South Pole",
+    "center": [
+      0,
+      -90
+    ],
+    "kind": "Geographic pole",
+    "fact": "At 90° south, every direction away from this point is north. It lies inland on the Antarctic ice sheet.",
+    "source": "https://www.bas.ac.uk/about/where-we-work/antarctica/"
+  },
+  {
+    "id": 5,
+    "name": "Ross Ice Shelf",
+    "center": [
+      -175,
+      -81
+    ],
+    "kind": "Ice shelf",
+    "fact": "A vast floating extension of the Antarctic ice sheet along the southern Ross Sea. An ice shelf is attached to land but floats on ocean water.",
+    "source": "https://www.antarctica.gov.au/about-antarctica/weather-and-climate/climate-change/ice-shelves/"
+  },
+  {
+    "id": 6,
+    "name": "Filchner–Ronne Ice Shelf",
+    "center": [
+      -55,
+      -79
+    ],
+    "kind": "Ice shelf",
+    "fact": "The adjoining Filchner and Ronne shelves occupy the southern end of the Weddell Sea.",
+    "source": "https://www.antarctica.gov.au/about-antarctica/weather-and-climate/climate-change/ice-shelves/"
+  },
+  {
+    "id": 7,
+    "name": "Amery Ice Shelf",
+    "center": [
+      70,
+      -70
+    ],
+    "kind": "Ice shelf",
+    "fact": "A major floating ice shelf on the East Antarctic coast, fed by ice flowing from the interior.",
+    "source": "https://www.antarctica.gov.au/about-antarctica/weather-and-climate/climate-change/ice-shelves/"
+  },
+  {
+    "id": 8,
+    "name": "Ross Sea",
+    "center": [
+      175,
+      -73
+    ],
+    "kind": "Sea",
+    "fact": "This Southern Ocean sea lies north of the Ross Ice Shelf, between Victoria Land and Marie Byrd Land.",
+    "source": "https://www.bas.ac.uk/about/where-we-work/antarctica/"
+  },
+  {
+    "id": 9,
+    "name": "Weddell Sea",
+    "center": [
+      -45,
+      -73
+    ],
+    "kind": "Sea",
+    "fact": "East of the Antarctic Peninsula, this sea reaches south to the Filchner–Ronne Ice Shelf.",
+    "source": "https://www.bas.ac.uk/about/where-we-work/antarctica/"
+  },
+  {
+    "id": 10,
+    "name": "Amundsen Sea",
+    "center": [
+      -112,
+      -72
+    ],
+    "kind": "Sea",
+    "fact": "This sea borders West Antarctica, between the Ross and Bellingshausen sectors of the Southern Ocean.",
+    "source": "https://www.bas.ac.uk/about/where-we-work/antarctica/"
+  },
+  {
+    "id": 11,
+    "name": "Bellingshausen Sea",
+    "center": [
+      -82,
+      -69
+    ],
+    "kind": "Sea",
+    "fact": "This sea lies west of the Antarctic Peninsula, next to the Amundsen Sea.",
+    "source": "https://www.bas.ac.uk/about/where-we-work/antarctica/"
+  }
+]
