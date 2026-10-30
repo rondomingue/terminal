@@ -47,3 +47,9 @@ Correct answers use a brief green country-outline glow rather than automatically
 Hard mode starts a separate expedition with selected-country names hidden until the answer is checked, and previously found countries return to their neutral color. A selection outline remains so you can verify your click. Hard-mode region bests are stored separately; unique-place ranks are shared. Flags only can be combined with hard mode.
 
 Country profiles are inline sections, never modal dialogs. They expand only from explicit profile links. Double-click zoom is disabled, and versioned script/style URLs refresh older cached game code.
+
+## Reward audio and palettes
+
+Audible reward, rank-up and completion chimes are bundled as PCM WAV files in `dist/audio/`, generated with `python3 scripts/prepare-rewards.py`. Playback starts from user actions through HTML Audio with Web Audio fallback, resumes suspended or interrupted AudioContexts, and reports playback problems. Test reward turns sound on and previews the chime; the volume slider and mute setting are saved. Small interface taps stay softer than rewards.
+
+Midnight, Aurora, Copper and Parchment palettes recolor globe oceans, land, boundaries and atmosphere without moving the camera or changing quiz state. Your palette is saved on this device.
