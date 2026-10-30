@@ -26,7 +26,7 @@ The Mapbox public client token is intended for browser use. Deployment access re
 
 ## Discovery cards and outlines
 
-A correct answer automatically opens the country profile, with a silhouette and flag, capital, population, area, currency, location, climate, terrain, languages, religions and government type. Dated estimates and archival source context are retained. The card includes a Next country button and can be reopened after answering. Wrong answers and skips do not automatically open it. Country silhouettes are bundled SVGs generated with `python3 scripts/prepare-outlines.py` from the quiz geometry; they show simplified main territory and nearby islands, with distant dependencies sometimes omitted. No third-party image service is used for outlines.
+After answering, the optional country profile contains a silhouette and flag, capital, population, area, currency, location, climate, terrain, languages, religions and government type. Correct answers give an unobtrusive country glow. Dated estimates and archival source context are retained. The card includes a Next country button and can be reopened after answering. Profiles open only when requested. Country silhouettes are bundled SVGs generated with `python3 scripts/prepare-outlines.py` from the quiz geometry; they show simplified main territory and nearby islands, with distant dependencies sometimes omitted. No third-party image service is used for outlines.
 
 Globe position and zoom remain unchanged on correct answers, advancing to the next country, and completing an expedition. Misses and skips move to the correct country and highlight it in green. A Show correct location button repeats the reveal. Choosing a new expedition or using the recenter control resets the view.
 
@@ -39,3 +39,9 @@ Google Analytics reuses the existing property `G-9CMETG9RBQ`, with page views, q
 Ranks count unique correct places on this browser: Scout 0, Pioneer 10, Explorer 25, Voyager 50, Navigator 100, Pathfinder 150, Cartographer 195, Atlas Master 207. Repeats do not increase the unique-place count. Saved current-expedition correct answers seed rank progress on upgrade; old completed expeditions have no stored per-place history and cannot be reconstructed.
 
 The optional expanded collection includes 195 sovereign countries and 12 explicitly labeled territories: French Guiana, Greenland, Puerto Rico, Bermuda, Aruba, Curaçao, Cayman Islands, Falkland Islands, French Polynesia, New Caledonia, Gibraltar and Faroe Islands. Country-only mode preserves the original 195-country scope. French Guiana is split from France’s bundled Natural Earth geometry so it can be selected separately in territory games. To regenerate: prepare base data, prepare base facts, run `python3 scripts/prepare-territories.py`, then regenerate outlines and the clean entry.
+
+## Quiet feedback and hard mode
+
+Correct answers use a brief green country-outline glow rather than automatically opening a dialog. Profiles remain available from the feedback link. The camera stays in place on correct answers and on Next. Missed answers still reveal the correct location. Soft, low-gain sine and triangle UI tones match the other interfaces; Sound on/off is saved, audio initializes only from user actions, and lack of Web Audio does not affect gameplay.
+
+Hard mode starts a separate expedition with selected-country names hidden until the answer is checked, and previously found countries return to their neutral color. A selection outline remains so you can verify your click. Hard-mode region bests are stored separately; unique-place ranks are shared. Flags only can be combined with hard mode.
