@@ -163,6 +163,32 @@
         "source": "https://github.com/AWMC/geodata",
         "territoryId": "africa"
       }
+    ],
+    "sceneSymbols": [
+      {
+        "image": "roman-eagle-standard.svg",
+        "label": "Roman eagle standard",
+        "status": "Illustrative reconstruction",
+        "note": "Modern drawing inspired by documented Roman military emblems. The colours and complete arrangement are illustrative, not a recovered ancient flag.",
+        "source": "https://hamburger-kunsthalle.ikmk.net/object?id=ID235&lang=en"
+      },
+      {
+        "image": "republic-banner.svg",
+        "label": "SPQR banner",
+        "status": "Illustrative reconstruction",
+        "note": "Modern decorative banner using the Roman-state abbreviation. No claim is made that this complete design survives from antiquity.",
+        "source": "https://romanarmymuseum.com/about/behind-the-beacons/"
+      }
+    ],
+    "symbolObjects": [
+      {
+        "image": "roman-standard-coin.jpg",
+        "label": "Eagle and standards · 82 BC coin",
+        "status": "Documented object",
+        "note": "C. Valerius Flaccus denarius. The reverse depicts a legionary eagle between two military standards. It is evidence for the emblems, not for the colours of a national flag.",
+        "source": "https://hamburger-kunsthalle.ikmk.net/object?id=ID235&lang=en",
+        "credit": "Hamburger Kunsthalle, ID235. Photograph: Martin Ziegert. Public Domain Mark 1.0."
+      }
     ]
   },
   "medieval": {
@@ -328,6 +354,23 @@
         "fact": "Palermo was an important centre of the Kingdom of Sicily, where Latin, Greek and Arabic cultural traditions had interacted.",
         "source": "https://unesco.cultura.gov.it/en/projects/palermo-arabo-normanna-e-le-cattedrali-cefalu-e-monreale/",
         "territoryId": "sicily"
+      }
+    ],
+    "sceneSymbols": [
+      {
+        "image": "england-royal-banner.svg",
+        "label": "England · three lions",
+        "status": "Modern rendering of royal arms",
+        "note": "Three gold lions on red belong to the royal arms used by Richard I near the end of the twelfth century. This is a modern graphic rendering, not a surviving cloth.",
+        "source": "https://fiav.org/wp-content/uploads/2021/06/icv24parsons-faul.pdf",
+        "credit": "Yaddah / Brunanburh, Wikimedia Commons, public-domain release."
+      },
+      {
+        "image": "france-ancient-banner.svg",
+        "label": "France · semé-de-lis",
+        "status": "Modern rendering of royal arms",
+        "note": "France ancien used a field scattered with fleurs-de-lis. A scholarly study discusses its twelfth-century origins and the banner described at Bouvines in 1214.",
+        "source": "https://www.persee.fr/doc/bsnaf_0081-1181_1982_num_1980_1_8766?pageId=T1_91"
       }
     ]
   },
@@ -791,7 +834,33 @@
         "text": "Octavian received the title Augustus, marking the conventional start of the imperial period."
       }
     ],
-    "timelineSource": "https://www.metmuseum.org/essays/the-roman-republic"
+    "timelineSource": "https://www.metmuseum.org/essays/the-roman-republic",
+    "sceneSymbols": [
+      {
+        "image": "roman-eagle-standard.svg",
+        "label": "Roman eagle standard",
+        "status": "Illustrative reconstruction",
+        "note": "Modern drawing inspired by documented Roman military emblems. The colours and complete arrangement are illustrative, not a recovered ancient flag.",
+        "source": "https://hamburger-kunsthalle.ikmk.net/object?id=ID235&lang=en"
+      },
+      {
+        "image": "republic-banner.svg",
+        "label": "SPQR banner",
+        "status": "Illustrative reconstruction",
+        "note": "Modern decorative banner using the Roman-state abbreviation. No claim is made that this complete design survives from antiquity.",
+        "source": "https://romanarmymuseum.com/about/behind-the-beacons/"
+      }
+    ],
+    "symbolObjects": [
+      {
+        "image": "roman-standard-coin.jpg",
+        "label": "Eagle and standards · 82 BC coin",
+        "status": "Documented object",
+        "note": "C. Valerius Flaccus denarius. The reverse depicts a legionary eagle between two military standards. It is evidence for the emblems, not for the colours of a national flag.",
+        "source": "https://hamburger-kunsthalle.ikmk.net/object?id=ID235&lang=en",
+        "credit": "Hamburger Kunsthalle, ID235. Photograph: Martin Ziegert. Public Domain Mark 1.0."
+      }
+    ]
   },
   "crusades": {
     "title": "The Muslim world during the Crusades.",
@@ -1020,6 +1089,23 @@
         "text": "Mamluks took power in Egypt, ending independent Ayyubid rule there."
       }
     ],
-    "timelineSource": "https://www.metmuseum.org/essays/the-art-of-the-ayyubid-period-ca-1171-1260"
+    "timelineSource": "https://www.metmuseum.org/essays/the-art-of-the-ayyubid-period-ca-1171-1260",
+    "sceneSymbols": [
+      {
+        "image": "ayyubid-textile.jpg",
+        "label": "Syrian silk · star and bird motifs",
+        "status": "Documented textile, not a flag",
+        "note": "The Cleveland Museum dates this fragment to the 1000s–1100s and attributes it to Syria, Ayyubid period. It is displayed as period textile decoration, not as a dynastic flag.",
+        "source": "https://www.clevelandart.org/art/1983.126",
+        "credit": "Cleveland Museum of Art, 1983.126. Purchase from the J. H. Wade Fund. CC0."
+      },
+      {
+        "image": "geometric-pennant.svg",
+        "label": "Geometric pennant",
+        "status": "Decorative illustration · not a period flag",
+        "note": "A modern geometric composition for the scene. It does not represent a verified Ayyubid, Almohad or Seljuq flag.",
+        "source": "https://www.metmuseum.org/essays/the-art-of-the-almoravid-and-almohad-periods-ca-1062-1269"
+      }
+    ]
   }
 }
