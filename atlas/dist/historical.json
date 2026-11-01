@@ -1,0 +1,310 @@
+{
+  "roman": {
+    "title": "The Roman Empire",
+    "date": "AD 117",
+    "intro": "Across the Mediterranean, at the end of Trajan’s reign.",
+    "scope": "Cities and provinces · Mediterranean world",
+    "note": "Shaded extent: AWMC reconstruction for AD 117, including short-lived eastern conquests. Province dots mark representative locations, not provincial boundaries. Modern coastlines provide orientation.",
+    "source": "https://github.com/AWMC/geodata",
+    "places": [
+      {
+        "id": "roma",
+        "name": "Roma",
+        "kind": "City",
+        "center": [
+          12.49,
+          41.89
+        ],
+        "modern": "Rome, Italy",
+        "fact": "The imperial capital stood on the Tiber. Trajan’s forum celebrated the emperor whose conquests brought the empire to its widest extent.",
+        "source": "https://www.slam.org/accessibility/ancient-splendor-roman-art-in-the-time-of-trajan/"
+      },
+      {
+        "id": "londinium",
+        "name": "Londinium",
+        "kind": "City",
+        "center": [
+          -0.09,
+          51.51
+        ],
+        "modern": "London, United Kingdom",
+        "fact": "Roman Londinium grew around a crossing of the Thames, linking river traffic with roads across Britannia.",
+        "source": "https://www.londonmuseum.org.uk/collections/london-stories/timeline-roman-london-londinium/"
+      },
+      {
+        "id": "carthago",
+        "name": "Carthago",
+        "kind": "City",
+        "center": [
+          10.32,
+          36.85
+        ],
+        "modern": "Carthage, Tunisia",
+        "fact": "Rebuilt under Roman rule after the destruction of Punic Carthage, this Mediterranean city became a major centre of Roman Africa.",
+        "source": "https://github.com/AWMC/geodata"
+      },
+      {
+        "id": "alexandria",
+        "name": "Alexandria",
+        "kind": "City",
+        "center": [
+          29.92,
+          31.2
+        ],
+        "modern": "Alexandria, Egypt",
+        "fact": "This Mediterranean port connected Egypt’s Nile valley with the wider Roman world. Egypt had been under Roman rule since 30 BC.",
+        "source": "https://smarthistory.org/reframing-art-history/roman-empire-in-a-connected-world/"
+      },
+      {
+        "id": "antioch",
+        "name": "Antiochia",
+        "kind": "City",
+        "center": [
+          36.16,
+          36.2
+        ],
+        "modern": "Antakya, Türkiye",
+        "fact": "Antioch on the Orontes was a leading city in Roman Syria, near routes linking the Mediterranean with inland Asia.",
+        "source": "https://github.com/AWMC/geodata"
+      },
+      {
+        "id": "ephesus",
+        "name": "Ephesus",
+        "kind": "City",
+        "center": [
+          27.34,
+          37.94
+        ],
+        "modern": "Near Selçuk, Türkiye",
+        "fact": "A major city of the Roman province of Asia, Ephesus lay near the Aegean coast in western Anatolia.",
+        "source": "https://github.com/AWMC/geodata"
+      },
+      {
+        "id": "britannia",
+        "name": "Britannia",
+        "kind": "Province",
+        "center": [
+          -2.6,
+          53
+        ],
+        "modern": "Much of present-day England and Wales",
+        "fact": "The Roman province occupied part of Britain. The island’s northern regions remained beyond direct Roman provincial rule.",
+        "source": "https://github.com/AWMC/geodata"
+      },
+      {
+        "id": "baetica",
+        "name": "Hispania Baetica",
+        "kind": "Province",
+        "center": [
+          -4.9,
+          37.5
+        ],
+        "modern": "Southern Spain",
+        "fact": "Baetica occupied the south of the Iberian Peninsula. This marker represents the province rather than a city.",
+        "source": "https://github.com/AWMC/geodata"
+      },
+      {
+        "id": "lugdunensis",
+        "name": "Gallia Lugdunensis",
+        "kind": "Province",
+        "center": [
+          1.7,
+          47.5
+        ],
+        "modern": "Part of present-day France",
+        "fact": "One of the provinces of Roman Gaul, named for Lugdunum, modern Lyon. Its geography does not match a modern national border.",
+        "source": "https://github.com/AWMC/geodata"
+      },
+      {
+        "id": "aegyptus",
+        "name": "Aegyptus",
+        "kind": "Province",
+        "center": [
+          31.0,
+          27.0
+        ],
+        "modern": "Egypt’s Nile valley and delta",
+        "fact": "Rome governed Egypt as a province. The Nile valley was central to its agriculture and connections with the Mediterranean.",
+        "source": "https://github.com/AWMC/geodata"
+      },
+      {
+        "id": "dacia",
+        "name": "Dacia",
+        "kind": "Province",
+        "center": [
+          23.5,
+          45.7
+        ],
+        "modern": "Part of present-day Romania",
+        "fact": "Trajan’s Dacian conquests added territory north of the Danube to Roman rule in the early second century.",
+        "source": "https://www.slam.org/accessibility/ancient-splendor-roman-art-in-the-time-of-trajan/"
+      },
+      {
+        "id": "africa",
+        "name": "Africa Proconsularis",
+        "kind": "Province",
+        "center": [
+          9.2,
+          35.4
+        ],
+        "modern": "Mainly present-day Tunisia and adjacent areas",
+        "fact": "This Roman province faced Italy across the central Mediterranean. Its provincial name did not mean the entire continent of Africa.",
+        "source": "https://github.com/AWMC/geodata"
+      }
+    ]
+  },
+  "medieval": {
+    "title": "The Middle Ages",
+    "date": "c. AD 1200",
+    "intro": "Kingdoms, empires and cities of the high medieval world.",
+    "scope": "Europe, North Africa and the eastern Mediterranean",
+    "note": "A snapshot around AD 1200, before the Fourth Crusade’s capture of Constantinople in 1204. Kingdom and empire dots are representative locations; political boundaries are not drawn. This is a regional expedition, not a map of the whole medieval world.",
+    "source": "https://www.metmuseum.org/toah",
+    "places": [
+      {
+        "id": "england",
+        "name": "Kingdom of England",
+        "kind": "Kingdom",
+        "center": [
+          -1.7,
+          52.7
+        ],
+        "modern": "England",
+        "fact": "Around 1200, England was ruled by the Plantagenet dynasty. King John’s reign began in 1199; Magna Carta followed in 1215.",
+        "source": "https://www.metmuseum.org/de/toah/ht/07/euwb"
+      },
+      {
+        "id": "scotland",
+        "name": "Kingdom of Scotland",
+        "kind": "Kingdom",
+        "center": [
+          -4,
+          56.6
+        ],
+        "modern": "Scotland",
+        "fact": "Scotland was a separate kingdom in this period. Its medieval political history should not be read through the later United Kingdom.",
+        "source": "https://www.metmuseum.org/de/toah/ht/07/euwb"
+      },
+      {
+        "id": "france",
+        "name": "Kingdom of France",
+        "kind": "Kingdom",
+        "center": [
+          2,
+          47
+        ],
+        "modern": "France",
+        "fact": "Royal authority and the power of regional lords overlapped in medieval France. A single location marker cannot represent all its changing frontiers.",
+        "source": "https://www.metmuseum.org/fr/toah/ht/07/euwf.html"
+      },
+      {
+        "id": "hre",
+        "name": "Holy Roman Empire",
+        "kind": "Empire",
+        "center": [
+          10.0,
+          50.2
+        ],
+        "modern": "Central Europe",
+        "fact": "A complex empire of principalities and other territories in central Europe. It was distinct from the ancient Roman Empire.",
+        "source": "https://82nd-and-fifth.metmuseum.org/toah/ht/07/euwc.html"
+      },
+      {
+        "id": "byzantium",
+        "name": "Byzantine Empire",
+        "kind": "Empire",
+        "center": [
+          27,
+          40.2
+        ],
+        "modern": "Eastern Mediterranean",
+        "fact": "In AD 1200 Constantinople was still the Byzantine imperial capital. The Fourth Crusade captured it in 1204, after this expedition’s reference date.",
+        "source": "https://www.metmuseum.org/essays/byzantium-ca-330-1453"
+      },
+      {
+        "id": "almohads",
+        "name": "Almohad Caliphate",
+        "kind": "Caliphate",
+        "center": [
+          -7.98,
+          31.63
+        ],
+        "modern": "North Africa and part of Iberia",
+        "fact": "The Almohads ruled across parts of North Africa and southern Iberia around 1200. Their architecture connected both shores of the western Mediterranean.",
+        "source": "https://www.metmuseum.org/es/toah/ht/07/eusi.html"
+      },
+      {
+        "id": "london",
+        "name": "London",
+        "kind": "City",
+        "center": [
+          -0.09,
+          51.51
+        ],
+        "modern": "London, United Kingdom",
+        "fact": "London stood within the Plantagenet kingdom of England, whose rulers also held lands across the English Channel.",
+        "source": "https://www.metmuseum.org/de/toah/ht/07/euwb"
+      },
+      {
+        "id": "paris",
+        "name": "Paris",
+        "kind": "City",
+        "center": [
+          2.35,
+          48.86
+        ],
+        "modern": "Paris, France",
+        "fact": "Paris was an important royal and intellectual centre in medieval France. The period saw growing royal authority and urban life.",
+        "source": "https://www.metmuseum.org/fr/toah/ht/07/euwf.html"
+      },
+      {
+        "id": "venice",
+        "name": "Venice",
+        "kind": "City",
+        "center": [
+          12.34,
+          45.44
+        ],
+        "modern": "Venice, Italy",
+        "fact": "Venice was a maritime republic linked to Mediterranean trade. Its ships would play a central role in the Fourth Crusade after 1200.",
+        "source": "https://www.metmuseum.org/de/toah/ht/07/eust.html"
+      },
+      {
+        "id": "constantinople",
+        "name": "Constantinople",
+        "kind": "City",
+        "center": [
+          28.98,
+          41.01
+        ],
+        "modern": "Istanbul, Türkiye",
+        "fact": "The city on the Bosporus linked Europe and Asia. Its medieval inhabitants considered themselves Romans; “Byzantine” is a later historical label.",
+        "source": "https://www.metmuseum.org/essays/byzantium-ca-330-1453"
+      },
+      {
+        "id": "toledo",
+        "name": "Toledo",
+        "kind": "City",
+        "center": [
+          -4.02,
+          39.86
+        ],
+        "modern": "Toledo, Spain",
+        "fact": "Toledo was a major city of Christian-ruled Iberia by 1200, within a peninsula of several kingdoms and Islamic states.",
+        "source": "https://www.metmuseum.org/es/toah/ht/07/eusi.html"
+      },
+      {
+        "id": "palermo",
+        "name": "Palermo",
+        "kind": "City",
+        "center": [
+          13.36,
+          38.12
+        ],
+        "modern": "Palermo, Sicily, Italy",
+        "fact": "Palermo was an important centre of the Kingdom of Sicily, where Latin, Greek and Arabic cultural traditions had interacted.",
+        "source": "https://unesco.cultura.gov.it/en/projects/palermo-arabo-normanna-e-le-cattedrali-cefalu-e-monreale/"
+      }
+    ]
+  }
+}

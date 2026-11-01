@@ -1,0 +1,16 @@
+ATLAS THROUGH TIME — HISTORICAL MAP DATA
+
+Roman Empire extent, AD 117
+Ancient World Mapping Center (AWMC), University of North Carolina at Chapel Hill.
+Source: https://github.com/AWMC/geodata/tree/master/Cultural-Data/political_shading/roman_empire_ce_117_extent
+Source data derived from the Barrington Atlas of the Greek and Roman World and AWMC modifications to OpenStreetMap.
+Contributors named by AWMC: Ryan Horne and Gabe Moss; further contributors: https://awmc.unc.edu/
+License: Open Data Commons Open Database License (ODbL) v1.0.
+https://opendatacommons.org/licenses/odbl/1-0/
+
+The downloadable roman-empire-117.geojson retains the source geometry, removes unused administrative attributes, and adds this attribution notice. The map data remains available under ODbL 1.0. Retrieved October 31, 2026.
+
+Base coastline geometry: Natural Earth (public domain), https://www.naturalearthdata.com/
+Historical place markers: approximate representative locations compiled for this educational edition. Realm/province markers are not boundary polygons or historical capitals. Historical notes link to individual educational references.
+
+The medieval edition is a regional place quiz around AD 1200; it does not claim to reconstruct medieval political boundaries. The Roman extent includes the brief eastern conquests associated with Trajan's final campaigns; it is an approximate scholarly reconstruction, not a modern surveyed border.
