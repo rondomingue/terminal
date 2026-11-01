@@ -1,0 +1,2 @@
+/* Keep the native disclosure keyboard accessible and dismiss it after selection. */
+(()=>{const menu=document.getElementById('historyMenu');document.addEventListener('click',event=>{if(!menu.open)return;if(!menu.contains(event.target)||event.target.closest('button'))menu.open=false});document.addEventListener('keydown',event=>{if(event.key==='Escape'&&menu.open){menu.open=false;menu.querySelector('summary').focus()}})})();
