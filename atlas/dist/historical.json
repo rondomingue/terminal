@@ -792,5 +792,234 @@
       }
     ],
     "timelineSource": "https://www.metmuseum.org/essays/the-roman-republic"
+  },
+  "crusades": {
+    "title": "The Muslim world during the Crusades.",
+    "date": "c. AD 1200",
+    "caption": "MUSLIM-RULED MEDITERRANEAN · c. AD 1200",
+    "intro": "Three dynasties, many cities. Explore the Almohads, Ayyubids and Seljuqs of Rum after the Third Crusade.",
+    "scope": "10 cities · 3 dynasties",
+    "note": "Mediterranean focus, not the entire Muslim world: Abbasid Iraq, Iran, Arabia and lands farther east are outside this edition. DARMC polygons are generalized and incomplete, with major gaps in Morocco and Iberia; city dots show individual locations. Borders are approximate, and Muslim rule did not imply a uniformly Muslim population.",
+    "contextSource": "https://darmc.harvard.edu/map-sources",
+    "contextAttribution": "Harvard DARMC",
+    "contextTitle": "Rulers, communities and culture",
+    "timelineTitle": "A changing Mediterranean",
+    "bounds": [
+      [
+        -12,
+        22
+      ],
+      [
+        46,
+        44
+      ]
+    ],
+    "places": [
+      {
+        "id": "almohads",
+        "name": "Almohad Caliphate",
+        "kind": "Region",
+        "center": [
+          0,
+          34
+        ],
+        "modern": "Maghrib and southern Iberia",
+        "fact": "The Almohads were an Amazigh (Berber) dynasty governing lands across North Africa and al-Andalus. Marrakesh was their North African centre of power; Seville was their capital in al-Andalus.",
+        "source": "https://www.metmuseum.org/essays/the-art-of-the-almoravid-and-almohad-periods-ca-1062-1269",
+        "territoryId": "almohads"
+      },
+      {
+        "id": "ayyubid-dynasty",
+        "name": "Ayyubid Sultanate",
+        "kind": "Region",
+        "center": [
+          33,
+          32
+        ],
+        "modern": "Egypt and parts of the Levant",
+        "fact": "Salah al-Din (Saladin), a Kurdish ruler, established Ayyubid power in Egypt in 1171 and extended it into Syria. Around 1200, different branches of his family governed major centres.",
+        "source": "https://www.metmuseum.org/essays/the-art-of-the-ayyubid-period-ca-1171-1260",
+        "territoryId": "ayyubid-dynasty"
+      },
+      {
+        "id": "sultanate-of-iconium",
+        "name": "Seljuq Sultanate of Rum",
+        "kind": "Region",
+        "center": [
+          34,
+          39
+        ],
+        "modern": "Central Anatolia, Türkiye",
+        "fact": "The Seljuqs of Rum were a Turkic dynasty whose realm drew on Persianate Islamic and local Byzantine traditions. Rum referred to the Roman past of these lands; the dynasty was distinct from the Ayyubids.",
+        "source": "https://www.metmuseum.org/essays/the-art-of-the-seljuq-period-in-anatolia-1081-1307",
+        "territoryId": "sultanate-of-iconium"
+      },
+      {
+        "id": "cairo",
+        "name": "Cairo",
+        "kind": "City",
+        "center": [
+          31.24,
+          30.04
+        ],
+        "modern": "Cairo, Egypt",
+        "fact": "Cairo was a major Ayyubid centre. Its citadel belongs to the fortification programme associated with Salah al-Din; the dynasty also sponsored religious and artistic building projects.",
+        "source": "https://www.metmuseum.org/essays/the-art-of-the-ayyubid-period-ca-1171-1260",
+        "territoryId": "ayyubid-dynasty"
+      },
+      {
+        "id": "alexandria",
+        "name": "Alexandria",
+        "kind": "City",
+        "center": [
+          29.92,
+          31.2
+        ],
+        "modern": "Alexandria, Egypt",
+        "fact": "Alexandria lies on Egypt’s Mediterranean coast, west of the Nile delta. In this expedition it is placed within the Ayyubid Egyptian realm shown by the historical map.",
+        "source": "https://darmc.harvard.edu/map-sources",
+        "territoryId": "ayyubid-dynasty"
+      },
+      {
+        "id": "damascus",
+        "name": "Damascus",
+        "kind": "City",
+        "center": [
+          36.3,
+          33.51
+        ],
+        "modern": "Damascus, Syria",
+        "fact": "Damascus was an important Ayyubid court and cultural centre. Patronage supported buildings and crafts as well as political power, within a region contested by several ruling families.",
+        "source": "https://www.metmuseum.org/essays/the-art-of-the-ayyubid-period-ca-1171-1260",
+        "territoryId": "ayyubid-dynasty"
+      },
+      {
+        "id": "aleppo",
+        "name": "Aleppo",
+        "kind": "City",
+        "center": [
+          37.16,
+          36.2
+        ],
+        "modern": "Aleppo, Syria",
+        "fact": "Aleppo was another major Ayyubid centre. The citadel’s early thirteenth-century development illustrates how rulers combined fortification with monumental architecture.",
+        "source": "https://www.metmuseum.org/essays/the-art-of-the-ayyubid-period-ca-1171-1260",
+        "territoryId": "ayyubid-dynasty"
+      },
+      {
+        "id": "jerusalem",
+        "name": "Jerusalem",
+        "kind": "City",
+        "center": [
+          35.23,
+          31.78
+        ],
+        "modern": "Jerusalem, eastern Mediterranean",
+        "fact": "Salah al-Din took Jerusalem in 1187. The city was under Muslim rule around 1200; control changed again later in the thirteenth century. Its sacred places mattered to Muslims, Christians and Jews.",
+        "source": "https://www.metmuseum.org/essays/the-art-of-the-ayyubid-period-ca-1171-1260",
+        "territoryId": "ayyubid-dynasty"
+      },
+      {
+        "id": "konya",
+        "name": "Konya (Iconium)",
+        "kind": "City",
+        "center": [
+          32.49,
+          37.87
+        ],
+        "modern": "Konya, Türkiye",
+        "fact": "Konya was the capital of the Seljuqs of Rum. Their mosques, madrasas and palaces drew on Persianate Islamic traditions while reflecting Anatolia’s diverse cultural heritage.",
+        "source": "https://www.metmuseum.org/essays/the-art-of-the-seljuq-period-in-anatolia-1081-1307",
+        "territoryId": "sultanate-of-iconium"
+      },
+      {
+        "id": "sivas",
+        "name": "Sivas",
+        "kind": "City",
+        "center": [
+          37.02,
+          39.75
+        ],
+        "modern": "Sivas, Türkiye",
+        "fact": "Sivas became an important centre of Seljuq monumental architecture. Its celebrated thirteenth-century buildings largely postdate this map’s approximate 1200 snapshot.",
+        "source": "https://www.metmuseum.org/essays/the-art-of-the-seljuq-period-in-anatolia-1081-1307",
+        "territoryId": "sultanate-of-iconium"
+      },
+      {
+        "id": "seville",
+        "name": "Seville (Ishbiliya)",
+        "kind": "City",
+        "center": [
+          -5.99,
+          37.39
+        ],
+        "modern": "Seville, Spain",
+        "fact": "Seville was the Almohad capital in al-Andalus. The great mosque and its minaret, now known as the Giralda, demonstrate the dynasty’s architectural patronage.",
+        "source": "https://www.metmuseum.org/essays/the-art-of-the-almoravid-and-almohad-periods-ca-1062-1269",
+        "territoryId": "almohads"
+      },
+      {
+        "id": "cordoba",
+        "name": "Córdoba (Qurtuba)",
+        "kind": "City",
+        "center": [
+          -4.78,
+          37.89
+        ],
+        "modern": "Córdoba, Spain",
+        "fact": "Córdoba was among the Iberian cities held by the Almohads in the twelfth century. Al-Andalus had its own history and political struggles, far from the Levantine Crusader states.",
+        "source": "https://www.metmuseum.org/essays/the-art-of-the-almoravid-and-almohad-periods-ca-1062-1269",
+        "territoryId": "almohads"
+      },
+      {
+        "id": "tunis",
+        "name": "Tunis",
+        "kind": "City",
+        "center": [
+          10.18,
+          36.81
+        ],
+        "modern": "Tunis, Tunisia",
+        "fact": "Tunis lies on the North African shore of the Mediterranean. This map groups it with the Almohad holdings; later Hafsid rule belongs to a different political phase.",
+        "source": "https://darmc.harvard.edu/map-sources",
+        "territoryId": "almohads"
+      }
+    ],
+    "background": [
+      {
+        "label": "Government",
+        "text": "These were distinct dynastic states, not a single Muslim empire. Ayyubid family courts, Almohad caliphs and Seljuq sultans ruled different territories.",
+        "source": "https://www.metmuseum.org/essays/the-art-of-the-ayyubid-period-ca-1171-1260"
+      },
+      {
+        "label": "Religion and communities",
+        "text": "Muslim rulers governed religiously diverse populations. In Anatolia, Islamic traditions interacted with Byzantine and Armenian Christian heritage.",
+        "source": "https://www.metmuseum.org/essays/the-art-of-the-seljuq-period-in-anatolia-1081-1307"
+      },
+      {
+        "label": "Beyond warfare",
+        "text": "Courts also sponsored architecture, education and crafts. Almohad centres in Marrakesh and Seville supported Islamic learning and geometric decoration.",
+        "source": "https://www.metmuseum.org/essays/the-art-of-the-almoravid-and-almohad-periods-ca-1062-1269"
+      }
+    ],
+    "timeline": [
+      {
+        "date": "1171",
+        "text": "Salah al-Din established the Ayyubid sultanate in Egypt."
+      },
+      {
+        "date": "1187",
+        "text": "Jerusalem came under Salah al-Din’s rule."
+      },
+      {
+        "date": "c. 1200 · this map",
+        "text": "The Mediterranean focus of this expedition."
+      },
+      {
+        "date": "1250 · later",
+        "text": "Mamluks took power in Egypt, ending independent Ayyubid rule there."
+      }
+    ],
+    "timelineSource": "https://www.metmuseum.org/essays/the-art-of-the-ayyubid-period-ca-1171-1260"
   }
 }

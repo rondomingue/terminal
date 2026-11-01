@@ -26,3 +26,5 @@ Retrieved October 31, 2026. Historical quiz results remain independent of modern
 Roman Republic, 60 BC: Ancient World Mapping Center (AWMC), Roman territory 60 BC; Barrington Atlas / AWMC modifications to OpenStreetMap. ODbL 1.0. Atlas groups source polygons into broad geographic regions; these are not exact provincial boundaries.
 Source: https://github.com/AWMC/geodata/tree/master/Cultural-Data/political_shading/roman_empire_bce_60
 Adapted database available in republic-territories.geojson under ODbL 1.0.
+
+Muslim World during the Crusades, Mediterranean focus c. AD 1200: three dynastic regions selected from the same DARMC medieval source, with city points for orientation. Original polygons are incomplete in Morocco and Iberia; no additional boundaries have been invented. See historical.json for museum sources on the Ayyubids, Almohads and Seljuqs of Rum.
