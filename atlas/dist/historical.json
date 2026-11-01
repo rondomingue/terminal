@@ -497,6 +497,53 @@
         "source": "https://github.com/AWMC/geodata/tree/master/Cultural-Data/political_shading/roman_empire_bce_60",
         "territoryId": "syria"
       }
-    ]
+    ],
+    "insignia": {
+      "image": "republic-banner.svg",
+      "alt": "Illustrative burgundy and gold SPQR banner",
+      "label": "SPQR · Roman Republic",
+      "note": "Modern illustration, not a verified ancient national flag. The same Roman-state emblem is used across these territories. SPQR means “The Senate and People of Rome”.",
+      "source": "https://romanarmymuseum.com/about/behind-the-beacons/"
+    },
+    "background": [
+      {
+        "label": "Government",
+        "text": "A republic governed through magistrates, the Senate and citizen assemblies. Political power was unequal; expansion brought wealth, conflict and pressure on these institutions.",
+        "source": "https://www.metmuseum.org/essays/the-roman-republic"
+      },
+      {
+        "label": "Languages · wider Roman world",
+        "text": "Latin was Rome’s language. Greek also connected many communities of the eastern Mediterranean; local languages continued alongside these shared languages.",
+        "source": "https://www.metmuseum.org/-/media/files/learn/for-educators/publications-for-educators/roman.pdf"
+      },
+      {
+        "label": "Religion · varied local traditions",
+        "text": "Roman worship involved many gods, public ceremonies and household observances. Greek and other Mediterranean traditions influenced Roman practice; beliefs differed between communities.",
+        "source": "https://www.metmuseum.org/essays/eastern-religions-in-the-roman-world"
+      }
+    ],
+    "timeline": [
+      {
+        "date": "509 BC",
+        "text": "Traditional beginning of the Republic after Rome’s monarchy."
+      },
+      {
+        "date": "287 BC",
+        "text": "Wealthy plebeians had gained political equality with patricians."
+      },
+      {
+        "date": "60 BC · this map",
+        "text": "The snapshot used for this expedition."
+      },
+      {
+        "date": "44 BC · later",
+        "text": "Julius Caesar was assassinated after civil wars and his dictatorship."
+      },
+      {
+        "date": "27 BC · later",
+        "text": "Octavian received the title Augustus, marking the conventional start of the imperial period."
+      }
+    ],
+    "timelineSource": "https://www.metmuseum.org/essays/the-roman-republic"
   }
 }
