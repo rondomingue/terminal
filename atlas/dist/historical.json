@@ -1495,5 +1495,607 @@
         ]
       }
     ]
+  },
+  "viking": {
+    "title": "The Viking Age",
+    "date": "c. AD 1000",
+    "intro": "Trading ports, northern kingdoms and the journeys that connected them.",
+    "scope": "Cities and historical territories",
+    "note": "Historical boundaries are approximate DARMC reconstructions. This European map explores the wider Viking Age, not a single Viking empire. City questions include trading sites whose heyday predates AD 1000. North Atlantic settlements are outside this map’s coverage.",
+    "source": "https://darmc.harvard.edu/map-sources",
+    "contextSource": "https://darmc.harvard.edu/map-sources",
+    "contextAttribution": "Harvard DARMC",
+    "bounds": [
+      [
+        -15,
+        45
+      ],
+      [
+        43,
+        68
+      ]
+    ],
+    "places": [
+      {
+        "id": "hedeby",
+        "name": "Hedeby",
+        "kind": "City",
+        "center": [
+          9.56,
+          54.49
+        ],
+        "modern": "Near Schleswig, Germany",
+        "territoryId": "denmark",
+        "fact": "At the narrow neck of Jutland, Hedeby connected routes between the North Sea and the Baltic. Its harbour, streets and nearby Danevirke defences preserve evidence of a major Viking Age trading centre.",
+        "source": "https://whc.unesco.org/en/list/1553/"
+      },
+      {
+        "id": "birka",
+        "name": "Birka",
+        "kind": "City",
+        "center": [
+          17.54,
+          59.33
+        ],
+        "modern": "Björkö, Sweden",
+        "territoryId": "sweden",
+        "fact": "Birka and nearby Hovgården reveal the trading networks of Viking Scandinavia. Birka flourished chiefly in the eighth to tenth centuries; this is an earlier Viking Age site on the AD 1000 context map.",
+        "source": "https://whc.unesco.org/en/list/555/"
+      },
+      {
+        "id": "ribe",
+        "name": "Ribe",
+        "kind": "City",
+        "center": [
+          8.77,
+          55.33
+        ],
+        "modern": "Ribe, Denmark",
+        "territoryId": "denmark",
+        "fact": "Ribe was one of the town-like trading centres of Viking Scandinavia. Such settlements linked craft production and exchange across sea routes.",
+        "source": "https://vikingar.historiska.se/objects.php?e=&l=en&showcase=37342b88-404e-4060-91c8-f2991d87a18f"
+      },
+      {
+        "id": "kaupang",
+        "name": "Kaupang",
+        "kind": "City",
+        "center": [
+          10.1,
+          59.03
+        ],
+        "modern": "Near Larvik, Norway",
+        "territoryId": "norway",
+        "fact": "Kaupang, also associated with the name Skiringssal, was a Norwegian trading centre. It belongs to the earlier Viking Age network rather than a modern national capital.",
+        "source": "https://vikingar.historiska.se/objects.php?e=&l=en&showcase=37342b88-404e-4060-91c8-f2991d87a18f"
+      },
+      {
+        "id": "jelling",
+        "name": "Jelling",
+        "kind": "City",
+        "center": [
+          9.42,
+          55.76
+        ],
+        "modern": "Jelling, Denmark",
+        "territoryId": "denmark",
+        "fact": "The burial mounds, rune stones and church at Jelling illustrate Denmark’s transition toward Christianity and royal consolidation in the tenth century.",
+        "source": "https://whc.unesco.org/en/list/697/"
+      },
+      {
+        "id": "york",
+        "name": "Jórvík / York",
+        "kind": "City",
+        "center": [
+          -1.08,
+          53.96
+        ],
+        "modern": "York, England",
+        "territoryId": "kingdom-of-england",
+        "fact": "Scandinavian settlement transformed York into an important urban centre. By the map’s date it belonged to the English kingdom; the Viking Age question recalls its earlier Scandinavian connections.",
+        "source": "https://www.metmuseum.org/essays/the-vikings-780-1100"
+      },
+      {
+        "id": "dublin",
+        "name": "Dyflin / Dublin",
+        "kind": "City",
+        "center": [
+          -6.26,
+          53.35
+        ],
+        "modern": "Dublin, Ireland",
+        "territoryId": "ireland",
+        "fact": "A Viking fortified base was established at Dublin in 841. By the tenth century it was among the ports developing into Ireland’s first towns.",
+        "source": "https://source.museum.ie/en-IE/Collections-Research/Irish-Antiquities-Division-Collections/Collections-List-%281%29/Viking/The-Viking-Age-in-Ireland"
+      },
+      {
+        "id": "rouen",
+        "name": "Rouen",
+        "kind": "City",
+        "center": [
+          1.1,
+          49.44
+        ],
+        "modern": "Rouen, France",
+        "territoryId": "normandy",
+        "fact": "Normandy took its name from Scandinavian settlers. Their descendants became part of the Christian political world of western Europe rather than remaining a single overseas Viking state.",
+        "source": "https://www.metmuseum.org/essays/the-vikings-780-1100"
+      },
+      {
+        "id": "novgorod",
+        "name": "Novgorod",
+        "kind": "City",
+        "center": [
+          31.28,
+          58.52
+        ],
+        "modern": "Veliky Novgorod, Russia",
+        "territoryId": "kyivan-rus",
+        "fact": "Novgorod belonged to the eastern trading world linking Scandinavia with river routes into Rus’. The Viking Age extended through commerce and settlement as well as raiding.",
+        "source": "https://whc.unesco.org/en/list/604/"
+      },
+      {
+        "id": "kyiv",
+        "name": "Kyiv",
+        "kind": "City",
+        "center": [
+          30.52,
+          50.45
+        ],
+        "modern": "Kyiv, Ukraine",
+        "territoryId": "kyivan-rus",
+        "fact": "Kyiv was a major centre of Rus’. Scandinavian travellers formed part of a much wider eastern European world, whose societies cannot be reduced to a Viking colony.",
+        "source": "https://www.metmuseum.org/essays/the-vikings-780-1100"
+      },
+      {
+        "id": "denmark",
+        "name": "Denmark",
+        "kind": "Territory",
+        "center": [
+          9.339105729436216,
+          56.251932385896
+        ],
+        "modern": "Approximate historical territory; see the dated map note.",
+        "territoryId": "denmark",
+        "fact": "Danish royal power grew during the Viking Age. Jelling provides physical evidence of tenth-century kingship and Christianization.",
+        "source": "https://whc.unesco.org/en/list/697/"
+      },
+      {
+        "id": "norway",
+        "name": "Norway",
+        "kind": "Territory",
+        "center": [
+          15.152263043481607,
+          59.675038610847615
+        ],
+        "modern": "Approximate historical territory; see the dated map note.",
+        "territoryId": "norway",
+        "fact": "Norway’s coasts connected communities by sea. Kaupang was one of the trading centres in the Scandinavian network.",
+        "source": "https://vikingar.historiska.se/objects.php?e=&l=en&showcase=37342b88-404e-4060-91c8-f2991d87a18f"
+      },
+      {
+        "id": "sweden",
+        "name": "Sweden",
+        "kind": "Territory",
+        "center": [
+          9.206795364834171,
+          61.291322635321116
+        ],
+        "modern": "Approximate historical territory; see the dated map note.",
+        "territoryId": "sweden",
+        "fact": "The Swedish region included trading networks represented by Birka and Hovgården. Viking Age Scandinavia was politically varied, not one unified empire.",
+        "source": "https://whc.unesco.org/en/list/555/"
+      },
+      {
+        "id": "normandy",
+        "name": "Normandy",
+        "kind": "Territory",
+        "center": [
+          0.1463102473506443,
+          48.9414804180294
+        ],
+        "modern": "Approximate historical territory; see the dated map note.",
+        "territoryId": "normandy",
+        "fact": "Scandinavian settlement in northern France helped form Normandy. Its later rulers participated in the Christian aristocratic culture of western Europe.",
+        "source": "https://www.metmuseum.org/essays/the-vikings-780-1100"
+      },
+      {
+        "id": "kingdom-of-england",
+        "name": "Kingdom of England",
+        "kind": "Territory",
+        "center": [
+          -1.4388781636717427,
+          52.58715050926395
+        ],
+        "modern": "Approximate historical territory; see the dated map note.",
+        "territoryId": "kingdom-of-england",
+        "fact": "The AD 1000 map shows an English kingdom after the earlier Scandinavian settlement of places such as York. Viking Age raids, settlement and changing rule were distinct processes.",
+        "source": "https://www.metmuseum.org/essays/the-vikings-780-1100"
+      },
+      {
+        "id": "kyivan-rus",
+        "name": "Kyivan Rus’",
+        "kind": "Territory",
+        "center": [
+          31.301015423676052,
+          54.6730588746984
+        ],
+        "modern": "Approximate historical territory; see the dated map note.",
+        "territoryId": "kyivan-rus",
+        "fact": "Rus’ linked eastern European communities and long-distance river trade. Norse travellers were one part of its diverse history.",
+        "source": "https://www.metmuseum.org/essays/the-vikings-780-1100"
+      }
+    ],
+    "background": [
+      {
+        "label": "More than raiders",
+        "text": "The Viking Age included farming, craft production, exchange, settlement and violence. Scandinavian societies were diverse; the shaded realms are historical context, not a single Viking empire.",
+        "source": "https://www.metmuseum.org/essays/the-vikings-780-1100"
+      },
+      {
+        "label": "Reading this map",
+        "text": "Political context is ca. AD 1000. Earlier trading sites are retained as questions so you can explore the whole Viking Age.",
+        "source": "https://darmc.harvard.edu/map-sources"
+      }
+    ],
+    "contextTitle": "Life and connections",
+    "timelineTitle": "The Viking Age through time",
+    "timelineSource": "https://www.metmuseum.org/essays/the-vikings-780-1100",
+    "timeline": [
+      {
+        "date": "c. 790–1100",
+        "text": "The broad Viking Age: Scandinavian journeys, settlement and exchange."
+      },
+      {
+        "date": "841",
+        "text": "A Viking fortified base is established at Dublin."
+      },
+      {
+        "date": "10th century",
+        "text": "Jelling records royal power and Christianization in Denmark."
+      },
+      {
+        "date": "c. 1000",
+        "text": "The political snapshot used for this map."
+      },
+      {
+        "date": "c. 1000",
+        "text": "Norse voyages reach North America, beyond this European map."
+      }
+    ],
+    "sceneSymbols": [
+      {
+        "image": "viking-longship.svg",
+        "label": "Viking Age longship",
+        "status": "Original Atlas illustration · not a surviving historical flag",
+        "note": "A decorative period-inspired illustration, not a reconstruction of an authenticated banner or artifact.",
+        "source": "https://www.metmuseum.org/essays/the-vikings-780-1100",
+        "credit": "Original Atlas vector artwork."
+      },
+      {
+        "image": "viking-knotwork.svg",
+        "label": "Interlace ornament",
+        "status": "Original Atlas illustration · not a surviving historical flag",
+        "note": "A decorative period-inspired illustration, not a reconstruction of an authenticated banner or artifact.",
+        "source": "https://www.metmuseum.org/essays/the-vikings-780-1100",
+        "credit": "Original Atlas vector artwork."
+      }
+    ],
+    "caption": "VIKING AGE · c. AD 1000"
+  },
+  "renaissance": {
+    "title": "The Renaissance",
+    "date": "c. AD 1450",
+    "intro": "Cities of art, commerce and learning in a changing Europe.",
+    "scope": "Cities and historical territories",
+    "note": "Historical boundaries are approximate DARMC reconstructions. The map is dated ca. 1450, before the fall of Constantinople. Italian city-states are not separately resolved in this source: Florence and Milan sit within its broad Holy Roman Empire context, not a claim of direct imperial control. Facts may discuss later Renaissance developments, with dates stated.",
+    "source": "https://darmc.harvard.edu/map-sources",
+    "contextSource": "https://darmc.harvard.edu/map-sources",
+    "contextAttribution": "Harvard DARMC",
+    "bounds": [
+      [
+        -12,
+        30
+      ],
+      [
+        40,
+        58
+      ]
+    ],
+    "places": [
+      {
+        "id": "florence",
+        "name": "Florence",
+        "kind": "City",
+        "center": [
+          11.25,
+          43.77
+        ],
+        "modern": "Italy",
+        "territoryId": "holy-roman-empire",
+        "fact": "Florence became a leading centre of Renaissance art and humanist learning. Its classical revival was supported by patrons including the Medici; the map source groups this area broadly rather than drawing the Florentine state.",
+        "source": "https://www.metmuseum.org/essays/architecture-in-renaissance-italy"
+      },
+      {
+        "id": "venice",
+        "name": "Venice",
+        "kind": "City",
+        "center": [
+          12.34,
+          45.44
+        ],
+        "modern": "Italy",
+        "territoryId": "republic-of-venice",
+        "fact": "Venice joined maritime commerce with a distinctive artistic culture. Its Renaissance painting developed across the fifteenth and early sixteenth centuries.",
+        "source": "https://www.metmuseum.org/exhibitions/listings/2011/renaissance-venice"
+      },
+      {
+        "id": "rome",
+        "name": "Rome",
+        "kind": "City",
+        "center": [
+          12.49,
+          41.89
+        ],
+        "modern": "Italy",
+        "territoryId": "papal-states",
+        "fact": "Rome’s ancient buildings and texts helped inspire Renaissance study. The papal city later drew major artistic and architectural commissions; those later projects should not be mistaken for completed works in 1450.",
+        "source": "https://www.metmuseum.org/essays/architecture-in-renaissance-italy"
+      },
+      {
+        "id": "milan",
+        "name": "Milan",
+        "kind": "City",
+        "center": [
+          9.19,
+          45.46
+        ],
+        "modern": "Italy",
+        "territoryId": "holy-roman-empire",
+        "fact": "Milan was a major northern Italian court city. This source’s broad imperial polygon does not resolve its duchy as an independent selectable state.",
+        "source": "https://www.metmuseum.org/-/media/files/learn/for-educators/publications-for-educators/renaissance.pdf"
+      },
+      {
+        "id": "naples",
+        "name": "Naples",
+        "kind": "City",
+        "center": [
+          14.27,
+          40.85
+        ],
+        "modern": "Italy",
+        "territoryId": "kingdom-of-naples",
+        "fact": "Naples was the centre of a southern Italian kingdom. Renaissance culture developed among competing courts and city-states, not within a unified Italian nation.",
+        "source": "https://www.metmuseum.org/essays/architecture-in-renaissance-italy"
+      },
+      {
+        "id": "rimini",
+        "name": "Rimini",
+        "kind": "City",
+        "center": [
+          12.57,
+          44.06
+        ],
+        "modern": "Italy",
+        "territoryId": "papal-states",
+        "fact": "Alberti’s Tempio Malatestiano at Rimini, begun around 1450, reinterpreted the forms of Roman temple architecture.",
+        "source": "https://www.metmuseum.org/essays/architecture-in-renaissance-italy"
+      },
+      {
+        "id": "paris",
+        "name": "Paris",
+        "kind": "City",
+        "center": [
+          2.35,
+          48.86
+        ],
+        "modern": "France",
+        "territoryId": "kingdom-of-france",
+        "fact": "Paris was a royal and intellectual centre. Renaissance ideas circulated across Europe at different times; the cultural label does not mean every region changed in the same year.",
+        "source": "https://www.metmuseum.org/-/media/files/learn/for-educators/publications-for-educators/renaissance.pdf"
+      },
+      {
+        "id": "london",
+        "name": "London",
+        "kind": "City",
+        "center": [
+          -0.13,
+          51.51
+        ],
+        "modern": "England",
+        "territoryId": "kingdom-of-england",
+        "fact": "London was England’s royal and commercial centre. This early Renaissance map predates the Tudor dynasty and the later Elizabethan cultural flowering.",
+        "source": "https://www.metmuseum.org/-/media/files/learn/for-educators/publications-for-educators/renaissance.pdf"
+      },
+      {
+        "id": "lisbon",
+        "name": "Lisbon",
+        "kind": "City",
+        "center": [
+          -9.14,
+          38.72
+        ],
+        "modern": "Portugal",
+        "territoryId": "kingdom-of-portugal",
+        "fact": "Lisbon connected Portugal to Atlantic routes. The fifteenth century’s maritime expansion formed part of the wider world in which Renaissance Europe developed.",
+        "source": "https://www.metmuseum.org/-/media/files/learn/for-educators/publications-for-educators/renaissance.pdf"
+      },
+      {
+        "id": "constantinople",
+        "name": "Constantinople",
+        "kind": "City",
+        "center": [
+          28.98,
+          41.01
+        ],
+        "modern": "Istanbul, Türkiye",
+        "territoryId": "byzantine-territories",
+        "fact": "In this ca. 1450 snapshot, Constantinople remains Byzantine. Its Ottoman conquest occurred in 1453, a crucial distinction when reading the map.",
+        "source": "https://www.metmuseum.org/-/media/files/learn/for-educators/publications-for-educators/renaissance.pdf"
+      },
+      {
+        "id": "edirne",
+        "name": "Edirne",
+        "kind": "City",
+        "center": [
+          26.56,
+          41.68
+        ],
+        "modern": "Türkiye",
+        "territoryId": "ottoman-empire",
+        "fact": "Edirne was an Ottoman centre in the European Balkans. The Ottoman state was part of the Renaissance-era Mediterranean world, not outside its geography.",
+        "source": "https://www.metmuseum.org/essays/the-art-of-the-ottomans-before-1600"
+      },
+      {
+        "id": "mainz",
+        "name": "Mainz",
+        "kind": "City",
+        "center": [
+          8.27,
+          50.0
+        ],
+        "modern": "Germany",
+        "territoryId": "holy-roman-empire",
+        "fact": "Mainz is associated with Gutenberg’s printing enterprise. The Gutenberg Bible appeared in the 1450s, shortly after this map’s approximate date.",
+        "source": "https://www.metmuseum.org/-/media/files/learn/for-educators/publications-for-educators/renaissance.pdf"
+      },
+      {
+        "id": "republic-of-venice",
+        "name": "Republic of Venice",
+        "kind": "Territory",
+        "center": [
+          13.829745265121007,
+          45.23656212905013
+        ],
+        "modern": "Approximate historical territory; see the dated map note.",
+        "territoryId": "republic-of-venice",
+        "fact": "Venice governed a maritime republic and territories around the Adriatic and eastern Mediterranean. Its source polygon is a broad historical reconstruction.",
+        "source": "https://darmc.harvard.edu/map-sources"
+      },
+      {
+        "id": "papal-states",
+        "name": "Papal States",
+        "kind": "Territory",
+        "center": [
+          12.443472303511312,
+          43.21504593190657
+        ],
+        "modern": "Approximate historical territory; see the dated map note.",
+        "territoryId": "papal-states",
+        "fact": "The pope exercised territorial rule in central Italy. Rome also became a major centre of Renaissance patronage.",
+        "source": "https://darmc.harvard.edu/map-sources"
+      },
+      {
+        "id": "kingdom-of-france",
+        "name": "Kingdom of France",
+        "kind": "Territory",
+        "center": [
+          1.720633291899349,
+          46.664889323054304
+        ],
+        "modern": "Approximate historical territory; see the dated map note.",
+        "territoryId": "kingdom-of-france",
+        "fact": "France was a kingdom within a politically divided Europe. The ca. 1450 snapshot belongs near the end of the Hundred Years’ War.",
+        "source": "https://darmc.harvard.edu/map-sources"
+      },
+      {
+        "id": "kingdom-of-portugal",
+        "name": "Kingdom of Portugal",
+        "kind": "Territory",
+        "center": [
+          -7.981072604073747,
+          39.74171452090698
+        ],
+        "modern": "Approximate historical territory; see the dated map note.",
+        "territoryId": "kingdom-of-portugal",
+        "fact": "Portugal was a separate kingdom on the Atlantic edge of Europe. Its overseas expansion belongs to the broader fifteenth-century setting.",
+        "source": "https://darmc.harvard.edu/map-sources"
+      },
+      {
+        "id": "ottoman-empire",
+        "name": "Ottoman Empire",
+        "kind": "Territory",
+        "center": [
+          33.2853011529085,
+          39.505059484754256
+        ],
+        "modern": "Approximate historical territory; see the dated map note.",
+        "territoryId": "ottoman-empire",
+        "fact": "The Ottoman state held lands in Anatolia and the Balkans. Constantinople remains outside its territory in this pre-1453 snapshot.",
+        "source": "https://darmc.harvard.edu/map-sources"
+      },
+      {
+        "id": "kingdom-of-naples",
+        "name": "Kingdom of Naples",
+        "kind": "Territory",
+        "center": [
+          15.505755701277973,
+          40.80788173845987
+        ],
+        "modern": "Approximate historical territory; see the dated map note.",
+        "territoryId": "kingdom-of-naples",
+        "fact": "Southern mainland Italy formed a kingdom distinct from the Papal States and northern Italian political centres.",
+        "source": "https://darmc.harvard.edu/map-sources"
+      }
+    ],
+    "background": [
+      {
+        "label": "A cultural movement, many states",
+        "text": "Renaissance Europe contained courts, kingdoms, republics and city-states. Humanist study and artistic experimentation spread unevenly across these political boundaries.",
+        "source": "https://www.metmuseum.org/essays/architecture-in-renaissance-italy"
+      },
+      {
+        "label": "A dated snapshot",
+        "text": "Boundaries represent ca. 1450. Constantinople has not yet fallen to the Ottomans; later artistic achievements are described with their dates. Italian city-state boundaries are generalized in this map source.",
+        "source": "https://darmc.harvard.edu/map-sources"
+      }
+    ],
+    "contextTitle": "Life and connections",
+    "timelineTitle": "Renaissance milestones",
+    "timelineSource": "https://www.metmuseum.org/-/media/files/learn/for-educators/publications-for-educators/renaissance.pdf",
+    "timeline": [
+      {
+        "date": "1401",
+        "text": "The Florentine baptistery door competition marks a celebrated moment in early Renaissance art."
+      },
+      {
+        "date": "1434",
+        "text": "Cosimo de’ Medici consolidates his position in Florence."
+      },
+      {
+        "date": "c. 1450",
+        "text": "The political snapshot used for this map; Alberti works at Rimini."
+      },
+      {
+        "date": "1453",
+        "text": "Constantinople falls to the Ottoman army, after this map’s date."
+      },
+      {
+        "date": "1450s",
+        "text": "Gutenberg’s printing enterprise produces the Gutenberg Bible."
+      },
+      {
+        "date": "1469",
+        "text": "Lorenzo de’ Medici rises to power in Florence."
+      }
+    ],
+    "sceneSymbols": [
+      {
+        "image": "renaissance-dome.svg",
+        "label": "Renaissance dome",
+        "status": "Original Atlas illustration · not a surviving historical flag",
+        "note": "A decorative period-inspired illustration, not a reconstruction of an authenticated banner or artifact.",
+        "source": "https://www.metmuseum.org/-/media/files/learn/for-educators/publications-for-educators/renaissance.pdf",
+        "credit": "Original Atlas vector artwork."
+      },
+      {
+        "image": "renaissance-study.svg",
+        "label": "Humanist study",
+        "status": "Original Atlas illustration · not a surviving historical flag",
+        "note": "A decorative period-inspired illustration, not a reconstruction of an authenticated banner or artifact.",
+        "source": "https://www.metmuseum.org/-/media/files/learn/for-educators/publications-for-educators/renaissance.pdf",
+        "credit": "Original Atlas vector artwork."
+      }
+    ],
+    "caption": "RENAISSANCE EUROPE · c. AD 1450"
   }
 }
