@@ -92,3 +92,30 @@ body.aged-theme{--bg:#e7d6b0;--panel:#e0cda4;--ink:#47391f;--muted:#7b6746;--lin
 .history-chronology{padding:20px 0;scroll-margin-top:15px}.history-chronology[hidden]{display:none}.history-chronology label{display:block;font-size:9px;letter-spacing:1px;margin:18px 0 8px}.history-chronology select{max-width:100%;width:380px;min-height:42px;background:transparent;color:inherit;border:1px solid #8d795d77;border-radius:5px;padding:10px;font:13px 'DM Sans',sans-serif}.history-chronology option{background:#eee0b9;color:#403321}.history-chronology .history-timeline{max-width:850px;margin:25px 0}.history-chronology .history-timeline li{border-left:2px solid #8d795d77;padding-left:18px}.history-symbol-gallery img{height:210px}.history-symbol-gallery figure:has(img[src="almohad-las-navas-banner.jpg"]) img,.history-symbol-gallery figure:has(img[src="marinid-banner-1340.png"]) img{height:280px}.history-regalia figure:has(img[src="abbasid-black-banner.svg"]) img{filter:drop-shadow(0 2px 2px #0003)}.history-toolbar #historyTimelineOpen[hidden]{display:none}@media(max-width:700px){.history-chronology .history-timeline li{grid-template-columns:1fr}.history-symbol-gallery img{height:160px}}
 
 .history-symbol-gallery{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}@media(max-width:700px){.history-symbol-gallery{grid-template-columns:1fr}}
+
+/* A quiet navigation row and one compact strip of map preferences. */
+.history-experience .history-toolbar{display:block;padding:0 0 16px;border-bottom:1px solid #9d835c55}
+.history-navigation{display:flex;align-items:center;gap:16px;min-width:0;margin-bottom:12px}
+.history-toolbar .history-edition{display:block;min-width:0;flex:1;margin:0;letter-spacing:0}
+.history-toolbar .history-edition select{width:auto;max-width:100%;min-height:36px;padding:5px 26px 5px 0;border:0;border-radius:0;background:transparent;font-size:14px;font-weight:500}
+.history-experience .history-toolbar #historyClose{padding:6px 12px 6px 0;min-height:34px;border:0;border-right:1px solid #9d835c55;border-radius:0;background:transparent;font-size:11px;white-space:nowrap;color:var(--h-muted)}
+.history-toolbar-actions{display:flex;align-items:center;gap:8px;margin-left:auto}
+.history-toolbar .history-toolbar-actions button{margin:0;min-height:34px;padding:6px 11px;font-size:11px;border-color:#9d835c55;background:transparent;border-radius:20px;white-space:nowrap}
+.history-toolbar .history-toolbar-actions button:hover{background:#9d835c18;border-color:var(--h-line)}
+.history-preferences{display:flex;align-items:center;gap:0;background:#ffffff20;border:1px solid #9d835c45;border-radius:8px;padding:7px 0}
+.history-experience .history-preferences label{display:flex;align-items:center;flex:1;gap:12px;min-width:0;padding:0 16px;font-size:8px;letter-spacing:1.2px;white-space:nowrap}
+.history-preferences label+label{border-left:1px solid #9d835c45}
+.history-experience .history-preferences select{min-width:0;width:100%;min-height:30px;padding:4px 5px;background:transparent;border:0;border-radius:4px;font-size:11px;letter-spacing:0}
+.history-toolbar select:focus-visible{outline:2px solid var(--h-line);outline-offset:2px}
+.history-heading{padding:20px 0;grid-template-columns:minmax(0,1fr) 160px;gap:6px 24px}
+.history-heading h2{font-size:clamp(26px,2.8vw,36px)}
+.history-regalia{padding-left:16px;gap:12px}
+.history-regalia img,.history-regalia figure:has(img[src="roman-eagle-standard.svg"]) img{height:64px}
+.history-regalia figcaption{font-size:8px;margin-top:6px}
+.history-dark .history-preferences{background:#ffffff06;border-color:#b6b49a33}
+@media(max-width:850px){.history-experience .history-preferences label{padding:0 10px;gap:6px;font-size:7px}.history-experience .history-preferences select{font-size:10px}}
+@media(max-width:700px){.history-experience .history-toolbar{padding-bottom:12px}.history-navigation{gap:10px;flex-wrap:wrap;margin-bottom:10px}.history-toolbar .history-edition{flex:1;min-width:180px}.history-toolbar .history-edition select{font-size:12px;min-height:32px}.history-experience .history-toolbar #historyClose{font-size:10px;padding-right:10px;min-height:30px}.history-toolbar-actions{width:100%;justify-content:flex-end;gap:6px}.history-toolbar .history-toolbar-actions button{min-height:30px;padding:4px 10px;font-size:10px}.history-preferences{display:grid;grid-template-columns:1fr 1.5fr;padding:9px 0;gap:7px 0}.history-experience .history-preferences label{display:grid;gap:2px;padding:0 10px;font-size:7px;min-width:0}.history-experience .history-preferences select{font-size:11px;padding:3px 0;min-height:28px}.history-preferences label:last-child{grid-column:1/-1;border-left:0;border-top:1px solid #9d835c33;padding-top:6px;display:flex;gap:12px}.history-preferences label:last-child select{width:auto;flex:1}.history-heading{grid-template-columns:minmax(0,1fr) 72px;padding:16px 0;gap:6px 12px}.history-heading h2{font-size:26px}.history-regalia{padding-left:8px;gap:6px}.history-regalia img,.history-regalia figure:has(img[src="roman-eagle-standard.svg"]) img{height:44px}}
+
+.history-edition .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+.history-heading>div:first-child{grid-row:1}.history-heading .history-date{display:inline;border:0;padding:0;font:inherit;letter-spacing:inherit;white-space:nowrap}.history-heading .history-date:before{content:"·";padding:0 9px;opacity:.55}.history-regalia{grid-row:1}
