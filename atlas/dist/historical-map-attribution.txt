@@ -1,16 +1,24 @@
-ATLAS THROUGH TIME — HISTORICAL MAP DATA
+ATLAS HISTORICAL TERRITORY EDITIONS
 
-Roman Empire extent, AD 117
-Ancient World Mapping Center (AWMC), University of North Carolina at Chapel Hill.
-Source: https://github.com/AWMC/geodata/tree/master/Cultural-Data/political_shading/roman_empire_ce_117_extent
-Source data derived from the Barrington Atlas of the Greek and Roman World and AWMC modifications to OpenStreetMap.
-Contributors named by AWMC: Ryan Horne and Gabe Moss; further contributors: https://awmc.unc.edu/
-License: Open Data Commons Open Database License (ODbL) v1.0.
-https://opendatacommons.org/licenses/odbl/1-0/
+Selectable Roman provinces, ca. AD 117:
+Harvard Mapping Past Societies / Digital Atlas of Roman and Medieval Civilizations (DARMC).
+Contributor: Matthew Polk. Source cited by DARMC: Talbert, Richard J. A. (ed.), Barrington Atlas of the Greek and Roman World (2000), Princeton.
+Public source service: https://services1.arcgis.com/qN3V93cYGMKQCOxL/ArcGIS/rest/services/DARMC_Roman_World/FeatureServer/14
 
-The downloadable roman-empire-117.geojson retains the source geometry, removes unused administrative attributes, and adds this attribution notice. The map data remains available under ODbL 1.0. Retrieved October 31, 2026.
+Selectable medieval realms, ca. AD 1200:
+Harvard Mapping Past Societies / DARMC.
+Contributors: Darryl Campbell, Nathaniel Donoghue, Kelly Gibson, Matthew Polk.
+Public source service: https://services1.arcgis.com/qN3V93cYGMKQCOxL/ArcGIS/rest/services/DARMC_Medieval_World/FeatureServer/11
 
-Base coastline geometry: Natural Earth (public domain), https://www.naturalearthdata.com/
-Historical place markers: approximate representative locations compiled for this educational edition. Realm/province markers are not boundary polygons or historical capitals. Historical notes link to individual educational references.
+Source documentation: https://darmc.harvard.edu/map-sources
+Source availability: https://darmc.harvard.edu/data-availability
 
-The medieval edition is a regional place quiz around AD 1200; it does not claim to reconstruct medieval political boundaries. The Roman extent includes the brief eastern conquests associated with Trajan's final campaigns; it is an approximate scholarly reconstruction, not a modern surveyed border.
+Atlas groups matching source names for selection, rounds coordinates to five decimal places and supplies cartographic label anchors. Realm subdivisions may remain visible as internal lines. Papal States are separated from the source Holy Roman Empire grouping. Clearly later source entries (Golden Horde and Kingdom of Granada), and the already-lost Duchy of Edessa, are omitted from the ca. 1200 display. Source reconstructions are approximate; the medieval layer has broad generalisations and incomplete western North African coverage. This is an educational regional map, not a precise or exhaustive sovereignty survey.
+
+Physical map detail: Natural Earth 1:50m coastlines and river/lake centre lines (public domain), https://www.naturalearthdata.com/ and https://github.com/nvkelso/natural-earth-vector/. Modern geography is included as an orientation aid; ancient river courses and shores could differ.
+
+Original Roman extent reference, retained as roman-empire-117.geojson:
+Ancient World Mapping Center, UNC Chapel Hill; Barrington Atlas and OpenStreetMap, ODbL 1.0. Source: https://github.com/AWMC/geodata/tree/master/Cultural-Data/political_shading/roman_empire_ce_117_extent
+License: https://opendatacommons.org/licenses/odbl/1-0/
+
+Retrieved October 31, 2026. Historical quiz results remain independent of modern country ranks.
