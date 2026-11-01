@@ -335,8 +335,8 @@
     "title": "The Roman Republic.",
     "date": "60 BC",
     "caption": "ROMAN REPUBLIC · 60 BC",
-    "intro": "Before Caesar’s Gallic campaigns. Explore the Republic across the Mediterranean.",
-    "scope": "6 cities · 6 territories",
+    "intro": "Before Caesar’s Gallic campaigns. Discover 18 cities and 13 regions across the Republican Mediterranean.",
+    "scope": "18 cities · 13 territories",
     "note": "A 60 BC snapshot from AWMC. Select broad geographic regions; groupings are learning aids, not exact provincial boundaries. Italia and Cisalpine Gaul are grouped together. Small islands are grouped with nearby regions.",
     "contextSource": "https://github.com/AWMC/geodata/tree/master/Cultural-Data/political_shading/roman_empire_bce_60",
     "contextAttribution": "Ancient World Mapping Center (AWMC)",
@@ -496,6 +496,253 @@
         "fact": "Antiochia lay inland from the northeastern Mediterranean coast. Locate it within the mapped Syrian territory of the late Republic.",
         "source": "https://github.com/AWMC/geodata/tree/master/Cultural-Data/political_shading/roman_empire_bce_60",
         "territoryId": "syria"
+      },
+      {
+        "id": "gallia",
+        "name": "Transalpine Gaul",
+        "kind": "Region",
+        "center": [
+          4.3,
+          44
+        ],
+        "modern": "Southern France",
+        "fact": "Transalpine Gaul lay beyond the Alps from Rome’s perspective. This map shows the southern Roman holdings in 60 BC, before Caesar’s campaigns farther north.",
+        "source": "https://github.com/AWMC/geodata/tree/master/Cultural-Data/political_shading/roman_empire_bce_60",
+        "territoryId": "gallia"
+      },
+      {
+        "id": "greece",
+        "name": "Macedonia & Greece",
+        "kind": "Region",
+        "center": [
+          22,
+          39
+        ],
+        "modern": "Greece and southern Balkans",
+        "fact": "The map combines Macedonia and Greece as a broad geographic learning region. These lands had long histories of Greek cities and Macedonian kingdoms before Roman rule.",
+        "source": "https://github.com/AWMC/geodata/tree/master/Cultural-Data/political_shading/roman_empire_bce_60",
+        "territoryId": "greece"
+      },
+      {
+        "id": "corsica",
+        "name": "Corsica",
+        "kind": "Region",
+        "center": [
+          9,
+          42
+        ],
+        "modern": "Corsica, France",
+        "fact": "Corsica is the northern of the two large islands west of peninsular Italy. It is kept separate from Sardinia here for geographic practice, rather than as a claim about provincial administration.",
+        "source": "https://github.com/AWMC/geodata/tree/master/Cultural-Data/political_shading/roman_empire_bce_60",
+        "territoryId": "corsica"
+      },
+      {
+        "id": "bithynia",
+        "name": "Bithynia & Pontus",
+        "kind": "Region",
+        "center": [
+          33,
+          40
+        ],
+        "modern": "Northern Türkiye",
+        "fact": "This learning region covers the mapped Roman holdings along northern Anatolia. The Black Sea lies to the north; the Aegean coast and the province of Asia lie to the southwest.",
+        "source": "https://github.com/AWMC/geodata/tree/master/Cultural-Data/political_shading/roman_empire_bce_60",
+        "territoryId": "bithynia"
+      },
+      {
+        "id": "sardinia",
+        "name": "Sardinia",
+        "kind": "Region",
+        "center": [
+          9,
+          40
+        ],
+        "modern": "Sardinia, Italy",
+        "fact": "Sardinia lies south of Corsica and west of Italy. Its position made it part of the central Mediterranean world connecting Roman Italy, Sicily and North Africa.",
+        "source": "https://github.com/AWMC/geodata/tree/master/Cultural-Data/political_shading/roman_empire_bce_60",
+        "territoryId": "sardinia"
+      },
+      {
+        "id": "cyrenaica",
+        "name": "Cyrenaica",
+        "kind": "Region",
+        "center": [
+          22,
+          32
+        ],
+        "modern": "Northeastern Libya",
+        "fact": "Cyrenaica occupied the Mediterranean coast of northeastern Africa. Its city of Cyrene gave the region its name; the mapped territory is distinct from the Republic’s province of Africa farther west.",
+        "source": "https://github.com/AWMC/geodata/tree/master/Cultural-Data/political_shading/roman_empire_bce_60",
+        "territoryId": "cyrenaica"
+      },
+      {
+        "id": "crete",
+        "name": "Crete",
+        "kind": "Region",
+        "center": [
+          25,
+          35.2
+        ],
+        "modern": "Crete, Greece",
+        "fact": "Crete is the long island south of mainland Greece. It appears as a separate selectable island here, even though Roman administration linked it with Cyrenaica.",
+        "source": "https://github.com/AWMC/geodata/tree/master/Cultural-Data/political_shading/roman_empire_bce_60",
+        "territoryId": "crete"
+      },
+      {
+        "id": "ostia",
+        "name": "Ostia",
+        "kind": "City",
+        "center": [
+          12.29,
+          41.76
+        ],
+        "modern": "Ostia Antica, Italy",
+        "territoryId": "italia",
+        "fact": "Ostia developed near the mouth of the Tiber. Its earliest archaeologically documented fortified settlement dates to the fourth century BC; as Rome expanded, the town’s commercial role grew.",
+        "source": "https://ostiaantica.cultura.gov.it/en/educational-panels-and-maps/the-central-area-and-the-official-complexes/castrum-repubblicano/"
+      },
+      {
+        "id": "pompeii",
+        "name": "Pompeii",
+        "kind": "City",
+        "center": [
+          14.49,
+          40.75
+        ],
+        "modern": "Pompeii, Italy",
+        "territoryId": "italia",
+        "fact": "Pompeii became a Roman colony in 80 BC, twenty years before this map’s date. Its famous burial by Vesuvius in AD 79 still lay far in the future.",
+        "source": "https://pompeiisites.org/wp-content/uploads/ANTIQUARIUM_PRESS_kit_ENGLISH.pdf"
+      },
+      {
+        "id": "narbo",
+        "name": "Narbo Martius",
+        "kind": "City",
+        "center": [
+          3,
+          43.18
+        ],
+        "modern": "Narbonne, France",
+        "territoryId": "gallia",
+        "fact": "Narbo Martius was founded in 118 BC as Rome’s first colony in Gaul. Locate it in the southern Roman holdings, rather than the much larger Gallic territory of the later Empire.",
+        "source": "https://www.narbonne.fr/musee-narbo-via"
+      },
+      {
+        "id": "pergamon",
+        "name": "Pergamon",
+        "kind": "City",
+        "center": [
+          27.18,
+          39.13
+        ],
+        "modern": "Bergama, Türkiye",
+        "territoryId": "asia",
+        "fact": "Pergamon rose above the Bakırçay plain in western Anatolia. A major Hellenistic city before Roman rule, its remains preserve the layered history of this Aegean region.",
+        "source": "https://whc.unesco.org/en/list/1457"
+      },
+      {
+        "id": "cyrene-city",
+        "name": "Cyrene",
+        "kind": "City",
+        "center": [
+          21.86,
+          32.82
+        ],
+        "modern": "Shahhat, Libya",
+        "territoryId": "cyrenaica",
+        "fact": "Cyrene began as a Greek colony and became one of the great cities of the Hellenic world. Find its region on the North African coast, across the Mediterranean from Crete.",
+        "source": "https://whc.unesco.org/en/list/190"
+      },
+      {
+        "id": "athens",
+        "name": "Athenae (Athens)",
+        "kind": "City",
+        "center": [
+          23.73,
+          37.97
+        ],
+        "modern": "Athens, Greece",
+        "territoryId": "greece",
+        "fact": "The Acropolis preserves the monumental legacy of classical Athens, including the Parthenon. These fifth-century BC buildings were already centuries old at the time of this Republican map.",
+        "source": "https://whc.unesco.org/en/list/404/"
+      },
+      {
+        "id": "gortyna",
+        "name": "Gortyna (Gortys)",
+        "kind": "City",
+        "center": [
+          24.95,
+          35.06
+        ],
+        "modern": "Gortyn, Crete, Greece",
+        "territoryId": "crete",
+        "fact": "Gortyna became the capital of the Roman province of Crete and Cyrenaica. The quiz separates Crete and Cyrenaica into geographic regions, so choose the island containing the city.",
+        "source": "https://heraklionmuseum.gr/en/exhibition/"
+      },
+      {
+        "id": "carthago-nova",
+        "name": "Carthago Nova",
+        "kind": "City",
+        "center": [
+          -0.98,
+          37.6
+        ],
+        "modern": "Cartagena, Spain",
+        "territoryId": "hispania",
+        "fact": "Carthago Nova stood on the southeastern coast of Iberia. Its name means “New Carthage”; do not confuse this Spanish city with Carthage on the African coast.",
+        "source": "https://www.cartagena.es/nueva/historia.asp"
+      },
+      {
+        "id": "caralis",
+        "name": "Caralis",
+        "kind": "City",
+        "center": [
+          9.12,
+          39.22
+        ],
+        "modern": "Cagliari, Sardinia, Italy",
+        "territoryId": "sardinia",
+        "fact": "Caralis corresponds to modern Cagliari on southern Sardinia. Archaeological finds reveal a city with a long history before, during and after Roman rule.",
+        "source": "https://museinazionalicagliari.cultura.gov.it/musei/esplora-la-collezione/luogo/cagliari/"
+      },
+      {
+        "id": "aleria",
+        "name": "Aleria",
+        "kind": "City",
+        "center": [
+          9.51,
+          42.1
+        ],
+        "modern": "Aléria, Corsica, France",
+        "territoryId": "corsica",
+        "fact": "Aleria was an ancient settlement on Corsica’s eastern side, with Greek and later Roman phases. Its archaeological remains help trace the island’s connections with the wider Mediterranean.",
+        "source": "https://pop.culture.gouv.fr/notice/merimee/PA00099262"
+      },
+      {
+        "id": "panormus",
+        "name": "Panormus",
+        "kind": "City",
+        "center": [
+          13.36,
+          38.12
+        ],
+        "modern": "Palermo, Sicily, Italy",
+        "territoryId": "sicilia",
+        "fact": "Panormus is ancient Palermo, on Sicily’s northern coast. The city’s Punic and Roman past predates the much later medieval buildings for which Palermo is also known.",
+        "source": "https://parchiarcheologici.regione.sicilia.it/musei/salinas/i-luoghi-del-museo/area-archeologica-di-piazza-xiii-vittime/"
+      },
+      {
+        "id": "agrigentum",
+        "name": "Agrigentum (Akragas)",
+        "kind": "City",
+        "center": [
+          13.59,
+          37.29
+        ],
+        "modern": "Agrigento, Sicily, Italy",
+        "territoryId": "sicilia",
+        "fact": "Founded as a Greek colony in the sixth century BC, the city became a major Mediterranean centre. Its Doric temples remain a reminder of Sicily’s Greek heritage alongside its later Roman history.",
+        "source": "https://whc.unesco.org/en/list/831/"
       }
     ],
     "insignia": {
