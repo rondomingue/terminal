@@ -330,5 +330,173 @@
         "territoryId": "sicily"
       }
     ]
+  },
+  "republic": {
+    "title": "The Roman Republic.",
+    "date": "60 BC",
+    "caption": "ROMAN REPUBLIC · 60 BC",
+    "intro": "Before Caesar’s Gallic campaigns. Explore the Republic across the Mediterranean.",
+    "scope": "6 cities · 6 territories",
+    "note": "A 60 BC snapshot from AWMC. Select broad geographic regions; groupings are learning aids, not exact provincial boundaries. Italia and Cisalpine Gaul are grouped together. Small islands are grouped with nearby regions.",
+    "contextSource": "https://github.com/AWMC/geodata/tree/master/Cultural-Data/political_shading/roman_empire_bce_60",
+    "contextAttribution": "Ancient World Mapping Center (AWMC)",
+    "places": [
+      {
+        "id": "italia",
+        "name": "Italia & Cisalpine Gaul",
+        "kind": "Region",
+        "center": [
+          12.5,
+          43
+        ],
+        "modern": "Italy and the Po Valley",
+        "fact": "The Republic was governed from Rome. This broad map group includes peninsular Italy and Cisalpine Gaul, which were administratively distinct in 60 BC.",
+        "source": "https://github.com/AWMC/geodata/tree/master/Cultural-Data/political_shading/roman_empire_bce_60",
+        "territoryId": "italia"
+      },
+      {
+        "id": "hispania",
+        "name": "Hispania",
+        "kind": "Region",
+        "center": [
+          -3,
+          40
+        ],
+        "modern": "Spain and Portugal",
+        "fact": "Rome held much of the Iberian Peninsula by 60 BC, but the northern interior remained outside its control. This group combines the mapped Republican holdings rather than later imperial provinces.",
+        "source": "https://github.com/AWMC/geodata/tree/master/Cultural-Data/political_shading/roman_empire_bce_60",
+        "territoryId": "hispania"
+      },
+      {
+        "id": "sicilia",
+        "name": "Sicilia",
+        "kind": "Region",
+        "center": [
+          14,
+          37.5
+        ],
+        "modern": "Sicily, Italy",
+        "fact": "Sicily was one of Rome’s earliest overseas provinces. Its central Mediterranean position connected Italy with Africa.",
+        "source": "https://github.com/AWMC/geodata/tree/master/Cultural-Data/political_shading/roman_empire_bce_60",
+        "territoryId": "sicilia"
+      },
+      {
+        "id": "africa",
+        "name": "Africa",
+        "kind": "Region",
+        "center": [
+          9.5,
+          35.5
+        ],
+        "modern": "Northern Tunisia",
+        "fact": "The Republican province of Africa occupied a much smaller area than the continent bearing the same name. The map shows Roman holdings in 60 BC.",
+        "source": "https://github.com/AWMC/geodata/tree/master/Cultural-Data/political_shading/roman_empire_bce_60",
+        "territoryId": "africa"
+      },
+      {
+        "id": "asia",
+        "name": "Asia",
+        "kind": "Region",
+        "center": [
+          28.5,
+          38.5
+        ],
+        "modern": "Western Türkiye",
+        "fact": "The province called Asia lay in western Anatolia. Its name referred to a Roman province, not the entire modern continent.",
+        "source": "https://github.com/AWMC/geodata/tree/master/Cultural-Data/political_shading/roman_empire_bce_60",
+        "territoryId": "asia"
+      },
+      {
+        "id": "syria",
+        "name": "Syria",
+        "kind": "Region",
+        "center": [
+          36.5,
+          35
+        ],
+        "modern": "Syria and neighbouring eastern Mediterranean lands",
+        "fact": "Syria formed part of Rome’s eastern holdings by 60 BC. The Republic’s territory already stretched far beyond Italy before the age of Augustus.",
+        "source": "https://github.com/AWMC/geodata/tree/master/Cultural-Data/political_shading/roman_empire_bce_60",
+        "territoryId": "syria"
+      },
+      {
+        "id": "roma",
+        "name": "Roma",
+        "kind": "City",
+        "center": [
+          12.49,
+          41.89
+        ],
+        "modern": "Rome, Italy",
+        "fact": "Rome was the political centre of the Republic. Assemblies, magistrates and the Senate shaped a state whose power expanded across the Mediterranean.",
+        "source": "https://www.metmuseum.org/essays/the-roman-republic",
+        "territoryId": "italia"
+      },
+      {
+        "id": "syracusae",
+        "name": "Syracusae",
+        "kind": "City",
+        "center": [
+          15.29,
+          37.08
+        ],
+        "modern": "Syracuse, Sicily, Italy",
+        "fact": "Syracusae stood on Sicily’s southeastern coast. Find the island territory that contained this ancient Greek city under Roman rule.",
+        "source": "https://github.com/AWMC/geodata/tree/master/Cultural-Data/political_shading/roman_empire_bce_60",
+        "territoryId": "sicilia"
+      },
+      {
+        "id": "utica",
+        "name": "Utica",
+        "kind": "City",
+        "center": [
+          10.06,
+          37.05
+        ],
+        "modern": "Near modern Utica, Tunisia",
+        "fact": "Utica lay on the North African coast, near the former city of Carthage. Find the Republic’s African territory, rather than the entire continent.",
+        "source": "https://github.com/AWMC/geodata/tree/master/Cultural-Data/political_shading/roman_empire_bce_60",
+        "territoryId": "africa"
+      },
+      {
+        "id": "tarraco",
+        "name": "Tarraco",
+        "kind": "City",
+        "center": [
+          1.25,
+          41.12
+        ],
+        "modern": "Tarragona, Spain",
+        "fact": "Tarraco stood on the northeastern coast of Roman Hispania. Its location faced the Mediterranean routes linking Iberia and Italy.",
+        "source": "https://github.com/AWMC/geodata/tree/master/Cultural-Data/political_shading/roman_empire_bce_60",
+        "territoryId": "hispania"
+      },
+      {
+        "id": "ephesus",
+        "name": "Ephesus",
+        "kind": "City",
+        "center": [
+          27.34,
+          37.94
+        ],
+        "modern": "Near Selçuk, Türkiye",
+        "fact": "Ephesus lay near the Aegean coast of Anatolia, within the Roman province of Asia. Find the western Anatolian territory.",
+        "source": "https://github.com/AWMC/geodata/tree/master/Cultural-Data/political_shading/roman_empire_bce_60",
+        "territoryId": "asia"
+      },
+      {
+        "id": "antiochia",
+        "name": "Antiochia",
+        "kind": "City",
+        "center": [
+          36.16,
+          36.2
+        ],
+        "modern": "Antakya, Türkiye",
+        "fact": "Antiochia lay inland from the northeastern Mediterranean coast. Locate it within the mapped Syrian territory of the late Republic.",
+        "source": "https://github.com/AWMC/geodata/tree/master/Cultural-Data/political_shading/roman_empire_bce_60",
+        "territoryId": "syria"
+      }
+    ]
   }
 }
